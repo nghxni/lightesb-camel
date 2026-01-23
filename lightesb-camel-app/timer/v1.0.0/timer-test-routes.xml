@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://camel.apache.org/schema/xml-io">
+    <!-- 测试独立CamelContext的Timer路由 -->
+    
+    <!-- 每10秒执行一次的测试路由 -->
+    <route id="independent-timer-test-v1.0.0">
+        <from uri="timer:independentTest?period=10000"/>
+        <setBody>
+            <constant>📊 独立CamelContext测试路由运行正常 - timer-test-routes.xml</constant>
+        </setBody>
+        <to uri="log:independent-context?level=INFO"/>
+    </route>
+    
+    <!-- 另一个测试路由 -->
+    <route id="independent-status-check-v1.0.0">
+        <from uri="timer:statusCheck?period=15000"/>
+        <setBody>
+            <simple>{"file": "timer-test-routes.xml", "status": "ACTIVE", "timestamp": "${date:now:yyyy-MM-dd HH:mm:ss}"}</simple>
+        </setBody>
+        <log message="📈 独立Context状态检查: ${body}"/>
+    </route>
+</routes>

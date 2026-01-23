@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://camel.apache.org/schema/xml-io">
+    <!-- Timer服务v1.0.1 - 展示服务级别日志功能 -->
+    
+    <!-- 独立Context状态检查路由 -->
+    <route id="independent-status-check">
+        <from uri="timer:statusCheck?period=1500000"/>
+        
+        <!-- 记录路由开始 -->
+        <to uri="servicelog:info?message=Timer v1.0.1 状态检查开始"/>
+        
+        <setBody>
+            <simple>{"file": "timer-test-routes.xml", "status": "ACTIVE", "timestamp": "${date:now:yyyy-MM-dd HH:mm:ss}", "version": "v1.0.1"}</simple>
+        </setBody>
+        
+        <!-- 使用服务级别日志记录状态 -->
+        <to uri="servicelog:info?message=独立Context状态检查&amp;showBody=true"/>
+         <!-- 处理响应的UTF-8编码和Content-Type -->
+        <process ref="jsonResponseProcessor"/>
+        <!-- 保留原有的标准日志以便对比 -->
+        <log message="📈 独立Context状态检查: ${body}"/>
+    </route>
+    
+    <!-- 新增的数据处理路由 -->
+    <route id="timer-data-processing">
+        <from uri="timer:dataProcessing?period=30000"/>
+        <!-- POST http://localhost:8080/api/logging/level?serviceKey=timer@v1.0.1@timer-test-routes.xml&level=DEBUG -->
+        <to uri="servicelog:debug?message=数据处理路由启动"/>
+        
+        <!-- 模拟数据处理 -->
+        <setBody>
+            <simple>{"processId": ${random(1000,9999)}, "timestamp": "${date:now:yyyy-MM-dd'T'HH:mm:ss}", "service": "timer-v1.0.1"}</simple>
+        </setBody>
+        
+        <to uri="servicelog:info?message=数据处理完成&amp;showBody=true&amp;maxBodyLength=200"/>
+
+        <log message="📦 数据处理完成: ${body}"/>
+    </route>
+</routes>
