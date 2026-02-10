@@ -1,0 +1,60 @@
+//%datasonnet 3.0
+//%input payload application/json
+//%output application/json
+
+{
+  orderId: payload.order.header.orderId,
+  orderDate: payload.order.header.orderDate,
+  customerId: payload.order.customer.personalInfo.customerId,
+  customerName: payload.order.customer.personalInfo.name.firstName + payload.order.customer.personalInfo.name.lastName,
+  customerEmail: payload.order.customer.personalInfo.contact.email,
+  customerPhone: payload.order.customer.personalInfo.contact.phone.primary,
+  customerLevel: payload.order.customer.membership.level,
+  customerPoints: payload.order.customer.membership.points,
+  channel: payload.order.header.metadata.channel,
+  source: payload.order.header.source,
+  shippingAddress: payload.order.customer.personalInfo.contact.address.shipping.province
+                    + payload.order.customer.personalInfo.contact.address.shipping.city
+                    + payload.order.customer.personalInfo.contact.address.shipping.street + " "
+                    + payload.order.customer.personalInfo.contact.address.shipping.zipCode,
+  items: ds.map(payload.order.items, function(item) {
+    productId: item.product.productId,
+    productName: item.product.details.name,
+    sku: item.product.inventory.sku,
+    category: item.product.details.category.primary + " > "
+              + item.product.details.category.secondary + " > "
+              + item.product.details.category.tertiary,
+    quantity: item.orderDetails.quantity,
+    unitPrice: item.product.details.pricing.unitPrice,
+    discountPrice: item.product.details.pricing.discountPrice,
+    lineTotal: item.product.details.pricing.discountPrice * item.orderDetails.quantity,
+    specifications:
+    local s = item.product.details.specifications;
+    std.join(", ", [
+        p for p in [
+        if std.objectHas(s, "color") then "" + s.color else null,
+        if std.objectHas(s, "storage") then "" + s.storage else null,
+        if std.objectHas(s, "connectivity") then "" + s.connectivity else null
+        ] if p != null && p != ""
+    ]),
+    warranty: item.orderDetails.customizations.warranty.type + "-" + std.toString(item.orderDetails.customizations.warranty.duration) + "months",
+    expedited: item.orderDetails.fulfillment.options.expedited
+  }),
+  financial: {
+    subtotal: payload.order.payment.summary.subtotal,
+    discountTotal: payload.order.payment.summary.discounts.total,
+    tax: payload.order.payment.summary.tax,
+    shipping: payload.order.payment.summary.shipping,
+    grandTotal: payload.order.payment.summary.total,
+    currency: "CNY",
+    paymentMethod: payload.order.payment.method.type,
+    cardLast4: payload.order.payment.method.details.last4Digits
+  },
+  shipping: {
+    carrier: payload.order.shipping.method.carrier,
+    service: payload.order.shipping.method.service,
+    trackingNumber: payload.order.shipping.method.trackingNumber,
+    estimatedDelivery: payload.order.shipping.timeline.estimated.delivery
+  }
+}
+

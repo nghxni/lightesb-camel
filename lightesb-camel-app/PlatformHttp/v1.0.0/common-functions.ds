@@ -1,0 +1,46 @@
+//%datasonnet 3.0
+//%output application/json
+{
+  formatAddress: function(address) 
+    address.province + address.city + address.street + " " + address.zipCode,
+  
+  formatFullName: function(name)
+    name.firstName + name.lastName,
+  
+  formatCategory: function(category)
+    category.primary + " > " + category.secondary + " > " + category.tertiary,
+  
+  safeJoin: function(arr, separator)
+    local filtered = [x for x in arr if x != null && x != ""];
+    std.join(separator, filtered),
+  
+  formatSpecifications: function(specs)
+    local parts = [
+      if std.objectHas(specs, "color") && specs.color != null then "" + specs.color else null,
+      if std.objectHas(specs, "storage") && specs.storage != null then "" + specs.storage else null,
+      if std.objectHas(specs, "connectivity") && specs.connectivity != null then "" + specs.connectivity else null
+    ];
+    $.safeJoin(parts, ", "),
+  
+  formatWarranty: function(warranty)
+    warranty.type + "-" + ("" + warranty.duration) + "months",
+  
+  calculateLineTotal: function(price, quantity)
+    price * quantity,
+  
+  safeGet: function(obj, key, defaultValue)
+    if std.objectHas(obj, key) then obj[key] else defaultValue,
+  
+  formatAmount: function(amount)
+    std.floor(amount * 100) / 100,
+  
+  formatDate: function(dateStr)
+    dateStr, 
+  
+  validateRequired: function(value, fieldName)
+    if value == null || value == "" then
+      error "Required field '" + fieldName + "' is missing"
+    else
+      value
+}
+

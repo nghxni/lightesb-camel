@@ -1,0 +1,53 @@
+{
+  "orderId": .order.header.orderId,
+  "orderDate": .order.header.orderDate,
+  "customerId": .order.customer.personalInfo.customerId,
+  "customerName": (.order.customer.personalInfo.name.firstName + .order.customer.personalInfo.name.lastName),
+  "customerEmail": .order.customer.personalInfo.contact.email,
+  "customerPhone": .order.customer.personalInfo.contact.phone.primary,
+  "customerLevel": .order.customer.membership.level,
+  "customerPoints": .order.customer.membership.points,
+  "channel": .order.header.metadata.channel,
+  "source": .order.header.source,
+  "shippingAddress": (.order.customer.personalInfo.contact.address.shipping.province
+                        + .order.customer.personalInfo.contact.address.shipping.city
+                        + .order.customer.personalInfo.contact.address.shipping.street + " "
+                        + .order.customer.personalInfo.contact.address.shipping.zipCode),
+  "items": [ for (.order.items) {
+    "productId": .product.productId,
+    "productName": .product.details.name,
+    "sku": .product.inventory.sku,
+    "category": (.product.details.category.primary + " > "
+                  + .product.details.category.secondary + " > "
+                  + .product.details.category.tertiary),
+    "quantity": .orderDetails.quantity,
+    "unitPrice": .product.details.pricing.unitPrice,
+    "discountPrice": .product.details.pricing.discountPrice,
+    "lineTotal": .product.details.pricing.discountPrice * .orderDetails.quantity,
+    "specifications": join([
+        .product.details.specifications.color,
+        .product.details.specifications.storage,
+        .product.details.specifications.connectivity
+      ], ", "),
+    "warranty": (.orderDetails.customizations.warranty.type + "-" + string(.orderDetails.customizations.warranty.duration) + "months"),
+    "expedited": .orderDetails.fulfillment.options.expedited
+  } ],
+  "financial": {
+    "subtotal": .order.payment.summary.subtotal,
+    "discountTotal": .order.payment.summary.discounts.total,
+    "tax": .order.payment.summary.tax,
+    "shipping": .order.payment.summary.shipping,
+    "grandTotal": .order.payment.summary.total,
+    "currency": "CNY",
+    "paymentMethod": .order.payment.method.type,
+    "cardLast4": .order.payment.method.details.last4Digits
+  },
+  "shipping": {
+    "carrier": .order.shipping.method.carrier,
+    "service": .order.shipping.method.service,
+    "trackingNumber": .order.shipping.method.trackingNumber,
+    "estimatedDelivery": .order.shipping.timeline.estimated.delivery
+  }
+}
+
+

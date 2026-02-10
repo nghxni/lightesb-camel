@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+    <!-- 复杂4层JSON结构转换为2层结构的路由  -->
+    <route id="complex-json-transform-route" description="复杂4层JSON转换为2层结构">
+        <!-- HTTP端点：接收复杂订单数据 -->
+        <from uri="undertow:http://0.0.0.0:{{server.port}}/api/transform/complex-order?httpMethodRestrict=POST" />
+        <!-- 异常处理 -->
+        <onException>
+            <exception>java.lang.Exception</exception>
+            <handled>
+                <constant>true</constant>
+            </handled>
+            <setHeader name="CamelHttpResponseCode">
+                <constant>500</constant>
+            </setHeader>
+            <transform>
+                <simple>{"error": "processing_error", "message": "Transform processing failed", "timestamp": "${date:now:yyyy-MM-dd HH:mm:ss}", "details": "${exception.message}"}</simple>
+            </transform>
+        </onException>
+          
+        <!-- 记录请求开始 -->
+        <to uri="servicelog:info?message=开始处理复杂订单JSON转换&amp;showBody=true&amp;maxBodyLength=500"/>
+        <!-- 使用条件化转换组件（自动根据配置决定是否转换） -->
+        <to uri="conditionaltransform:input?skipOnError=true"/>
+        <!-- <transform>
+            <datasonnet outputMediaType="application/json">
+            //%datasonnet 2.0
+            //%input payload application/json
+            //%output application/json
+
+            {"orderId": payload.order.header.orderId}
+            </datasonnet> 
+        </transform> -->
+        <!-- 记录转换完成 -->
+        <to uri="servicelog:info?message=复杂JSON转换完成&amp;showBody=true&amp;maxBodyLength=5000"/>
+        <!-- 处理响应的UTF-8编码和Content-Type -->
+        <process ref="jsonResponseProcessor"/>     
+    </route>
+
+    <route id="common-functions-demo">
+        <from uri="undertow:http://0.0.0.0:{{server.port}}/api/demo" />
+        <!-- 在 unmarshal 前直接传原始 JSON 报文给 Java 方法 -->
+        <setProperty name="customerName">
+            <method ref="commonFunctions" method="transformComplexOrder(${body})" />
+        </setProperty>
+        <log message="customerName: ${exchangeProperty.customerName}"/>
+        <transform>
+            <simple>{
+                "firstName": "张",
+                "lastName": "三",
+                "amount": 12345.67,
+                "orderId": "ORD-20260209-0001"
+                }</simple>
+        </transform> 
+
+        <unmarshal>
+            <json library="Jackson"/>
+        </unmarshal>
+
+        <!-- 示例2：使用 bean 调用 formatAmount -->
+        <setProperty name="formattedAmount">
+            <method ref="commonFunctions" method="formatAmount(${body[amount]})" />
+        </setProperty>
+
+        <!-- 示例3：使用 bean 调用 validateRequired -->
+        <setProperty name="validatedField">
+            <method ref="commonFunctions" method="validateRequired(${body[orderId]}, 'orderId')" />
+        </setProperty>
+
+        <transform>
+            <simple>{
+                "customerName": "${exchangeProperty.customerName}",
+                "formattedAmount": "${exchangeProperty.formattedAmount}"
+            }</simple>
+        </transform> 
+        <process ref="charsetProcessor"/>
+    </route>
+
+</routes>

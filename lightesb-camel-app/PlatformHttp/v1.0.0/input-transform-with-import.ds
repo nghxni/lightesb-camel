@@ -1,0 +1,67 @@
+//%datasonnet 3.0
+//%input payload application/json
+//%output application/json
+
+local lib = import 'lightesb-camel-app/TransformDS/common-functions.ds';
+
+{
+  orderId: payload.order.header.orderId,
+  orderDate: payload.order.header.orderDate,
+  customerId: payload.order.customer.personalInfo.customerId,
+  
+  customerName: lib.formatFullName(payload.order.customer.personalInfo.name),
+  
+  customerEmail: payload.order.customer.personalInfo.contact.email,
+  customerPhone: payload.order.customer.personalInfo.contact.phone.primary,
+  customerLevel: payload.order.customer.membership.level,
+  customerPoints: payload.order.customer.membership.points,
+  channel: payload.order.header.metadata.channel,
+  source: payload.order.header.source,
+  
+  shippingAddress: lib.formatAddress(payload.order.customer.personalInfo.contact.address.shipping),
+  
+  items: [
+    {
+      productId: item.product.productId,
+      productName: item.product.details.name,
+      sku: item.product.inventory.sku,
+
+      category: lib.formatCategory(item.product.details.category),
+      
+      quantity: item.orderDetails.quantity,
+      unitPrice: item.product.details.pricing.unitPrice,
+      discountPrice: item.product.details.pricing.discountPrice,
+
+      lineTotal: lib.calculateLineTotal(
+        item.product.details.pricing.discountPrice, 
+        item.orderDetails.quantity
+      ),
+      
+      specifications: lib.formatSpecifications(item.product.details.specifications),
+      
+      warranty: lib.formatWarranty(item.orderDetails.customizations.warranty),
+      
+      expedited: item.orderDetails.fulfillment.options.expedited
+    }
+    for item in payload.order.items
+  ],
+  
+  financial: {
+    subtotal: lib.formatAmount(payload.order.payment.summary.subtotal),
+    discountTotal: lib.formatAmount(payload.order.payment.summary.discounts.total),
+    tax: lib.formatAmount(payload.order.payment.summary.tax),
+    shipping: lib.formatAmount(payload.order.payment.summary.shipping),
+    grandTotal: lib.formatAmount(payload.order.payment.summary.total),
+    currency: "CNY",
+    paymentMethod: payload.order.payment.method.type,
+    cardLast4: payload.order.payment.method.details.last4Digits
+  },
+  
+  shipping: {
+    carrier: payload.order.shipping.method.carrier,
+    service: payload.order.shipping.method.service,
+    trackingNumber: payload.order.shipping.method.trackingNumber,
+    estimatedDelivery: lib.formatDate(payload.order.shipping.timeline.estimated.delivery)
+  }
+}
+
