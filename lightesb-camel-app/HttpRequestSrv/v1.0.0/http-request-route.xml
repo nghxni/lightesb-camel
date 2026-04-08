@@ -14,10 +14,11 @@
         <!-- <process ref="jsonResponseProcessor"/> -->
     </route>
 
-    <route id="http-request-route-test" description="HTTP请求">
-        <from uri="undertow:http://0.0.0.0:18083/api/test?httpMethodRestrict=POST"/>
+    <!-- http request test route -->
+    <route id="http-request-route-test" description="HTTP Response Test">
+        <from uri="undertow:http://0.0.0.0:{{server.port}}/api/test?httpMethodRestrict=POST"/>
         <setBody>
-            <simple>{"message": "HTTP请求完成"}</simple>
+            <simple>{"message": "HTTP Response Test"}</simple>
         </setBody>
         <to uri="servicelog:info?message=HTTP请求测试完成&amp;showBody=true&amp;maxBodyLength=5000"/>
         <!-- <process ref="jsonResponseProcessor"/> -->
