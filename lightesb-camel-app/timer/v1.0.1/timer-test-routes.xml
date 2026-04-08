@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <routes xmlns="http://camel.apache.org/schema/xml-io">
     <!-- Timer服务v1.0.1 - 展示服务级别日志功能 -->
-    
+    <!-- Timer Service v1.0.1 - Demonstrates service-level logging functionality -->
     <!-- 独立Context状态检查路由 -->
+    <!-- 
+    This route is used to test the independent CamelContext Timer routing.
+    It will be executed every 1500000ms.
+    -->
     <route id="independent-status-check">
         <from uri="timer:statusCheck?period=1500000"/>
         
         <!-- 记录路由开始 -->
+        <!-- Record the route start -->
         <to uri="servicelog:info?message=Timer v1.0.1 状态检查开始"/>
         
         <setBody>
@@ -14,20 +19,28 @@
         </setBody>
         
         <!-- 使用服务级别日志记录状态 -->
+        <!-- Use service-level logging to record the status -->
         <to uri="servicelog:info?message=独立Context状态检查&amp;showBody=true"/>
          <!-- 处理响应的UTF-8编码和Content-Type -->
+         <!-- Process the response UTF-8 encoding and Content-Type -->
         <process ref="jsonResponseProcessor"/>
         <!-- 保留原有的标准日志以便对比 -->
+        <!-- Keep the original standard log for comparison -->
         <log message="📈 独立Context状态检查: ${body}"/>
     </route>
     
     <!-- 新增的数据处理路由 -->
+    <!-- 
+    This route is used to test the independent CamelContext Timer routing.
+    It will be executed every 30000ms.
+    -->
     <route id="timer-data-processing">
         <from uri="timer:dataProcessing?period=30000"/>
         <!-- POST http://localhost:8080/api/logging/level?serviceKey=timer@v1.0.1@timer-test-routes.xml&level=DEBUG -->
         <to uri="servicelog:debug?message=数据处理路由启动"/>
         
         <!-- 模拟数据处理 -->
+        <!-- Simulate data processing -->
         <setBody>
             <simple>{"processId": ${random(1000,9999)}, "timestamp": "${date:now:yyyy-MM-dd'T'HH:mm:ss}", "service": "timer-v1.0.1"}</simple>
         </setBody>

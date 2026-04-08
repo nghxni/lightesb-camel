@@ -3,6 +3,10 @@
     <!-- 测试独立CamelContext的Timer路由 -->
     
     <!-- 每10秒执行一次的测试路由 -->
+    <!-- 
+    This route is used to test the independent CamelContext Timer routing.
+    It will be executed every 10 seconds.
+    -->
     <route id="independent-timer-test-v1.0.0">
         <from uri="timer:independentTest?period=10000"/>
         <setBody>
@@ -12,6 +16,10 @@
     </route>
     
     <!-- 另一个测试路由 -->
+    <!-- 
+    This route is used to test the independent CamelContext Timer routing.
+    It will be executed every 15 seconds.
+    -->
     <route id="independent-status-check-v1.0.0">
         <from uri="timer:statusCheck?period=15000"/>
         <setBody>
