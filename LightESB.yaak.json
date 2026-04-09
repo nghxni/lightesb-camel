@@ -1,0 +1,938 @@
+{
+  "yaakVersion": "2026.3.1",
+  "yaakSchema": 4,
+  "timestamp": "2026-04-09T09:30:18.276546200",
+  "resources": {
+    "workspaces": [
+      {
+        "model": "workspace",
+        "id": "wk_LgNRTYmC2c",
+        "createdAt": "2026-02-05T07:49:53.365803500",
+        "updatedAt": "2026-02-05T07:49:53.365808700",
+        "authentication": {},
+        "authenticationType": null,
+        "description": "",
+        "headers": [],
+        "name": "Yaak",
+        "encryptionKeyChallenge": null,
+        "settingValidateCertificates": true,
+        "settingFollowRedirects": true,
+        "settingRequestTimeout": 0,
+        "settingDnsOverrides": []
+      }
+    ],
+    "environments": [],
+    "folders": [
+      {
+        "model": "folder",
+        "id": "fl_3CjWpWWHwn",
+        "createdAt": "2026-04-09T02:37:27.073417200",
+        "updatedAt": "2026-04-09T02:37:27.073417900",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": null,
+        "authentication": {},
+        "authenticationType": null,
+        "description": "",
+        "headers": [],
+        "name": "消息缓存",
+        "sortPriority": -1775702247053.0
+      },
+      {
+        "model": "folder",
+        "id": "fl_Nk5akLEJoF",
+        "createdAt": "2026-04-09T02:37:07.728083",
+        "updatedAt": "2026-04-09T02:37:07.728083700",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": null,
+        "authentication": {},
+        "authenticationType": null,
+        "description": "",
+        "headers": [],
+        "name": "权限校验",
+        "sortPriority": -1775702227725.0
+      },
+      {
+        "model": "folder",
+        "id": "fl_rcpwVSRS2z",
+        "createdAt": "2026-04-09T02:36:26.177551",
+        "updatedAt": "2026-04-09T02:36:26.177551600",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": null,
+        "authentication": {},
+        "authenticationType": null,
+        "description": "",
+        "headers": [],
+        "name": "日志操作",
+        "sortPriority": -1775702186158.0
+      },
+      {
+        "model": "folder",
+        "id": "fl_LFqi6P2ZmD",
+        "createdAt": "2026-04-09T02:35:29.913379600",
+        "updatedAt": "2026-04-09T02:35:29.913380100",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": null,
+        "authentication": {},
+        "authenticationType": null,
+        "description": "",
+        "headers": [],
+        "name": "关键字",
+        "sortPriority": -1775702129894.0
+      },
+      {
+        "model": "folder",
+        "id": "fl_zNPCbXKxf7",
+        "createdAt": "2026-04-09T02:31:47.074670",
+        "updatedAt": "2026-04-09T02:31:47.074670500",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": null,
+        "authentication": {},
+        "authenticationType": null,
+        "description": "",
+        "headers": [],
+        "name": "PlatformHttp",
+        "sortPriority": -1775701907071.0
+      },
+      {
+        "model": "folder",
+        "id": "fl_comRzbEpmx",
+        "createdAt": "2026-04-08T07:09:55.299315500",
+        "updatedAt": "2026-04-08T07:09:55.299316600",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": null,
+        "authentication": {},
+        "authenticationType": null,
+        "description": "",
+        "headers": [],
+        "name": "HttpRequestSrv",
+        "sortPriority": -1775632195295.0
+      },
+      {
+        "model": "folder",
+        "id": "fl_Jwuzxpya4B",
+        "createdAt": "2026-03-31T03:03:03.539482300",
+        "updatedAt": "2026-03-31T03:03:03.539482700",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": null,
+        "authentication": {},
+        "authenticationType": null,
+        "description": "",
+        "headers": [],
+        "name": "应用系统",
+        "sortPriority": -1774926183536.0
+      },
+      {
+        "model": "folder",
+        "id": "fl_LDUocZGUDG",
+        "createdAt": "2026-03-25T01:50:55.010097100",
+        "updatedAt": "2026-03-25T01:50:55.010097500",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": null,
+        "authentication": {},
+        "authenticationType": null,
+        "description": "",
+        "headers": [],
+        "name": "消息管理",
+        "sortPriority": -1774403455003.0
+      },
+      {
+        "model": "folder",
+        "id": "fl_7iegGDf9em",
+        "createdAt": "2026-02-27T09:52:27.415896700",
+        "updatedAt": "2026-02-27T09:52:27.415897200",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": null,
+        "authentication": {},
+        "authenticationType": null,
+        "description": "",
+        "headers": [],
+        "name": "AI 日志",
+        "sortPriority": -1772185947403.0
+      }
+    ],
+    "httpRequests": [
+      {
+        "model": "http_request",
+        "id": "rq_T39KT56BgX",
+        "createdAt": "2026-04-09T03:05:25.690247800",
+        "updatedAt": "2026-04-09T03:05:40.791345800",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_zNPCbXKxf7",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\"orderId\": \"ORD202412310001\",\n  \"customerId\": \"CUST-001\",\n  \"amount\": 199.99,\n  \"currency\": \"CNY\"}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "RZMXmPe8wa"
+          }
+        ],
+        "method": "POST",
+        "name": "http://localhost:18080/3.0.0/transform/order1",
+        "sortPriority": 2000.001,
+        "url": "http://localhost:18080/3.0.0/transform/order1",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_J8zJNGo7EW",
+        "createdAt": "2026-04-09T03:01:53.147513300",
+        "updatedAt": "2026-04-09T03:05:03.845224400",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_zNPCbXKxf7",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\"orderId\": \"ORD202412310001\",\n  \"customerId\": \"CUST-001\",\n  \"amount\": 199.99,\n  \"currency\": \"CNY\"}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "RZMXmPe8wa"
+          }
+        ],
+        "method": "POST",
+        "name": "http://localhost:18080/3.0.0/transform/order",
+        "sortPriority": 2000.0,
+        "url": "http://localhost:18080/3.0.0/transform/order",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_i8nEpvsK6N",
+        "createdAt": "2026-04-08T07:16:28.616174100",
+        "updatedAt": "2026-04-08T07:19:55.586081800",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_comRzbEpmx",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\"orderId\": \"ORD202412310001\",\n  \"customerId\": \"CUST-001\",\n  \"amount\": 199.99,\n  \"currency\": \"CNY\"}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "RZMXmPe8wa"
+          }
+        ],
+        "method": "POST",
+        "name": "",
+        "sortPriority": -1770277800441.999,
+        "url": "http://localhost:18083/api/httprequest/test",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_DzdqEPfj6W",
+        "createdAt": "2026-03-31T03:05:52.130605900",
+        "updatedAt": "2026-03-31T03:16:25.707816500",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_Jwuzxpya4B",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": ""
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "HMieJbnDf6"
+          }
+        ],
+        "method": "POST",
+        "name": "删除",
+        "sortPriority": 2000.004,
+        "url": "http://localhost:8080/app-manage/v1/delete/A009016348374D58AD626BFBCAA56D56",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_hJQ4WwsyRP",
+        "createdAt": "2026-03-31T03:05:18.168384800",
+        "updatedAt": "2026-03-31T03:16:06.167214200",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_Jwuzxpya4B",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n    \"id\":\"A009016348374D58AD626BFBCAA56D55\",\n    \"clientId\":\"CRM001\",\n    \"appName\":\"客户关系系统-升级版\",\n    \"vendor\":\"OuReman\",\n    \"vendorContact\":\"李四\",\n    \"vendorPhone\":\"13900000000\",\n    \"vendorMail\":\"lisi@example.com\",\n    \"appCategoryName\":\"业务系统\",\n    \"heartBeatAddress\":\"http://127.0.0.1:8080/heartbeat/v2\",\n    \"updateNo\":\"U1002\",\n    \"updateBy\":\"operator\"\n  }"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "HMieJbnDf6"
+          }
+        ],
+        "method": "POST",
+        "name": "修改",
+        "sortPriority": 2000.003,
+        "url": "http://localhost:8080/app-manage/v1/update",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_XscDBs99ts",
+        "createdAt": "2026-03-31T03:04:28.928369300",
+        "updatedAt": "2026-03-31T03:15:58.578385900",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_Jwuzxpya4B",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": ""
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "HMieJbnDf6"
+          }
+        ],
+        "method": "GET",
+        "name": "详情查询",
+        "sortPriority": 2000.002,
+        "url": "http://localhost:8080/app-manage/v1/detail/A009016348374D58AD626BFBCAA56D55",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_QRh78vGiQt",
+        "createdAt": "2026-03-31T03:03:53.778313200",
+        "updatedAt": "2026-03-31T03:04:24.602361100",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_Jwuzxpya4B",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n    \"pageNum\":1,\n    \"pageSize\":10,\n    \"clientId\":\"CRM\",\n    \"appName\":\"客户\",\n    \"vendor\":\"Ou\"\n  }"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "HMieJbnDf6"
+          }
+        ],
+        "method": "POST",
+        "name": "分页查询",
+        "sortPriority": 2000.001,
+        "url": "http://localhost:8080/app-manage/v1/pageVO",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_886Jz9fMKw",
+        "createdAt": "2026-03-31T03:03:13.338947600",
+        "updatedAt": "2026-03-31T03:03:48.784461500",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_Jwuzxpya4B",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n    \"clientId\":\"CRM001\",\n    \"appName\":\"客户关系系统\",\n    \"vendor\":\"OuReman\",\n    \"vendorContact\":\"张三\",\n    \"vendorPhone\":\"13800000000\",\n    \"vendorMail\":\"zhangsan@example.com\",\n    \"appCategoryName\":\"业务系统\",\n    \"heartBeatAddress\":\"http://127.0.0.1:8080/heartbeat\",\n    \"createNo\":\"U1001\",\n    \"createBy\":\"admin\",\n    \"updateNo\":\"U1001\",\n    \"updateBy\":\"admin\"\n  }"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "HMieJbnDf6"
+          }
+        ],
+        "method": "POST",
+        "name": "新增",
+        "sortPriority": 2000.0,
+        "url": "http://localhost:8080/app-manage/v1/add",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_GK7hZeen5b",
+        "createdAt": "2026-03-26T01:20:10.857868400",
+        "updatedAt": "2026-03-26T03:01:48.020940100",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_LDUocZGUDG",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"pageNum\": 1,\n  \"pageSize\": 10,\n  \"msgId\": \"4bef909ca267465985f6c68f22b36cb4\"\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "fu35zx5EqB"
+          }
+        ],
+        "method": "POST",
+        "name": "查看历史",
+        "sortPriority": 2000.0,
+        "url": "http://localhost:8080/message-management/v1/history/pageVO",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_4pd82NfS52",
+        "createdAt": "2026-03-26T01:18:55.786866700",
+        "updatedAt": "2026-03-26T01:19:31.404093700",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_LDUocZGUDG",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"pageNum\": 1,\n  \"pageSize\": 10,\n  \"msgName\": \"OrderCreateReq\",\n  \"msgType\": \"REQ\",\n  \"msgStandard\": \"HL7\"\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "GHHKREfC8z"
+          }
+        ],
+        "method": "POST",
+        "name": "分页查询",
+        "sortPriority": 2000.001,
+        "url": "http://localhost:8080/message-management/v1/pageVO",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_HoKwCPggUM",
+        "createdAt": "2026-03-26T01:18:18.608594",
+        "updatedAt": "2026-03-26T02:56:04.111576800",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_LDUocZGUDG",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"id\": \"4bef909ca267465985f6c68f22b36cb4\",\n  \"msgName\": \"OrderCreateReq\",\n  \"msgDesc\": \"创建订单请求\",\n  \"msgType\": \"REQ\",\n  \"msgStandard\": \"HL7\",\n  \"msgDescription\": \"订单创建请求结构\",\n  \"msgStructure\": [\n   {\n                    \"nodeDesc\": \"\",\n                    \"nodeName\": \"Response\",\n                    \"nodeType\": \"ROOT\",\n                    \"ifRequired\": \"\",\n                    \"defaultValue\": \"\",\n                    \"alias\": \"\",\n                    \"constraint\": \"\",\n                    \"nodeList\": [\n                                {\n                                    \"nodeDesc\": \"消息ID测试\",\n                                    \"nodeName\": \"MessageIDV\",\n                                    \"nodeType\": \"VARCHAR2\",\n                                    \"nodeLength\": \"150\",\n                                    \"ifRequired\": \"1\",\n                                    \"defaultValue\": \"\",\n                                    \"alias\": \"\",\n                                    \"constraint\": \"\",\n                                    \"nodeList\": [\n                                    ]\n                                },\n                                {\n                                    \"nodeDesc\": \"消息创建时间\",\n                                    \"nodeName\": \"CreationTime\",\n                                    \"nodeType\": \"VARCHAR2\",\n                                    \"nodeLength\": \"50\",\n                                    \"ifRequired\": \"1\",\n                                    \"defaultValue\": \"\",\n                                    \"alias\": \"\",\n                                    \"constraint\": \"\",\n                                    \"nodeList\": [\n                                    ]\n                                },\n                                {\n                                    \"nodeDesc\": \"发送者\",\n                                    \"nodeName\": \"SenderID\",\n                                    \"nodeType\": \"VARCHAR2\",\n                                    \"nodeLength\": \"50\",\n                                    \"ifRequired\": \"1\",\n                                    \"defaultValue\": \"\",\n                                    \"alias\": \"\",\n                                    \"constraint\": \"\",\n                                    \"nodeList\": [\n                                    ]\n                                },\n                                {\n                                    \"nodeDesc\": \"接收者\",\n                                    \"nodeName\": \"ReceiverID\",\n                                    \"nodeType\": \"VARCHAR2\",\n                                    \"nodeLength\": \"50\",\n                                    \"ifRequired\": \"1\",\n                                    \"defaultValue\": \"\",\n                                    \"alias\": \"\",\n                                    \"constraint\": \"\",\n                                    \"nodeList\": [\n                                    ]\n                                },\n                                {\n                                    \"nodeDesc\": \"处理结果代码\",\n                                    \"nodeName\": \"ResultCode\",\n                                    \"nodeType\": \"VARCHAR2\",\n                                    \"nodeLength\": \"50\",\n                                    \"ifRequired\": \"1\",\n                                    \"defaultValue\": \"\",\n                                    \"alias\": \"\",\n                                    \"constraint\": \"\",\n                                    \"nodeList\": [\n                                    ]\n                                },\n                                {\n                                    \"nodeDesc\": \"请求消息ID\",\n                                    \"nodeName\": \"RequestMessageID\",\n                                    \"nodeType\": \"VARCHAR2\",\n                                    \"nodeLength\": \"150\",\n                                    \"ifRequired\": \"1\",\n                                    \"defaultValue\": \"\",\n                                    \"alias\": \"\",\n                                    \"constraint\": \"\",\n                                    \"nodeList\": [\n                                    ]\n                                },\n                                {\n                                    \"nodeDesc\": \"处理结果说明\",\n                                    \"nodeName\": \"Result\",\n                                    \"nodeType\": \"VARCHAR2\",\n                                    \"nodeLength\": \"15000\",\n                                    \"ifRequired\": \"1\",\n                                    \"defaultValue\": \"\",\n                                    \"alias\": \"\",\n                                    \"constraint\": \"\",\n                                    \"nodeList\": [\n                                    ]\n                                }\n                            ]\n                        }\n  ],\n  \"extraConfig\": {\n    \"action\": \"OrderCreateReq\",\n    \"hideXpath\": \"/ROOT/orderIds\",\n    \"valueSetList\": []\n  }\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "c7GeCQb4P5"
+          }
+        ],
+        "method": "POST",
+        "name": "修改消息",
+        "sortPriority": 2000.001,
+        "url": "http://localhost:8080/message-management/v1/update",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_j5FSQTYybP",
+        "createdAt": "2026-03-26T01:15:06.688744400",
+        "updatedAt": "2026-03-26T01:17:42.457668500",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_LDUocZGUDG",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {},
+        "bodyType": null,
+        "description": "",
+        "headers": [],
+        "method": "POST",
+        "name": "删除消息",
+        "sortPriority": 2000.0,
+        "url": "http://localhost:8080/message-management/v1/delete",
+        "urlParameters": [
+          {
+            "enabled": true,
+            "name": "id",
+            "value": "50c46755d66b4efa8957273efc0ede33",
+            "id": "09vQeVWNeS"
+          },
+          {
+            "enabled": true,
+            "name": "",
+            "value": "",
+            "id": "ce4bdNmrV4"
+          }
+        ]
+      },
+      {
+        "model": "http_request",
+        "id": "rq_fb72DHD4oK",
+        "createdAt": "2026-03-25T01:50:59.757275600",
+        "updatedAt": "2026-03-26T01:18:15.000264100",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_LDUocZGUDG",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"msgName\": \"OrderCreateReq\",\n  \"msgDesc\": \"创建订单请求\",\n  \"msgType\": \"REQ\",\n  \"msgStandard\": \"HL7\",\n  \"msgDescription\": \"订单创建请求结构\",\n  \"msgStructure\": [\n   {\n                    \"nodeDesc\": \"\",\n                    \"nodeName\": \"Response\",\n                    \"nodeType\": \"ROOT\",\n                    \"ifRequired\": \"\",\n                    \"defaultValue\": \"\",\n                    \"alias\": \"\",\n                    \"constraint\": \"\",\n                    \"nodeList\": [\n                                {\n                                    \"nodeDesc\": \"消息ID\",\n                                    \"nodeName\": \"MessageID\",\n                                    \"nodeType\": \"VARCHAR2\",\n                                    \"nodeLength\": \"150\",\n                                    \"ifRequired\": \"1\",\n                                    \"defaultValue\": \"\",\n                                    \"alias\": \"\",\n                                    \"constraint\": \"\",\n                                    \"nodeList\": [\n                                    ]\n                                },\n                                {\n                                    \"nodeDesc\": \"消息创建时间\",\n                                    \"nodeName\": \"CreationTime\",\n                                    \"nodeType\": \"VARCHAR2\",\n                                    \"nodeLength\": \"50\",\n                                    \"ifRequired\": \"1\",\n                                    \"defaultValue\": \"\",\n                                    \"alias\": \"\",\n                                    \"constraint\": \"\",\n                                    \"nodeList\": [\n                                    ]\n                                },\n                                {\n                                    \"nodeDesc\": \"发送者\",\n                                    \"nodeName\": \"SenderID\",\n                                    \"nodeType\": \"VARCHAR2\",\n                                    \"nodeLength\": \"50\",\n                                    \"ifRequired\": \"1\",\n                                    \"defaultValue\": \"\",\n                                    \"alias\": \"\",\n                                    \"constraint\": \"\",\n                                    \"nodeList\": [\n                                    ]\n                                },\n                                {\n                                    \"nodeDesc\": \"接收者\",\n                                    \"nodeName\": \"ReceiverID\",\n                                    \"nodeType\": \"VARCHAR2\",\n                                    \"nodeLength\": \"50\",\n                                    \"ifRequired\": \"1\",\n                                    \"defaultValue\": \"\",\n                                    \"alias\": \"\",\n                                    \"constraint\": \"\",\n                                    \"nodeList\": [\n                                    ]\n                                },\n                                {\n                                    \"nodeDesc\": \"处理结果代码\",\n                                    \"nodeName\": \"ResultCode\",\n                                    \"nodeType\": \"VARCHAR2\",\n                                    \"nodeLength\": \"50\",\n                                    \"ifRequired\": \"1\",\n                                    \"defaultValue\": \"\",\n                                    \"alias\": \"\",\n                                    \"constraint\": \"\",\n                                    \"nodeList\": [\n                                    ]\n                                },\n                                {\n                                    \"nodeDesc\": \"请求消息ID\",\n                                    \"nodeName\": \"RequestMessageID\",\n                                    \"nodeType\": \"VARCHAR2\",\n                                    \"nodeLength\": \"150\",\n                                    \"ifRequired\": \"1\",\n                                    \"defaultValue\": \"\",\n                                    \"alias\": \"\",\n                                    \"constraint\": \"\",\n                                    \"nodeList\": [\n                                    ]\n                                },\n                                {\n                                    \"nodeDesc\": \"处理结果说明\",\n                                    \"nodeName\": \"Result\",\n                                    \"nodeType\": \"VARCHAR2\",\n                                    \"nodeLength\": \"15000\",\n                                    \"ifRequired\": \"1\",\n                                    \"defaultValue\": \"\",\n                                    \"alias\": \"\",\n                                    \"constraint\": \"\",\n                                    \"nodeList\": [\n                                    ]\n                                }\n                            ]\n                        }\n  ],\n  \"extraConfig\": {\n    \"action\": \"OrderCreateReq\",\n    \"hideXpath\": \"/ROOT/orderId\",\n    \"valueSetList\": []\n  }\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "c7GeCQb4P5"
+          }
+        ],
+        "method": "POST",
+        "name": "新增消息",
+        "sortPriority": 2000.0,
+        "url": "http://localhost:8080/message-management/v1/add",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_yQqw4UrGyE",
+        "createdAt": "2026-03-03T05:48:17.041598600",
+        "updatedAt": "2026-04-09T09:29:32.487620800",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_7iegGDf9em",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"message\": \"调整 com.oureman.soa.lightesb.config 日志级别为DEBUG\"\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "I9QedphIuZ"
+          }
+        ],
+        "method": "POST",
+        "name": "AI 日志  第5步",
+        "sortPriority": 3000.001,
+        "url": "http://localhost:8080/api/ai/logging/chat",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_Aw8GmGvqiv",
+        "createdAt": "2026-02-28T09:13:41.294971500",
+        "updatedAt": "2026-03-03T05:41:08.340451400",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_7iegGDf9em",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"message\": \"查询 PlatformHttp@v3.0.0 服务当前日志级别\"\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "I9QedphIuZ"
+          }
+        ],
+        "method": "POST",
+        "name": "AI 日志  第4步",
+        "sortPriority": 3000.0,
+        "url": "http://localhost:8080/api/ai/logging/chat",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_VDRMiBebbu",
+        "createdAt": "2026-02-28T08:37:32.425536600",
+        "updatedAt": "2026-02-28T09:13:58.219501500",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_7iegGDf9em",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"message\": \"v3.0.0版本\"\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "I9QedphIuZ"
+          }
+        ],
+        "method": "POST",
+        "name": "AI 日志 第3步",
+        "sortPriority": 2000.0,
+        "url": "http://localhost:8080/api/ai/logging/chat",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_YA2Gb53nQj",
+        "createdAt": "2026-02-28T08:16:31.856058100",
+        "updatedAt": "2026-02-28T09:13:58.208849700",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_7iegGDf9em",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"message\": \"v3\"\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "I9QedphIuZ"
+          }
+        ],
+        "method": "POST",
+        "name": "AI 日志 第2步",
+        "sortPriority": 1000.0,
+        "url": "http://localhost:8080/api/ai/logging/chat",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_bxJohZsjJk",
+        "createdAt": "2026-02-28T05:49:23.155632500",
+        "updatedAt": "2026-04-09T02:36:36.391015700",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_rcpwVSRS2z",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {},
+        "bodyType": null,
+        "description": "",
+        "headers": [],
+        "method": "GET",
+        "name": "获取所有服务的日志配置",
+        "sortPriority": 0.0,
+        "url": "http://localhost:8080/api/logging/services",
+        "urlParameters": [
+          {
+            "enabled": true,
+            "name": "serviceKey",
+            "value": "PermissionTestSrv@v1.0.0@permission-test-route.xml",
+            "id": "bkIJGKcq6J"
+          },
+          {
+            "enabled": true,
+            "name": "level",
+            "value": "DEBUG",
+            "id": "F8Gjd5waWj"
+          },
+          {
+            "enabled": true,
+            "name": "",
+            "value": "",
+            "id": "xvHz9pzWNs"
+          }
+        ]
+      },
+      {
+        "model": "http_request",
+        "id": "rq_ZVC5RENauX",
+        "createdAt": "2026-02-27T09:49:25.909774600",
+        "updatedAt": "2026-02-28T09:13:58.196286500",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_7iegGDf9em",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"message\": \"查询 PlatformHttp 服务当前日志级别\"\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "I9QedphIuZ"
+          }
+        ],
+        "method": "POST",
+        "name": "AI 日志  第1步",
+        "sortPriority": 0.0,
+        "url": "http://localhost:8080/api/ai/logging/chat",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_3KAN4c5tgp",
+        "createdAt": "2026-02-12T07:42:51.556592200",
+        "updatedAt": "2026-04-09T02:35:57.372074200",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_LFqi6P2ZmD",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{  \"serviceName\":\"H2DatabaseSrv\",\n  \"serviceVersion\":\"v1.0.0\",\n  \"keyName\":\"features\",\n  \"jsonValue\":\"5G\"\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "Ri0zWhad8x"
+          }
+        ],
+        "method": "POST",
+        "name": "查询关键字",
+        "sortPriority": 1000.0,
+        "url": "http://localhost:19092/api/json-keyword/instance-uuids",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_UDrEfz2GLx",
+        "createdAt": "2026-02-12T03:04:49.545081",
+        "updatedAt": "2026-04-09T02:35:51.096117200",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_LFqi6P2ZmD",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n         \"serviceName\": \"H2DatabaseSrv\",\n        \"serviceVersion\": \"v1.0.0\",\n        \"keyName\": \"features\"\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "Ri0zWhad8x"
+          }
+        ],
+        "method": "POST",
+        "name": "新增关键字",
+        "sortPriority": 0.0,
+        "url": "http://localhost:8080/api/lightesb/json-keyword",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_MyAVQtR95J",
+        "createdAt": "2026-02-12T02:18:49.814460",
+        "updatedAt": "2026-04-09T02:37:31.849471600",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_3CjWpWWHwn",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"order\": {\n    \"header\": {\n      \"orderId\": \"ORD-2024-001\",\n      \"orderDate\": \"2024-01-15 10:30:00\",\n      \"source\": \"web\",\n      \"metadata\": {\n        \"channel\": \"online\",\n        \"campaign\": \"spring_sale\",\n        \"referrer\": \"google_ads\",\n        \"primary\": \"Electronicsa121\",\n        \"sessionId\": \"sess_abc123\",\n        \"deviceInfo\": {\n          \"type\": \"mobile\",\n           \"primary\": \"Electronicsa12\",\n          \"os\": \"iOS\",\n          \"version\": \"15.2\",\n          \"browser\": \"Safari\"\n        }\n      }\n    },\n    \"customer\": {\n      \"personalInfo\": {\n        \"customerId\": \"CUST-98765\",\n        \"name\": {\n          \"firstName\": \"张\",\n          \"lastName\": \"明华\",\n          \"fullName\": \"张明华\"\n        },\n        \"contact\": {\n          \"email\": \"zhangminghua@example.com\",\n          \"phone\": {\n            \"primary\": \"13800138000\",\n            \"secondary\": \"021-12345678\"\n          },\n          \"address\": {\n            \"shipping\": {\n              \"street\": \"中关村大街1号\",\n              \"city\": \"北京\",\n              \"province\": \"北京市\",\n              \"zipCode\": \"100080\",\n              \"country\": \"中国\",\n              \"coordinates\": {\n                \"primary\": \"Electronicsa122\",\n                \"latitude\": 39.9042,\n                \"longitude\": 116.4074\n              }\n            },\n            \"billing\": {\n              \"street\": \"中关村大街1号\",\n              \"city\": \"北京\",\n              \"province\": \"北京市\",\n              \"zipCode\": \"100080\",\n              \"country\": \"中国\"\n            }\n          }\n        }\n      },\n      \"preferences\": {\n        \"language\": \"zh-CN\",\n        \"currency\": \"CNY\",\n        \"notifications\": {\n          \"email\": true,\n          \"sms\": true,\n          \"push\": false\n        }\n      },\n      \"membership\": {\n        \"level\": \"VIP\",\n        \"points\": 15680,\n        \"discounts\": {\n          \"applicable\": [\n            {\n              \"code\": \"VIP10\",\n              \"type\": \"percentage\",\n              \"value\": 10,\n              \"description\": \"VIP会员10%折扣\"\n            },\n            {\n              \"code\": \"SPRING20\",\n              \"type\": \"percentage\", \n              \"value\": 20,\n              \"description\": \"春季促销20%折扣\"\n            }\n          ]\n        }\n      }\n    },\n    \"items\": [\n      {\n        \"product\": {\n          \"productId\": \"PROD-001\",\n          \"details\": {\n            \"name\": \"iPhone 15 Pro\",\n            \"category\": {\n              \"primary\": \"Electronics\",\n              \"secondary\": \"Smartphones\",\n              \"tertiary\": \"Apple\"\n            },\n            \"specifications\": {\n              \"color\": \"钛蓝色\",\n              \"storage\": \"256GB\",\n              \"model\": \"A3102\",\n              \"features\": [\"Face ID\", \"5G\", \"USB-C\", \"Action Button\"]\n            },\n            \"pricing\": {\n              \"unitPrice\": 8999.00,\n              \"discountPrice\": 8099.10,\n              \"currency\": \"CNY\",\n              \"taxRate\": 0.13\n            }\n          },\n          \"inventory\": {\n            \"sku\": \"IPH15P-256-BLUE\",\n            \"warehouse\": \"WH-BJ-001\",\n            \"stock\": 25,\n            \"reserved\": 5\n          }\n        },\n        \"orderDetails\": {\n          \"quantity\": 2,\n          \"customizations\": {\n            \"engraving\": {\n              \"enabled\": true,\n              \"text\": \"ZMH 2024\",\n              \"position\": \"back\"\n            },\n            \"warranty\": {\n              \"type\": \"extended\",\n              \"duration\": 24,\n              \"coverage\": \"comprehensive\"\n            }\n          },\n          \"fulfillment\": {\n            \"method\": \"delivery\",\n            \"primary\": \"Electronicsa1\",\n            \"options\": {\n              \"expedited\": true,\n              \"signature\": true,\n              \"tracking\": true\n            }\n          }\n        }\n      },\n       {\n        \"product\": {\n          \"productId\": \"PROD-001\",\n          \"details\": {\n            \"name\": \"iPhone 15 Pro\",\n            \"category\": {\n              \"primary\": \"Electronics\",\n              \"secondary\": \"Smartphones\",\n              \"tertiary\": \"Apple\"\n            },\n            \"specifications\": {\n              \"color\": \"钛蓝色\",\n              \"storage\": \"256GB\",\n              \"model\": \"A3102\",\n              \"features\": [\"Face ID\", \"5G\", \"USB-C\", \"Action Button\"]\n            },\n            \"pricing\": {\n              \"unitPrice\": 8999.00,\n              \"discountPrice\": 8099.10,\n              \"currency\": \"CNY\",\n              \"taxRate\": 0.13\n            }\n          },\n          \"inventory\": {\n            \"sku\": \"IPH15P-256-BLUE\",\n            \"warehouse\": \"WH-BJ-001\",\n            \"stock\": 25,\n            \"reserved\": 5\n          }\n        },\n        \"orderDetails\": {\n          \"quantity\": 2,\"materials\": [\"eco-friendly\", \"bubble-wrap\"],\n          \"customizations\": {\n            \"engraving\": {\n              \"enabled\": true,\n              \"text\": \"ZMH 2024\",\n              \"position\": \"back\"\n            },\n            \"warranty\": {\n              \"type\": \"extended\",\n              \"duration\": 24,\n              \"coverage\": \"comprehensive\"\n            }\n          },\n          \"fulfillment\": {\n            \"method\": \"delivery\",\n            \"primary\": \"Electronic1sa1\",\n            \"options\": {\n              \"expedited\": true,\n              \"signature\": true,\n              \"tracking\": true\n            }\n          }\n        }\n      },\n      {\n        \"product\": {\n          \"productId\": \"PROD-002\",\n          \"details\": {\n            \"name\": \"AirPods Pro (第3代)\",\n            \"category\": {\n              \"primary\": \"Electronicsa\",\n              \"secondary\": \"Audio\",\n              \"tertiary\": \"Apple\"\n            },\n            \"specifications\": {\n              \"color\": \"白色\",\n              \"connectivity\": \"蓝牙5.3\",\n              \"features\": [\"主动降噪\", \"空间音频\", \"自适应透明模式\"]\n            },\n            \"pricing\": {\n              \"unitPrice\": 1999.00,\n              \"discountPrice\": 1799.10,\n              \"currency\": \"CNY\",\n              \"taxRate\": 0.13\n            }\n          },\n          \"inventory\": {\n            \"sku\": \"APP3-WHITE\",\n            \"warehouse\": \"WH-BJ-001\", \n            \"stock\": 50,\n            \"reserved\": 10\n          }\n        },\n        \"orderDetails\": {\n          \"quantity\": 1,\n          \"customizations\": {\n            \"warranty\": {\n              \"type\": \"standard\",\n              \"duration\": 12,\n              \"coverage\": \"basic\"\n            }\n          },\n          \"fulfillment\": {\n            \"method\": \"delivery\",\n            \"materials\": [\"eco-friendly\", \"bubble-wrap\"],\n            \"options\": {\n              \"expedited\": false,\n              \"signature\": false,\n              \"tracking\": true\n            }\n          }\n        }\n      }\n    ],\n    \"payment\": {\n      \"summary\": {\n        \"subtotal\": 19797.20,\n        \"discounts\": {\n          \"total\": 1979.72,\n          \"breakdown\": [\n            {\n              \"code\": \"VIP10\",\n              \"amount\": 1979.72,\n              \"type\": \"percentage\"\n            }\n          ]\n        },\n        \"tax\": 2316.97,\n        \"shipping\": 0.00,\n        \"total\": 20134.45\n      },\n      \"method\": {\n        \"type\": \"credit_card\",\n        \"details\": {\n          \"cardType\": \"VISA\",\n          \"last4Digits\": \"1234\",\n          \"expiryMonth\": 12,\n          \"expiryYear\": 2027,\n          \"holderName\": \"张明华\"\n        },\n        \"billing\": {\n          \"same_as_shipping\": true\n        }\n      }\n    },\n    \"shipping\": {\n      \"method\": {\n        \"carrier\": \"顺丰\",\n        \"service\": \"次日达\",\n        \"trackingNumber\": \"SF1234567890\"\n      },\n      \"timeline\": {\n        \"estimated\": {\n          \"pickup\": \"2024-01-15 18:00:00\",\n          \"delivery\": \"2024-01-16 12:00:00\"\n        }\n      },\n      \"packaging\": {\n        \"type\": \"standard\",\n         \"primary\": \"Electronic1sa1\",\n        \"materials\": [\"eco-friendly\", \"bubble-wrap\"],\n        \"insurance\": {\n          \"enabled\": true,\n          \"value\": 20134.45\n        }\n      }\n    }\n  }\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "Ri0zWhad8x"
+          }
+        ],
+        "method": "POST",
+        "name": "localhost:18081/api/transform/complex-order Copy",
+        "sortPriority": 1000.0,
+        "url": "http://localhost:18080/api/h2cache",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_uhGmt4JqBR",
+        "createdAt": "2026-02-10T02:43:49.287591900",
+        "updatedAt": "2026-04-09T02:37:31.835414100",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_3CjWpWWHwn",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"order\": {\n    \"header\": {\n      \"orderId\": \"ORD-2024-003\",\n      \"orderDate\": \"2024-01-15 10:30:00\",\n      \"source\": \"web\",\n      \"metadata\": {\n        \"channel\": \"online\",\n        \"campaign\": \"spring_sale\",\n        \"referrer\": \"google_ads\",\n        \"sessionId\": \"sess_abc123\",\n        \"deviceInfo\": {\n          \"type\": \"mobile\",\n          \"os\": \"iOS\",\n          \"version\": \"15.2\",\n          \"browser\": \"Safari\"\n        }\n      }\n    },\n    \"customer\": {\n      \"personalInfo\": {\n        \"customerId\": \"CUST-98765\",\n        \"name\": {\n          \"firstName\": \"张\",\n          \"lastName\": \"明华\",\n          \"fullName\": \"张明华\"\n        },\n        \"contact\": {\n          \"email\": \"zhangminghua@example.com\",\n          \"phone\": {\n            \"primary\": \"13800138000\",\n            \"secondary\": \"021-12345678\"\n          },\n          \"address\": {\n            \"shipping\": {\n              \"street\": \"中关村大街1号\",\n              \"city\": \"北京\",\n              \"province\": \"北京市\",\n              \"zipCode\": \"100080\",\n              \"country\": \"中国\",\n              \"coordinates\": {\n                \"latitude\": 39.9042,\n                \"longitude\": 116.4074\n              }\n            },\n            \"billing\": {\n              \"street\": \"中关村大街1号\",\n              \"city\": \"北京\",\n              \"province\": \"北京市\",\n              \"zipCode\": \"100080\",\n              \"country\": \"中国\"\n            }\n          }\n        }\n      },\n      \"preferences\": {\n        \"language\": \"zh-CN\",\n        \"currency\": \"CNY\",\n        \"notifications\": {\n          \"email\": true,\n          \"sms\": true,\n          \"push\": false\n        }\n      },\n      \"membership\": {\n        \"level\": \"VIP\",\n        \"points\": 15680,\n        \"discounts\": {\n          \"applicable\": [\n            {\n              \"code\": \"VIP10\",\n              \"type\": \"percentage\",\n              \"value\": 10,\n              \"description\": \"VIP会员10%折扣\"\n            },\n            {\n              \"code\": \"SPRING20\",\n              \"type\": \"percentage\", \n              \"value\": 20,\n              \"description\": \"春季促销20%折扣\"\n            }\n          ]\n        }\n      }\n    },\n    \"items\": [\n      {\n        \"product\": {\n          \"productId\": \"PROD-001\",\n          \"details\": {\n            \"name\": \"iPhone 15 Pro\",\n            \"category\": {\n              \"primary\": \"Electronics\",\n              \"secondary\": \"Smartphones\",\n              \"tertiary\": \"Apple\"\n            },\n            \"specifications\": {\n              \"color\": \"钛蓝色\",\n              \"storage\": \"256GB\",\n              \"model\": \"A3102\",\n              \"features\": [\"Face ID\", \"5G\", \"USB-C\", \"Action Button\"]\n            },\n            \"pricing\": {\n              \"unitPrice\": 8999.00,\n              \"discountPrice\": 8099.10,\n              \"currency\": \"CNY\",\n              \"taxRate\": 0.13\n            }\n          },\n          \"inventory\": {\n            \"sku\": \"IPH15P-256-BLUE\",\n            \"warehouse\": \"WH-BJ-001\",\n            \"stock\": 25,\n            \"reserved\": 5\n          }\n        },\n        \"orderDetails\": {\n          \"quantity\": 2,\n          \"customizations\": {\n            \"engraving\": {\n              \"enabled\": true,\n              \"text\": \"ZMH 2024\",\n              \"position\": \"back\"\n            },\n            \"warranty\": {\n              \"type\": \"extended\",\n              \"duration\": 24,\n              \"coverage\": \"comprehensive\"\n            }\n          },\n          \"fulfillment\": {\n            \"method\": \"delivery\",\n            \"options\": {\n              \"expedited\": true,\n              \"signature\": true,\n              \"tracking\": true\n            }\n          }\n        }\n      },\n      {\n        \"product\": {\n          \"productId\": \"PROD-002\",\n          \"details\": {\n            \"name\": \"AirPods Pro (第3代)\",\n            \"category\": {\n              \"primary\": \"Electronics\",\n              \"secondary\": \"Audio\",\n              \"tertiary\": \"Apple\"\n            },\n            \"specifications\": {\n              \"color\": \"白色\",\n              \"connectivity\": \"蓝牙5.3\",\n              \"features\": [\"主动降噪\", \"空间音频\", \"自适应透明模式\"]\n            },\n            \"pricing\": {\n              \"unitPrice\": 1999.00,\n              \"discountPrice\": 1799.10,\n              \"currency\": \"CNY\",\n              \"taxRate\": 0.13\n            }\n          },\n          \"inventory\": {\n            \"sku\": \"APP3-WHITE\",\n            \"warehouse\": \"WH-BJ-001\", \n            \"stock\": 50,\n            \"reserved\": 10\n          }\n        },\n        \"orderDetails\": {\n          \"quantity\": 1,\n          \"customizations\": {\n            \"warranty\": {\n              \"type\": \"standard\",\n              \"duration\": 12,\n              \"coverage\": \"basic\"\n            }\n          },\n          \"fulfillment\": {\n            \"method\": \"delivery\",\n            \"options\": {\n              \"expedited\": false,\n              \"signature\": false,\n              \"tracking\": true\n            }\n          }\n        }\n      }\n    ],\n    \"payment\": {\n      \"summary\": {\n        \"subtotal\": 19797.20,\n        \"discounts\": {\n          \"total\": 1979.72,\n          \"breakdown\": [\n            {\n              \"code\": \"VIP10\",\n              \"amount\": 1979.72,\n              \"type\": \"percentage\"\n            }\n          ]\n        },\n        \"tax\": 2316.97,\n        \"shipping\": 0.00,\n        \"total\": 20134.45\n      },\n      \"method\": {\n        \"type\": \"credit_card\",\n        \"details\": {\n          \"cardType\": \"VISA\",\n          \"last4Digits\": \"1234\",\n          \"expiryMonth\": 12,\n          \"expiryYear\": 2027,\n          \"holderName\": \"张明华\"\n        },\n        \"billing\": {\n          \"same_as_shipping\": true\n        }\n      }\n    },\n    \"shipping\": {\n      \"method\": {\n        \"carrier\": \"顺丰\",\n        \"service\": \"次日达\",\n        \"trackingNumber\": \"SF1234567890\"\n      },\n      \"timeline\": {\n        \"estimated\": {\n          \"pickup\": \"2024-01-15 18:00:00\",\n          \"delivery\": \"2024-01-16 12:00:00\"\n        }\n      },\n      \"packaging\": {\n        \"type\": \"standard\",\n        \"materials\": [\"eco-friendly\", \"bubble-wrap\"],\n        \"insurance\": {\n          \"enabled\": true,\n          \"value\": 20134.45\n        }\n      }\n    }\n  }\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "3eVYFnUrFn"
+          }
+        ],
+        "method": "POST",
+        "name": "",
+        "sortPriority": 0.0,
+        "url": "http://localhost:18080/api/h2cache",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_GbzaWZs2wW",
+        "createdAt": "2026-02-10T02:13:30.701842800",
+        "updatedAt": "2026-04-09T03:01:58.457780100",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_zNPCbXKxf7",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"order\": {\n    \"header\": {\n      \"orderId\": \"ORD-2024-001\",\n      \"orderDate\": \"2024-01-15 10:30:00\",\n      \"source\": \"web\",\n      \"metadata\": {\n        \"channel\": \"online\",\n        \"campaign\": \"spring_sale\",\n        \"referrer\": \"google_ads\",\n        \"sessionId\": \"sess_abc123\",\n        \"deviceInfo\": {\n          \"type\": \"mobile\",\n          \"os\": \"iOS\",\n          \"version\": \"15.2\",\n          \"browser\": \"Safari\"\n        }\n      }\n    },\n    \"customer\": {\n      \"personalInfo\": {\n        \"customerId\": \"CUST-98765\",\n        \"name\": {\n          \"firstName\": \"张\",\n          \"lastName\": \"明华\",\n          \"fullName\": \"张明华\"\n        },\n        \"contact\": {\n          \"email\": \"zhangminghua@example.com\",\n          \"phone\": {\n            \"primary\": \"13800138000\",\n            \"secondary\": \"021-12345678\"\n          },\n          \"address\": {\n            \"shipping\": {\n              \"street\": \"中关村大街1号\",\n              \"city\": \"北京\",\n              \"province\": \"北京市\",\n              \"zipCode\": \"100080\",\n              \"country\": \"中国\",\n              \"coordinates\": {\n                \"latitude\": 39.9042,\n                \"longitude\": 116.4074\n              }\n            },\n            \"billing\": {\n              \"street\": \"中关村大街1号\",\n              \"city\": \"北京\",\n              \"province\": \"北京市\",\n              \"zipCode\": \"100080\",\n              \"country\": \"中国\"\n            }\n          }\n        }\n      },\n      \"preferences\": {\n        \"language\": \"zh-CN\",\n        \"currency\": \"CNY\",\n        \"notifications\": {\n          \"email\": true,\n          \"sms\": true,\n          \"push\": false\n        }\n      },\n      \"membership\": {\n        \"level\": \"VIP\",\n        \"points\": 15680,\n        \"discounts\": {\n          \"applicable\": [\n            {\n              \"code\": \"VIP10\",\n              \"type\": \"percentage\",\n              \"value\": 10,\n              \"description\": \"VIP会员10%折扣\"\n            },\n            {\n              \"code\": \"SPRING20\",\n              \"type\": \"percentage\", \n              \"value\": 20,\n              \"description\": \"春季促销20%折扣\"\n            }\n          ]\n        }\n      }\n    },\n    \"items\": [\n      {\n        \"product\": {\n          \"productId\": \"PROD-001\",\n          \"details\": {\n            \"name\": \"iPhone 15 Pro\",\n            \"category\": {\n              \"primary\": \"Electronics\",\n              \"secondary\": \"Smartphones\",\n              \"tertiary\": \"Apple\"\n            },\n            \"specifications\": {\n              \"color\": \"钛蓝色\",\n              \"storage\": \"256GB\",\n              \"model\": \"A3102\",\n              \"features\": [\"Face ID\", \"5G\", \"USB-C\", \"Action Button\"]\n            },\n            \"pricing\": {\n              \"unitPrice\": 8999.00,\n              \"discountPrice\": 8099.10,\n              \"currency\": \"CNY\",\n              \"taxRate\": 0.13\n            }\n          },\n          \"inventory\": {\n            \"sku\": \"IPH15P-256-BLUE\",\n            \"warehouse\": \"WH-BJ-001\",\n            \"stock\": 25,\n            \"reserved\": 5\n          }\n        },\n        \"orderDetails\": {\n          \"quantity\": 2,\n          \"customizations\": {\n            \"engraving\": {\n              \"enabled\": true,\n              \"text\": \"ZMH 2024\",\n              \"position\": \"back\"\n            },\n            \"warranty\": {\n              \"type\": \"extended\",\n              \"duration\": 24,\n              \"coverage\": \"comprehensive\"\n            }\n          },\n          \"fulfillment\": {\n            \"method\": \"delivery\",\n            \"options\": {\n              \"expedited\": true,\n              \"signature\": true,\n              \"tracking\": true\n            }\n          }\n        }\n      },\n      {\n        \"product\": {\n          \"productId\": \"PROD-002\",\n          \"details\": {\n            \"name\": \"AirPods Pro (第3代)\",\n            \"category\": {\n              \"primary\": \"Electronics\",\n              \"secondary\": \"Audio\",\n              \"tertiary\": \"Apple\"\n            },\n            \"specifications\": {\n              \"color\": \"白色\",\n              \"connectivity\": \"蓝牙5.3\",\n              \"features\": [\"主动降噪\", \"空间音频\", \"自适应透明模式\"]\n            },\n            \"pricing\": {\n              \"unitPrice\": 1999.00,\n              \"discountPrice\": 1799.10,\n              \"currency\": \"CNY\",\n              \"taxRate\": 0.13\n            }\n          },\n          \"inventory\": {\n            \"sku\": \"APP3-WHITE\",\n            \"warehouse\": \"WH-BJ-001\", \n            \"stock\": 50,\n            \"reserved\": 10\n          }\n        },\n        \"orderDetails\": {\n          \"quantity\": 1,\n          \"customizations\": {\n            \"warranty\": {\n              \"type\": \"standard\",\n              \"duration\": 12,\n              \"coverage\": \"basic\"\n            }\n          },\n          \"fulfillment\": {\n            \"method\": \"delivery\",\n            \"options\": {\n              \"expedited\": false,\n              \"signature\": false,\n              \"tracking\": true\n            }\n          }\n        }\n      }\n    ],\n    \"payment\": {\n      \"summary\": {\n        \"subtotal\": 19797.20,\n        \"discounts\": {\n          \"total\": 1979.72,\n          \"breakdown\": [\n            {\n              \"code\": \"VIP10\",\n              \"amount\": 1979.72,\n              \"type\": \"percentage\"\n            }\n          ]\n        },\n        \"tax\": 2316.97,\n        \"shipping\": 0.00,\n        \"total\": 20134.45\n      },\n      \"method\": {\n        \"type\": \"credit_card\",\n        \"details\": {\n          \"cardType\": \"VISA\",\n          \"last4Digits\": \"1234\",\n          \"expiryMonth\": 12,\n          \"expiryYear\": 2027,\n          \"holderName\": \"张明华\"\n        },\n        \"billing\": {\n          \"same_as_shipping\": true\n        }\n      }\n    },\n    \"shipping\": {\n      \"method\": {\n        \"carrier\": \"顺丰\",\n        \"service\": \"次日达\",\n        \"trackingNumber\": \"SF1234567890\"\n      },\n      \"timeline\": {\n        \"estimated\": {\n          \"pickup\": \"2024-01-15 18:00:00\",\n          \"delivery\": \"2024-01-16 12:00:00\"\n        }\n      },\n      \"packaging\": {\n        \"type\": \"standard\",\n        \"materials\": [\"eco-friendly\", \"bubble-wrap\"],\n        \"insurance\": {\n          \"enabled\": true,\n          \"value\": 20134.45\n        }\n      }\n    }\n  }\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "I9QedphIuZ"
+          }
+        ],
+        "method": "POST",
+        "name": "",
+        "sortPriority": 0.0,
+        "url": "http://localhost:18081/api/demo",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_YXMUb8fv9R",
+        "createdAt": "2026-02-09T08:54:57.993937700",
+        "updatedAt": "2026-04-09T03:01:58.471466700",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_zNPCbXKxf7",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"order\": {\n    \"header\": {\n      \"orderId\": \"ORD-2024-001\",\n      \"orderDate\": \"2024-01-15 10:30:00\",\n      \"source\": \"web\",\n      \"metadata\": {\n        \"channel\": \"online\",\n        \"campaign\": \"spring_sale\",\n        \"referrer\": \"google_ads\",\n        \"sessionId\": \"sess_abc123\",\n        \"deviceInfo\": {\n          \"type\": \"mobile\",\n          \"os\": \"iOS\",\n          \"version\": \"15.2\",\n          \"browser\": \"Safari\"\n        }\n      }\n    },\n    \"customer\": {\n      \"personalInfo\": {\n        \"customerId\": \"CUST-98765\",\n        \"name\": {\n          \"firstName\": \"张\",\n          \"lastName\": \"明华\",\n          \"fullName\": \"张明华\"\n        },\n        \"contact\": {\n          \"email\": \"zhangminghua@example.com\",\n          \"phone\": {\n            \"primary\": \"13800138000\",\n            \"secondary\": \"021-12345678\"\n          },\n          \"address\": {\n            \"shipping\": {\n              \"street\": \"中关村大街1号\",\n              \"city\": \"北京\",\n              \"province\": \"北京市\",\n              \"zipCode\": \"100080\",\n              \"country\": \"中国\",\n              \"coordinates\": {\n                \"latitude\": 39.9042,\n                \"longitude\": 116.4074\n              }\n            },\n            \"billing\": {\n              \"street\": \"中关村大街1号\",\n              \"city\": \"北京\",\n              \"province\": \"北京市\",\n              \"zipCode\": \"100080\",\n              \"country\": \"中国\"\n            }\n          }\n        }\n      },\n      \"preferences\": {\n        \"language\": \"zh-CN\",\n        \"currency\": \"CNY\",\n        \"notifications\": {\n          \"email\": true,\n          \"sms\": true,\n          \"push\": false\n        }\n      },\n      \"membership\": {\n        \"level\": \"VIP\",\n        \"points\": 15680,\n        \"discounts\": {\n          \"applicable\": [\n            {\n              \"code\": \"VIP10\",\n              \"type\": \"percentage\",\n              \"value\": 10,\n              \"description\": \"VIP会员10%折扣\"\n            },\n            {\n              \"code\": \"SPRING20\",\n              \"type\": \"percentage\", \n              \"value\": 20,\n              \"description\": \"春季促销20%折扣\"\n            }\n          ]\n        }\n      }\n    },\n    \"items\": [\n      {\n        \"product\": {\n          \"productId\": \"PROD-001\",\n          \"details\": {\n            \"name\": \"iPhone 15 Pro\",\n            \"category\": {\n              \"primary\": \"Electronics\",\n              \"secondary\": \"Smartphones\",\n              \"tertiary\": \"Apple\"\n            },\n            \"specifications\": {\n              \"color\": \"钛蓝色\",\n              \"storage\": \"256GB\",\n              \"model\": \"A3102\",\n              \"features\": [\"Face ID\", \"5G\", \"USB-C\", \"Action Button\"]\n            },\n            \"pricing\": {\n              \"unitPrice\": 8999.00,\n              \"discountPrice\": 8099.10,\n              \"currency\": \"CNY\",\n              \"taxRate\": 0.13\n            }\n          },\n          \"inventory\": {\n            \"sku\": \"IPH15P-256-BLUE\",\n            \"warehouse\": \"WH-BJ-001\",\n            \"stock\": 25,\n            \"reserved\": 5\n          }\n        },\n        \"orderDetails\": {\n          \"quantity\": 2,\n          \"customizations\": {\n            \"engraving\": {\n              \"enabled\": true,\n              \"text\": \"ZMH 2024\",\n              \"position\": \"back\"\n            },\n            \"warranty\": {\n              \"type\": \"extended\",\n              \"duration\": 24,\n              \"coverage\": \"comprehensive\"\n            }\n          },\n          \"fulfillment\": {\n            \"method\": \"delivery\",\n            \"options\": {\n              \"expedited\": true,\n              \"signature\": true,\n              \"tracking\": true\n            }\n          }\n        }\n      },\n      {\n        \"product\": {\n          \"productId\": \"PROD-002\",\n          \"details\": {\n            \"name\": \"AirPods Pro (第3代)\",\n            \"category\": {\n              \"primary\": \"Electronics\",\n              \"secondary\": \"Audio\",\n              \"tertiary\": \"Apple\"\n            },\n            \"specifications\": {\n              \"color\": \"白色\",\n              \"connectivity\": \"蓝牙5.3\",\n              \"features\": [\"主动降噪\", \"空间音频\", \"自适应透明模式\"]\n            },\n            \"pricing\": {\n              \"unitPrice\": 1999.00,\n              \"discountPrice\": 1799.10,\n              \"currency\": \"CNY\",\n              \"taxRate\": 0.13\n            }\n          },\n          \"inventory\": {\n            \"sku\": \"APP3-WHITE\",\n            \"warehouse\": \"WH-BJ-001\", \n            \"stock\": 50,\n            \"reserved\": 10\n          }\n        },\n        \"orderDetails\": {\n          \"quantity\": 1,\n          \"customizations\": {\n            \"warranty\": {\n              \"type\": \"standard\",\n              \"duration\": 12,\n              \"coverage\": \"basic\"\n            }\n          },\n          \"fulfillment\": {\n            \"method\": \"delivery\",\n            \"options\": {\n              \"expedited\": false,\n              \"signature\": false,\n              \"tracking\": true\n            }\n          }\n        }\n      }\n    ],\n    \"payment\": {\n      \"summary\": {\n        \"subtotal\": 19797.20,\n        \"discounts\": {\n          \"total\": 1979.72,\n          \"breakdown\": [\n            {\n              \"code\": \"VIP10\",\n              \"amount\": 1979.72,\n              \"type\": \"percentage\"\n            }\n          ]\n        },\n        \"tax\": 2316.97,\n        \"shipping\": 0.00,\n        \"total\": 20134.45\n      },\n      \"method\": {\n        \"type\": \"credit_card\",\n        \"details\": {\n          \"cardType\": \"VISA\",\n          \"last4Digits\": \"1234\",\n          \"expiryMonth\": 12,\n          \"expiryYear\": 2027,\n          \"holderName\": \"张明华\"\n        },\n        \"billing\": {\n          \"same_as_shipping\": true\n        }\n      }\n    },\n    \"shipping\": {\n      \"method\": {\n        \"carrier\": \"顺丰\",\n        \"service\": \"次日达\",\n        \"trackingNumber\": \"SF1234567890\"\n      },\n      \"timeline\": {\n        \"estimated\": {\n          \"pickup\": \"2024-01-15 18:00:00\",\n          \"delivery\": \"2024-01-16 12:00:00\"\n        }\n      },\n      \"packaging\": {\n        \"type\": \"standard\",\n        \"materials\": [\"eco-friendly\", \"bubble-wrap\"],\n        \"insurance\": {\n          \"enabled\": true,\n          \"value\": 20134.45\n        }\n      }\n    }\n  }\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "Ri0zWhad8x"
+          }
+        ],
+        "method": "POST",
+        "name": "",
+        "sortPriority": 1000.0,
+        "url": "http://localhost:18081/api/transform/complex-order",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_94TjD2dhNH",
+        "createdAt": "2026-02-06T02:59:53.339047400",
+        "updatedAt": "2026-04-09T02:36:36.403436100",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_rcpwVSRS2z",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {},
+        "bodyType": null,
+        "description": "",
+        "headers": [],
+        "method": "POST",
+        "name": "调整日志级别",
+        "sortPriority": 1000.0,
+        "url": "http://localhost:8080/api/logging/level",
+        "urlParameters": [
+          {
+            "enabled": true,
+            "name": "serviceKey",
+            "value": "PermissionTestSrv@v1.0.0@permission-test-route.xml",
+            "id": "bkIJGKcq6J"
+          },
+          {
+            "enabled": true,
+            "name": "level",
+            "value": "DEBUG",
+            "id": "F8Gjd5waWj"
+          },
+          {
+            "enabled": true,
+            "name": "",
+            "value": "",
+            "id": "xvHz9pzWNs"
+          }
+        ]
+      },
+      {
+        "model": "http_request",
+        "id": "rq_iobTedcoEb",
+        "createdAt": "2026-02-05T07:50:00.445092200",
+        "updatedAt": "2026-04-09T02:37:10.268843900",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_Nk5akLEJoF",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"status\": \"success\",\n  \"message\": \"权限校验通过\",\n  \"clientIp\": \"127.0.0.1\",\n  \"senderId\": \"test\",\n  \"applicationCode\": \"test\",\n  \"permissionChecked\": \"true\"\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "GQHVM8ec9A"
+          }
+        ],
+        "method": "POST",
+        "name": "",
+        "sortPriority": 0.0,
+        "url": "http://localhost:18084/api/permission-test",
+        "urlParameters": []
+      }
+    ],
+    "grpcRequests": [],
+    "websocketRequests": []
+  }
+}
