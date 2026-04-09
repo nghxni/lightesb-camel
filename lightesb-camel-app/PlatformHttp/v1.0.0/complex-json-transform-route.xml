@@ -4,8 +4,10 @@
     <!-- 复杂4层JSON结构转换为2层结构的路由  -->
     <route id="complex-json-transform-route" description="复杂4层JSON转换为2层结构">
         <!-- HTTP端点：接收复杂订单数据 -->
+        <!-- HTTP Endpoint: Receive complex order data -->
         <from uri="undertow:http://0.0.0.0:{{server.port}}/api/transform/complex-order?httpMethodRestrict=POST" />
         <!-- 异常处理 -->
+        <!-- Exception Handling -->
         <onException>
             <exception>java.lang.Exception</exception>
             <handled>
@@ -20,8 +22,10 @@
         </onException>
           
         <!-- 记录请求开始 -->
+        <!-- Record Request Start -->
         <to uri="servicelog:info?message=开始处理复杂订单JSON转换&amp;showBody=true&amp;maxBodyLength=500"/>
         <!-- 使用条件化转换组件（自动根据配置决定是否转换） -->
+        <!-- Use Conditional Transform Component (automatically determine whether to convert based on configuration) -->
         <to uri="conditionaltransform:input?skipOnError=true"/>
         <!-- <transform>
             <datasonnet outputMediaType="application/json">
@@ -33,14 +37,17 @@
             </datasonnet> 
         </transform> -->
         <!-- 记录转换完成 -->
+        <!-- Record Conversion Complete -->
         <to uri="servicelog:info?message=复杂JSON转换完成&amp;showBody=true&amp;maxBodyLength=5000"/>
         <!-- 处理响应的UTF-8编码和Content-Type -->
+        <!-- Process Response UTF-8 Encoding and Content-Type -->
         <process ref="jsonResponseProcessor"/>     
     </route>
 
     <route id="common-functions-demo">
         <from uri="undertow:http://0.0.0.0:{{server.port}}/api/demo" />
         <!-- 在 unmarshal 前直接传原始 JSON 报文给 Java 方法 -->
+        <!-- Pass original JSON message to Java method before unmarshal -->
         <setProperty name="customerName">
             <method ref="commonFunctions" method="transformComplexOrder(${body})" />
         </setProperty>
@@ -59,11 +66,13 @@
         </unmarshal>
 
         <!-- 示例2：使用 bean 调用 formatAmount -->
+        <!-- Use bean to call formatAmount -->
         <setProperty name="formattedAmount">
             <method ref="commonFunctions" method="formatAmount(${body[amount]})" />
         </setProperty>
 
         <!-- 示例3：使用 bean 调用 validateRequired -->
+        <!-- Use bean to call validateRequired -->
         <setProperty name="validatedField">
             <method ref="commonFunctions" method="validateRequired(${body[orderId]}, 'orderId')" />
         </setProperty>
@@ -71,7 +80,8 @@
         <transform>
             <simple>{
                 "customerName": "${exchangeProperty.customerName}",
-                "formattedAmount": "${exchangeProperty.formattedAmount}"
+                "formattedAmount": "${exchangeProperty.formattedAmount}",
+                "validatedField": "${exchangeProperty.validatedField}"
             }</simple>
         </transform> 
         <process ref="charsetProcessor"/>

@@ -1,6 +1,6 @@
 # 轻量Camel接口管理
 
-使用 Apache Camel 构建的轻量 ESB 接口管理与监控平台，支持 AI Agent 模式，可直接复用存量系统 API。
+使用 JDK21 + Apache Camel 4.18.x构建的轻量 ESB 接口管理与监控平台，支持 AI Agent 模式，可直接复用存量系统 API。
 
 核心能力：
 - HTTP 接口暴露与服务编排（Undertow、Route Loader 生命周期）
