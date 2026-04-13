@@ -5,7 +5,7 @@
     <!-- <route id="order-transform-route"  routePolicyRef="serviceContextRoutePolicy" description="订单数据转换服务"> -->
      <route id="order-transform-route"  description="订单数据转换服务">
         <!-- HTTP端点：接收订单数据 -->
-        <from uri="undertow:http://0.0.0.0:{{server.port}}/api/transform/order?httpMethodRestrict=POST" />
+        <from uri="undertow:http://0.0.0.0:{{server.port}}/{{service.version}}/transform/order?httpMethodRestrict=POST" />
         
          <process ref="requestCharsetProcessor"/> 
          <to uri="servicelog:debug?message=debug请求体：${body}"/>
@@ -55,7 +55,7 @@
   <!-- 订单数据转换路由 -->
     <route id="order-transform-route200" description="订单数据转换服务">
         <!-- HTTP端点：接收订单数据 -->
-        <from uri="undertow:http://0.0.0.0:{{server.port}}/api/transform/order1?httpMethodRestrict=POST" />
+        <from uri="undertow:http://0.0.0.0:{{server.port}}/{{service.version}}/transform/order1?httpMethodRestrict=POST" />
         
         <transform>
             <simple>{"status": "${jsonpath($.orderId)}", "message": "请求处理完成"}</simple>

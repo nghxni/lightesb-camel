@@ -1,0 +1,243 @@
+{
+    "order": {
+      "header": {
+        "orderId": "ORD-2024-003",
+        "orderDate": "2024-01-15 10:30:00",
+        "source": "web",
+        "metadata": {
+          "channel": "online",
+          "campaign": "spring_sale",
+          "referrer": "google_ads",
+          "sessionId": "sess_abc123",
+          "deviceInfo": {
+            "type": "mobile",
+            "os": "iOS",
+            "version": "15.2",
+            "browser": "Safari"
+          }
+        }
+      },
+      "customer": {
+        "personalInfo": {
+          "customerId": "CUST-98765",
+          "name": {
+            "firstName": "张",
+            "lastName": "明华",
+            "fullName": "张明华"
+          },
+          "contact": {
+            "email": "zhangminghua@example.com",
+            "phone": {
+              "primary": "13800138000",
+              "secondary": "021-12345678"
+            },
+            "address": {
+              "shipping": {
+                "street": "中关村大街1号",
+                "city": "北京",
+                "province": "北京市",
+                "zipCode": "100080",
+                "country": "中国",
+                "coordinates": {
+                  "latitude": 39.9042,
+                  "longitude": 116.4074
+                }
+              },
+              "billing": {
+                "street": "中关村大街1号",
+                "city": "北京",
+                "province": "北京市",
+                "zipCode": "100080",
+                "country": "中国"
+              }
+            }
+          }
+        },
+        "preferences": {
+          "language": "zh-CN",
+          "currency": "CNY",
+          "notifications": {
+            "email": true,
+            "sms": true,
+            "push": false
+          }
+        },
+        "membership": {
+          "level": "VIP",
+          "points": 15680,
+          "discounts": {
+            "applicable": [
+              {
+                "code": "VIP10",
+                "type": "percentage",
+                "value": 10,
+                "description": "VIP会员10%折扣"
+              },
+              {
+                "code": "SPRING20",
+                "type": "percentage", 
+                "value": 20,
+                "description": "春季促销20%折扣"
+              }
+            ]
+          }
+        }
+      },
+      "items": [
+        {
+          "product": {
+            "productId": "PROD-001",
+            "details": {
+              "name": "iPhone 15 Pro",
+              "category": {
+                "primary": "Electronics",
+                "secondary": "Smartphones",
+                "tertiary": "Apple"
+              },
+              "specifications": {
+                "color": "钛蓝色",
+                "storage": "256GB",
+                "model": "A3102",
+                "features": ["Face ID", "5G", "USB-C", "Action Button"]
+              },
+              "pricing": {
+                "unitPrice": 8999.00,
+                "discountPrice": 8099.10,
+                "currency": "CNY",
+                "taxRate": 0.13
+              }
+            },
+            "inventory": {
+              "sku": "IPH15P-256-BLUE",
+              "warehouse": "WH-BJ-001",
+              "stock": 25,
+              "reserved": 5
+            }
+          },
+          "orderDetails": {
+            "quantity": 2,
+            "customizations": {
+              "engraving": {
+                "enabled": true,
+                "text": "ZMH 2024",
+                "position": "back"
+              },
+              "warranty": {
+                "type": "extended",
+                "duration": 24,
+                "coverage": "comprehensive"
+              }
+            },
+            "fulfillment": {
+              "method": "delivery",
+              "options": {
+                "expedited": true,
+                "signature": true,
+                "tracking": true
+              }
+            }
+          }
+        },
+        {
+          "product": {
+            "productId": "PROD-002",
+            "details": {
+              "name": "AirPods Pro (第3代)",
+              "category": {
+                "primary": "Electronics",
+                "secondary": "Audio",
+                "tertiary": "Apple"
+              },
+              "specifications": {
+                "color": "白色",
+                "connectivity": "蓝牙5.3",
+                "features": ["主动降噪", "空间音频", "自适应透明模式"]
+              },
+              "pricing": {
+                "unitPrice": 1999.00,
+                "discountPrice": 1799.10,
+                "currency": "CNY",
+                "taxRate": 0.13
+              }
+            },
+            "inventory": {
+              "sku": "APP3-WHITE",
+              "warehouse": "WH-BJ-001", 
+              "stock": 50,
+              "reserved": 10
+            }
+          },
+          "orderDetails": {
+            "quantity": 1,
+            "customizations": {
+              "warranty": {
+                "type": "standard",
+                "duration": 12,
+                "coverage": "basic"
+              }
+            },
+            "fulfillment": {
+              "method": "delivery",
+              "options": {
+                "expedited": false,
+                "signature": false,
+                "tracking": true
+              }
+            }
+          }
+        }
+      ],
+      "payment": {
+        "summary": {
+          "subtotal": 19797.20,
+          "discounts": {
+            "total": 1979.72,
+            "breakdown": [
+              {
+                "code": "VIP10",
+                "amount": 1979.72,
+                "type": "percentage"
+              }
+            ]
+          },
+          "tax": 2316.97,
+          "shipping": 0.00,
+          "total": 20134.45
+        },
+        "method": {
+          "type": "credit_card",
+          "details": {
+            "cardType": "VISA",
+            "last4Digits": "1234",
+            "expiryMonth": 12,
+            "expiryYear": 2027,
+            "holderName": "张明华"
+          },
+          "billing": {
+            "same_as_shipping": true
+          }
+        }
+      },
+      "shipping": {
+        "method": {
+          "carrier": "顺丰",
+          "service": "次日达",
+          "trackingNumber": "SF1234567890"
+        },
+        "timeline": {
+          "estimated": {
+            "pickup": "2024-01-15 18:00:00",
+            "delivery": "2024-01-16 12:00:00"
+          }
+        },
+        "packaging": {
+          "type": "standard",
+          "materials": ["eco-friendly", "bubble-wrap"],
+          "insurance": {
+            "enabled": true,
+            "value": 20134.45
+          }
+        }
+      }
+    }
+  }

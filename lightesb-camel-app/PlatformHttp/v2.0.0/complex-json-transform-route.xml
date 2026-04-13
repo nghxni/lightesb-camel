@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://camel.apache.org/schema/spring">
+    <route id="common-functions-demodts">
+        <from uri="undertow:http://0.0.0.0:{{server.port}}/{{service.version}}/api/demo" />
+
+        <!-- 在 unmarshal 前直接传原始 JSON 报文给 DTS 通用入口，串联测试多个转换 -->
+        <setProperty name="complexOrderResult">
+            <method ref="commonFunctions" method="invokeDtsTransform('transformComplexOrder', ${body})" />
+        </setProperty>
+        <setProperty name="orderSummaryResult">
+            <method ref="commonFunctions" method="invokeDtsTransform('transformOrderSummary', ${body})" />
+        </setProperty>
+        <setProperty name="customerSnapshotResult">
+            <method ref="commonFunctions" method="invokeDtsTransform('transformCustomerSnapshot', ${body})" />
+        </setProperty>
+        <setProperty name="riskTagsResult">
+            <method ref="commonFunctions" method="invokeDtsTransform('transformRiskTags', ${body})" />
+        </setProperty>
+        <to uri="servicelog:info?message=complexOrderResult: ${exchangeProperty.complexOrderResult}"/>
+        <to uri="servicelog:info?message=orderSummaryResult: ${exchangeProperty.orderSummaryResult}"/>
+        <to uri="servicelog:info?message=customerSnapshotResult: ${exchangeProperty.customerSnapshotResult}"/>
+        <to uri="servicelog:info?message=riskTagsResult: ${exchangeProperty.riskTagsResult}"/>
+ 
+        <transform>
+            <simple>{
+                "complexOrder": "${exchangeProperty.complexOrderResult}",
+                "orderSummary": "${exchangeProperty.orderSummaryResult}",
+                "customerSnapshot": "${exchangeProperty.customerSnapshotResult}",
+                "riskTags": "${exchangeProperty.riskTagsResult}",
+                "formattedAmount": "${exchangeProperty.formattedAmount}",
+                "validatedField": "${exchangeProperty.validatedField}"
+            }</simple>
+        </transform> 
+        <process ref="charsetProcessor"/>
+    </route>
+
+</routes>
