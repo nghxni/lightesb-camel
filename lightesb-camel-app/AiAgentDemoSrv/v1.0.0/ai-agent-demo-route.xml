@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+    <!-- Agent 入口路由：接收用户消息，交由 LangChain4j Agent 处理 -->
+    <route id="ai-agent-demo-entry">
+        <from uri="undertow:http://0.0.0.0:{{server.port}}/api/ai/agent/chat?httpMethodRestrict=POST"/>
+        <process ref="requestCharsetProcessor"/>
+        <to uri="servicelog:info?message=[AI-AGENT] 收到请求&amp;showBody=true&amp;maxBodyLength=500"/>
+
+        <!-- 设置 Agent 系统提示词和记忆ID -->
+        <setHeader name="CamelLangChain4jAgentSystemMessage">
+            <constant>{{ai.system.prompt}}</constant>
+        </setHeader>
+        <setHeader name="CamelLangChain4jAgentMemoryId">
+            <jsonpath>$.memoryId</jsonpath>
+        </setHeader>
+
+        <!-- 提取用户消息作为 body -->
+        <setBody>
+            <jsonpath resultType="java.lang.String">$.message</jsonpath>
+        </setBody>
+        <to uri="servicelog:debug?message=[AI-AGENT] 准备调用 Agent traceId=${exchangeId.substring(0,8)}, memoryId=${header.CamelLangChain4jAgentMemoryId}&amp;showBody=true&amp;maxBodyLength=300"/>
+
+        <!-- 调用 Agent（自动发现 tags=order-demo 的工具路由） -->
+        <to uri="langchain4j-agent:{{service.ai.type}}Assistant?agent=#genericAiAgent&amp;tags={{ai.agent.tags}}"/>
+        <to uri="servicelog:debug?message=[AI-AGENT] Agent 响应完成&amp;showBody=true&amp;maxBodyLength={{ai.debug.max.body.length}}"/>
+
+        <!-- 包装响应 -->
+        <setProperty name="agentResponse">
+            <simple>${bodyAs(String)}</simple>
+        </setProperty>
+        <setProperty name="memoryId">
+            <simple>${header.CamelLangChain4jAgentMemoryId}</simple>
+        </setProperty>
+        <to uri="servicelog:debug?message=[AI-AGENT] agentResponse=${exchangeProperty.agentResponse}&amp;showBody=true&amp;maxBodyLength={{ai.debug.max.body.length}}"/>
+        <!-- DataSonnet 需要合法 JSON 输入，先置空对象 -->
+        <setBody>
+            <constant>{}</constant>
+        </setBody>
+        <transform>
+            <datasonnet resultType="java.lang.String">local toolDataRaw = cml.exchangeProperty("toolData");
+                    std.manifestJson({
+                        "success": true,
+                        "memoryId": cml.exchangeProperty("memoryId"),
+                        "responseText": cml.exchangeProperty("agentResponse"),
+                        "toolData": if toolDataRaw == null then null else std.parseJson(toolDataRaw),
+                        "timestamp": ds.datetime.now()
+                         })
+            </datasonnet>
+        </transform>
+
+        <process ref="jsonResponseProcessor"/>
+        <to uri="servicelog:info?message=[AI-AGENT] 处理完成&amp;showBody=true&amp;maxBodyLength=500"/>
+    </route>
+
+
+
+  <!--
+        AI Tool 路由（100% XML，零 Java 代码）
+        每个 tool 通过 langchain4j-tools 组件暴露给 LLM，
+        LLM 根据用户意图自动选择并调用对应工具。
+        工具参数通过 header 传入（parameter.xxx=type）。
+    -->
+
+    <!-- 工具1：查询订单详情 -->
+    <route id="tool-demo-query-order">
+        <from uri="langchain4j-tools:queryOrderDetail?tags=order-demo&amp;description=Query order details by order ID. Returns order status, items, and total amount.&amp;parameter.orderId=string"/>
+        <to uri="servicelog:debug?message=[AI-TOOL] queryOrderDetail 被调用 orderId=${header.orderId}&amp;showBody=false"/>
+
+        <!-- 构建外部 API 请求 -->
+        <setHeader name="Content-Type">
+            <constant>application/json</constant>
+        </setHeader>
+        <setHeader name="CamelHttpMethod">
+            <constant>GET</constant>
+        </setHeader>
+
+        <!-- 调用内部 HTTP mock 子路由：bridgeEndpoint=true -->
+        <toD uri="http://127.0.0.1:{{server.port}}/api/ai/agent/mock/order/${header.orderId}?bridgeEndpoint=true&amp;connectTimeout=5000&amp;socketTimeout=30000&amp;throwExceptionOnFailure=false"/>
+        <setProperty name="toolData">
+            <simple>${bodyAs(String)}</simple>
+        </setProperty>
+        <to uri="servicelog:INFO?message=[AI-TOOL] queryOrderDetail 响应 httpStatus=${header.CamelHttpResponseCode}&amp;showBody=true&amp;maxBodyLength={{ai.debug.max.body.length}}"/>
+    </route>
+
+    <!-- 工具2：取消订单 -->
+    <route id="tool-demo-cancel-order">
+        <from uri="langchain4j-tools:cancelOrder?tags=order-demo&amp;description=Cancel an existing order by order ID. Requires a reason for cancellation.&amp;parameter.orderId=string&amp;parameter.reason=string"/>
+        <to uri="servicelog:debug?message=[AI-TOOL] cancelOrder 被调用 orderId=${header.orderId}, reason=${header.reason}&amp;showBody=false"/>
+
+        <!-- 构建取消请求体 -->
+        <setBody>
+            <simple>{
+                "orderId": "${header.orderId}",
+                "reason": "${header.reason}",
+                "cancelledBy": "ai-agent"
+            }</simple>
+        </setBody>
+        <setHeader name="Content-Type">
+            <constant>application/json;charset=UTF-8</constant>
+        </setHeader>
+        <setHeader name="CamelHttpCharacterEncoding">
+            <constant>UTF-8</constant>
+        </setHeader>
+        <setHeader name="Accept-Charset">
+            <constant>UTF-8</constant>
+        </setHeader>
+
+        <!-- 调用内部 HTTP mock 子路由：bridgeEndpoint=true -->
+        <toD uri="http://127.0.0.1:{{server.port}}/api/ai/agent/mock/order/cancel?httpMethod=POST&amp;bridgeEndpoint=true&amp;charset=UTF-8&amp;connectTimeout=5000&amp;socketTimeout=30000&amp;throwExceptionOnFailure=false"/>
+        <setProperty name="toolData">
+            <simple>${bodyAs(String)}</simple>
+        </setProperty>
+        <to uri="servicelog:info?message=[AI-TOOL] cancelOrder 响应 httpStatus=${header.CamelHttpResponseCode}&amp;showBody=true&amp;maxBodyLength={{ai.debug.max.body.length}}"/>
+    </route>
+
+    <!-- 工具3：查询订单列表 -->
+    <route id="tool-demo-list-orders">
+        <from uri="langchain4j-tools:listRecentOrders?tags=order-demo&amp;description=List recent orders for a customer by customer ID. Returns a list of recent orders.&amp;parameter.customerId=string&amp;parameter.limit=integer"/>
+        <to uri="servicelog:info?message=[AI-TOOL] listRecentOrders 被调用 customerId=${header.customerId}, limit=${header.limit}&amp;showBody=false"/>
+
+        <setHeader name="Content-Type">
+            <constant>application/json</constant>
+        </setHeader>
+        <setHeader name="CamelHttpMethod">
+            <constant>GET</constant>
+        </setHeader>
+
+        <!-- 调用内部 HTTP mock 子路由：bridgeEndpoint=true -->
+        <toD uri="http://127.0.0.1:{{server.port}}/api/ai/agent/mock/orders?customerId=${header.customerId}&amp;limit=${header.limit}&amp;bridgeEndpoint=true&amp;connectTimeout=5000&amp;socketTimeout=30000&amp;throwExceptionOnFailure=false"/>
+        <setProperty name="toolData">
+            <simple>${bodyAs(String)}</simple>
+        </setProperty>
+        <to uri="servicelog:debug?message=[AI-TOOL] listRecentOrders 响应 httpStatus=${header.CamelHttpResponseCode}&amp;showBody=true&amp;maxBodyLength={{ai.debug.max.body.length}}"/>
+    </route>
+
+    <!-- mock 子路由1：查询订单详情测试返回 -->
+    <route id="tool-demo-mock-query-order">
+        <from uri="undertow:http://0.0.0.0:{{server.port}}/api/ai/agent/mock/order/{orderId}?httpMethodRestrict=GET"/>
+        <setHeader name="Content-Type">
+            <constant>application/json</constant>
+        </setHeader>
+        <setHeader name="CamelHttpResponseCode">
+            <constant>200</constant>
+        </setHeader>
+        <setBody>
+            <simple>{
+                "success": true,
+                "message": "mock query order detail success",
+                "data": {
+                    "orderId": "${header.orderId}",
+                    "status": "PAID",
+                    "items": [
+                        {"sku": "SKU-DEMO-001", "qty": 1, "price": 199.0},
+                        {"sku": "SKU-DEMO-002", "qty": 2, "price": 49.5}
+                    ],
+                    "totalAmount": 298.0
+                }
+                }</simple>
+        </setBody>
+    </route>
+
+    <!-- mock 子路由2：取消订单测试返回 -->
+    <route id="tool-demo-mock-cancel-order">
+        <from uri="undertow:http://0.0.0.0:{{server.port}}/api/ai/agent/mock/order/cancel?httpMethodRestrict=POST"/>
+        <process ref="requestCharsetProcessor"/>
+        <setProperty name="mockOrderId">
+            <jsonpath>$.orderId</jsonpath>
+        </setProperty>
+        <setProperty name="mockCancelReason">
+            <jsonpath>$.reason</jsonpath>
+        </setProperty>
+        <setProperty name="mockCancelledBy">
+            <jsonpath>$.cancelledBy</jsonpath>
+        </setProperty>
+        <setHeader name="Content-Type">
+            <constant>application/json</constant>
+        </setHeader>
+        <setHeader name="CamelHttpResponseCode">
+            <constant>200</constant>
+        </setHeader>
+        <setBody>
+            <simple>{
+                "success": true,
+                "message": "mock cancel order success",
+                "data": {
+                    "orderId": "${exchangeProperty.mockOrderId}",
+                    "cancelled": true,
+                    "cancelReason": "${exchangeProperty.mockCancelReason}",
+                    "cancelledBy": "${exchangeProperty.mockCancelledBy}"
+                }
+            }</simple>
+        </setBody>
+    </route>
+
+    <!-- mock 子路由3：查询订单列表测试返回 -->
+    <route id="tool-demo-mock-list-orders">
+        <from uri="undertow:http://0.0.0.0:{{server.port}}/api/ai/agent/mock/orders?httpMethodRestrict=GET"/>
+        <setHeader name="Content-Type">
+            <constant>application/json</constant>
+        </setHeader>
+        <setHeader name="CamelHttpResponseCode">
+            <constant>200</constant>
+        </setHeader>
+        <setBody>
+            <simple>{
+                "success": true,
+                "message": "mock list recent orders success",
+                "data": {
+                    "customerId": "${header.customerId}",
+                    "limit": "${header.limit}",
+                    "orders": [
+                        {"orderId": "MOCK-1001", "status": "PAID", "amount": 128.0},
+                        {"orderId": "MOCK-1002", "status": "SHIPPED", "amount": 256.5}
+                    ]
+                }
+            }</simple>
+        </setBody>
+    </route>
+</routes>

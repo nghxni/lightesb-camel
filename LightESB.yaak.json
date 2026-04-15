@@ -1,7 +1,7 @@
 {
   "yaakVersion": "2026.3.1",
   "yaakSchema": 4,
-  "timestamp": "2026-04-09T09:30:18.276546200",
+  "timestamp": "2026-04-15T07:02:39.591542500",
   "resources": {
     "workspaces": [
       {
@@ -23,6 +23,20 @@
     ],
     "environments": [],
     "folders": [
+      {
+        "model": "folder",
+        "id": "fl_VpC9wM6esR",
+        "createdAt": "2026-04-15T02:39:49.574831700",
+        "updatedAt": "2026-04-15T02:39:49.574832300",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": null,
+        "authentication": {},
+        "authenticationType": null,
+        "description": "",
+        "headers": [],
+        "name": "ai-agent-demo",
+        "sortPriority": -1776220789568.0
+      },
       {
         "model": "folder",
         "id": "fl_3CjWpWWHwn",
@@ -151,6 +165,146 @@
       }
     ],
     "httpRequests": [
+      {
+        "model": "http_request",
+        "id": "rq_nVQcdMxXWB",
+        "createdAt": "2026-04-15T06:53:15.377989100",
+        "updatedAt": "2026-04-15T06:54:58.302799600",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_VpC9wM6esR",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"memoryId\":\"003\",\n  \"message\": \"查询张三的所有的订单信息\"\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "I9QedphIuZ"
+          }
+        ],
+        "method": "POST",
+        "name": "查询订单列表",
+        "sortPriority": 3000.0,
+        "url": "http://localhost:19095/api/ai/agent/chat",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_g6okJua7mi",
+        "createdAt": "2026-04-15T06:49:06.318805600",
+        "updatedAt": "2026-04-15T06:53:17.197620500",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_VpC9wM6esR",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"memoryId\":\"002\",\n  \"message\": \"七天无理由退货取消订单ord00xa12\"\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "I9QedphIuZ"
+          }
+        ],
+        "method": "POST",
+        "name": "取消订单-02",
+        "sortPriority": 2000.0,
+        "url": "http://localhost:19095/api/ai/agent/chat",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_FoXzHAdfLN",
+        "createdAt": "2026-04-15T06:47:55.276017900",
+        "updatedAt": "2026-04-15T06:53:17.185941900",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_VpC9wM6esR",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"memoryId\":\"002\",\n  \"message\": \"取消订单ord00xa12\"\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "I9QedphIuZ"
+          }
+        ],
+        "method": "POST",
+        "name": "取消订单-01",
+        "sortPriority": 1000.0,
+        "url": "http://localhost:19095/api/ai/agent/chat",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_E5MsxU9Rtq",
+        "createdAt": "2026-04-15T02:39:59.068489700",
+        "updatedAt": "2026-04-15T06:53:17.172723500",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_VpC9wM6esR",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"memoryId\":\"001\",\n  \"message\": \"查询订单ord00xa12详情\"\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "I9QedphIuZ"
+          }
+        ],
+        "method": "POST",
+        "name": "查询订单详情",
+        "sortPriority": 0.0,
+        "url": "http://localhost:19095/api/ai/agent/chat",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_V5YNeyw42t",
+        "createdAt": "2026-04-13T01:23:26.721550700",
+        "updatedAt": "2026-04-13T01:23:46.626469",
+        "workspaceId": "wk_LgNRTYmC2c",
+        "folderId": "fl_zNPCbXKxf7",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"order\": {\n    \"header\": {\n      \"orderId\": \"ORD-2024-001\",\n      \"orderDate\": \"2024-01-15 10:30:00\",\n      \"source\": \"web\",\n      \"metadata\": {\n        \"channel\": \"online\",\n        \"campaign\": \"spring_sale\",\n        \"referrer\": \"google_ads\",\n        \"sessionId\": \"sess_abc123\",\n        \"deviceInfo\": {\n          \"type\": \"mobile\",\n          \"os\": \"iOS\",\n          \"version\": \"15.2\",\n          \"browser\": \"Safari\"\n        }\n      }\n    },\n    \"customer\": {\n      \"personalInfo\": {\n        \"customerId\": \"CUST-98765\",\n        \"name\": {\n          \"firstName\": \"张\",\n          \"lastName\": \"明华\",\n          \"fullName\": \"张明华\"\n        },\n        \"contact\": {\n          \"email\": \"zhangminghua@example.com\",\n          \"phone\": {\n            \"primary\": \"13800138000\",\n            \"secondary\": \"021-12345678\"\n          },\n          \"address\": {\n            \"shipping\": {\n              \"street\": \"中关村大街1号\",\n              \"city\": \"北京\",\n              \"province\": \"北京市\",\n              \"zipCode\": \"100080\",\n              \"country\": \"中国\",\n              \"coordinates\": {\n                \"latitude\": 39.9042,\n                \"longitude\": 116.4074\n              }\n            },\n            \"billing\": {\n              \"street\": \"中关村大街1号\",\n              \"city\": \"北京\",\n              \"province\": \"北京市\",\n              \"zipCode\": \"100080\",\n              \"country\": \"中国\"\n            }\n          }\n        }\n      },\n      \"preferences\": {\n        \"language\": \"zh-CN\",\n        \"currency\": \"CNY\",\n        \"notifications\": {\n          \"email\": true,\n          \"sms\": true,\n          \"push\": false\n        }\n      },\n      \"membership\": {\n        \"level\": \"VIP\",\n        \"points\": 15680,\n        \"discounts\": {\n          \"applicable\": [\n            {\n              \"code\": \"VIP10\",\n              \"type\": \"percentage\",\n              \"value\": 10,\n              \"description\": \"VIP会员10%折扣\"\n            },\n            {\n              \"code\": \"SPRING20\",\n              \"type\": \"percentage\", \n              \"value\": 20,\n              \"description\": \"春季促销20%折扣\"\n            }\n          ]\n        }\n      }\n    },\n    \"items\": [\n      {\n        \"product\": {\n          \"productId\": \"PROD-001\",\n          \"details\": {\n            \"name\": \"iPhone 15 Pro\",\n            \"category\": {\n              \"primary\": \"Electronics\",\n              \"secondary\": \"Smartphones\",\n              \"tertiary\": \"Apple\"\n            },\n            \"specifications\": {\n              \"color\": \"钛蓝色\",\n              \"storage\": \"256GB\",\n              \"model\": \"A3102\",\n              \"features\": [\"Face ID\", \"5G\", \"USB-C\", \"Action Button\"]\n            },\n            \"pricing\": {\n              \"unitPrice\": 8999.00,\n              \"discountPrice\": 8099.10,\n              \"currency\": \"CNY\",\n              \"taxRate\": 0.13\n            }\n          },\n          \"inventory\": {\n            \"sku\": \"IPH15P-256-BLUE\",\n            \"warehouse\": \"WH-BJ-001\",\n            \"stock\": 25,\n            \"reserved\": 5\n          }\n        },\n        \"orderDetails\": {\n          \"quantity\": 2,\n          \"customizations\": {\n            \"engraving\": {\n              \"enabled\": true,\n              \"text\": \"ZMH 2024\",\n              \"position\": \"back\"\n            },\n            \"warranty\": {\n              \"type\": \"extended\",\n              \"duration\": 24,\n              \"coverage\": \"comprehensive\"\n            }\n          },\n          \"fulfillment\": {\n            \"method\": \"delivery\",\n            \"options\": {\n              \"expedited\": true,\n              \"signature\": true,\n              \"tracking\": true\n            }\n          }\n        }\n      },\n      {\n        \"product\": {\n          \"productId\": \"PROD-002\",\n          \"details\": {\n            \"name\": \"AirPods Pro (第3代)\",\n            \"category\": {\n              \"primary\": \"Electronics\",\n              \"secondary\": \"Audio\",\n              \"tertiary\": \"Apple\"\n            },\n            \"specifications\": {\n              \"color\": \"白色\",\n              \"connectivity\": \"蓝牙5.3\",\n              \"features\": [\"主动降噪\", \"空间音频\", \"自适应透明模式\"]\n            },\n            \"pricing\": {\n              \"unitPrice\": 1999.00,\n              \"discountPrice\": 1799.10,\n              \"currency\": \"CNY\",\n              \"taxRate\": 0.13\n            }\n          },\n          \"inventory\": {\n            \"sku\": \"APP3-WHITE\",\n            \"warehouse\": \"WH-BJ-001\", \n            \"stock\": 50,\n            \"reserved\": 10\n          }\n        },\n        \"orderDetails\": {\n          \"quantity\": 1,\n          \"customizations\": {\n            \"warranty\": {\n              \"type\": \"standard\",\n              \"duration\": 12,\n              \"coverage\": \"basic\"\n            }\n          },\n          \"fulfillment\": {\n            \"method\": \"delivery\",\n            \"options\": {\n              \"expedited\": false,\n              \"signature\": false,\n              \"tracking\": true\n            }\n          }\n        }\n      }\n    ],\n    \"payment\": {\n      \"summary\": {\n        \"subtotal\": 19797.20,\n        \"discounts\": {\n          \"total\": 1979.72,\n          \"breakdown\": [\n            {\n              \"code\": \"VIP10\",\n              \"amount\": 1979.72,\n              \"type\": \"percentage\"\n            }\n          ]\n        },\n        \"tax\": 2316.97,\n        \"shipping\": 0.00,\n        \"total\": 20134.45\n      },\n      \"method\": {\n        \"type\": \"credit_card\",\n        \"details\": {\n          \"cardType\": \"VISA\",\n          \"last4Digits\": \"1234\",\n          \"expiryMonth\": 12,\n          \"expiryYear\": 2027,\n          \"holderName\": \"张明华\"\n        },\n        \"billing\": {\n          \"same_as_shipping\": true\n        }\n      }\n    },\n    \"shipping\": {\n      \"method\": {\n        \"carrier\": \"顺丰\",\n        \"service\": \"次日达\",\n        \"trackingNumber\": \"SF1234567890\"\n      },\n      \"timeline\": {\n        \"estimated\": {\n          \"pickup\": \"2024-01-15 18:00:00\",\n          \"delivery\": \"2024-01-16 12:00:00\"\n        }\n      },\n      \"packaging\": {\n        \"type\": \"standard\",\n        \"materials\": [\"eco-friendly\", \"bubble-wrap\"],\n        \"insurance\": {\n          \"enabled\": true,\n          \"value\": 20134.45\n        }\n      }\n    }\n  }\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "I9QedphIuZ"
+          }
+        ],
+        "method": "POST",
+        "name": "localhost:18081/2.0.0/api/demo",
+        "sortPriority": 0.001,
+        "url": "http://localhost:18081/2.0.0/api/demo",
+        "urlParameters": []
+      },
       {
         "model": "http_request",
         "id": "rq_T39KT56BgX",
