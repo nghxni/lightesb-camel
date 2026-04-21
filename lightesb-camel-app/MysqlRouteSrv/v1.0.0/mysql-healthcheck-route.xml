@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://camel.apache.org/schema/spring"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://camel.apache.org/schema/spring 
+        http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <!-- 独立 MySQL 路由服务：定时执行最小查询，验证 externaldb 动态数据源可用 -->
+    <!-- Independent MySQL Route Service: Periodically execute minimal queries to verify externaldb dynamic data source availability -->
+    <!-- 
+    This route is used to test the independent CamelContext MySQL route service.
+    It will be executed every 60 seconds.
+    -->
+    <route id="mysql-healthcheck-route">
+        <from uri="timer://mysql-healthcheck?fixedRate=true&amp;period=60000"/>
+
+        <setHeader name="db.type">
+            <constant>mysql</constant> 
+        </setHeader>
+        <setHeader name="db.service">
+            <constant>MysqlRouteSrv</constant>
+        </setHeader>
+        <setHeader name="db.target">
+            <simple>{{mysqlroute.target.datasource}}</simple>
+        </setHeader> 
+
+        <to uri="servicelog:info?message=MySQL路由健康检查开始, service=${header.db.service}, target=${header.db.target}"/>
+        <to uri="sql:select 1 as db_ok?dataSource=#bean:extdb-{{mysqlroute.target.datasource}}-datasource&amp;outputType=SelectOne"/>
+        <to uri="servicelog:info?message=MySQL路由健康检查成功, target=${header.db.target}, result=${body}"/>
+
+        <!-- testexdb: 插入测试数据 -->
+        <!-- testexdb: Insert test data -->
+        <setHeader name="ID">
+            <simple>${date:now:MMddHHmmss}</simple>
+        </setHeader>
+        <setHeader name="name">
+            <constant>test_name</constant>
+        </setHeader>
+        <setHeader name="sex">
+            <constant>M</constant>
+        </setHeader>
+        <to uri="sql:insert into testexdb (ID, name, sex) values (:#ID, :#name, :#sex)?dataSource=#bean:extdb-{{mysqlroute.target.datasource}}-datasource"/>
+        <to uri="servicelog:info?message=testexdb插入完成, id=${header.ID}, name=${header.name}, sex=${header.sex}"/>
+
+        <!-- testexdb: 查询测试数据 -->
+        <!-- testexdb: Query test data -->
+        <to uri="sql:select ID, name, sex from testexdb where ID=:#ID?dataSource=#bean:extdb-{{mysqlroute.target.datasource}}-datasource&amp;outputType=SelectList"/>
+        <to uri="servicelog:info?message=testexdb查询完成, id=${header.ID}, rows=${body}"/>
+
+        <!-- testexdb: 删除测试数据 -->
+        <!-- testexdb: Delete test data -->
+        <to uri="sql:delete from testexdb where ID=:#ID?dataSource=#bean:extdb-{{mysqlroute.target.datasource}}-datasource"/>
+        <to uri="servicelog:info?message=testexdb删除完成, id=${header.ID}"/>
+    </route>
+
+</routes>
