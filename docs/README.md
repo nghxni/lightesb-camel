@@ -2,6 +2,8 @@
 
 本文档按交付使用顺序组织。源码仓库原始文档保持编号；本交付包文档按场景重排，并在 `SOURCE_MAP.md` 中维护来源映射。
 
+本目录是完整可运行交付物的一部分，根目录 `lightesb-camel-1.0.0.jar` 是核心运行件。Agent 使用时先读根目录 `AGENTS.md`，再按本文档索引进入组件文档、样例和项目内 `skills/`。
+
 ## 快速开始
 
 - [HTTP 入口与路由基础](components/01-http-route-basics.md)
@@ -46,6 +48,8 @@
 - AI Agent + Tools 演示见 `../example/routes/AiAgentDemoSrv/v1.0.0/`。
 
 ## Skill 路由
+
+`../skills/` 是本交付包内的任务路由卡片。任务命中时，先读对应 `SKILL.md`，再读下方组件文档和样例。
 
 | 任务 | Skill |
 | --- | --- |

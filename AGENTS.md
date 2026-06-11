@@ -1,6 +1,6 @@
 # AGENTS.md
 
-LightESB-Camel 交付包内 Agent 协作规则。这里是可运行交付目录，不是完整源码仓库；上下文必须自洽，不能引用、要求或假设存在未随包交付的内部架构流程文档。
+LightESB-Camel 交付包内 Agent 协作规则。这里是完整可运行交付目录，不是完整源码仓库；`lightesb-camel-1.0.0.jar` 是核心运行件。上下文必须自洽，不能引用、要求或假设存在未随包交付的内部架构流程文档。
 
 ## 目录边界
 
@@ -8,17 +8,19 @@ LightESB-Camel 交付包内 Agent 协作规则。这里是可运行交付目录�
 - `example/`：纯演示样例目录。样例可以修改端口、服务名、接口路径和数据，用于复制到 `lightesb-camel-app/` 后临时运行。
 - `docs/`：组件级技术文档，只描述可交付使用的配置、路由写法、样例和验证。
 - `docs/cli/`：CLI 使用参考，只描述命令、输入、输出、确认规则和自动化边界。
-- `skills/`：轻量任务路由卡片。任务命中时先读对应 `skills/<name>/SKILL.md`，再读 `docs/README.md` 和组件文档。
+- `skills/`：项目内轻量任务路由卡片。它们不是外部全局技能；任务命中时必须先读对应 `skills/<name>/SKILL.md`，再读 `docs/README.md` 和组件文档。
 - `services/`：第三方扩展交付物和扩展示例。
 
 ## 阅读顺序
 
 1. 先读本文件。
 2. 再读 `docs/README.md`。
-3. 按任务类型读取对应 `skills/<name>/SKILL.md`。
+3. 按任务类型读取对应 `skills/<name>/SKILL.md`；若任务跨多个领域，读取所有相关 skill。
 4. 最后查阅 `docs/components/`、`docs/extensions/` 和 `example/` 中的具体样例。
 
 ## Task -> Skill 路由表
+
+以下 skill 是本交付目录内的任务卡片。命中任务时不要只依赖通用经验，必须读取表中对应文件。
 
 | 任务 | 先读 skill |
 | --- | --- |
