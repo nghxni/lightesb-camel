@@ -118,7 +118,6 @@ lightesb log status
 lightesb log health
 lightesb log services
 lightesb log level set --service-key DemoSrv@1.0.0 --level DEBUG --yes
-lightesb log reload --service-key DemoSrv@1.0.0 --yes
 lightesb log cleanup --yes
 lightesb log cleanup --manual --yes
 lightesb log instance list --service-name DemoSrv --service-version 1.0.0
@@ -127,6 +126,8 @@ lightesb log instance get --instance-uuid <instanceUuid>
 lightesb log instance download --instance-uuid <instanceUuid> --type req
 lightesb log instance download --instance-uuid <instanceUuid> --type res > response-body.txt
 ```
+
+日志级别调整后立即生效，不需要执行日志重载。
 
 `service.json` 最小字段：
 
@@ -214,7 +215,7 @@ app create/update/delete
 message create/update/delete
 service create/update/delete/config save/package deploy/start/stop
 route reload-service/reload-file/unload
-log level set/reload/cleanup
+log level set/cleanup
 ai tool save
 ```
 
