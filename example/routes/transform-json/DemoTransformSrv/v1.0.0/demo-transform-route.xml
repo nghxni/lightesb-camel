@@ -1,0 +1,11 @@
+<routes xmlns="http://camel.apache.org/schema/spring">
+  <route id="demo-transform-route">
+    <from uri="undertow:http://0.0.0.0:{{server.port}}/api/demo/transform?httpMethodRestrict=POST"/>
+    <process ref="requestCharsetProcessor"/>
+    <to uri="servicelog:info?message=转换前&amp;showBody=true&amp;maxBodyLength=1000"/>
+    <to uri="conditionaltransform:input?skipOnError=true"/>
+    <setBody><simple>{"code":"OK","message":"transform demo finished","source":${body}}</simple></setBody>
+    <process ref="jsonResponseProcessor"/>
+    <to uri="servicelog:info?message=转换后&amp;showBody=true&amp;maxBodyLength=1000"/>
+  </route>
+</routes>

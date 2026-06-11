@@ -1,0 +1,13 @@
+<routes xmlns="http://camel.apache.org/schema/spring">
+  <route id="demo-log-cache-route">
+    <from uri="undertow:http://0.0.0.0:{{server.port}}/api/demo/cache?httpMethodRestrict=POST"/>
+    <process ref="requestCharsetProcessor"/>
+    <setHeader name="h2Log.operateName"><constant>Request</constant></setHeader>
+    <process ref="h2LogCacheProcessor"/>
+    <process ref="jsonKeywordCaptureProcessor"/>
+    <to uri="lightesb-streamcache://cache?operateName=Request"/>
+    <setBody><simple>{"code":"OK","message":"cache demo accepted"}</simple></setBody>
+    <process ref="jsonResponseProcessor"/>
+    <to uri="servicelog:info?message=缓存样例完成&amp;showBody=true&amp;maxBodyLength=500"/>
+  </route>
+</routes>

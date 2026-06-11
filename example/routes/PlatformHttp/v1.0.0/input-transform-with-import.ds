@@ -2,7 +2,7 @@
 //%input payload application/json
 //%output application/json
 
-local lib = import 'lightesb-camel-app/TransformDS/common-functions.ds';
+local lib = import 'common-functions.ds';
 
 {
   orderId: payload.order.header.orderId,
@@ -64,4 +64,3 @@ local lib = import 'lightesb-camel-app/TransformDS/common-functions.ds';
     estimatedDelivery: lib.formatDate(payload.order.shipping.timeline.estimated.delivery)
   }
 }
-

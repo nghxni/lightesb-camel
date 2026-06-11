@@ -1,0 +1,11 @@
+<routes xmlns="http://camel.apache.org/schema/spring">
+  <route id="demo-http-route">
+    <from uri="undertow:http://0.0.0.0:{{server.port}}/api/demo/hello?httpMethodRestrict=GET,POST"/>
+    <process ref="requestCharsetProcessor"/>
+    <to uri="servicelog:info?message=DemoHttpSrv 收到请求 method=${header.CamelHttpMethod}"/>
+    <setHeader name="Content-Type"><constant>application/json; charset=UTF-8</constant></setHeader>
+    <setBody><simple>{"code":"OK","service":"DemoHttpSrv","method":"${header.CamelHttpMethod}"}</simple></setBody>
+    <process ref="jsonResponseProcessor"/>
+    <to uri="servicelog:info?message=DemoHttpSrv 请求完成&amp;showBody=true&amp;maxBodyLength=500"/>
+  </route>
+</routes>
