@@ -1,14 +1,9 @@
-README.md
 AGENTS.md
 CLAUDE.md
 MANIFEST.txt
-LICENSE
-LightESB.yaak.json
-lightesb-camel-1.0.0.jar
-start.sh
-start.bat
 docs/README.md
 docs/SOURCE_MAP.md
+docs/api-response-contract.md
 docs/cli/01-cli-command-reference.md
 docs/cli/README.md
 docs/components/01-http-route-basics.md
@@ -25,6 +20,7 @@ docs/components/11-externaldb.md
 docs/components/12-ai-chat.md
 docs/components/13-sap-netweaver.md
 docs/components/14-timer-routes.md
+docs/deployment-management-api.md
 docs/extensions/01-dts-extension-guide.md
 docs/extensions/02-dts-minimal-template.md
 example/README.md
@@ -92,8 +88,3 @@ skills/lightesb-logging-observability/SKILL.md
 skills/lightesb-route-authoring/SKILL.md
 skills/lightesb-security-validation/SKILL.md
 skills/lightesb-transform-components/SKILL.md
-services/TransformDS/README.md
-services/TransformDS/23-third-party-dts-extension-guide.md
-services/TransformDS/23-third-party-dts-extension-guide-en.md
-services/TransformDS/24-third-party-dts-extension-minimal-template.md
-services/TransformDS/24-third-party-dts-extension-minimal-template-en.md

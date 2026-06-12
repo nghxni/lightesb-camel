@@ -60,6 +60,13 @@ lightesb message constraints
 lightesb message domains
 ```
 
+后端已提供消息体 JSON Schema 预览接口：
+
+- `POST /message-management/v1/json-schema/preview`
+- `GET /message-management/v1/json-schema/preview/{id}`
+
+当前 CLI 尚未封装独立命令；自动化场景可通过通用 HTTP 调用控制面接口。
+
 `app.json` 最小字段：
 
 ```json
@@ -104,6 +111,7 @@ lightesb deploy upload ./DemoSrv.zip
 lightesb deploy upload ./DemoSrv.zip --target-directory /opt/lightesb/services --no-auto-start
 lightesb deploy status <deploymentId>
 lightesb deploy history --limit 20
+lightesb deploy history --service-name DemoSrv --service-version 1.0.0 --limit 20
 
 lightesb route info
 lightesb route status
@@ -126,6 +134,8 @@ lightesb log instance get --instance-uuid <instanceUuid>
 lightesb log instance download --instance-uuid <instanceUuid> --type req
 lightesb log instance download --instance-uuid <instanceUuid> --type res > response-body.txt
 ```
+
+`deploy history` 默认返回最近 50 条部署记录，可用 `--service-name` 和 `--service-version` 过滤单个服务版本。列表输出只包含概要，不拉取完整部署步骤日志。
 
 日志级别调整后立即生效，不需要执行日志重载。
 

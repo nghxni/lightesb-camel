@@ -4,6 +4,12 @@
 
 LightESB 提供统一异常模型和全局兜底响应。业务路由可以依赖默认兜底，也可以对权限、参数等明确异常做局部 `doTry/doCatch`，返回更清晰的业务错误。
 
+管理 API 和 Camel 业务路由的异常响应不强行统一：
+
+- 管理 API 面向前端、CLI 和控制面调用方，统一使用 `success/data/error/timestamp/requestId`。
+- Camel 业务路由面向存量系统协议，继续保留业务报文和 `exchangeId`、`routeId`、`serviceName`、`serviceVersion` 等运行时上下文。
+- 两条链路可以共享错误分类和 HTTP 码建议，但不要把管理 API 响应结构直接套到业务路由上。
+
 ## 常见映射
 
 | 异常类型 | 建议 HTTP 码 |
@@ -35,6 +41,7 @@ LightESB 提供统一异常模型和全局兜底响应。业务路由可以依�
 - 其他未预期异常交给全局兜底。
 - 异常分支也要使用 `servicelog:warn` 或 `servicelog:error` 记录。
 - 响应前调用 `jsonResponseProcessor`，保证编码一致。
+- 控制面接口的通用异常应由 Spring 全局异常处理返回管理 API 标准失败响应；涉及状态回写或补偿的业务 catch 可以保留。
 
 ## 验证
 

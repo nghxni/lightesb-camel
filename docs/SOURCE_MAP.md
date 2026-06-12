@@ -10,7 +10,7 @@
 | `components/06-json-keyword.md` | `docs/01-json-keyword.md`，重新编写外发版 |
 | `components/07-stream-cache.md` | `docs/11-streamcache-component-usage.md` |
 | `components/08-permission-validation.md` | `docs/15-permission-check-processor-usage.md` |
-| `components/09-exception-handling.md` | `docs/17-exception-global-chain-usage.md` |
+| `components/09-exception-handling.md` | 异常处理组件说明与管理 API 异常边界，外发整理版 |
 | `components/10-h2-jsonkeyword-chain.md` | `docs/16-h2-jsonkeyword-processor-chain-usage.md` |
 | `components/11-externaldb.md` | `docs/18-externaldb-component-usage.md` |
 | `components/12-ai-chat.md` | `docs/22-ai-chat-framework-usage.md` |
@@ -18,5 +18,9 @@
 | `components/14-timer-routes.md` | 交付样例 `example/routes/timer/` 与 `example/routes/MysqlRouteSrv/` 整理 |
 | `extensions/01-dts-extension-guide.md` | `docs/23-third-party-dts-extension-guide.md` |
 | `extensions/02-dts-minimal-template.md` | `docs/24-third-party-dts-extension-minimal-template.md` |
+| `api-response-contract.md` | 管理 API 响应契约，外发整理版 |
+| `deployment-management-api.md` | 部署管理 API 说明，外发整理版 |
+| `cli/README.md` | `docs/cli/README.md`，外发压缩版 |
+| `cli/01-cli-command-reference.md` | `docs/cli/*` 与 `lightesb-cli/src/main/java/.../cli/command/*`，按命令域压缩整理 |
 
 源码仓库文档保持原编号和位置。本交付包文档为外发整理版，不直接复制内部实现路径或内部流程说明。
