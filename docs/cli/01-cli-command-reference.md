@@ -21,7 +21,7 @@ alias lightesb='java -jar /path/to/lightesb-cli.jar'
 | `--output table|json` | 输出格式，CI 优先 `json` |
 | `--yes` | 写操作确认 |
 | `--file payload.json` | 从 JSON 文件读取输入 |
-| `--ai-token <token>` | 仅用于 AI 日志问答的 `X-AI-Token` |
+| `--ai-token <token>` | 用于服务端 AI 日志问答和 AI 工具接口的 `X-AI-Token` |
 
 ## Profile 与 Doctor
 
@@ -171,6 +171,10 @@ lightesb log ask --file ai-log-question.json
 lightesb ai tool list --service-id <serviceId>
 lightesb ai tool list --service-id <serviceId> --output json
 lightesb ai tool save --service-id <serviceId> --file tools.json --yes
+lightesb ai tool plan --message "查询订单 MOCK-1001 的详情"
+lightesb ai tool plan --message "查询订单 MOCK-1001 的详情" --memory-id cli-session-001 --output json
+lightesb ai tool run --message "查询订单 MOCK-1001 的详情" --yes
+lightesb ai tool run --plan-file plan-result.json --yes
 
 lightesb ai route generate --file ai-route.json
 lightesb ai route read --service-name DemoAiSrv --service-version 1.0.0
@@ -182,6 +186,8 @@ lightesb ai diagnose --service-id SRV1 --service-name DemoAiSrv --service-versio
 AI 边界：
 
 - `log ask` 只把问题、`memoryId` 和 `X-AI-Token` 传给服务端，不在 CLI 本地推理日志语义。
+- `ai tool plan/run` 只调用服务端 AI 工具接口，不在 CLI 本地查库或调用工具 URL。
+- `ai tool run` 初版要求 `--yes`；CI 使用 `--output json` 保存 `plan` 结果，再用 `run --plan-file` 执行。
 - `ai route generate` 只返回候选 XML，不写入 `lightesb-camel-app`，不保存配置，不自动部署。
 - `ai route optimize` 不接入 SSE，不自动保存优化结果。
 - 模型 provider、base URL、model name、API key 都由服务端配置管理；不要写入 CLI profile。
@@ -226,7 +232,7 @@ message create/update/delete
 service create/update/delete/config save/package deploy/start/stop
 route reload-service/reload-file/unload
 log level set/cleanup
-ai tool save
+ai tool save/run
 ```
 
 `deploy upload` 当前示例不强制 `--yes`，但流水线侧应自行增加确认门禁。

@@ -16,6 +16,8 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 - 写操作加 `--yes`，CI 中优先加 `--output json`。
 - 需要服务端地址时优先使用 `--server` 或 profile，不在命令中写真实密钥。
 - `--ai-token` 只用于 `X-AI-Token`，不是模型 API key。
+- `ai tool plan/run` 只调用服务端 AI 工具接口，不在本地查库或调用工具 URL。
+- 自动化执行自然语言工具调用时，先用 `ai tool plan --output json` 保存计划，再用 `ai tool run --plan-file plan-result.json --yes` 执行。
 - AI 路由生成和优化只返回候选内容，不自动保存、打包或部署。
 - 排查部署问题时先查 `deploy status/history`、`route status/mapping`、`log instance`。
 

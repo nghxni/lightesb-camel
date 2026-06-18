@@ -13,7 +13,7 @@
 | `components/09-exception-handling.md` | 异常处理组件说明与管理 API 异常边界，外发整理版 |
 | `components/10-h2-jsonkeyword-chain.md` | `docs/16-h2-jsonkeyword-processor-chain-usage.md` |
 | `components/11-externaldb.md` | `docs/18-externaldb-component-usage.md` |
-| `components/12-ai-chat.md` | `docs/22-ai-chat-framework-usage.md` |
+| `components/12-ai-chat.md` | `docs/22-ai-chat-framework-usage.md`、`docs/19-controller-thirdparty-api-usage.md`、`docs/cli/08-ai-route-and-tools.md`，按交付场景重写 |
 | `components/13-sap-netweaver.md` | `docs/26-sap-netweaver-component-usage.md` |
 | `components/14-timer-routes.md` | 交付样例 `example/routes/timer/` 与 `example/routes/MysqlRouteSrv/` 整理 |
 | `extensions/01-dts-extension-guide.md` | `docs/23-third-party-dts-extension-guide.md` |

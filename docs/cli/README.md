@@ -27,4 +27,5 @@ lightesb --file payload.json <command>
 - CLI 是控制面客户端，不直接修改 `lightesb-camel-app/`。
 - 写操作默认传 `--yes`。
 - CI 中优先用 `--output json`。
-- `--ai-token` 只用于服务端 AI 日志问答的 `X-AI-Token`，不是模型 API key。
+- `--ai-token` 只用于服务端 AI 日志问答和 AI 工具接口的 `X-AI-Token`，不是模型 API key。
+- `ai tool plan/run` 只调用服务端接口，不在 CLI 本地查库或调用工具 URL；执行命令使用 `--yes`，自动化场景优先加 `--output json`。
