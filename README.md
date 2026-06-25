@@ -8,6 +8,8 @@ LightESB 聚焦三件事：
 - 给机器人提供更多、更自由的动态扩展能力。
 - 集成适配机器人核心能力的全链路功能服务。
 
+一句话介绍：LightESB-Camel 是面向存量系统和机器人系统的轻量集成交付包，用动态热加载路由技能连接老系统接口、工业协议、机器人任务流程和 AI Agent 工具能力。
+
 本仓库不是完整源码仓库。根目录的 `lightesb-camel-1.0.0.jar`、`lightesb-cli.jar`、`start.sh` / `start.bat`、`lightesb-camel-app/`、`docs/`、`example/`、`skills/`、`AGENTS.md` 共同构成交付上下文。外部 Agent 或大模型只读取本仓库时，应优先从本 README、`AGENTS.md`、`docs/README.md` 和 `example/README.md` 建立上下文。
 
 ## 核心能力
@@ -22,6 +24,8 @@ LightESB 聚焦三件事：
 | 企业系统与工业协议适配 | ExternalDB 多数据源、SAP NetWeaver、AVEVA Plant SCADA、OPC UA、MQTT 5、Modbus/PLC 接入、PLC4X 评估路径 |
 | 自动化运维 | LightESB CLI、部署管理 API、服务状态查询、日志查看、样例验证流程 |
 | AI 集成 | AI Chat、AI Agent + Tools、面向接口编排、技能生成和运维问答的组件上下文 |
+
+边界说明：LightESB 面向管理面、集成面和任务流程编排，不替代机器人实时控制器、PLC 安全回路、ROS2 DDS 高频链路或硬件急停系统。路由 XML、配置和服务包类技能可热加载；Java 代码、依赖、Spring Bean 或启动参数变化仍需要重新打包或重启。
 
 ## 适用场景
 
@@ -68,13 +72,13 @@ start.bat
 
 ## 轻量技能包与按需加载
 
-LightESB 的机器人技能和协议适配能力可以以独立路由服务包交付。一个路由技能通常只包含 XML、配置和少量脚本/映射文件，体积很小；即使沉淀大量技能包，也不会显著增加磁盘占用。
+LightESB 的机器人技能和协议适配能力可以以独立路由服务包交付。典型路由技能包通常是 KB 级 XML + 配置 + 少量脚本/映射文件；即使沉淀上百或上千个技能包，也不会显著增加磁盘占用。
 
 关键机制：
 
 - 技能包放在 `lightesb-camel-app/{serviceName}/{serviceVersion}` 目录中。
 - `server.running=false` 时服务包保留在磁盘上，但默认不加载路由，不占用运行态连接和 Camel route 资源。
-- 需要使用某个技能时，可通过 CLI 执行服务启动、部署或路由重载。
+- 需要使用某个技能时，可通过 CLI 执行部署、启停、route reload，实现技能按需加载、按需卸载、按需恢复。
 - 不需要使用时，可停止服务或保持 `server.running=false`，让平台保留技能资产但控制运行时占用。
 - 适合沉淀大量机器人技能、协议适配模板、客户专用流程和现场调试能力，按任务需要启用。
 
