@@ -15,7 +15,7 @@ LightESB 聚焦三件事：
 | 能力 | 交付内容 |
 | --- | --- |
 | 存量系统与机器人流程接入 | Apache Camel XML 路由、Undertow HTTP 入口、老系统接口整合、机器人自动化业务流程编排 |
-| 动态热加载技能扩展 | 服务目录加载、路由热加载、配置化技能/路由启停、DTS Java SPI 扩展、AI Agent + Tools 编排 |
+| 动态热加载路由技能 | 轻量路由技能包、服务目录加载、`server.running=false` 按需禁用、CLI 启停/部署/重载、DTS Java SPI 扩展、AI Agent + Tools 编排 |
 | 机器人核心能力全链路服务 | MQTT telemetry/command、rosbridge/ROS 管理面、OPC UA、Modbus/PLC、Kafka 风格数据管道、gRPC 契约草案 |
 | 数据转换与校验 | ConditionalTransform、JsonTransform、DataSonnet、JSON Schema 校验、DTS Java SPI 扩展 |
 | 安全与治理 | IP/CIDR/Token/Regex 权限校验、全局异常响应、服务日志、H2 缓存和关键字检索 |
@@ -27,7 +27,7 @@ LightESB 聚焦三件事：
 
 - 存量 HTTP、数据库、消息、企业系统、工业协议、机器人/ROS 或第三方系统接口整合。
 - 机器人自动化业务流程编排，包括任务接入、遥测标准化、命令预检、结果回执、审计和外部系统回调。
-- 机器人技能或适配能力的动态扩展：通过服务包、Camel 路由、配置文件和可选扩展组件，在不重构主系统的前提下新增能力。
+- 机器人技能或适配能力的动态扩展：通过轻量路由技能包、Camel 路由、配置文件和可选扩展组件，在不重构主系统的前提下新增能力。
 - 在 Camel 路由中完成字段映射、条件转换、schema 校验、权限控制和统一错误响应。
 - 面向制造、工厂自动化和机器人集成场景，承接 OPC UA、MQTT 5、Modbus/PLC、rosbridge/ROS、Kafka 风格数据出流和外部任务接入的适配、验证和交付。
 - 用 `example/routes/**` 快速构造 POC 样例，再复制到 `lightesb-camel-app/{serviceName}/{serviceVersion}` 运行。
@@ -59,12 +59,26 @@ start.bat
 | 场景 | 支持内容 | 交付入口 |
 | --- | --- | --- |
 | 老系统与机器人流程接入 | HTTP/数据库/消息/企业系统接口整合，机器人任务、命令、回执、审计和外部任务流程编排 | `docs/components/01-http-route-basics.md`、`docs/cli/README.md` |
-| 机器人动态技能扩展 | 路由热加载、服务包启停、DTS Java SPI、AI Agent + Tools、配置化协议目标和白名单 | `AGENTS.md`、`docs/extensions/01-dts-extension-guide.md`、`docs/components/12-ai-chat.md` |
+| 机器人动态技能扩展 | 轻量路由技能包、路由热加载、`server.running=false` 按需禁用、CLI 启停/部署/重载、DTS Java SPI、AI Agent + Tools、配置化协议目标和白名单 | `AGENTS.md`、`docs/cli/README.md`、`docs/extensions/01-dts-extension-guide.md`、`docs/components/12-ai-chat.md` |
 | 机器人核心链路服务 | MQTT telemetry/command、rosbridge WebSocket JSON、ROS service/action 管理面映射、gRPC `RobotCommand` 契约草案 | `docs/experience/01-robotics-protocol-precheck.md`、`proto/robot/robot_command.proto` |
 | PLC 与工业现场 | OPC UA、Modbus TCP 寄存器别名、PLC4X 依赖基础和复杂 PLC 能力评估路径、AVEVA Plant SCADA | `docs/components/15-aveva-plant-scada-opcua-mqtt.md`、`docs/experience/02-robotics-protocol-correct-practices.md` |
 | 数据平台与业务系统 | Kafka 风格 telemetry/event 出流、WMS/MES 外部任务接入、dashboard 数据契约、ExternalDB、SAP NetWeaver | `example/routes/RobotClusterDataSrv/v1.0.0/`、`docs/components/11-externaldb.md`、`docs/components/13-sap-netweaver.md` |
 
 机器人、PLC 和工业现场能力默认采用 mock-first / local baseline / field validation 三层验收。交付包提供配置、路由、契约和验证入口；真实设备、broker、rosbridge、OPC UA Server、Modbus/PLC 或 Kafka 环境需要在现场提供端点、凭据、点表、ACL、测试窗口和回滚方案后进入联调。
+
+## 轻量技能包与按需加载
+
+LightESB 的机器人技能和协议适配能力可以以独立路由服务包交付。一个路由技能通常只包含 XML、配置和少量脚本/映射文件，体积很小；即使沉淀大量技能包，也不会显著增加磁盘占用。
+
+关键机制：
+
+- 技能包放在 `lightesb-camel-app/{serviceName}/{serviceVersion}` 目录中。
+- `server.running=false` 时服务包保留在磁盘上，但默认不加载路由，不占用运行态连接和 Camel route 资源。
+- 需要使用某个技能时，可通过 CLI 执行服务启动、部署或路由重载。
+- 不需要使用时，可停止服务或保持 `server.running=false`，让平台保留技能资产但控制运行时占用。
+- 适合沉淀大量机器人技能、协议适配模板、客户专用流程和现场调试能力，按任务需要启用。
+
+常用 CLI 入口见 `docs/cli/README.md` 和 `docs/cli/01-cli-command-reference.md`，包括 `service start/stop`、`service package deploy`、`route reload-service`、`route reload-file` 和 `deploy upload`。
 
 ## 目录结构
 
