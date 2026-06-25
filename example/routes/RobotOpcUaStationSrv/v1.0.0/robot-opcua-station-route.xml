@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+    <route id="robot-opcua-station-read-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-opcua-station-read-mock"/>
+        <process ref="opcUaTelemetryNormalizeProcessor"/>
+        <toD uri="{{robot.mock.opcua.read.sink}}"/>
+    </route>
+
+    <route id="robot-opcua-station-command-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-opcua-station-command-mock"/>
+        <process ref="robotCommandValidateProcessor"/>
+        <process ref="robotCommandEnvelopeProcessor"/>
+        <toD uri="{{robot.mock.opcua.write.sink}}"/>
+        <setBody>
+            <simple>{"commandId":"${header.robot.commandId}","robotId":"${header.robot.robotId}","status":"accepted","protocol":"opcua","node":"{{industrial.opcua.write.node}}","correlationId":"${header.robot.correlationId}"}</simple>
+        </setBody>
+        <toD uri="{{robot.mock.audit.sink}}"/>
+    </route>
+
+    <route id="robot-opcua-station-alarm-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-opcua-station-alarm-mock"/>
+        <setBody>
+            <simple>{"messageType":"event","eventType":"robot.station.alarm","robotId":"arm-001","siteId":"{{robot.siteId}}","sourceProtocol":"opcua","severity":"warning","exchangeId":"${exchangeId}"}</simple>
+        </setBody>
+        <toD uri="{{robot.mock.opcua.event.sink}}"/>
+    </route>
+
+</routes>

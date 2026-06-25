@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+    <route id="robot-mqtt-command-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-mqtt-command-mock"/>
+        <process ref="robotCommandValidateProcessor"/>
+        <process ref="robotCommandEnvelopeProcessor"/>
+        <to uri="servicelog:info?message=[ROBOT-MQTT] command enveloped topic=${exchangeProperty.robot.mqtt.command.topic}&amp;showBody=true&amp;maxBodyLength=2000"/>
+        <toD uri="{{robot.mock.mqtt.sink}}"/>
+        <setBody>
+            <simple>{"commandId":"${header.robot.commandId}","robotId":"${header.robot.robotId}","status":"accepted","timestamp":"${date:now:yyyy-MM-dd'T'HH:mm:ssXXX}","correlationId":"${header.robot.correlationId}"}</simple>
+        </setBody>
+        <toD uri="{{robot.mock.ack.sink}}"/>
+        <setBody>
+            <simple>{"commandId":"${header.robot.commandId}","robotId":"${header.robot.robotId}","status":"succeeded","timestamp":"${date:now:yyyy-MM-dd'T'HH:mm:ssXXX}","correlationId":"${header.robot.correlationId}"}</simple>
+        </setBody>
+        <toD uri="{{robot.mock.result.sink}}"/>
+        <toD uri="{{robot.mock.audit.sink}}"/>
+    </route>
+
+</routes>

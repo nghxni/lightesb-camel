@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+    <route id="aveva-mqtt-telemetry-consumer" routeConfigurationId="globalError">
+        <from uri="paho-mqtt5:{{industrial.mqtt.telemetry.topic}}?brokerUrl={{industrial.mqtt.broker.url}}&amp;clientId={{industrial.mqtt.client.id}}-telemetry&amp;qos={{industrial.mqtt.qos}}&amp;userName={{industrial.mqtt.username}}&amp;password={{industrial.mqtt.password}}"/>
+        <doTry>
+            <process ref="mqttTelemetryNormalizeProcessor"/>
+            <to uri="servicelog:info?message=[AVEVA-MQTT] telemetry received topic=${exchangeProperty.industrial.mqtt.topic}&amp;showBody=true&amp;maxBodyLength={{industrial.log.max.body.length}}"/>
+            <toD uri="{{industrial.target.http.uri}}?httpMethod=POST&amp;bridgeEndpoint=true&amp;connectTimeout={{industrial.target.http.connectTimeout}}&amp;socketTimeout={{industrial.target.http.socketTimeout}}"/>
+            <doCatch>
+                <exception>java.lang.Exception</exception>
+                <process ref="industrialErrorMapperProcessor"/>
+            </doCatch>
+        </doTry>
+    </route>
+
+    <route id="aveva-mqtt-command-publisher" routeConfigurationId="globalError">
+        <from uri="undertow:http://0.0.0.0:{{server.port}}/api/aveva/mqtt/command?httpMethodRestrict=POST"/>
+        <process ref="requestCharsetProcessor"/>
+        <to uri="servicelog:info?message=[AVEVA-MQTT] command publish requested&amp;showBody=true&amp;maxBodyLength={{industrial.log.max.body.length}}"/>
+        <doTry>
+            <process ref="mqttCommandValidator"/>
+            <to uri="paho-mqtt5:{{industrial.mqtt.command.topic}}?brokerUrl={{industrial.mqtt.broker.url}}&amp;clientId={{industrial.mqtt.client.id}}-command&amp;qos={{industrial.mqtt.qos}}&amp;retained={{industrial.mqtt.command.retained}}&amp;userName={{industrial.mqtt.username}}&amp;password={{industrial.mqtt.password}}"/>
+            <setBody>
+                <simple>{"status":"published","protocol":"mqtt5","topic":"{{industrial.mqtt.command.topic}}","exchangeId":"${exchangeId}"}</simple>
+            </setBody>
+            <process ref="jsonResponseProcessor"/>
+            <setHeader name="Content-Type">
+                <constant>application/json</constant>
+            </setHeader>
+            <doCatch>
+                <exception>java.lang.Exception</exception>
+                <process ref="industrialErrorMapperProcessor"/>
+            </doCatch>
+        </doTry>
+    </route>
+
+</routes>

@@ -1,60 +1,77 @@
-# 轻量 Camel 接口管理
+# LightESB-Camel
 
-本目录是 LightESB-Camel 的完整可运行交付物，不是完整源码仓库。`lightesb-camel-1.0.0.jar` 是核心运行件，`start.sh` / `start.bat`、`lightesb-camel-app/`、`docs/`、`example/`、`skills/` 和 `AGENTS.md` 共同构成交付上下文。
+LightESB-Camel 是 LightESB 的可运行 Camel 交付包，用于在不重构存量系统的前提下完成接口整合、协议适配、数据转换、运行时治理和 AI 辅助编排。
 
-使用 JDK21 + Apache Camel 4.18.x 构建的轻量 ESB 接口管理与监控平台，支持 AI Agent 模式，可直接复用存量系统 API。
+本仓库不是完整源码仓库。根目录的 `lightesb-camel-1.0.0.jar`、`lightesb-cli.jar`、`start.sh` / `start.bat`、`lightesb-camel-app/`、`docs/`、`example/`、`skills/`、`AGENTS.md` 共同构成交付上下文。外部 Agent 或大模型只读取本仓库时，应优先从本 README、`AGENTS.md`、`docs/README.md` 和 `example/README.md` 建立上下文。
 
-核心能力：
-- HTTP 接口暴露与服务编排（Undertow、Route Loader 生命周期）
-- 统一日志、动态日志调级与链路观测（CamelServiceLog、指标采集）
-- 数据转换与校验（ConditionalTransform、JsonTransform、JSON Schema）
-- 安全与权限（IP/CIDR/Token 校验、核心安全包约束）
-- 数据访问与缓存（ExternalDB、多数据源、H2 缓存与关键字检索）
-- 异常兜底与全局处理链
-- AI 扩展能力（LangChain4j + Camel、AI Chat 框架）
-- 第三方 DTS SPI 扩展接入与最小模板落地
+## 核心能力
+
+| 能力 | 交付内容 |
+| --- | --- |
+| HTTP 接口与路由编排 | Apache Camel XML 路由、Undertow HTTP 入口、服务目录加载、路由热加载 |
+| 数据转换与校验 | ConditionalTransform、JsonTransform、DataSonnet、JSON Schema 校验、DTS Java SPI 扩展 |
+| 安全与治理 | IP/CIDR/Token/Regex 权限校验、全局异常响应、服务日志、H2 缓存和关键字检索 |
+| 数据访问与协议适配 | ExternalDB、多数据源、SAP NetWeaver、AVEVA Plant SCADA OPC UA / MQTT、机器人协议样例 |
+| 自动化运维 | LightESB CLI、部署管理 API、服务状态查询、日志查看、样例验证流程 |
+| AI 集成 | AI Chat、AI Agent + Tools 样例、面向接口编排和运维问答的组件上下文 |
+
+## 适用场景
+
+- 存量 HTTP、数据库、消息、工业协议或第三方系统接口整合。
+- 在 Camel 路由中完成字段映射、条件转换、schema 校验、权限控制和统一错误响应。
+- 用 `example/routes/**` 快速构造 POC 样例，再复制到 `lightesb-camel-app/{serviceName}/{serviceVersion}` 运行。
+- 用 CLI 或管理 API 完成部署、状态检查、日志检索和自动化验证。
+- 为 Codex、Claude 或其他 Agent 提供可检索的组件文档、样例和工作规则。
 
 ## 快速启动
+
+Linux / macOS:
 
 ```bash
 ./start.sh
 ```
 
-Windows 环境使用：
+Windows:
 
 ```bat
 start.bat
 ```
 
-运行服务、样例验证和日志查看以 [docs/README.md](docs/README.md) 与 [example/README.md](example/README.md) 为准。
+运行后先阅读：
 
-## Agent 使用入口
+- [docs/README.md](docs/README.md)：组件、CLI、API 和扩展文档索引。
+- [example/README.md](example/README.md)：可复制运行的样例目录和验证命令。
+- [AGENTS.md](AGENTS.md)：Agent 在本交付包内工作的规则。
 
-Codex 或其他 Agent 在本目录内工作时，先读 [AGENTS.md](AGENTS.md)，再读 [docs/README.md](docs/README.md)。
+## 目录结构
 
-当任务命中某个组件领域时，必须先读项目内对应的 `skills/<name>/SKILL.md`，再查组件文档和样例：
+| 路径 | 说明 |
+| --- | --- |
+| `lightesb-camel-1.0.0.jar` | LightESB-Camel 运行件 |
+| `lightesb-cli.jar` | CLI 自动化工具 |
+| `lightesb-camel-app/` | 正式服务运行目录，结构为 `{serviceName}/{serviceVersion}` |
+| `example/routes/` | 可复制到运行目录的演示路由 |
+| `example/transform-dts-java/` | DTS Java SPI 扩展示例 |
+| `docs/` | 外发技术文档 |
+| `skills/` | Agent 面向组件任务的技能说明 |
+| `start.sh` / `start.bat` | 本地启动脚本 |
 
-- 路由和 HTTP 接口：`skills/lightesb-route-authoring/SKILL.md`
-- 转换组件：`skills/lightesb-transform-components/SKILL.md`
-- 权限与校验：`skills/lightesb-security-validation/SKILL.md`
-- 日志、异常、缓存：`skills/lightesb-logging-observability/SKILL.md`
-- DTS 扩展：`skills/lightesb-dts-extension/SKILL.md`
-- AI 和外部系统扩展：`skills/lightesb-ai-components/SKILL.md`
-- CLI 命令和自动化流程：`skills/lightesb-cli-automation/SKILL.md`
+## Agent 阅读路径
 
-默认优先修改 `example/` 中的演示样例。`lightesb-camel-app/` 是正式接口运行目录，除非明确需要验证运行，不在其中新增索引、说明或 Agent 上下文文件。
+Agent 处理任务时建议按以下顺序读取：
 
+1. `AGENTS.md`
+2. `docs/README.md`
+3. 命中领域的 `skills/<name>/SKILL.md`
+4. 相关 `docs/components/**`、`docs/cli/**`、`docs/extensions/**`
+5. 对应 `example/routes/**` 样例
 
+默认优先修改 `example/` 中的演示样例。`lightesb-camel-app/` 是正式接口运行目录，除非需要验证运行，不在其中新增索引、说明或 Agent 上下文文件。
 
-# lightesb-camel
-A lightweight ESB interface management and monitoring platform built on Apache Camel. It supports AI Agent mode and can directly reuse APIs from legacy systems.
+## Support
 
-Key capabilities :
-- HTTP exposure and service orchestration (Undertow, route loader lifecycle)
-- Unified logging, dynamic log level control, and observability (CamelServiceLog, metrics collector)
-- Data transform and validation (ConditionalTransform, JsonTransform, JSON Schema)
-- Security and access control (IP/CIDR/Token checks, core secure package rules)
-- Data access and cache flow (ExternalDB, multi-datasource, H2 cache + keyword search)
-- Global exception fallback chain
-- AI integration (LangChain4j + Camel, AI chat framework)
-- Third-party DTS SPI extension and minimal template
+本仓库内容可用于社区自助验证。POC 支持、实施服务、SLA 和私有化支持属于可选商业支持范围，具体边界以单独约定为准。
+
+## License
+
+本仓库继续使用现有 [MIT License](LICENSE)。

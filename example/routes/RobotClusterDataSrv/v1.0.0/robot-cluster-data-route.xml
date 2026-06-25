@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+    <route id="robot-cluster-telemetry-to-kafka-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-cluster-telemetry-mock"/>
+        <process ref="robotTelemetryNormalizeProcessor"/>
+        <setHeader name="Kafka.KEY">
+            <exchangeProperty>robot.robotId</exchangeProperty>
+        </setHeader>
+        <setHeader name="robot.kafka.topic">
+            <constant>{{robot.cluster.kafka.telemetry.topic}}</constant>
+        </setHeader>
+        <toD uri="{{robot.mock.kafka.telemetry.sink}}"/>
+    </route>
+
+    <route id="robot-cluster-event-to-kafka-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-cluster-event-mock"/>
+        <setHeader name="Kafka.KEY">
+            <jsonpath>$.robotId</jsonpath>
+        </setHeader>
+        <setHeader name="robot.kafka.topic">
+            <constant>{{robot.cluster.kafka.event.topic}}</constant>
+        </setHeader>
+        <toD uri="{{robot.mock.kafka.event.sink}}"/>
+    </route>
+
+    <route id="robot-external-task-ingress-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-external-task-mock"/>
+        <setHeader name="robot.correlationId">
+            <jsonpath>$.correlationId</jsonpath>
+        </setHeader>
+        <toD uri="{{robot.mock.task.ingress.sink}}"/>
+    </route>
+
+    <route id="robot-task-callback-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-task-callback-mock"/>
+        <toD uri="{{robot.cluster.task.callback.uri}}"/>
+    </route>
+
+    <route id="robot-dashboard-data-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-dashboard-data-mock"/>
+        <setBody>
+            <simple>{"siteId":"{{robot.siteId}}","onlineRobots":100,"activeTasks":3,"exchangeId":"${exchangeId}"}</simple>
+        </setBody>
+        <toD uri="{{robot.mock.dashboard.sink}}"/>
+    </route>
+
+</routes>

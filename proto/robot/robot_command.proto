@@ -1,0 +1,193 @@
+syntax = "proto3";
+
+package lightesb.robot.v1;
+
+option java_multiple_files = true;
+option java_package = "com.oureman.soa.lightesb.robot.v1";
+option java_outer_classname = "RobotCommandProto";
+
+service RobotCommandService {
+  rpc SubmitCommand(RobotCommandRequest) returns (RobotCommandResult);
+  rpc ValidateCommand(RobotCommandRequest) returns (RobotCommandValidationResult);
+  rpc GetCommandResult(CommandResultQuery) returns (RobotCommandResult);
+}
+
+service RobotTelemetryService {
+  rpc PublishTelemetry(RobotTelemetry) returns (TelemetryReceipt);
+  rpc PublishEvent(RobotEvent) returns (EventReceipt);
+}
+
+message RobotCommandRequest {
+  string model_version = 1;
+  string schema_version = 2;
+  string command_id = 3;
+  string robot_id = 4;
+  string site_id = 5;
+  string protocol_profile = 6;
+  string capability_version = 7;
+  string command_type = 8;
+  string priority = 9;
+  int64 ttl_ms = 10;
+  int64 timeout_ms = 11;
+  CommandMode mode = 12;
+  RobotTarget target = 13;
+  map<string, string> payload = 14;
+  CommandConstraints constraints = 15;
+  string source_system = 16;
+  string operator_id = 17;
+  string issued_by = 18;
+  string correlation_id = 19;
+  ExpectedResult expected_result = 20;
+}
+
+enum CommandMode {
+  COMMAND_MODE_UNSPECIFIED = 0;
+  COMMAND_MODE_SUBMIT = 1;
+  COMMAND_MODE_VALIDATE_ONLY = 2;
+}
+
+message RobotTarget {
+  string frame = 1;
+  double x = 2;
+  double y = 3;
+  double z = 4;
+  double yaw = 5;
+  string station_id = 6;
+  string object_id = 7;
+}
+
+message CommandConstraints {
+  double max_speed = 1;
+  bool avoid_dynamic_obstacle = 2;
+  bool requires_human_confirmation = 3;
+  string approval_id = 4;
+}
+
+message ExpectedResult {
+  string final_state = 1;
+  bool result_required = 2;
+}
+
+message RobotCommandValidationResult {
+  string command_id = 1;
+  string robot_id = 2;
+  bool valid = 3;
+  string status = 4;
+  repeated ValidationIssue issues = 5;
+  RobotTrace trace = 6;
+}
+
+message ValidationIssue {
+  string field = 1;
+  string code = 2;
+  string message = 3;
+}
+
+message CommandResultQuery {
+  string command_id = 1;
+  string robot_id = 2;
+  string site_id = 3;
+  string correlation_id = 4;
+}
+
+message RobotCommandResult {
+  string command_id = 1;
+  string robot_id = 2;
+  string site_id = 3;
+  string status = 4;
+  int64 accepted_at_epoch_ms = 5;
+  int64 started_at_epoch_ms = 6;
+  int64 finished_at_epoch_ms = 7;
+  int64 duration_ms = 8;
+  map<string, string> result_payload = 9;
+  RobotProtocolError error = 10;
+  ProtocolReceipt protocol_receipt = 11;
+  RobotTrace trace = 12;
+}
+
+message RobotProtocolError {
+  string error_code = 1;
+  string error_name = 2;
+  string message = 3;
+  string protocol = 4;
+  string protocol_error = 5;
+  bool retryable = 6;
+  bool recoverable = 7;
+  string failure_stage = 8;
+  map<string, string> details = 9;
+}
+
+message ProtocolReceipt {
+  string protocol = 1;
+  string endpoint_profile = 2;
+  string service = 3;
+  string action = 4;
+  string topic = 5;
+  string node = 6;
+  string register_alias = 7;
+  bool dispatched = 8;
+  string ack_status = 9;
+  string result_status = 10;
+}
+
+message RobotTrace {
+  string request_id = 1;
+  string exchange_id = 2;
+  string route_id = 3;
+  string service_name = 4;
+  string service_version = 5;
+  string correlation_id = 6;
+}
+
+message RobotTelemetry {
+  string message_type = 1;
+  string robot_id = 2;
+  string site_id = 3;
+  int64 timestamp_epoch_ms = 4;
+  RobotPose pose = 5;
+  BatteryState battery = 6;
+  HealthState health = 7;
+  map<string, string> attributes = 8;
+  RobotTrace trace = 9;
+}
+
+message RobotPose {
+  string frame = 1;
+  double x = 2;
+  double y = 3;
+  double z = 4;
+  double yaw = 5;
+}
+
+message BatteryState {
+  double percent = 1;
+  bool charging = 2;
+}
+
+message HealthState {
+  string status = 1;
+  string fault_code = 2;
+}
+
+message RobotEvent {
+  string event_id = 1;
+  string robot_id = 2;
+  string site_id = 3;
+  string event_type = 4;
+  string severity = 5;
+  string fault_code = 6;
+  map<string, string> payload = 7;
+  RobotTrace trace = 8;
+}
+
+message TelemetryReceipt {
+  string robot_id = 1;
+  string status = 2;
+  RobotTrace trace = 3;
+}
+
+message EventReceipt {
+  string event_id = 1;
+  string status = 2;
+  RobotTrace trace = 3;
+}

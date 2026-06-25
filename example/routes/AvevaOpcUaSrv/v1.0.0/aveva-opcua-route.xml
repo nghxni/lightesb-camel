@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+    <route id="aveva-opcua-read-telemetry" routeConfigurationId="globalError">
+        <from uri="milo-client:{{industrial.opcua.endpoint.uri}}?node={{industrial.opcua.read.node}}&amp;clientId={{industrial.opcua.client.id}}-reader"/>
+        <doTry>
+            <process ref="opcUaTelemetryNormalizeProcessor"/>
+            <to uri="servicelog:info?message=[AVEVA-OPCUA] telemetry received node=${exchangeProperty.industrial.opcua.node}&amp;showBody=true&amp;maxBodyLength={{industrial.log.max.body.length}}"/>
+            <toD uri="{{industrial.target.http.uri}}?httpMethod=POST&amp;bridgeEndpoint=true&amp;connectTimeout={{industrial.target.http.connectTimeout}}&amp;socketTimeout={{industrial.target.http.socketTimeout}}"/>
+            <doCatch>
+                <exception>java.lang.Exception</exception>
+                <process ref="industrialErrorMapperProcessor"/>
+            </doCatch>
+        </doTry>
+    </route>
+
+    <route id="aveva-opcua-write-command" routeConfigurationId="globalError">
+        <from uri="undertow:http://0.0.0.0:{{server.port}}/api/aveva/opcua/write?httpMethodRestrict=POST"/>
+        <process ref="requestCharsetProcessor"/>
+        <to uri="servicelog:info?message=[AVEVA-OPCUA] write command received&amp;showBody=true&amp;maxBodyLength={{industrial.log.max.body.length}}"/>
+        <doTry>
+            <process ref="opcUaWriteCommandValidator"/>
+            <to uri="milo-client:{{industrial.opcua.endpoint.uri}}?node={{industrial.opcua.write.node}}&amp;clientId={{industrial.opcua.client.id}}-writer"/>
+            <setBody>
+                <simple>{"status":"accepted","protocol":"opcua","node":"{{industrial.opcua.write.node}}","exchangeId":"${exchangeId}"}</simple>
+            </setBody>
+            <process ref="jsonResponseProcessor"/>
+            <setHeader name="Content-Type">
+                <constant>application/json</constant>
+            </setHeader>
+            <doCatch>
+                <exception>java.lang.Exception</exception>
+                <process ref="industrialErrorMapperProcessor"/>
+            </doCatch>
+        </doTry>
+    </route>
+
+</routes>

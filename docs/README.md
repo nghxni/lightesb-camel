@@ -2,6 +2,12 @@
 
 本文档按交付使用顺序组织。源码仓库原始文档保持编号；本交付包文档按场景重排，并在 `SOURCE_MAP.md` 中维护来源映射。
 
+## 项目入口
+
+- [仓库 README](../README.md)：项目定位、能力矩阵、快速启动、目录结构、Support 和 License。
+- [Agent 规则](../AGENTS.md)：Agent 在本交付包内工作的约束。
+- [Claude 入口](../CLAUDE.md)：Claude/Codex 类 Agent 的简版阅读入口。
+
 ## 快速开始
 
 - [HTTP 入口与路由基础](components/01-http-route-basics.md)
@@ -27,8 +33,14 @@
 - [ExternalDB 数据访问](components/11-externaldb.md)
 - [AI Chat 组件](components/12-ai-chat.md)
 - [SAP NetWeaver 组件](components/13-sap-netweaver.md)
+- [AVEVA Plant SCADA OPC UA / MQTT 接入](components/15-aveva-plant-scada-opcua-mqtt.md)
 - [DTS 扩展开发指南](extensions/01-dts-extension-guide.md)
 - [DTS 最小模板](extensions/02-dts-minimal-template.md)
+
+## 经验沉淀
+
+- [机器人协议接入前置验证](experience/01-robotics-protocol-precheck.md)
+- [机器人协议接入正确做法](experience/02-robotics-protocol-correct-practices.md)
 
 ## CLI 自动化
 

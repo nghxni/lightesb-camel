@@ -32,9 +32,59 @@ lightesb profile current
 lightesb profile list
 lightesb doctor
 lightesb doctor --server http://localhost:8080 --output json
+lightesb robot doctor --offline
+lightesb robot doctor --offline --output json
+lightesb robot list
+lightesb robot list --site-id site-a --robot-type quadruped --online true
+lightesb robot get --robot-id quad-001
+lightesb robot capabilities --robot-id quad-001
+lightesb robot state --robot-id quad-001
+lightesb robot audit --robot-id quad-001
+lightesb robot audit --robot-id quad-001 --command-id cmd-001 --event-type robot.command.submitted
+lightesb robot command validate --file command.json
+lightesb robot command validate --file command.json --output json
+lightesb robot command status --robot-id quad-001 --command-id cmd-001
+lightesb robot command status --robot-id quad-001 --command-id cmd-001 --output json
+lightesb robot command submit --file command.json --yes
+lightesb robot command submit --file command.json --yes --output json
 ```
 
 `doctor` 只做环境和只读 API 检查，不修改服务端状态。
+
+`robot doctor --offline` 只做机器人接入静态检查，输出 PASS/WARN/FAIL 和 `connectivityChecked=false`；不连接真实 endpoint，不下发机器人命令，不调用验证 route。
+
+在线 `robot doctor` 当前不启用。真实资产库、最近心跳/遥测数据源、结构化错误日志或日志检索 API、只读权限和站点隔离稳定前，不能把 offline 输出解释为真实资产在线、最近心跳健康或现场错误日志已检查。
+
+`robot list/get/capabilities/state/audit` 只调用：
+
+```text
+GET /service-management/v1/robots
+GET /service-management/v1/robots/{robotId}
+GET /service-management/v1/robots/{robotId}/capabilities
+GET /service-management/v1/robots/{robotId}/state
+GET /service-management/v1/robots/{robotId}/audit
+GET /service-management/v1/robots/{robotId}/commands/{commandId}
+```
+
+这些命令是只读查询，不提交动作，不清理审计数据，不连接真实协议 endpoint。当前默认用本机 WSL mock HTTP 和本地测试验证，不证明真实资产库、真实在线状态、真实审计源、真实协议执行状态或真实能力发现。
+
+`robot command validate --file` 从 JSON 文件读取 `robotId`，只调用：
+
+```text
+POST /service-management/v1/robots/{robotId}/commands:validate
+```
+
+它用于命令预检，不调用 `/commands`，不创建命令记录，不连接 MQTT、rosbridge、OPC UA、Modbus、Kafka、WMS/MES，也不写执行审计。`--output json` 保留服务端标准响应。
+
+`robot command status --robot-id --command-id` 只查询已有本地命令结果，不调用 `POST /commands`，不创建新命令。`--output json` 保留服务端标准响应。
+
+`robot command submit --file --yes` 只调用：
+
+```text
+POST /service-management/v1/robots/{robotId}/commands
+```
+
+它会提交到本地命令持久化入口，必须显式传 `--yes`，并拒绝 `mode=validate_only` 和 `dryRun=true`。服务端返回 `protocolReceipt.dispatched=false` 时，只表示管理 API 已本地 accepted，不能当作真实机器人命令下发入口。
 
 ## App 与 Message
 
@@ -191,6 +241,18 @@ AI 边界：
 - `ai route generate` 只返回候选 XML，不写入 `lightesb-camel-app`，不保存配置，不自动部署。
 - `ai route optimize` 不接入 SSE，不自动保存优化结果。
 - 模型 provider、base URL、model name、API key 都由服务端配置管理；不要写入 CLI profile。
+
+机器人边界：
+
+- `robot doctor --offline` 可作为机器人样例包、配置、route、白名单和 processor 注册的静态门禁。
+- `robot list/get/capabilities/state/audit` 只做管理 API 只读查询。
+- `robot command validate --file` 只做服务端 validate-only 预检；请求体中的动态协议目标字段仍由服务端拒绝。
+- `robot command status --robot-id --command-id` 只查已有本地命令结果，不提交新命令。
+- `robot command submit --file --yes` 只做本地持久化 accepted，不证明真实协议执行。
+- 当前 CLI 不提供 `move_to`、OPC UA write、Modbus write 或 rosbridge action 直连调用。
+- 后续如需真实协议执行，必须另开真实协议闭环切片，不能把 `accepted` 当作执行成功。
+- 默认自动化验证只要求本机 WSL 可运行 Maven；使用 mock HTTP 和本地单元测试，不要求真实地址或真实机器人环境。
+- 真实机器人、broker、rosbridge、OPC UA、Modbus、Kafka 连通性必须通过显式联调脚本或现场测试验证。
 
 ## 最小接入链路
 

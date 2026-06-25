@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+    <route id="robot-modbus-read-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-modbus-read-mock"/>
+        <setHeader name="robot.modbus.register">
+            <constant>{{robot.modbus.register.heartbeat.read}}</constant>
+        </setHeader>
+        <setBody>
+            <simple>{"messageType":"telemetry","robotId":"robot-modbus-001","siteId":"{{robot.siteId}}","sourceProtocol":"modbus-tcp","register":"${header.robot.modbus.register}","value":1,"exchangeId":"${exchangeId}"}</simple>
+        </setBody>
+        <toD uri="{{robot.mock.modbus.read.sink}}"/>
+    </route>
+
+    <route id="robot-modbus-write-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-modbus-write-mock"/>
+        <setHeader name="robot.modbus.register">
+            <constant>{{robot.modbus.register.commandCode.write}}</constant>
+        </setHeader>
+        <setBody>
+            <simple>{"status":"accepted","sourceProtocol":"modbus-tcp","register":"${header.robot.modbus.register}","exchangeId":"${exchangeId}"}</simple>
+        </setBody>
+        <toD uri="{{robot.mock.modbus.write.sink}}"/>
+    </route>
+
+    <route id="robot-modbus-alarm-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-modbus-alarm-mock"/>
+        <setBody>
+            <simple>{"messageType":"event","eventType":"robot.station.alarm","robotId":"robot-modbus-001","siteId":"{{robot.siteId}}","sourceProtocol":"modbus-tcp","register":"{{robot.modbus.register.alarmCode.read}}","exchangeId":"${exchangeId}"}</simple>
+        </setBody>
+        <toD uri="{{robot.mock.modbus.event.sink}}"/>
+    </route>
+
+</routes>

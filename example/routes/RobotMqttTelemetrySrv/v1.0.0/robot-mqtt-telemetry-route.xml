@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+    <route id="robot-mqtt-telemetry-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-mqtt-telemetry-mock"/>
+        <process ref="robotTelemetryNormalizeProcessor"/>
+        <to uri="servicelog:info?message=[ROBOT-MQTT] telemetry normalized robotId=${exchangeProperty.robot.robotId}&amp;showBody=true&amp;maxBodyLength=2000"/>
+        <toD uri="{{robot.mock.http.sink}}"/>
+        <toD uri="{{robot.mock.state.sink}}"/>
+    </route>
+
+</routes>

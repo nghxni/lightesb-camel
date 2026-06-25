@@ -18,6 +18,14 @@
 | `routes/timer/v1.0.1/` | Timer 服务级日志样例，包含配置文件，`HTTP.Listener=false` | `../docs/components/14-timer-routes.md` |
 | `routes/MysqlRouteSrv/v1.0.0/` | ExternalDB MySQL 定时健康检查和 SQL 增删查删演示 | `../docs/components/11-externaldb.md` |
 | `routes/AiAgentDemoSrv/v1.0.0/` | AI Agent + Tools 工具编排演示 | `../docs/components/12-ai-chat.md` |
+| `routes/AvevaOpcUaSrv/v1.0.0/` | AVEVA Plant SCADA OPC UA 遥测读取和固定点位写控制样例，默认 `server.running=false` | `../docs/components/15-aveva-plant-scada-opcua-mqtt.md` |
+| `routes/AvevaMqttSrv/v1.0.0/` | AVEVA Plant SCADA MQTT 5 遥测订阅和固定命令 topic 发布样例，默认 `server.running=false` | `../docs/components/15-aveva-plant-scada-opcua-mqtt.md` |
+| `routes/RobotMqttTelemetrySrv/v1.0.0/` | 机器人 MQTT telemetry 标准化 mock 样例，默认 `server.running=false` | `../docs/experience/01-robotics-protocol-precheck.md` |
+| `routes/RobotMqttCommandSrv/v1.0.0/` | 机器人 HTTP/外部命令到 MQTT command envelope 的 mock 样例，默认 `server.running=false` | `../docs/experience/01-robotics-protocol-precheck.md` |
+| `routes/RobotRosBridgeSrv/v1.0.0/` | rosbridge JSON 和机器人动作映射 mock 样例，默认 `server.running=false` | `../docs/experience/01-robotics-protocol-precheck.md` |
+| `routes/RobotOpcUaStationSrv/v1.0.0/` | OPC UA 工作站读写边界和工业告警 mock 样例，默认 `server.running=false` | `../docs/experience/01-robotics-protocol-precheck.md` |
+| `routes/RobotModbusGatewaySrv/v1.0.0/` | Modbus 寄存器别名白名单和写回执 mock 样例，默认 `server.running=false` | `../docs/experience/01-robotics-protocol-precheck.md` |
+| `routes/RobotClusterDataSrv/v1.0.0/` | Kafka 风格出流、外部任务和 dashboard 数据 mock 样例，默认 `server.running=false` | `../docs/experience/01-robotics-protocol-precheck.md` |
 | `transform-dts-java/` | DTS Java SPI 扩展示例，提供多个 transform provider | `../docs/extensions/01-dts-extension-guide.md` |
 
 ## 运行方式
@@ -106,6 +114,31 @@ curl -X POST "http://localhost:19095/api/ai/agent/chat" \
   -H "Content-Type: application/json" \
   -d '{"memoryId":"demo-order-session","message":"查询订单 MOCK-1001 的状态"}'
 rm -rf lightesb-camel-app/AiAgentDemoSrv
+```
+
+AVEVA Plant SCADA OPC UA / MQTT 样例：
+
+```bash
+cp -R example/routes/AvevaOpcUaSrv lightesb-camel-app/
+cp -R example/routes/AvevaMqttSrv lightesb-camel-app/
+# 配置真实 Server/Broker、凭据和安全参数后，将对应 common.config.properties 的 server.running 改为 true。
+./start.sh
+curl -X POST "http://localhost:19110/api/aveva/opcua/write" \
+  -H "Content-Type: application/json" \
+  -d '{"value":55.5}'
+curl -X POST "http://localhost:19111/api/aveva/mqtt/command" \
+  -H "Content-Type: application/json" \
+  -d '{"command":"start","deviceId":"Pump101"}'
+rm -rf lightesb-camel-app/AvevaOpcUaSrv lightesb-camel-app/AvevaMqttSrv
+```
+
+机器人协议阶段 1-4 mock 样例：
+
+```bash
+cp -R example/routes/RobotMqttTelemetrySrv lightesb-camel-app/
+cp -R example/routes/RobotMqttCommandSrv lightesb-camel-app/
+# 样例默认 server.running=false；用于阅读和验证服务包结构、MQTT topic/clientId/QoS 契约，不会连接真实 broker 或机器人。
+rm -rf lightesb-camel-app/RobotMqttTelemetrySrv lightesb-camel-app/RobotMqttCommandSrv
 ```
 
 不要把索引文件复制到 `lightesb-camel-app/`。

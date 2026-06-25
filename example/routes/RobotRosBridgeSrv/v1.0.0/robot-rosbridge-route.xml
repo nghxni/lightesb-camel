@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+    <route id="robot-rosbridge-json-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-rosbridge-json-mock"/>
+        <setHeader name="rosbridge.op">
+            <jsonpath>$.op</jsonpath>
+        </setHeader>
+        <choice>
+            <when>
+                <simple>${header.rosbridge.op} == 'subscribe'</simple>
+                <toD uri="{{robot.mock.ros.subscribe.sink}}"/>
+            </when>
+            <when>
+                <simple>${header.rosbridge.op} == 'publish'</simple>
+                <toD uri="{{robot.mock.ros.publish.sink}}"/>
+            </when>
+            <when>
+                <simple>${header.rosbridge.op} == 'call_service'</simple>
+                <toD uri="{{robot.mock.ros.service.sink}}"/>
+            </when>
+            <otherwise>
+                <setBody>
+                    <simple>{"status":"rejected","reason":"unsupported rosbridge operation","op":"${header.rosbridge.op}","exchangeId":"${exchangeId}"}</simple>
+                </setBody>
+                <toD uri="{{robot.mock.ros.reject.sink}}"/>
+            </otherwise>
+        </choice>
+    </route>
+
+    <route id="robot-rosbridge-command-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-rosbridge-command-mock"/>
+        <process ref="robotCommandValidateProcessor"/>
+        <process ref="robotCommandEnvelopeProcessor"/>
+        <setBody>
+            <simple>{"op":"call_service","service":"/robot/${header.robot.robotId}/action/${exchangeProperty.robot.command.type}","args":{"commandId":"${header.robot.commandId}","robotId":"${header.robot.robotId}","correlationId":"${header.robot.correlationId}"}}</simple>
+        </setBody>
+        <toD uri="{{robot.mock.ros.action.sink}}"/>
+        <setBody>
+            <simple>{"commandId":"${header.robot.commandId}","robotId":"${header.robot.robotId}","status":"succeeded","sourceProtocol":"rosbridge","correlationId":"${header.robot.correlationId}"}</simple>
+        </setBody>
+        <toD uri="{{robot.mock.result.sink}}"/>
+    </route>
+
+</routes>
