@@ -28,7 +28,7 @@
 - [异常处理与错误响应](components/09-exception-handling.md)
 - [H2 缓存与 JsonKeyword 链路](components/10-h2-jsonkeyword-chain.md)
 
-## 数据访问与扩展
+## 机器人、企业系统、工业协议与扩展
 
 - [ExternalDB 数据访问](components/11-externaldb.md)
 - [AI Chat 组件](components/12-ai-chat.md)
@@ -41,6 +41,7 @@
 
 - [机器人协议接入前置验证](experience/01-robotics-protocol-precheck.md)
 - [机器人协议接入正确做法](experience/02-robotics-protocol-correct-practices.md)
+- 机器人/ROS/PLC 场景以“动态热加载技能扩展”和“核心能力全链路功能服务”为交付口径，覆盖 MQTT、rosbridge、OPC UA、Modbus TCP、PLC4X 评估路径、Kafka 风格出流和 gRPC 契约；真实现场执行按 mock-first / local baseline / field validation 分层验收。
 
 ## CLI 自动化
 
@@ -68,7 +69,7 @@
 | 权限与校验 | `../skills/lightesb-security-validation/SKILL.md` |
 | 日志、异常、缓存 | `../skills/lightesb-logging-observability/SKILL.md` |
 | DTS 扩展 | `../skills/lightesb-dts-extension/SKILL.md` |
-| AI 和外部系统扩展 | `../skills/lightesb-ai-components/SKILL.md` |
+| AI、机器人和外部系统扩展 | `../skills/lightesb-ai-components/SKILL.md` |
 | CLI 命令和自动化流程 | `../skills/lightesb-cli-automation/SKILL.md` |
 
 ## 明确不包含
