@@ -17,6 +17,10 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 - 需要服务端地址时优先使用 `--server` 或 profile，不在命令中写真实密钥。
 - `--ai-token` 只用于 `X-AI-Token`，不是模型 API key。
 - `ai tool plan/run` 只调用服务端 AI 工具接口，不在本地查库或调用工具 URL。
+- `service import-plan` 只读远端状态；`service import` 和 `service sync-remote` 必须加 `--yes`。
+- 服务同步默认跳过远端已有同名服务版本的服务文件部署；覆盖部署需显式 `--overwrite-service-files`。
+- 服务同步默认自动启动部署路由；需要关闭时使用 `--no-start`。`sync-remote --keep-package` 可保留中间导出包。
+- 服务同步中远端已有同名报文且内容不一致时走消息更新接口，要求远端当前版本为 `V数字.单数字`，更新后递增单数字小版本并保留历史；小版本为 `9` 时进位，例如 `V1.9` -> `V2.0`。
 - `robot doctor --offline` 只做本地静态检查，不连接真实 endpoint，不下发机器人命令。
 - `robot list/get/capabilities/state/audit` 只做机器人管理 API 只读查询，不证明真实资产库、真实在线状态、真实审计源或真实能力发现。
 - `robot command validate --file` 只调用 `POST /service-management/v1/robots/{robotId}/commands:validate`，不调用 `/commands`，不创建命令或执行审计。
@@ -40,6 +44,9 @@ lightesb message create --file response-message.json --yes
 lightesb service create --file service.json --yes
 lightesb service config save --file service.json --yes
 lightesb service package deploy --file package.json --yes
+lightesb service export --local-server http://localhost:8080 --app-dir lightesb-camel-app --service-name DemoSrv --service-version v1.0.0 --out dist/DemoSrv-v1.0.0.lightesb-service.zip
+lightesb service import-plan --server http://remote-host:8080 --file dist/DemoSrv-v1.0.0.lightesb-service.zip
+lightesb service import --server http://remote-host:8080 --file dist/DemoSrv-v1.0.0.lightesb-service.zip --skip-existing --yes
 lightesb route status
 lightesb log instance list --service-name DemoSrv --service-version 1.0.0
 ```

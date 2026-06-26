@@ -155,6 +155,10 @@ lightesb service package build --file package.json
 lightesb service package deploy --file package.json --yes
 lightesb service start --id <serviceId> --yes
 lightesb service stop --id <serviceId> --yes
+lightesb service export --local-server http://localhost:8080 --app-dir lightesb-camel-app --service-name DemoSrv --service-version v1.0.0 --out dist/DemoSrv-v1.0.0.lightesb-service.zip
+lightesb service import-plan --server http://remote-host:8080 --file dist/DemoSrv-v1.0.0.lightesb-service.zip
+lightesb service import --server http://remote-host:8080 --file dist/DemoSrv-v1.0.0.lightesb-service.zip --skip-existing --yes
+lightesb service sync-remote --server http://remote-host:8080 --local-server http://localhost:8080 --app-dir lightesb-camel-app --service-name DemoSrv --service-version v1.0.0 --keep-package --yes
 
 lightesb deploy validate ./DemoSrv.zip
 lightesb deploy upload ./DemoSrv.zip
@@ -186,6 +190,8 @@ lightesb log instance download --instance-uuid <instanceUuid> --type res > respo
 ```
 
 `deploy history` 默认返回最近 50 条部署记录，可用 `--service-name` 和 `--service-version` 过滤单个服务版本。列表输出只包含概要，不拉取完整部署步骤日志。
+
+服务同步命令用于把本地服务版本迁移到远端 LightESB。导出包包含服务定义、接入系统、报文模型和服务目录文件，并在 manifest 中记录 metadata 与服务文件 `sha256`。`serviceVersion` 必须使用 `vX.Y.Z`。`import-plan` 只读远端状态；写入命令必须加 `--yes`。`--skip-existing` 是默认幂等策略的显式写法。远端已有同名服务版本时默认跳过服务文件部署；需要覆盖时加 `--overwrite-service-files`。默认部署后自动启动路由；需要关闭时加 `--no-start`。`sync-remote --keep-package` 可保留中间导出包，也可用 `--package-out <path>` 指定路径。接入系统或服务定义冲突默认失败；需要更新时加 `--update-existing`。远端已有同名报文且内容不一致时会调用消息更新接口，远端当前 `msgVersion` 必须是 `V数字.单数字`，更新后递增单数字小版本并保留更新历史，例如 `V1.9` -> `V2.0`。
 
 日志级别调整后立即生效，不需要执行日志重载。
 

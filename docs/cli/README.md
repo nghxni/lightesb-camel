@@ -9,7 +9,7 @@ LightESB CLI 是面向接入建模、交付运维、路由治理、日志检索�
 核心命令域：
 
 ```text
-profile -> doctor -> app -> message -> service -> deploy -> route -> log -> ai -> robot doctor -> robot list/get/capabilities/state/audit -> robot command validate/status
+profile -> doctor -> app -> message -> service -> service export/import/sync-remote -> deploy -> route -> log -> ai -> robot doctor -> robot list/get/capabilities/state/audit -> robot command validate/status
 ```
 
 基本调用：
@@ -27,6 +27,9 @@ lightesb --file payload.json <command>
 - CLI 是控制面客户端，不直接修改 `lightesb-camel-app/`。
 - 写操作默认传 `--yes`。
 - CI 中优先用 `--output json`。
+- `service import-plan` 只读远端状态；`service import` 和 `service sync-remote` 会写远端，必须加 `--yes`。
+- 服务同步默认跳过远端已有同名服务版本的服务文件部署；覆盖部署需显式 `--overwrite-service-files`。
+- 需要关闭部署后自动启动时加 `--no-start`；需要保留一步同步的中间导出包时加 `sync-remote --keep-package`。
 - `log ask` 是可选服务端自然语言 Agent 能力，默认日志治理优先使用确定性 `log` 命令。
 - `--ai-token` 只用于服务端 AI 日志问答和 AI 工具接口的 `X-AI-Token`，不是模型 API key。
 - `ai tool plan/run` 只调用服务端接口，不在 CLI 本地查库或调用工具 URL；执行命令使用 `--yes`，自动化场景优先加 `--output json`。
