@@ -27,6 +27,7 @@ lightesb --file payload.json <command>
 - CLI 是控制面客户端，不直接修改 `lightesb-camel-app/`。
 - 写操作默认传 `--yes`。
 - CI 中优先用 `--output json`。
+- `log ask` 是可选服务端自然语言 Agent 能力，默认日志治理优先使用确定性 `log` 命令。
 - `--ai-token` 只用于服务端 AI 日志问答和 AI 工具接口的 `X-AI-Token`，不是模型 API key。
 - `ai tool plan/run` 只调用服务端接口，不在 CLI 本地查库或调用工具 URL；执行命令使用 `--yes`，自动化场景优先加 `--output json`。
 - `robot doctor --offline` 只做机器人接入静态检查，不连接真实机器人、broker、rosbridge、OPC UA、Modbus 或 Kafka，也不下发命令。

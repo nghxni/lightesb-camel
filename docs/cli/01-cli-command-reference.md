@@ -134,7 +134,7 @@ lightesb message domains
   "msgName": "DemoRequest",
   "msgType": "REQUEST",
   "msgStandard": "JSON",
-  "msgVersion": "1.0.0",
+  "msgVersion": "V1.0",
   "msgStructureJson": "{}",
   "msgStructure": []
 }
@@ -227,19 +227,32 @@ lightesb ai tool run --message "查询订单 MOCK-1001 的详情" --yes
 lightesb ai tool run --plan-file plan-result.json --yes
 
 lightesb ai route generate --file ai-route.json
+lightesb ai route generate --file ai-route.json --save-remote --return-logs --log-lines 80 --yes
+lightesb ai route generate --file ai-route.json --save-local --app-dir lightesb-camel-app --service-name DemoAiSrv --service-version 1.0.0 --route-file-name DemoAiSrv-ai-route.xml --yes
 lightesb ai route read --service-name DemoAiSrv --service-version 1.0.0
 lightesb ai route optimize --file ai-route-chat.json
+lightesb ai route optimize --file ai-route-chat.json --save-remote --return-logs --log-lines 80 --yes
+lightesb ai route optimize --file ai-route-chat.json --save-local --app-dir lightesb-camel-app --service-name DemoAiSrv --service-version 1.0.0 --route-file-name DemoAiSrv-ai-route.xml --yes
+lightesb ai route apply --file route.xml --save-remote --service-name DemoAiSrv --service-version 1.0.0 --route-file-name DemoAiSrv-ai-route.xml --resource-file input-transform.ds --return-logs --log-lines 80 --timeout 30 --yes
+lightesb ai route apply --file route.xml --save-local --app-dir lightesb-camel-app --service-name DemoAiSrv --service-version 1.0.0 --route-file-name DemoAiSrv-ai-route.xml --resource-file input-transform.ds --yes
 lightesb ai diagnose
 lightesb ai diagnose --service-id SRV1 --service-name DemoAiSrv --service-version 1.0.0 --output json
 ```
 
 AI 边界：
 
-- `log ask` 只把问题、`memoryId` 和 `X-AI-Token` 传给服务端，不在 CLI 本地推理日志语义。
+- `log ask` 是可选服务端自然语言 Agent 能力，只把问题、`memoryId` 和 `X-AI-Token` 传给服务端，不在 CLI 本地推理日志语义；默认日志治理优先使用确定性 `log` 命令。
 - `ai tool plan/run` 只调用服务端 AI 工具接口，不在 CLI 本地查库或调用工具 URL。
 - `ai tool run` 初版要求 `--yes`；CI 使用 `--output json` 保存 `plan` 结果，再用 `run --plan-file` 执行。
-- `ai route generate` 只返回候选 XML，不写入 `lightesb-camel-app`，不保存配置，不自动部署。
-- `ai route optimize` 不接入 SSE，不自动保存优化结果。
+- `ai route generate` / `ai route optimize` 默认只返回候选 XML，不写入 `lightesb-camel-app`，不保存配置，不自动部署。
+- `--save-remote --yes` 会调用服务端 `/service-management/v1/ai/route/apply`，由服务端备份、写入、等待 XML/properties 热加载并返回状态；CLI 不通过 SSH/SCP 或共享磁盘写远程文件。
+- `--return-logs` 控制成功时是否返回远程日志摘要；失败时即使未传 `--return-logs`，也会展示服务端返回的多个日志来源摘要。
+- `--log-lines <n>` 控制每个日志来源最多返回多少行。
+- `--save-local --yes` 会写入本地 `{appDir}/{serviceName}/{serviceVersion}`，必须显式传入 `--service-name`、`--service-version`、`--route-file-name`；它支持 XML、`common.config.properties`、`service.config.properties` 和 `.ds` 资源文件，不主动 deploy/reload。
+- `ai route apply --save-remote --yes` 从本地 XML 和重复 `--resource-file` 调用服务端 apply API；`--timeout <seconds>` 传给服务端等待热加载。
+- `ai route apply --save-local --yes` 从本地 XML 和重复 `--resource-file` 写入服务目录；写入前把已有服务目录备份到 app 目录同级 `{appDirName}-backups`，可选 `--wait-reload --timeout <seconds>` 只读轮询路由详情。
+- `--save-local` 与 `--save-remote` 互斥；本地保存是脚本和非 Codex 本地开发入口，不是 Codex 直接编辑服务文件的必经流程。
+- `ai route optimize` 不接入 SSE。
 - 模型 provider、base URL、model name、API key 都由服务端配置管理；不要写入 CLI profile。
 
 机器人边界：
