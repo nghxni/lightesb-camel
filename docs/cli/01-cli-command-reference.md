@@ -236,6 +236,9 @@ lightesb ai route generate --file ai-route.json
 lightesb ai route generate --file ai-route.json --save-remote --return-logs --log-lines 80 --yes
 lightesb ai route generate --file ai-route.json --save-local --app-dir lightesb-camel-app --service-name DemoAiSrv --service-version 1.0.0 --route-file-name DemoAiSrv-ai-route.xml --yes
 lightesb ai route read --service-name DemoAiSrv --service-version 1.0.0
+lightesb ai route cache status
+lightesb ai route cache clear --yes
+lightesb ai route cache clear --service-name DemoAiSrv --service-version v1.0.0 --yes
 lightesb ai route optimize --file ai-route-chat.json
 lightesb ai route optimize --file ai-route-chat.json --save-remote --return-logs --log-lines 80 --yes
 lightesb ai route optimize --file ai-route-chat.json --save-local --app-dir lightesb-camel-app --service-name DemoAiSrv --service-version 1.0.0 --route-file-name DemoAiSrv-ai-route.xml --yes
@@ -250,7 +253,10 @@ AI 边界：
 - `log ask` 是可选服务端自然语言 Agent 能力，只把问题、`memoryId` 和 `X-AI-Token` 传给服务端，不在 CLI 本地推理日志语义；默认日志治理优先使用确定性 `log` 命令。
 - `ai tool plan/run` 只调用服务端 AI 工具接口，不在 CLI 本地查库或调用工具 URL。
 - `ai tool run` 初版要求 `--yes`；CI 使用 `--output json` 保存 `plan` 结果，再用 `run --plan-file` 执行。
-- `ai route generate` / `ai route optimize` 默认只返回候选 XML，不写入 `lightesb-camel-app`，不保存配置，不自动部署。
+- `ai route generate` 默认只返回候选 XML/配置/资源，不写入 `lightesb-camel-app`，不保存配置，不自动部署；服务端先选择随包文档/skills 上下文，再生成 Artifact JSON，失败时返回服务端错误。
+- `ai route optimize` 默认只返回候选微调结果，不写入、不保存、不自动部署；服务端会生成或复用 baseline，再基于用户提交的当前 route/config/resources 微调。微调步骤失败时返回 warning 和用户原始内容，不用 baseline 覆盖用户提交内容。
+- `ai route cache status` 查询服务端 AI 路由上下文选择缓存和 baseline 缓存状态。
+- `ai route cache clear --yes` 清理服务端 AI 路由缓存；带 `--service-name` 与 `--service-version` 时只清理指定服务关联缓存。
 - `--save-remote --yes` 会调用服务端 `/service-management/v1/ai/route/apply`，由服务端备份、写入、等待 XML/properties 热加载并返回状态；CLI 不通过 SSH/SCP 或共享磁盘写远程文件。
 - `--return-logs` 控制成功时是否返回远程日志摘要；失败时即使未传 `--return-logs`，也会展示服务端返回的多个日志来源摘要。
 - `--log-lines <n>` 控制每个日志来源最多返回多少行。

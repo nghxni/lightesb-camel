@@ -49,6 +49,7 @@
 - [CLI 命令压缩参考](cli/01-cli-command-reference.md)
 - [管理 API 响应契约](api-response-contract.md)
 - [部署管理 API](deployment-management-api.md)
+- [AI 路由缓存管理 API](ai-route-cache-api.md)
 
 ## 样例
 

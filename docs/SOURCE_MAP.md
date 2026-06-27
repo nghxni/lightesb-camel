@@ -25,6 +25,7 @@
 | `extensions/02-dts-minimal-template.md` | `docs/24-third-party-dts-extension-minimal-template.md` |
 | `api-response-contract.md` | 管理 API 响应契约，外发整理版 |
 | `deployment-management-api.md` | 部署管理 API 说明，外发整理版 |
+| `ai-route-cache-api.md` | `docs/ai-route-cache-api.md`，按交付场景压缩整理 |
 | `cli/README.md` | `docs/cli/README.md`，外发压缩版 |
 | `cli/01-cli-command-reference.md` | `docs/cli/*` 与 `lightesb-cli/src/main/java/.../cli/command/*`，按命令域压缩整理 |
 
