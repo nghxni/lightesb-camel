@@ -4,6 +4,7 @@ MANIFEST.txt
 README.md
 docs/README.md
 docs/SOURCE_MAP.md
+docs/ai-route-cache-api.md
 docs/api-response-contract.md
 docs/cli/01-cli-command-reference.md
 docs/cli/README.md

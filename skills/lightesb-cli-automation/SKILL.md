@@ -16,7 +16,7 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 - 写操作加 `--yes`，CI 中优先加 `--output json`。
 - 需要服务端地址时优先使用 `--server` 或 profile，不在命令中写真实密钥。
 - `--ai-token` 只用于 `X-AI-Token`，不是模型 API key。
-- `ai tool plan/run` 只调用服务端 AI 工具接口，不在本地查库或调用工具 URL。
+- `ai tool list/save/plan/run` 已删除；AI 路由生成统一走自然语言入口。
 - `service import-plan` 只读远端状态；`service import` 和 `service sync-remote` 必须加 `--yes`。
 - 服务同步默认跳过远端已有同名服务版本的服务文件部署；覆盖部署需显式 `--overwrite-service-files`。
 - 服务同步默认自动启动部署路由；需要关闭时使用 `--no-start`。`sync-remote --keep-package` 可保留中间导出包。
@@ -28,7 +28,6 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 - `robot command submit --file --yes` 只调用 `POST /service-management/v1/robots/{robotId}/commands` 本地持久化入口；`protocolReceipt.dispatched=false` 时不能当作真实协议执行成功。
 - 机器人 CLI 后续真实执行能力必须另开协议闭环切片；不要生成协议写控命令。
 - 机器人 CLI 默认只要求本机 WSL 可运行 Maven；用 mock HTTP 和本地测试验证，不要求真实地址或真实机器人环境。
-- 自动化执行自然语言工具调用时，先用 `ai tool plan --output json` 保存计划，再用 `ai tool run --plan-file plan-result.json --yes` 执行。
 - AI 路由生成和优化只返回候选内容，不自动保存、打包或部署。
 - 排查部署问题时先查 `deploy status/history`、`route status/mapping`、`log instance`。
 

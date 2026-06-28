@@ -31,8 +31,8 @@ lightesb --file payload.json <command>
 - 服务同步默认跳过远端已有同名服务版本的服务文件部署；覆盖部署需显式 `--overwrite-service-files`。
 - 需要关闭部署后自动启动时加 `--no-start`；需要保留一步同步的中间导出包时加 `sync-remote --keep-package`。
 - `log ask` 是可选服务端自然语言 Agent 能力，默认日志治理优先使用确定性 `log` 命令。
-- `--ai-token` 只用于服务端 AI 日志问答和 AI 工具接口的 `X-AI-Token`，不是模型 API key。
-- `ai tool plan/run` 只调用服务端接口，不在 CLI 本地查库或调用工具 URL；执行命令使用 `--yes`，自动化场景优先加 `--output json`。
+- `--ai-token` 只用于服务端 AI 日志问答的 `X-AI-Token`，不是模型 API key。
+- `ai tool list/save/plan/run` 已删除；AI 路由生成统一走自然语言入口。
 - `robot doctor --offline` 只做机器人接入静态检查，不连接真实机器人、broker、rosbridge、OPC UA、Modbus 或 Kafka，也不下发命令。
 - `robot list/get/capabilities/state/audit` 只调用机器人管理 API 的只读入口，默认用本机 WSL mock HTTP 和本地测试验证，不证明真实资产库、真实在线状态、真实审计源或真实能力发现。
 - `robot command validate --file` 只调用机器人管理 API 的 `commands:validate` 入口，不创建命令、不下发协议请求、不写执行审计。
