@@ -29,7 +29,9 @@ lightesb.ai.models.default.dashscope.model-name=qwen-plus
 lightesb.ai.agents.logging.model-ref=default
 ```
 
-AI 路由生成/微调如需接入 OpenAI 原生 Responses API，可新增 `provider=openai-responses` 模型并让 `lightesb.ai.agents.route.model-ref` 指向该模型。自定义网关使用 `provider=custom` 和 `custom.api-type=chat-completions|responses`。
+AI 路由生成/微调如需接入 OpenAI 原生 Responses API，可新增 `provider=openai-responses` 模型并让 `lightesb.ai.agents.route.model-ref` 指向该模型。自定义网关使用 `provider=custom` 和 `custom.api-type=chat-completions|responses`。支持 Responses API 的 AI 路由 provider 可在同一前端 AI 路由会话内续接生成、微调和热部署失败修复；交付侧只需要保留可见 XML、properties 和 `.ds` 文件，不需要配置隐藏工具表。
+
+真实 Responses `previous_response_id` 连通性不是交付包 CLI 的默认动作。需要在源码仓库中使用显式 Maven profile 运行验证，并确保输出不包含完整 prompt、完整响应或密钥。若目标网关不支持 HTTP Responses 续接，服务端会继续使用普通 prompt 上下文模式完成 AI 路由生成和微调。
 
 Agent + Tools 演示：
 
