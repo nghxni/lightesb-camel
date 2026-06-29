@@ -97,6 +97,16 @@ service.version=v1.0.0
 <toD uri="http://127.0.0.1:{{server.port}}/api/demo/mock/${header.id}?bridgeEndpoint=true&amp;connectTimeout=5000&amp;socketTimeout=30000&amp;throwExceptionOnFailure=false"/>
 ```
 
+设置下游 HTTP 方法时，XML DSL 必须使用 `CamelHttpMethod`。不要把 Java 常量名写进 XML header 名称：
+
+```xml
+<!-- 错误：会创建普通 header，HTTP producer 不一定按它设置请求方法 -->
+<setHeader name="Exchange.HTTP_METHOD"><constant>POST</constant></setHeader>
+
+<!-- 正确：Camel HTTP producer 识别该 header -->
+<setHeader name="CamelHttpMethod"><constant>POST</constant></setHeader>
+```
+
 被调用子路由：
 
 ```xml
