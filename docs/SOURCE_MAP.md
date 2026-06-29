@@ -6,7 +6,7 @@
 | `components/01-http-route-basics.md` | `docs/07-undertow-component-usage.md`，按交付场景重写 |
 | `components/02-service-log.md` | `docs/12-camel-servicelog-component-usage.md`，按交付场景重写 |
 | `components/03-charset-processing.md` | `docs/13-charset-processor-usage.md`，按交付场景重写 |
-| `components/04-transform-components.md` | `docs/09-conditional-jsontransform-component-usage.md`、`docs/10-conditionaltransform-dts-sample.md`、AI 路由配置键目录化结论 |
+| `components/04-transform-components.md` | `docs/09-conditional-jsontransform-component-usage.md`、`docs/10-conditionaltransform-dts-sample.md` |
 | `components/05-json-schema-validation.md` | `docs/14-jsonschema-validation-processor-usage.md` |
 | `components/06-json-keyword.md` | `docs/01-json-keyword.md`，重新编写外发版 |
 | `components/07-stream-cache.md` | `docs/11-streamcache-component-usage.md` |

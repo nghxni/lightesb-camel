@@ -44,7 +44,7 @@ conditionaltransform:type?file=...&required=false&skipOnError=true
 
 DataSonnet import 样例可参考 `example/routes/PlatformHttp/v1.0.0/input-transform-with-import.ds` 和同目录 `DATASONNET_IMPORT_GUIDE.md`。
 
-服务配置中启用：
+`PlatformHttp/v1.0.0/common.config.properties` 中启用：
 
 ```properties
 input-transform=true
