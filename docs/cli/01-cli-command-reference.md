@@ -258,6 +258,7 @@ AI 边界：
 - `log ask` 是可选服务端自然语言 Agent 能力，只把问题、`memoryId` 和 `X-AI-Token` 传给服务端，不在 CLI 本地推理日志语义；默认日志治理优先使用确定性 `log` 命令。
 - `ai tool list/save/plan/run` 已删除；AI 路由生成统一走自然语言入口，最终以路由 XML、properties、`.ds` 和资源文件体现。
 - `ai route generate` 要求输入 JSON 包含 `naturalLanguageRequirement`，默认只返回候选 XML/配置/资源，不写入 `lightesb-camel-app`，不保存配置，不自动部署；服务端先选择随包文档/skills 上下文，再生成 Artifact JSON，失败时返回服务端错误。
+- 服务端会过滤并校验最终 `common.config.properties` 与 `service.config.properties`；默认能力枚举不会自动启用转换、DB、AI Agent 等组件，必须由自然语言明确表达。
 - 服务管理前端调用同一生成接口时，如果浏览器、代理或网关先超时但后端随后完成生成，可通过 `/service-management/v1/ai/route/generate/latest` 补取最近候选结果；CLI 生成命令仍以 `/generate` 同步响应为准。
 - `ai route optimize` 默认只返回候选微调结果，不写入、不保存、不自动部署；服务端会生成或复用 baseline，再基于用户提交的当前 route/config/resources 微调。微调步骤失败时返回 warning 和用户原始内容，不用 baseline 覆盖用户提交内容。
 - `ai route cache status` 查询服务端 AI 路由上下文选择、baseline 和最近生成结果缓存状态。

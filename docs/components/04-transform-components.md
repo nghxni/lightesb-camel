@@ -44,13 +44,15 @@ conditionaltransform:type?file=...&required=false&skipOnError=true
 
 DataSonnet import 样例可参考 `example/routes/PlatformHttp/v1.0.0/input-transform-with-import.ds` 和同目录 `DATASONNET_IMPORT_GUIDE.md`。
 
-`PlatformHttp/v1.0.0/common.config.properties` 中启用：
+服务配置中启用：
 
 ```properties
 input-transform=true
 input-transform.file=input-transform-with-import.ds
 system.components=undertowhttp,streamcache,jsontransform,conditionaltransform
 ```
+
+`system.components` 属于通用运行配置；`input-transform*`、`output-transform*` 等转换开关属于服务私有能力配置。通过 AI 路由生成时，只有自然语言明确要求输入转换、输出转换、字段映射或 `.ds` 资源时，才应生成这些转换键；默认能力枚举不代表自动启用转换。
 
 对应入口：
 

@@ -60,6 +60,7 @@
 - ExternalDB MySQL 演示见 `../example/routes/MysqlRouteSrv/v1.0.0/`。
 - DTS Java SPI 扩展示例见 `../example/transform-dts-java/`。
 - AI Agent + Tools 演示见 `../example/routes/AiAgentDemoSrv/v1.0.0/`。
+- `example/routes/**` 是可复制运行的交付样例；AI 路由生成的合法配置键由后端内置规则约束，不需要也不应该在交付包中维护源码临时模板目录。
 
 ## Skill 路由
 
