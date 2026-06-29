@@ -60,6 +60,10 @@ curl -X POST "http://localhost:8080/api/deployment/rollback/deploy-550e8400-e29b
 
 回退语义是撤销指定部署，恢复到该部署记录发生前的备份目录状态，不是恢复到该记录部署成功后的文件快照。首次部署或未生成备份目录的记录不能回退。
 
+`autoStart=true` 时，服务端恢复文件后会主动加载恢复目录内的 XML 并校验路由状态，不只依赖文件监听事件。若恢复后的配置包含 `server.running=false`，回退会按停止态成功返回，不要求检测到已启动路由。
+
+自动加载前会根据恢复后的 `HTTP.Listener/server.port/port.level` 检查端口占用。恢复服务或已加载服务任一方使用独立端口模式（`port.level=version`）时，同端口会失败并返回占用服务信息；双方均为共享端口模式时允许复用。
+
 不可回退时返回 `400`，响应包含 `errorCode=ROLLBACK_NOT_AVAILABLE`。常见原因包括首次部署没有备份、备份目录已不存在或备份目录不在配置允许的备份根目录内。
 
 ## CLI 对应命令
