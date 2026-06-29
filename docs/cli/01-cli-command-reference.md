@@ -259,9 +259,10 @@ AI 边界：
 - `ai tool list/save/plan/run` 已删除；AI 路由生成统一走自然语言入口，最终以路由 XML、properties、`.ds` 和资源文件体现。
 - `ai route generate` 要求输入 JSON 包含 `naturalLanguageRequirement`，默认只返回候选 XML/配置/资源，不写入 `lightesb-camel-app`，不保存配置，不自动部署；服务端先选择随包文档/skills 上下文，再生成 Artifact JSON，失败时返回服务端错误。上下文候选来自随包 `docs/README.md`，当前外发包运行目录主要过滤经验复盘类文档；未随包交付的内部材料不会作为生成候选。
 - 服务端不使用内置配置键目录推断组件或过滤业务配置；组件形态、配置键写法和路由结构由模型根据自然语言需求与已选随包文档判断，后端只做 Artifact JSON、XML/route/tool 结构、平台运行配置边界和热加载校验。
+- 上下文选择由服务端根据随包 `docs/README.md`、自然语言需求和候选清单完成。普通 HTTP 入站或 HTTP 下游调用默认只携带 HTTP 组件文档；只有明确要求路由日志、控制面 API、第三方管理调用、部署/回滚、日志调级、应用矩阵或已有样例时，才选择对应文档。服务端只对明显非生成必需的控制面和应用矩阵整篇文档做意图过滤，不用 Java 反推业务组件。
 - 服务端默认不记录完整大模型输入输出；开发排障需要查看完整 prompt 和模型响应时，在服务端启用 `lightesb.ai.route.model.log-payload=true`，并把 `com.oureman.soa.lightesb.servicemanagement.AiRouteModelClient` 与 `com.oureman.soa.lightesb.config.ai.model.OpenAiResponsesChatModelFactory` 日志级别设为 DEBUG。该开关是服务端运行配置，不应写入 AI 路由生成的服务配置文件。
 - 服务管理前端调用同一生成接口时，如果浏览器、代理或网关先超时但后端随后完成生成，可通过 `/service-management/v1/ai/route/generate/latest` 补取最近候选结果；CLI 生成命令仍以 `/generate` 同步响应为准。
-- `ai route optimize` 默认只返回候选微调结果，不写入、不保存、不自动部署；服务端会生成或复用 baseline，再基于用户提交的当前 route/config/resources 微调。baseline 生成只携带自然语言需求、服务基础事实、必要运行配置摘要和已选文档；当前文件集和最近热部署失败诊断只进入最终微调步骤。微调步骤失败时返回 warning 和用户原始内容，不用 baseline 覆盖用户提交内容。
+- `ai route optimize` 默认只返回候选微调结果，不写入、不保存、不自动部署；服务端会生成或复用 baseline，再基于用户提交的当前 route/config/resources 微调。baseline 生成只携带自然语言需求、服务基础事实、必要运行配置摘要和已选文档；当前文件集和最近热部署失败诊断只进入最终微调步骤。微调步骤已得到可解析 Artifact JSON 且 Artifact 校验返回明确可修复诊断时，服务端会追加一次 validation repair；其他微调失败、不可修复策略错误或 repair 失败时返回 warning 和用户原始内容，不用 baseline 覆盖用户提交内容。
 - `ai route cache status` 查询服务端 AI 路由上下文选择、baseline 和最近生成结果缓存状态。
 - `ai route cache clear --yes` 清理服务端 AI 路由缓存；带 `--service-name` 与 `--service-version` 时只清理指定服务关联缓存。
 - `--save-remote --yes` 会调用服务端 `/service-management/v1/ai/route/apply`，由服务端备份、写入、等待 XML/properties 热加载并返回状态；CLI 不通过 SSH/SCP 或共享磁盘写远程文件。
@@ -273,7 +274,7 @@ AI 边界：
 - `--save-local` 与 `--save-remote` 互斥；本地保存是脚本和非 Codex 本地开发入口，不是 Codex 直接编辑服务文件的必经流程。
 - `ai route optimize` 不接入 SSE。
 - 模型 provider、base URL、model name、API key 都由服务端 `lightesb.ai.models.*` 注册表和 `lightesb.ai.agents.*.model-ref` 管理；不要写入 CLI profile。
-- AI 路由可通过服务端 `provider=openai-responses` 接入 OpenAI 原生 Responses API，也可通过 `provider=custom` 和 `custom.api-type=chat-completions|responses` 接入自定义网关。`provider=openai` 不作为新配置入口。服务管理前端会用 `aiRouteSessionId` 让支持 Responses 的 provider 在生成、微调和热部署失败修复之间续接模型上下文；CLI JSON 如需复用同一闭环，也可在 generate/optimize/apply 请求体中传同一个 `aiRouteSessionId`。若目标网关不支持 HTTP Responses `previous_response_id`，服务端会降级为无 session 调用。真实 provider 的 Responses 续接验证只能通过源码仓库显式 Maven profile 触发，交付包 CLI 默认命令不调用真实模型验证。
+- AI 路由可通过服务端 `provider=openai-responses` 接入 OpenAI 原生 Responses API，也可通过 `provider=custom` 和 `custom.api-type=chat-completions|responses` 接入自定义网关。`provider=openai` 不作为新配置入口。服务管理前端会用 `aiRouteSessionId` 让支持 Responses 的 provider 在生成、微调和热部署失败修复之间续接模型上下文；CLI JSON 如需复用同一闭环，也可在 generate/optimize/apply 请求体中传同一个 `aiRouteSessionId`。首次业务 `CONTINUE` 如果本地还没有 previous response id，服务端也会作为 stateful 请求保存 provider response id；后续同 session 请求才携带 `previous_response_id`。若目标网关不支持 HTTP Responses `previous_response_id`，服务端会降级为无 session 调用。真实 provider 的 Responses 续接验证只能通过源码仓库显式 Maven profile 触发，交付包 CLI 默认命令不调用真实模型验证。
 
 机器人边界：
 
