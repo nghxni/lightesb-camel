@@ -19,6 +19,12 @@ service.ai.type=chat
 
 `ai.api.*`、`ai.model.name`、`ai.temperature`、`ai.max.tokens` 只属于 HTTP Chat 代理示例的路由本地配置。Agent + Tools 服务配置只保留 `service.ai.*`、`ai.agent.tags`、`ai.system.prompt` 等运行时服务键；AI 路由生成/微调的模型选择统一走服务端模型注册表。
 
+普通 HTTP、DB、MQTT、SAP、Timer 或转换路由不要生成 `service.ai.route`、`service.ai.type`、`service.ai.mode`、`ai.agent.tags`、`ai.system.prompt`。这些键只适用于 XML 中实际使用 `langchain4j-agent`、`langchain4j-chat` 或 `langchain4j-tools` 的 AI Chat/Agent 服务，或显式使用 AI Chat Processor 链路的服务。
+
+服务管理 AI 路由生成由自然语言需求和已选文档判断是否需要 AI Chat/Agent。后端不替模型判断业务是否应该是 AI 路由，但会校验结果是否自洽：如果 `service.config.properties` 出现 `service.ai.*`、`ai.agent.*` 或 `ai.system.prompt`，可见 route XML 或资源文件中必须有对应 AI runtime 证据，否则生成/微调会失败并返回诊断。
+
+服务管理不再把 `common.config.properties` 与 `service.config.properties` 保存为隐藏数据库快照。AI 路由保存/热部署以可见 artifact 为准：请求必须提供 route XML、`common.config.properties` 和 `service.config.properties`；`.ds` 等额外资源仅在 route XML 引用时必须提供。
+
 示例：
 
 ```properties
