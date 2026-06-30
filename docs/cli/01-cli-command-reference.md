@@ -47,9 +47,26 @@ lightesb robot command status --robot-id quad-001 --command-id cmd-001
 lightesb robot command status --robot-id quad-001 --command-id cmd-001 --output json
 lightesb robot command submit --file command.json --yes
 lightesb robot command submit --file command.json --yes --output json
+lightesb diagnostics snapshot
+lightesb diagnostics snapshot --component route-runtime --output json
+lightesb diagnostics snapshot --service-name DemoSrv --service-version v1.0.0 --output json
+lightesb diagnostics warnings
+lightesb diagnostics warnings --component service-log --output json
 ```
 
 `doctor` 只做环境和只读 API 检查，不修改服务端状态。
+
+`diagnostics snapshot/warnings` 只调用：
+
+```text
+GET /api/diagnostics/runtime-snapshot
+```
+
+可选过滤参数为 `serviceName`、`serviceVersion` 和 `component`。当前组件包括 `route-runtime`、`service-log`、`ai-route-cache`、`ai-model-session`、`external-datasource`、`robot-command`、`instance-log`。该命令面向 Codex 和人工远程排查；不读取远程文件系统，不触发重载、清理、关闭连接或日志级别调整。`--output json` 会保留服务端标准响应，包含 `requestId`、`components` 和服务端生成的 `warnings`。
+
+服务端以 `lightesb.route.enabled=false` 启动时，`route-runtime` 组件不注册；排查机器人命令 dispatcher 使用 `--component robot-command`。
+
+`instance-log` 只输出实例日志 writer 的存储类型、队列、批次、拒绝任务、最近 flush 和最近错误，不输出请求/响应正文。
 
 `robot doctor --offline` 只做机器人接入静态检查，输出 PASS/WARN/FAIL 和 `connectivityChecked=false`；不连接真实 endpoint，不下发机器人命令，不调用验证 route。
 
@@ -76,7 +93,7 @@ POST /service-management/v1/robots/{robotId}/commands:validate
 
 它用于命令预检，不调用 `/commands`，不创建命令记录，不连接 MQTT、rosbridge、OPC UA、Modbus、Kafka、WMS/MES，也不写执行审计。`--output json` 保留服务端标准响应。
 
-`robot command status --robot-id --command-id` 只查询已有本地命令结果，不调用 `POST /commands`，不创建新命令。`--output json` 保留服务端标准响应。
+`robot command status --robot-id --command-id` 只查询已有命令结果，不调用 `POST /commands`，不创建新命令。`--output json` 保留服务端标准响应。
 
 `robot command submit --file --yes` 只调用：
 
@@ -84,7 +101,7 @@ POST /service-management/v1/robots/{robotId}/commands:validate
 POST /service-management/v1/robots/{robotId}/commands
 ```
 
-它会提交到本地命令持久化入口，必须显式传 `--yes`，并拒绝 `mode=validate_only` 和 `dryRun=true`。服务端返回 `protocolReceipt.dispatched=false` 时，只表示管理 API 已本地 accepted，不能当作真实机器人命令下发入口。
+它会提交到服务端命令入口，必须显式传 `--yes`，并拒绝 `mode=validate_only` 和 `dryRun=true`。服务端返回 `protocolReceipt.outboxStatus=pending` 时，只表示命令已进入可靠派发队列；`protocolReceipt.dispatched=false` 不能当作机器人已收到或已执行。
 
 ## App 与 Message
 
@@ -281,8 +298,8 @@ AI 边界：
 - `robot doctor --offline` 可作为机器人样例包、配置、route、白名单和 processor 注册的静态门禁。
 - `robot list/get/capabilities/state/audit` 只做管理 API 只读查询。
 - `robot command validate --file` 只做服务端 validate-only 预检；请求体中的动态协议目标字段仍由服务端拒绝。
-- `robot command status --robot-id --command-id` 只查已有本地命令结果，不提交新命令。
-- `robot command submit --file --yes` 只做本地持久化 accepted，不证明真实协议执行。
+- `robot command status --robot-id --command-id` 只查已有命令结果，不提交新命令。
+- `robot command submit --file --yes` 只提交到服务端命令账本、审计和 MQTT outbox；不直连协议端点，不证明真实执行成功。
 - 当前 CLI 不提供 `move_to`、OPC UA write、Modbus write 或 rosbridge action 直连调用。
 - 后续如需真实协议执行，必须另开真实协议闭环切片，不能把 `accepted` 当作执行成功。
 - 默认自动化验证只要求本机 WSL 可运行 Maven；使用 mock HTTP 和本地单元测试，不要求真实地址或真实机器人环境。

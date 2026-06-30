@@ -2,7 +2,7 @@
 
 ## 结论
 
-机器人协议接入先走 mock-first、最小闭环和离线检查，再进入真实联调。验证 route 只用于证明契约，不作为正式产品入口。真实协议闭环完成前，`submit` 只能代表本地持久化或管理 API accepted，不能解释为机器人已执行。
+机器人协议接入先走 mock-first、最小闭环和离线检查，再进入真实联调。验证 route 只用于证明契约，不作为正式产品入口。现场执行闭环完成前，`submit` 只能代表管理 API accepted/outbox queued，不能解释为机器人已执行。
 
 交付资料只引用正式文档、样例、配置键和验收步骤，不引用临时工作目录或一次性执行记录。临时验证结论需要沉淀为本文件、预检文档或交付包中的稳定说明后，才能作为后续实施依据。
 
@@ -12,7 +12,7 @@
 | --- | --- |
 | 默认样例 | 默认不连接真实 broker、rosbridge、OPC UA Server、Modbus Server、PLC 或 Kafka |
 | 协议目标 | topic、service、action、node、register、unitId、host、port 只能由配置和白名单生成 |
-| 命令判断 | 不以“已发送”判断成功，必须看 accepted/rejected/result 或明确本地状态 |
+| 命令判断 | 不以“已发送”判断成功，必须看 accepted/rejected/result 或明确 outbox queued 状态 |
 | 幂等 | `commandId` 是幂等键，重复同 payload 返回稳定结果，不重复执行 |
 | 安全 | 默认只开放白名单高层动作，禁止裸写、任意脚本和未登记目标 |
 | 凭据 | broker、证书、密码和 endpoint 通过环境变量或安全配置注入，不写入交付包 |
@@ -24,7 +24,7 @@
 - `validate_only` / `dryRun` 只做 schema、能力和策略预检，不下发协议请求。
 - `timeoutMs` 表示等待结果超时，`ttlMs` / `expiresAt` 表示提交有效期。
 - 默认同一机器人同一时刻只允许一个执行中高层动作；`stop`、`cancel` 可抢占但仍需校验。
-- `protocolReceipt.dispatched=false` 时，只能解释为本地持久化或 accepted，不代表真实机器人执行。
+- `outboxStatus=pending` 和 `protocolReceipt.dispatched=false` 时，只能解释为 accepted/outbox queued，不代表真实机器人执行。
 
 ## 协议经验
 
@@ -107,7 +107,7 @@ DDS 原生组件即使进入二期，也只允许输出 `RobotTelemetry`、`Robo
 ### UI 和 AI 生成
 
 - 机器人 UI 只调用稳定管理 API，不直接调用验证 route、mock route 或协议 endpoint。
-- 页面必须区分 validate-only、本地 accepted、`protocolReceipt.dispatched=false`、duplicate、rejected、timeout、failed 和 succeeded。
+- 页面必须区分 validate-only、accepted、outbox queued、`protocolReceipt.dispatched=false`、duplicate、rejected、timeout、failed 和 succeeded。
 - 命令下发必须有二次确认、危险动作提示、幂等结果展示和审计入口。
 - AI route generate 只返回候选 XML 或配置，不自动保存、部署或启用真实 endpoint。
 - AI tools 默认只允许只读诊断、配置检查、候选生成和管理 API 查询；写操作必须显式确认并由服务端白名单校验。
@@ -117,7 +117,7 @@ AI route generate 当前不交付机器人协议生成模板。已有准入标�
 
 AI tools 当前不交付机器人接入诊断工具。已有准入标准只说明未来 tools 如何受控读取诊断或管理 API，不代表 AI 可以访问真实资产库、最近心跳、错误日志、dispatcher 或现场端点；未提供工具白名单、权限模型、审计、真实数据源边界和安全回归前，不应产品化。
 
-机器人 UI 页面当前不交付。已有准入标准只说明未来如何实现页面，不代表列表、详情、状态、命令或审计页面已经产品化；未明确真实资产库、在线状态、最近遥测、真实 dispatcher、权限模型和浏览器验收前，不应把 mock/本地持久化状态做成现场管理台。
+机器人 UI 页面当前不交付。已有准入标准只说明未来如何实现页面，不代表列表、详情、状态、命令或审计页面已经产品化；未明确真实资产库、在线状态、最近遥测、真实 dispatcher、权限模型和浏览器验收前，不应把 mock/outbox queued 状态做成现场管理台。
 
 ## CLI 和 doctor
 
@@ -127,14 +127,15 @@ AI tools 当前不交付机器人接入诊断工具。已有准入标准只说�
 robot doctor --offline
 -> robot command validate --file
 -> robot list/get/capabilities/state/audit/status
--> robot command submit 本地持久化-only
--> 真实协议 submit/执行闭环
+-> robot command submit reliable outbox
+-> dispatcher + ack/result 状态闭环
+-> 强模拟器/现场执行验收
 ```
 
 - CLI 只调用稳定管理 API 或本地只读检查，不直接调用验证 route。
 - CLI 不接收动态协议目标参数。
 - `robot command validate --file` 不创建命令、不下发协议、不写执行审计。
-- `robot command submit --file --yes` 必须明确本地持久化-only。
+- `robot command submit --file --yes` 必须明确 outbox queued 不等于真实执行成功。
 - `robot command status` 只查已有命令，不提交新命令。
 - 真实协议 submit/执行闭环必须等统一 dispatcher、ack/result 状态推进、审计补偿、跨实例幂等、权限/人工确认和真实或强模拟设备验证齐备后再打开。
 - 在线 `robot doctor` 必须等真实资产库、最近心跳/遥测数据源、结构化错误日志或日志检索 API、只读权限和站点隔离齐备后再打开；`robot doctor --offline` 不能写成在线诊断。
@@ -169,7 +170,7 @@ robot doctor --offline
 - 写操作是否有白名单、策略和审计。
 - `commandId` 是否在协议下发前做幂等。
 - 错误响应是否保留 `protocol`、`commandId`、`robotId`、`correlationId`、`routeId`、`exchangeId`。
-- 是否把 mock、模拟器或本地持久化误写成真实现场验收。
+- 是否把 mock、模拟器或 outbox queued 误写成真实现场验收。
 - CLI 是否直接调用验证 route。
 - `robot doctor --offline` 是否被误描述为在线连通性检查。
 - 是否引用了临时工作目录、一次性脚本输出或内部路径作为交付证据。
@@ -179,7 +180,7 @@ robot doctor --offline
 
 1. 验证 route 只用于证明契约，不作为正式入口。
 2. 默认样例必须 mock-first，真实连接必须显式启用。
-3. 未完成真实协议闭环前，submit 只代表本地持久化前置。
+3. 未完成现场执行闭环前，submit 只代表 accepted/outbox queued。
 4. 请求体不能覆盖协议目标字段。
 5. 命令必须幂等，重复 commandId 不能重复执行。
 6. ack 不等于成功，result 才能证明最终结果。
@@ -194,4 +195,5 @@ robot doctor --offline
 15. UI/AI 进入验收标准只代表准入门禁，不代表机器人页面、AI 自动生成、AI tools 写操作或真实动作执行能力已经交付。
 16. MQTT 本地 EMQX TLS 单向信任、QoS1、非 retained、非持久会话在线最小投递和发布前 `commandId` 幂等，不代表 mTLS、离线补投、弱网重连、ack/result 状态推进或跨实例一致性已经验证。
 17. 管理 API 的 list/get/capabilities/state/audit/status 只代表 mock/management snapshot 和本地查询契约；真实资产库、服务包关联、真实在线状态和最近遥测必须等资产模型、状态存储、权限和查询 API 齐备后再打开。
-18. 本地 submit、HTTP 200、MQTT publish 成功或 `protocolReceipt.dispatched=false` 都不能解释为真实协议 dispatcher 已完成；真实执行闭环必须等状态机、ack/result 持久化、跨实例一致性、审计补偿、权限和强模拟器/现场设备验收齐备后再打开。
+18. submit accepted、HTTP 200、`outboxStatus=pending`、MQTT publish 成功或 `protocolReceipt.dispatched=false` 都不能解释为真实现场执行完成；真实执行闭环必须用状态机、ack/result 持久化、跨实例一致性、审计补偿、权限和强模拟器/现场设备验收共同证明。
+19. 正式 dispatcher 验证必须走管理 API、命令账本、审计、outbox、dispatcher、MQTT 接收、状态查询和诊断快照闭环；验证 route 或 demo 路由不能替代正式 dispatcher 证据。
