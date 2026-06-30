@@ -19,6 +19,16 @@ server.port=18080
 system.components=undertowhttp
 ```
 
+运行时 HTTP 监听端口只读取 `server.port`。不要在新服务或 AI 路由生成结果里输出 `system.port`、`service.port`、`version.port`；这些键只属于历史端口层级说明，不会决定实际监听端口。
+
+本地验收或排障时可以用 `lightesb.route.temp-only-service` 缩小启动加载范围：
+
+```properties
+lightesb.route.temp-only-service=PlatformHttp,RobotMqttTelemetrySrv
+```
+
+多个服务名用英文逗号分隔。配置后只加载这些服务目录；任一服务目录不存在会启动失败，用于尽早暴露服务名或目录拼写问题。为空时恢复全量加载。
+
 `service.config.properties`:
 
 ```properties
@@ -46,6 +56,7 @@ service.version=v1.0.0
 
 - `undertow:http://...` 只能放在 `<from>`。
 - 端口使用 `{{server.port}}`，不要在 XML 中硬编码。
+- `common.config.properties` 中只写实际端口键 `server.port`；不要同时生成 `system.port` 这类说明字段。
 - 用 `httpMethodRestrict=GET,POST` 显式限制方法。
 - 入口建议先调用 `requestCharsetProcessor`，出口建议调用 `jsonResponseProcessor`。
 - 关键节点用 `servicelog:` 记录，不要直接打印全量大报文。
