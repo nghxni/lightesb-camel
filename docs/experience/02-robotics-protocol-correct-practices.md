@@ -35,6 +35,8 @@
 - 发布前先做 `commandId` 幂等。
 - QoS、retain、cleanStart、sessionExpiry 只证明投递策略，不替代业务幂等和安全校验。
 - 真实联调前必须明确 TLS/mTLS、ACL、离线会话、重连、重复投递和延迟 result。
+- 没有真实固件环境时，应先做模拟固件前置验证：正式 dispatcher 发布 command，模拟客户端订阅 command 并回传 ack/result/telemetry，由 MQTT 观察证据确认 topic、payload、`commandId` 和 `correlationId` 可对齐。
+- 模拟固件验证通过不等于真实固件执行通过；如果尚未实现正式 ack/result ingest，只能把 ack/result 作为 MQTT 观察证据，不能声称命令状态已由机器人结果推进。
 
 ### rosbridge / ROS2
 
