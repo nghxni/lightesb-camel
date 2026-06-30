@@ -9,7 +9,7 @@ LightESB CLI 是面向接入建模、交付运维、路由治理、日志检索�
 核心命令域：
 
 ```text
-profile -> doctor -> app -> message -> service -> service export/import/sync-remote -> deploy -> route -> log -> ai -> robot doctor -> robot list/get/capabilities/state/audit -> robot command validate/status
+profile -> doctor -> app -> message -> service -> service export/import/sync-remote -> deploy -> route -> log -> ai -> robot doctor -> robot list/get/capabilities/state/audit -> robot command validate/status/submit
 ```
 
 基本调用：
