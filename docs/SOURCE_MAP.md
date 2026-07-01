@@ -14,7 +14,7 @@
 | `components/09-exception-handling.md` | 异常处理组件说明与管理 API 异常边界，外发整理版 |
 | `components/10-h2-jsonkeyword-chain.md` | `docs/16-h2-jsonkeyword-processor-chain-usage.md` 与 H2 fallback POC 设计结论，按交付场景重写 |
 | `components/11-externaldb.md` | `docs/18-externaldb-component-usage.md` |
-| `components/12-ai-chat.md` | AI Agent + Tools 组件说明、AI 配置可见 runtime 自洽边界、旧 Chat/工具接口删除说明和 CLI 自动化说明，按交付场景重写 |
+| `components/12-ai-chat.md` | `docs/22-ai-chat-framework-usage.md`、`docs/experience/09-ai-agent-memory-practices.md`，结合 AI 配置可见 runtime 自洽边界、旧 Chat/工具接口删除说明和 CLI 自动化说明，按交付场景重写 |
 | `components/13-sap-netweaver.md` | `docs/26-sap-netweaver-component-usage.md` |
 | `components/14-timer-routes.md` | 交付样例 `example/routes/timer/` 与 `example/routes/MysqlRouteSrv/` 整理 |
 | `components/15-aveva-plant-scada-opcua-mqtt.md` | `docs/27-aveva-plant-scada-opcua-mqtt-usage.md`，按交付场景重写 |

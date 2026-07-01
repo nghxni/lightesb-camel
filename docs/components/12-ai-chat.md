@@ -33,8 +33,8 @@ ai.system.prompt=你是一个订单管理助手。你可以帮助用户查询订
 - `ai.agent.tags` 必须与工具路由中的 `tags` 一致。
 - Agent 服务配置不写真实模型密钥、provider、base URL 或模型名；模型由服务端统一模型注册表管理。
 - `genericAiAgent` 按 `lightesb.ai.agents.chat.model-ref` 创建模型，不复用 AI 路由生成/微调或日志助手模型。
-- 当前 `AiAgentDemoSrv` 会传入 `CamelLangChain4jAgentMemoryId`，但默认 `genericAiAgent` 不承诺稳定多轮记忆。
-- `memoryId` 可选；为空时样例 route 使用 `exchangeId` 自动生成。当前它只作为 trace/session 标识，不代表模型上下文记忆。
+- 默认不启用 memory；全局开启 `lightesb.ai.agents.chat.memory.enabled=true` 后，同一 `memoryId` 使用 LangChain4j 窗口记忆。
+- `memoryId` 可选；为空时样例 route 使用 `exchangeId` 自动生成。稳定多轮必须由调用方传入稳定 `memoryId`。
 
 普通 HTTP、DB、MQTT、SAP、Timer 或转换路由不要生成 `service.ai.*`、`ai.agent.*` 或 `ai.system.prompt`。
 
@@ -114,10 +114,15 @@ lightesb.ai.models.default.provider=dashscope
 lightesb.ai.models.default.dashscope.api-key=${DASHSCOPE_API_KEY:}
 lightesb.ai.models.default.dashscope.model-name=qwen-plus
 lightesb.ai.agents.chat.model-ref=default
+lightesb.ai.agents.chat.memory.enabled=false
+lightesb.ai.agents.chat.memory.max-messages=20
+lightesb.ai.agents.chat.memory.max-sessions=1000
+lightesb.ai.agents.chat.memory.ttl-seconds=1800
 ```
 
 `openai-responses` 和 `custom.api-type=responses` 当前用于 AI 路由生成/微调和普通文本调用，不作为 Agent tool-calling 验收模型。
 AI 路由生成/微调使用 `lightesb.ai.agents.route.model-ref`；Agent + Tools 使用 `lightesb.ai.agents.chat.model-ref`。
+开启 chat memory 后，记忆只保存在 JVM 内存中，重启丢失，不跨实例共享，并按 `max-messages`、`max-sessions`、`ttl-seconds` 控制窗口和清理。
 
 ## 常见问题
 
@@ -126,6 +131,6 @@ AI 路由生成/微调使用 `lightesb.ai.agents.route.model-ref`；Agent + Tool
 - OpenAI-compatible Chat Completions 会校验工具名只能包含字母、数字、下划线和短横线；`langchain4j-tools` route 应显式配置 `name=queryOrderDetail` 这类合法工具名，避免由长 `description` 派生出带标点的非法名称。
 - 模型切换未生效：确认 Agent + Tools 使用的 `lightesb.ai.agents.chat.model-ref` 指向目标 Chat Completions 模型；AI 路由生成/微调用 `lightesb.ai.agents.route.model-ref`；日志助手使用 `lightesb.ai.agents.logging.model-ref`，不要用旧 `lightesb.ai.logging.model.*` 判断 Agent 模型。
 - 缺少 `message`：样例返回 `AI_AGENT_MESSAGE_REQUIRED`，请在请求 JSON 中传入 `message`。
-- 多轮上下文不稳定：当前样例不承诺稳定多轮记忆；如需多轮，需要二阶段接入 LangChain4j Memory 或统一模型 session。
+- 多轮上下文不稳定：确认服务端已开启 `lightesb.ai.agents.chat.memory.enabled=true`，并且多轮请求使用同一个 `memoryId`；为空时会退化为单次 exchange 记忆。
 - 需要排查运行时状态：使用 `diagnostics snapshot/warnings`，不要恢复旧 `/api/ai/chat`。
 - 本轮不新增专用 CLI 命令；交付验证使用 `curl` 调用 Agent 入口，并用现有服务、日志和 diagnostics CLI 排查。

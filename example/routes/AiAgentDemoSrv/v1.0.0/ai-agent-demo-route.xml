@@ -55,7 +55,7 @@
                 <to uri="langchain4j-agent:{{service.ai.type}}Assistant?agent=#genericAiAgent&amp;tags={{ai.agent.tags}}"/>
                 <to uri="servicelog:debug?message=[AI-AGENT] Agent 响应完成 traceId=${exchangeProperty.agentTraceId}&amp;showBody=false"/>
 
-                <!-- 包装响应；当前 genericAiAgent 为 AgentWithoutMemory，不声明稳定多轮上下文 -->
+                <!-- 包装响应；开启 genericAiAgent memory 后，同一 memoryId 可延续窗口上下文 -->
                 <setProperty name="agentResponse">
                     <simple>${bodyAs(String)}</simple>
                 </setProperty>
