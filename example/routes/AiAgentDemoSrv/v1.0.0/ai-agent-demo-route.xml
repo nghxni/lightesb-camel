@@ -90,7 +90,7 @@
 
     <!-- 工具1：查询订单详情 -->
     <route id="tool-demo-query-order">
-        <from uri="langchain4j-tools:queryOrderDetail?tags=order-demo&amp;description=Query order details by order ID. Returns order status, items, and total amount.&amp;parameter.orderId=string"/>
+        <from uri="langchain4j-tools:queryOrderDetail?tags=order-demo&amp;name=queryOrderDetail&amp;description=Query order details by order ID. Returns order status, items, and total amount.&amp;parameter.orderId=string"/>
         <to uri="servicelog:debug?message=[AI-TOOL] queryOrderDetail 被调用 toolExchangeId=${exchangeId}, orderId=${header.orderId}&amp;showBody=false"/>
         <choice>
             <when>
@@ -117,7 +117,7 @@
 
     <!-- 工具2：取消订单 -->
     <route id="tool-demo-cancel-order">
-        <from uri="langchain4j-tools:cancelOrder?tags=order-demo&amp;description=Mock-only cancellation demo. Cancel an existing order by order ID only after explicit user confirmation. Requires order ID, reason, and confirmed=true.&amp;parameter.orderId=string&amp;parameter.reason=string&amp;parameter.confirmed=boolean"/>
+        <from uri="langchain4j-tools:cancelOrder?tags=order-demo&amp;name=cancelOrder&amp;description=Mock-only cancellation demo. Cancel an existing order by order ID only after explicit user confirmation. Requires order ID, reason, and confirmed=true.&amp;parameter.orderId=string&amp;parameter.reason=string&amp;parameter.confirmed=boolean"/>
         <to uri="servicelog:debug?message=[AI-TOOL] cancelOrder 被调用 toolExchangeId=${exchangeId}, orderId=${header.orderId}, confirmed=${header.confirmed}&amp;showBody=false"/>
         <choice>
             <when>
@@ -166,7 +166,7 @@
 
     <!-- 工具3：查询订单列表 -->
     <route id="tool-demo-list-orders">
-        <from uri="langchain4j-tools:listRecentOrders?tags=order-demo&amp;description=List recent orders for a customer by customer ID. Returns a list of recent orders.&amp;parameter.customerId=string&amp;parameter.limit=integer"/>
+        <from uri="langchain4j-tools:listRecentOrders?tags=order-demo&amp;name=listRecentOrders&amp;description=List recent orders for a customer by customer ID. Returns a list of recent orders.&amp;parameter.customerId=string&amp;parameter.limit=integer"/>
         <choice>
             <when>
                 <simple>${header.limit} == null || ${header.limit} == ''</simple>

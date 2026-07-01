@@ -32,7 +32,7 @@ ai.system.prompt=你是一个订单管理助手。你可以帮助用户查询订
 - `service.ai.route=true` 只用于实际包含 `langchain4j-agent`、`langchain4j-chat` 或 `langchain4j-tools` 的服务。
 - `ai.agent.tags` 必须与工具路由中的 `tags` 一致。
 - Agent 服务配置不写真实模型密钥、provider、base URL 或模型名；模型由服务端统一模型注册表管理。
-- `genericAiAgent` 按 `lightesb.ai.agents.route.model-ref` 创建模型，不复用日志助手模型。
+- `genericAiAgent` 按 `lightesb.ai.agents.chat.model-ref` 创建模型，不复用 AI 路由生成/微调或日志助手模型。
 - 当前 `AiAgentDemoSrv` 会传入 `CamelLangChain4jAgentMemoryId`，但默认 `genericAiAgent` 不承诺稳定多轮记忆。
 - `memoryId` 可选；为空时样例 route 使用 `exchangeId` 自动生成。当前它只作为 trace/session 标识，不代表模型上下文记忆。
 
@@ -73,7 +73,7 @@ ai.system.prompt=你是一个订单管理助手。你可以帮助用户查询订
 
 ```xml
 <route id="tool-demo-query-order">
-    <from uri="langchain4j-tools:queryOrderDetail?tags=order-demo&amp;description=Query order details by order ID. Returns order status, items, and total amount.&amp;parameter.orderId=string"/>
+    <from uri="langchain4j-tools:queryOrderDetail?tags=order-demo&amp;name=queryOrderDetail&amp;description=Query order details by order ID. Returns order status, items, and total amount.&amp;parameter.orderId=string"/>
     <toD uri="http://127.0.0.1:{{server.port}}/api/ai/agent/mock/order/${header.orderId}?bridgeEndpoint=true&amp;throwExceptionOnFailure=false"/>
 </route>
 ```
@@ -113,16 +113,18 @@ example/routes/AiAgentDemoSrv/v1.0.0/
 lightesb.ai.models.default.provider=dashscope
 lightesb.ai.models.default.dashscope.api-key=${DASHSCOPE_API_KEY:}
 lightesb.ai.models.default.dashscope.model-name=qwen-plus
-lightesb.ai.agents.route.model-ref=default
+lightesb.ai.agents.chat.model-ref=default
 ```
 
 `openai-responses` 和 `custom.api-type=responses` 当前用于 AI 路由生成/微调和普通文本调用，不作为 Agent tool-calling 验收模型。
+AI 路由生成/微调使用 `lightesb.ai.agents.route.model-ref`；Agent + Tools 使用 `lightesb.ai.agents.chat.model-ref`。
 
 ## 常见问题
 
 - 返回鉴权错误：检查服务端模型注册表和服务入口鉴权配置。
 - Agent 不调用工具：检查 `ai.agent.tags` 是否与 `langchain4j-tools:*?tags=...` 一致，工具 description 是否清楚。
-- 模型切换未生效：确认 `lightesb.ai.agents.route.model-ref` 指向目标模型；日志助手使用 `lightesb.ai.agents.logging.model-ref`，不要用旧 `lightesb.ai.logging.model.*` 判断 Agent 模型。
+- OpenAI-compatible Chat Completions 会校验工具名只能包含字母、数字、下划线和短横线；`langchain4j-tools` route 应显式配置 `name=queryOrderDetail` 这类合法工具名，避免由长 `description` 派生出带标点的非法名称。
+- 模型切换未生效：确认 Agent + Tools 使用的 `lightesb.ai.agents.chat.model-ref` 指向目标 Chat Completions 模型；AI 路由生成/微调用 `lightesb.ai.agents.route.model-ref`；日志助手使用 `lightesb.ai.agents.logging.model-ref`，不要用旧 `lightesb.ai.logging.model.*` 判断 Agent 模型。
 - 缺少 `message`：样例返回 `AI_AGENT_MESSAGE_REQUIRED`，请在请求 JSON 中传入 `message`。
 - 多轮上下文不稳定：当前样例不承诺稳定多轮记忆；如需多轮，需要二阶段接入 LangChain4j Memory 或统一模型 session。
 - 需要排查运行时状态：使用 `diagnostics snapshot/warnings`，不要恢复旧 `/api/ai/chat`。
