@@ -66,7 +66,22 @@ GET /api/diagnostics/runtime-snapshot
 
 服务端以 `lightesb.route.enabled=false` 启动时，`route-runtime` 组件不注册；排查机器人命令 dispatcher 使用 `--component robot-command`。
 
-`instance-log` 只输出实例日志 writer 的存储类型、队列、批次、拒绝任务、最近 flush 和最近错误，不输出请求/响应正文。
+`instance-log` 只输出实例日志 writer 的存储类型、H2 fallback 状态、实例日志查询存储、JsonKeyword 查询存储、队列、批次、拒绝任务、最近 flush 和最近错误，不输出请求/响应正文。
+
+无 MySQL POC 演示时，服务端设置：
+
+```properties
+lightesb.poc.h2-fallback.enabled=true
+```
+
+然后用以下命令确认 H2 fallback：
+
+```bash
+lightesb diagnostics snapshot --component instance-log --output json
+lightesb diagnostics snapshot --component robot-command --output json
+```
+
+期望 `pocH2FallbackEnabled=true`，且相关存储字段为 `h2-fallback`。
 
 `robot doctor --offline` 只做机器人接入静态检查，输出 PASS/WARN/FAIL 和 `connectivityChecked=false`；不连接真实 endpoint，不下发机器人命令，不调用验证 route。
 
@@ -225,7 +240,7 @@ lightesb keyword query-instances --service-name DemoSrv --service-version 1.0.0 
 - `delete --id --yes` 删除错误配置，不影响历史采集数据。
 - `query-instances` 按 `keyName/jsonValue` 反查实例 UUID；可选 `--start-time`、`--end-time`、`--max-limit` 和 `--output json`。
 
-按关键字查询依赖服务端 JsonKeyword MySQL 同步链路和分表可用；只通过 `log instance list --keyword key=value` 过滤实例日志时，仍可继续使用 `log` 命令域。
+默认 MySQL 模式下，按关键字查询依赖服务端 JsonKeyword MySQL 同步链路和分表可用。无 MySQL POC 模式配置 `lightesb.poc.h2-fallback.enabled=true` 后，`keyword query-instances` 和 `log instance list --keyword key=value` 查询 H2 缓存表。
 
 `service.json` 最小字段：
 

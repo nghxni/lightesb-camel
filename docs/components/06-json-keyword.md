@@ -2,7 +2,7 @@
 
 ## 用途
 
-JsonKeyword 用于从 JSON 报文中采集指定字段值，配合 H2 缓存和 MySQL 分表同步后，可按 `serviceName`、`serviceVersion`、`keyName`、`jsonValue` 查询实例 ID。
+JsonKeyword 用于从 JSON 报文中采集指定字段值，配合 H2 缓存和 MySQL 分表同步后，可按 `serviceName`、`serviceVersion`、`keyName`、`jsonValue` 查询实例 ID。无 MySQL POC 可开启 `lightesb.poc.h2-fallback.enabled=true`，直接从 H2 缓存表查询。
 
 ## 典型链路
 
@@ -58,4 +58,5 @@ lightesb keyword query-instances --service-name DemoOrderSrv --service-version v
 
 - 查询为空：确认业务路由已执行采集，且 `keyName` 与报文字段名完全一致。
 - 同步失败：检查 MySQL 连接、建表权限和分表名是否合法。
+- 无 MySQL POC 查询为空：确认已开启 `lightesb.poc.h2-fallback.enabled=true`，并且业务请求已经触发 `jsonKeywordCaptureProcessor` 写入 H2。
 - 采集不中断业务：这是默认保护行为，需看日志确认采集告警。

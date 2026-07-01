@@ -48,6 +48,8 @@ curl -sS -X POST http://127.0.0.1:8080/service-management/v1/robots/commands:dis
 
 `POST /commands:dispatch-next` 手动触发一次 dispatcher，从 outbox claim 一条到期 `pending` 记录并派发到 MQTT。成功后 outbox 变为 `dispatched`，命令状态推进到 `dispatched`，并追加 `robot.command.dispatched` 审计。该接口用于运维验证和手动补偿，不代表自动调度循环已经启用。
 
+无 MySQL POC 可配置 `lightesb.poc.h2-fallback.enabled=true`，机器人命令账本、审计和 outbox 使用 H2 同名表。该模式只用于小数据量演示，不承诺生产级归档、保留、备份恢复或切回 MySQL 后的数据迁移。
+
 ## 审计归档
 
 `ROBOT_AUDIT_LOG` 默认由服务端自动归档，不需要 CLI 触发：
