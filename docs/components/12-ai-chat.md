@@ -1,54 +1,91 @@
-# AI Chat 组件
+# AI Agent + Tools 组件
 
 ## 用途
 
-AI Chat 能力用于在路由中调用模型服务，适合日志问答、辅助诊断和轻量编排类演示。
+AI Agent + Tools 用于把自然语言请求映射到服务目录内可见的工具路由，适合“自然语言调用已发布接口”的 POC 和交付演示。
+
+旧 HTTP Chat 代理 `AiChatHttpSrv` 已删除。交付包不再推荐 `/api/ai/chat`、`ai.api.*`、`aiChatMemoryProcessor` 或 H2 聊天记忆表。现场如果安装 Codex，应由 Codex 直接读取本交付包的 `AGENTS.md`、`docs/`、`skills/` 和 `example/` 理解项目静态知识。
+
+运行时状态排查使用已实现的 CLI/API：
+
+```bash
+lightesb diagnostics snapshot --server http://localhost:8080
+lightesb diagnostics warnings --server http://localhost:8080
+```
+
+对应 API 为 `GET /api/diagnostics/runtime-snapshot`。
 
 ## 服务配置
 
-HTTP Chat 模式：
-
-```properties
-service.ai.route=true
-service.ai.type=chat
-```
-
-`service.ai.type=chat` 对应 HTTP Chat 演示模式，可参考 `AiChatHttpSrv`。如使用 Agent + Tools 编排模式，可参考 `AiAgentDemoSrv`，通常会设置自己的 `service.ai.type` 和 `ai.agent.tags`。
-
-模型提供方和密钥按交付环境配置，不在样例中写真实密钥。服务端统一使用 `lightesb.ai.models.*` 模型注册表和 `lightesb.ai.agents.*.model-ref` 引用模型，CLI profile 中的 `aiToken` 只用于 `X-AI-Token`，不是模型 API key。
-
-`ai.api.*`、`ai.model.name`、`ai.temperature`、`ai.max.tokens` 只属于 HTTP Chat 代理示例的路由本地配置。Agent + Tools 服务配置只保留 `service.ai.*`、`ai.agent.tags`、`ai.system.prompt` 等运行时服务键；AI 路由生成/微调的模型选择统一走服务端模型注册表。
-
-普通 HTTP、DB、MQTT、SAP、Timer 或转换路由不要生成 `service.ai.route`、`service.ai.type`、`service.ai.mode`、`ai.agent.tags`、`ai.system.prompt`。这些键只适用于 XML 中实际使用 `langchain4j-agent`、`langchain4j-chat` 或 `langchain4j-tools` 的 AI Chat/Agent 服务，或显式使用 AI Chat Processor 链路的服务。
-
-服务管理 AI 路由生成由自然语言需求和已选文档判断是否需要 AI Chat/Agent。后端不替模型判断业务是否应该是 AI 路由，但会校验结果是否自洽：如果 `service.config.properties` 出现 `service.ai.*`、`ai.agent.*` 或 `ai.system.prompt`，可见 route XML 或资源文件中必须有对应 AI runtime 证据，否则生成/微调会失败并返回诊断。
-
-服务管理不再把 `common.config.properties` 与 `service.config.properties` 保存为隐藏数据库快照。AI 路由保存/热部署以可见 artifact 为准：请求必须提供 route XML、`common.config.properties` 和 `service.config.properties`；`.ds` 等额外资源仅在 route XML 引用时必须提供。
-
-示例：
-
-```properties
-lightesb.ai.default-model=default
-lightesb.ai.models.default.provider=dashscope
-lightesb.ai.models.default.dashscope.api-key=${DASHSCOPE_API_KEY:}
-lightesb.ai.models.default.dashscope.model-name=qwen-plus
-lightesb.ai.agents.logging.model-ref=default
-```
-
-AI 路由生成/微调如需接入 OpenAI 原生 Responses API，可新增 `provider=openai-responses` 模型并让 `lightesb.ai.agents.route.model-ref` 指向该模型。自定义网关使用 `provider=custom` 和 `custom.api-type=chat-completions|responses`。支持 Responses API 的 AI 路由 provider 可在同一前端 AI 路由会话内续接生成、微调和热部署失败修复；交付侧只需要保留可见 XML、properties 和 `.ds` 文件，不需要配置隐藏工具表。
-
-真实 Responses `previous_response_id` 连通性不是交付包 CLI 的默认动作。需要在源码仓库中使用显式 Maven profile 运行验证，并确保输出不包含完整 prompt、完整响应或密钥。若目标网关不支持 HTTP Responses 续接，服务端会继续使用普通 prompt 上下文模式完成 AI 路由生成和微调。
-
-Agent + Tools 演示：
+Agent + Tools 示例：
 
 ```properties
 service.ai.route=true
 service.ai.type=orderdemo
 service.ai.mode=agent
 ai.agent.tags=order-demo
+ai.system.prompt=你是一个订单管理助手。你可以帮助用户查询订单状态和取消订单。请用中文回答。
 ```
 
-样例目录：`example/routes/AiAgentDemoSrv/v1.0.0/`
+配置规则：
+
+- `service.ai.route=true` 只用于实际包含 `langchain4j-agent`、`langchain4j-chat` 或 `langchain4j-tools` 的服务。
+- `ai.agent.tags` 必须与工具路由中的 `tags` 一致。
+- Agent 服务配置不写真实模型密钥、provider、base URL 或模型名；模型由服务端统一模型注册表管理。
+- 当前 `AiAgentDemoSrv` 会传入 `CamelLangChain4jAgentMemoryId`，但默认 `genericAiAgent` 不承诺稳定多轮记忆。
+
+普通 HTTP、DB、MQTT、SAP、Timer 或转换路由不要生成 `service.ai.*`、`ai.agent.*` 或 `ai.system.prompt`。
+
+## 路由样例
+
+入口路由：
+
+```xml
+<route id="ai-agent-demo-entry">
+    <from uri="undertow:http://0.0.0.0:{{server.port}}/api/ai/agent/chat?httpMethodRestrict=POST"/>
+    <process ref="requestCharsetProcessor"/>
+    <setHeader name="CamelLangChain4jAgentSystemMessage">
+        <constant>{{ai.system.prompt}}</constant>
+    </setHeader>
+    <setHeader name="CamelLangChain4jAgentMemoryId">
+        <jsonpath>$.memoryId</jsonpath>
+    </setHeader>
+    <setBody>
+        <jsonpath resultType="java.lang.String">$.message</jsonpath>
+    </setBody>
+    <to uri="langchain4j-agent:{{service.ai.type}}Assistant?agent=#genericAiAgent&amp;tags={{ai.agent.tags}}"/>
+    <process ref="jsonResponseProcessor"/>
+</route>
+```
+
+工具路由：
+
+```xml
+<route id="tool-demo-query-order">
+    <from uri="langchain4j-tools:queryOrderDetail?tags=order-demo&amp;description=Query order details by order ID. Returns order status, items, and total amount.&amp;parameter.orderId=string"/>
+    <toD uri="http://127.0.0.1:{{server.port}}/api/ai/agent/mock/order/${header.orderId}?bridgeEndpoint=true&amp;throwExceptionOnFailure=false"/>
+</route>
+```
+
+## 请求样例
+
+```bash
+curl -X POST "http://localhost:19095/api/ai/agent/chat" \
+  -H "Content-Type: application/json" \
+  -d '{"memoryId":"demo-order-session","message":"查询订单 MOCK-1001 的状态"}'
+```
+
+## 后端工具编排入口状态
+
+`/api/ai/chat/tools`、`/api/ai/chat/tools/plan` 和 `/api/ai/chat/tools/execute` 已删除。服务管理不再通过隐藏工具表保存可调用工具；AI 路由生成统一走自然语言入口，最终以路由 XML、properties、`.ds` 和资源文件体现。
+
+运行时 Agent + Tools 仍通过服务 XML 暴露：入口路由调用 `langchain4j-agent:*`，每个工具能力写成可见 `langchain4j-tools:*` 路由，并由 `tags` 与 Agent 关联。
+
+## 样例目录
+
+```text
+example/routes/AiAgentDemoSrv/v1.0.0/
+```
 
 该样例包含：
 
@@ -57,40 +94,9 @@ ai.agent.tags=order-demo
 - 同端口 mock HTTP 子路由，用于演示订单查询、取消和列表查询。
 - `CamelLangChain4jAgentSystemMessage` 和 `CamelLangChain4jAgentMemoryId` 头设置。
 
-## 后端工具编排入口状态
-
-`/api/ai/chat/tools`、`/api/ai/chat/tools/plan` 和 `/api/ai/chat/tools/execute` 已删除。服务管理不再通过隐藏工具表保存可调用工具；AI 路由生成统一走自然语言入口，最终以路由 XML、properties、`.ds` 和资源文件体现。
-
-运行时 Agent + Tools 仍通过服务 XML 暴露：入口路由调用 `langchain4j-agent:*`，每个工具能力写成可见 `langchain4j-tools:*` 路由，并由 `tags` 与 Agent 关联。交付时不要再配置或调用旧的 plan/execute 接口。
-
-## 路由建议
-
-- HTTP 入站后先做编码处理和基本参数校验。
-- 对模型调用增加超时和异常分支。
-- AI 响应前调用 `jsonResponseProcessor`。
-- 日志中不要输出完整密钥、token 或敏感提示词。
-
-## 请求样例
-
-HTTP Chat：
-
-```bash
-curl -X POST "http://localhost:18090/api/ai/chat" \
-  -H "Content-Type: application/json" \
-  -d '{"memoryId":"demo-session","message":"总结最近一次错误"}'
-```
-
-Agent + Tools：
-
-```bash
-curl -X POST "http://localhost:19095/api/ai/agent/chat" \
-  -H "Content-Type: application/json" \
-  -d '{"memoryId":"demo-order-session","message":"查询订单 MOCK-1001 的状态"}'
-```
-
 ## 常见问题
 
-- 返回鉴权错误：检查 `lightesb.ai.models.<model-ref>.*` 模型配置和 `X-AI-Token`。
-- 响应慢：检查模型服务网络和超时配置。
-- 多轮上下文混乱：确认 `memoryId` 是否稳定。
+- 返回鉴权错误：检查服务端模型注册表和服务入口鉴权配置。
 - Agent 不调用工具：检查 `ai.agent.tags` 是否与 `langchain4j-tools:*?tags=...` 一致，工具 description 是否清楚。
+- 多轮上下文不稳定：当前样例不承诺稳定多轮记忆；如需多轮，需要二阶段接入 LangChain4j Memory 或统一模型 session。
+- 需要排查运行时状态：使用 `diagnostics snapshot/warnings`，不要恢复旧 `/api/ai/chat`。

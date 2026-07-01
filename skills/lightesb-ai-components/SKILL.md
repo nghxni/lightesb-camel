@@ -1,9 +1,9 @@
 ---
 name: lightesb-ai-components
-description: 配置 AI Chat、SAP NetWeaver 或其他外部系统扩展样例时使用。
+description: 配置 AI Agent + Tools、SAP NetWeaver 或其他外部系统扩展样例时使用。
 ---
 
-# LightESB AI 与外部系统扩展
+# LightESB AI Agent 与外部系统扩展
 
 先读：
 

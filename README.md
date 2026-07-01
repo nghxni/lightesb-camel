@@ -25,7 +25,7 @@ LightESB 聚焦三件事：
 | 安全与治理 | IP/CIDR/Token/Regex 权限校验、全局异常响应、服务日志、H2 缓存和关键字检索 |
 | 企业系统与工业协议适配 | ExternalDB 多数据源、SAP NetWeaver、AVEVA Plant SCADA、OPC UA、MQTT 5、Modbus/PLC 接入、PLC4X 评估路径 |
 | 自动化运维 | LightESB CLI、部署管理 API、运行时诊断 API、服务状态查询、日志查看、样例验证流程 |
-| AI 集成 | AI Chat、AI Agent + Tools、面向接口编排、技能生成和运维问答的组件上下文 |
+| AI 集成 | AI Agent + Tools、面向接口编排、技能生成和运维问答的组件上下文 |
 
 边界说明：LightESB 面向管理面、集成面和任务流程编排，不替代机器人实时控制器、PLC 安全回路、ROS2 DDS 高频链路或硬件急停系统。路由 XML、配置和服务包类技能可热加载；Java 代码、依赖、Spring Bean 或启动参数变化仍需要重新打包或重启。
 

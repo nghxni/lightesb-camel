@@ -31,7 +31,7 @@
 ## 机器人、企业系统、工业协议与扩展
 
 - [ExternalDB 数据访问](components/11-externaldb.md)
-- [AI Chat 组件](components/12-ai-chat.md)
+- [AI Agent + Tools 组件](components/12-ai-chat.md)
 - [SAP NetWeaver 组件](components/13-sap-netweaver.md)
 - [AVEVA Plant SCADA OPC UA / MQTT 接入](components/15-aveva-plant-scada-opcua-mqtt.md)
 - [DTS 扩展开发指南](extensions/01-dts-extension-guide.md)
