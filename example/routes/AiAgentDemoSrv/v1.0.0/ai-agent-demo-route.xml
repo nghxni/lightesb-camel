@@ -5,52 +5,78 @@
     <route id="ai-agent-demo-entry">
         <from uri="undertow:http://0.0.0.0:{{server.port}}/api/ai/agent/chat?httpMethodRestrict=POST"/>
         <process ref="requestCharsetProcessor"/>
-        <to uri="servicelog:info?message=[AI-AGENT] 收到请求&amp;showBody=true&amp;maxBodyLength=500"/>
-
-        <!-- 设置 Agent 系统提示词和记忆ID -->
-        <setHeader name="CamelLangChain4jAgentSystemMessage">
-            <constant>{{ai.system.prompt}}</constant>
-        </setHeader>
-        <setHeader name="CamelLangChain4jAgentMemoryId">
-            <jsonpath>$.memoryId</jsonpath>
-        </setHeader>
-
-        <!-- 提取用户消息作为 body -->
-        <setBody>
-            <jsonpath resultType="java.lang.String">$.message</jsonpath>
-        </setBody>
-        <to uri="servicelog:debug?message=[AI-AGENT] 准备调用 Agent traceId=${exchangeId.substring(0,8)}, memoryId=${header.CamelLangChain4jAgentMemoryId}&amp;showBody=true&amp;maxBodyLength=300"/>
-
-        <!-- 调用 Agent（自动发现 tags=order-demo 的工具路由） -->
-        <to uri="langchain4j-agent:{{service.ai.type}}Assistant?agent=#genericAiAgent&amp;tags={{ai.agent.tags}}"/>
-        <to uri="servicelog:debug?message=[AI-AGENT] Agent 响应完成&amp;showBody=true&amp;maxBodyLength={{ai.debug.max.body.length}}"/>
-
-        <!-- 包装响应 -->
-        <setProperty name="agentResponse">
-            <simple>${bodyAs(String)}</simple>
+        <setProperty name="agentTraceId">
+            <simple>${exchangeId}</simple>
         </setProperty>
-        <setProperty name="memoryId">
-            <simple>${header.CamelLangChain4jAgentMemoryId}</simple>
+        <setProperty name="agentMemoryId">
+            <jsonpath suppressExceptions="true">$.memoryId</jsonpath>
         </setProperty>
-        <to uri="servicelog:debug?message=[AI-AGENT] agentResponse=${exchangeProperty.agentResponse}&amp;showBody=true&amp;maxBodyLength={{ai.debug.max.body.length}}"/>
-        <!-- DataSonnet 需要合法 JSON 输入，先置空对象 -->
-        <setBody>
-            <constant>{}</constant>
-        </setBody>
-        <transform>
-            <datasonnet resultType="java.lang.String">local toolDataRaw = cml.exchangeProperty("toolData");
-                    std.manifestJson({
-                        "success": true,
-                        "memoryId": cml.exchangeProperty("memoryId"),
-                        "responseText": cml.exchangeProperty("agentResponse"),
-                        "toolData": if toolDataRaw == null then null else std.parseJson(toolDataRaw),
-                        "timestamp": ds.datetime.now()
-                         })
-            </datasonnet>
-        </transform>
+        <setProperty name="agentUserMessage">
+            <jsonpath resultType="java.lang.String" suppressExceptions="true">$.message</jsonpath>
+        </setProperty>
+        <choice>
+            <when>
+                <simple>${exchangeProperty.agentMemoryId} == null || ${exchangeProperty.agentMemoryId} == ''</simple>
+                <setProperty name="agentMemoryId">
+                    <simple>${exchangeId}</simple>
+                </setProperty>
+            </when>
+        </choice>
+        <to uri="servicelog:info?message=[AI-AGENT] 收到请求 traceId=${exchangeProperty.agentTraceId}, memoryId=${exchangeProperty.agentMemoryId}&amp;showBody=false"/>
 
-        <process ref="jsonResponseProcessor"/>
-        <to uri="servicelog:info?message=[AI-AGENT] 处理完成&amp;showBody=true&amp;maxBodyLength=500"/>
+        <choice>
+            <when>
+                <simple>${exchangeProperty.agentUserMessage} == null || ${exchangeProperty.agentUserMessage} == ''</simple>
+                <setHeader name="CamelHttpResponseCode">
+                    <constant>400</constant>
+                </setHeader>
+                <setBody>
+                    <simple>{"success":false,"errorCode":"AI_AGENT_MESSAGE_REQUIRED","message":"message is required","traceId":"${exchangeProperty.agentTraceId}","memoryId":"${exchangeProperty.agentMemoryId}"}</simple>
+                </setBody>
+                <process ref="jsonResponseProcessor"/>
+                <to uri="servicelog:info?message=[AI-AGENT] 请求拒绝 traceId=${exchangeProperty.agentTraceId}, reason=message_required&amp;showBody=false"/>
+            </when>
+            <otherwise>
+                <!-- 设置 Agent 系统提示词和记忆ID -->
+                <setHeader name="CamelLangChain4jAgentSystemMessage">
+                    <constant>{{ai.system.prompt}}</constant>
+                </setHeader>
+                <setHeader name="CamelLangChain4jAgentMemoryId">
+                    <simple>${exchangeProperty.agentMemoryId}</simple>
+                </setHeader>
+
+                <!-- 提取用户消息作为 body -->
+                <setBody>
+                    <simple>${exchangeProperty.agentUserMessage}</simple>
+                </setBody>
+                <to uri="servicelog:debug?message=[AI-AGENT] 准备调用 Agent traceId=${exchangeProperty.agentTraceId}, memoryId=${exchangeProperty.agentMemoryId}&amp;showBody=false"/>
+
+                <!-- 调用 Agent（自动发现 tags=order-demo 的工具路由） -->
+                <to uri="langchain4j-agent:{{service.ai.type}}Assistant?agent=#genericAiAgent&amp;tags={{ai.agent.tags}}"/>
+                <to uri="servicelog:debug?message=[AI-AGENT] Agent 响应完成 traceId=${exchangeProperty.agentTraceId}&amp;showBody=false"/>
+
+                <!-- 包装响应；当前 genericAiAgent 为 AgentWithoutMemory，不声明稳定多轮上下文 -->
+                <setProperty name="agentResponse">
+                    <simple>${bodyAs(String)}</simple>
+                </setProperty>
+                <setBody>
+                    <constant>{}</constant>
+                </setBody>
+                <transform>
+                    <datasonnet resultType="java.lang.String">std.manifestJson({
+                            "success": true,
+                            "traceId": cml.exchangeProperty("agentTraceId"),
+                            "memoryId": cml.exchangeProperty("agentMemoryId"),
+                            "responseText": cml.exchangeProperty("agentResponse"),
+                            "timestamp": ds.datetime.now()
+                             })
+                    </datasonnet>
+                </transform>
+
+                <process ref="jsonResponseProcessor"/>
+                <to uri="servicelog:info?message=[AI-AGENT] 处理完成 traceId=${exchangeProperty.agentTraceId}, memoryId=${exchangeProperty.agentMemoryId}&amp;showBody=false"/>
+            </otherwise>
+        </choice>
     </route>
 
 
@@ -65,73 +91,120 @@
     <!-- 工具1：查询订单详情 -->
     <route id="tool-demo-query-order">
         <from uri="langchain4j-tools:queryOrderDetail?tags=order-demo&amp;description=Query order details by order ID. Returns order status, items, and total amount.&amp;parameter.orderId=string"/>
-        <to uri="servicelog:debug?message=[AI-TOOL] queryOrderDetail 被调用 orderId=${header.orderId}&amp;showBody=false"/>
+        <to uri="servicelog:debug?message=[AI-TOOL] queryOrderDetail 被调用 toolExchangeId=${exchangeId}, orderId=${header.orderId}&amp;showBody=false"/>
+        <choice>
+            <when>
+                <simple>${header.orderId} == null || ${header.orderId} == ''</simple>
+                <setBody>
+                    <constant>{"success":false,"errorCode":"TOOL_ORDER_ID_REQUIRED","message":"orderId is required"}</constant>
+                </setBody>
+            </when>
+            <otherwise>
+                <!-- 构建外部 API 请求 -->
+                <setHeader name="Content-Type">
+                    <constant>application/json</constant>
+                </setHeader>
+                <setHeader name="CamelHttpMethod">
+                    <constant>GET</constant>
+                </setHeader>
 
-        <!-- 构建外部 API 请求 -->
-        <setHeader name="Content-Type">
-            <constant>application/json</constant>
-        </setHeader>
-        <setHeader name="CamelHttpMethod">
-            <constant>GET</constant>
-        </setHeader>
-
-        <!-- 调用内部 HTTP mock 子路由：bridgeEndpoint=true -->
-        <toD uri="http://127.0.0.1:{{server.port}}/api/ai/agent/mock/order/${header.orderId}?bridgeEndpoint=true&amp;connectTimeout=5000&amp;socketTimeout=30000&amp;throwExceptionOnFailure=false"/>
-        <setProperty name="toolData">
-            <simple>${bodyAs(String)}</simple>
-        </setProperty>
-        <to uri="servicelog:INFO?message=[AI-TOOL] queryOrderDetail 响应 httpStatus=${header.CamelHttpResponseCode}&amp;showBody=true&amp;maxBodyLength={{ai.debug.max.body.length}}"/>
+                <!-- 默认调用内部 HTTP mock 子路由；真实外部订单接口请作为单独切片替换 -->
+                <toD uri="http://127.0.0.1:{{server.port}}/api/ai/agent/mock/order/${header.orderId}?bridgeEndpoint=true&amp;connectTimeout=5000&amp;socketTimeout=30000&amp;throwExceptionOnFailure=false"/>
+                <to uri="servicelog:info?message=[AI-TOOL] queryOrderDetail 响应 toolExchangeId=${exchangeId}, httpStatus=${header.CamelHttpResponseCode}&amp;showBody=false"/>
+            </otherwise>
+        </choice>
     </route>
 
     <!-- 工具2：取消订单 -->
     <route id="tool-demo-cancel-order">
-        <from uri="langchain4j-tools:cancelOrder?tags=order-demo&amp;description=Cancel an existing order by order ID. Requires a reason for cancellation.&amp;parameter.orderId=string&amp;parameter.reason=string"/>
-        <to uri="servicelog:debug?message=[AI-TOOL] cancelOrder 被调用 orderId=${header.orderId}, reason=${header.reason}&amp;showBody=false"/>
+        <from uri="langchain4j-tools:cancelOrder?tags=order-demo&amp;description=Mock-only cancellation demo. Cancel an existing order by order ID only after explicit user confirmation. Requires order ID, reason, and confirmed=true.&amp;parameter.orderId=string&amp;parameter.reason=string&amp;parameter.confirmed=boolean"/>
+        <to uri="servicelog:debug?message=[AI-TOOL] cancelOrder 被调用 toolExchangeId=${exchangeId}, orderId=${header.orderId}, confirmed=${header.confirmed}&amp;showBody=false"/>
+        <choice>
+            <when>
+                <simple>${header.orderId} == null || ${header.orderId} == ''</simple>
+                <setBody>
+                    <constant>{"success":false,"errorCode":"TOOL_ORDER_ID_REQUIRED","message":"orderId is required"}</constant>
+                </setBody>
+            </when>
+            <when>
+                <simple>${header.reason} == null || ${header.reason} == ''</simple>
+                <setBody>
+                    <constant>{"success":false,"errorCode":"TOOL_CANCEL_REASON_REQUIRED","message":"reason is required"}</constant>
+                </setBody>
+            </when>
+            <when>
+                <simple>${header.confirmed} != true</simple>
+                <setBody>
+                    <constant>{"success":false,"errorCode":"TOOL_CONFIRMATION_REQUIRED","message":"cancelOrder is mock-only and requires confirmed=true after explicit user confirmation"}</constant>
+                </setBody>
+            </when>
+            <otherwise>
+                <!-- 构建取消请求体；本工具仅用于 mock POC，真实取消订单需单独接入权限和确认机制 -->
+                <setBody>
+                    <simple>{
+                        "orderId": "${header.orderId}",
+                        "reason": "${header.reason}",
+                        "cancelledBy": "ai-agent"
+                    }</simple>
+                </setBody>
+                <setHeader name="Content-Type">
+                    <constant>application/json;charset=UTF-8</constant>
+                </setHeader>
+                <setHeader name="CamelHttpCharacterEncoding">
+                    <constant>UTF-8</constant>
+                </setHeader>
+                <setHeader name="Accept-Charset">
+                    <constant>UTF-8</constant>
+                </setHeader>
 
-        <!-- 构建取消请求体 -->
-        <setBody>
-            <simple>{
-                "orderId": "${header.orderId}",
-                "reason": "${header.reason}",
-                "cancelledBy": "ai-agent"
-            }</simple>
-        </setBody>
-        <setHeader name="Content-Type">
-            <constant>application/json;charset=UTF-8</constant>
-        </setHeader>
-        <setHeader name="CamelHttpCharacterEncoding">
-            <constant>UTF-8</constant>
-        </setHeader>
-        <setHeader name="Accept-Charset">
-            <constant>UTF-8</constant>
-        </setHeader>
-
-        <!-- 调用内部 HTTP mock 子路由：bridgeEndpoint=true -->
-        <toD uri="http://127.0.0.1:{{server.port}}/api/ai/agent/mock/order/cancel?httpMethod=POST&amp;bridgeEndpoint=true&amp;charset=UTF-8&amp;connectTimeout=5000&amp;socketTimeout=30000&amp;throwExceptionOnFailure=false"/>
-        <setProperty name="toolData">
-            <simple>${bodyAs(String)}</simple>
-        </setProperty>
-        <to uri="servicelog:info?message=[AI-TOOL] cancelOrder 响应 httpStatus=${header.CamelHttpResponseCode}&amp;showBody=true&amp;maxBodyLength={{ai.debug.max.body.length}}"/>
+                <!-- 调用内部 HTTP mock 子路由：bridgeEndpoint=true -->
+                <toD uri="http://127.0.0.1:{{server.port}}/api/ai/agent/mock/order/cancel?httpMethod=POST&amp;bridgeEndpoint=true&amp;charset=UTF-8&amp;connectTimeout=5000&amp;socketTimeout=30000&amp;throwExceptionOnFailure=false"/>
+                <to uri="servicelog:info?message=[AI-TOOL] cancelOrder mock 响应 toolExchangeId=${exchangeId}, httpStatus=${header.CamelHttpResponseCode}&amp;showBody=false"/>
+            </otherwise>
+        </choice>
     </route>
 
     <!-- 工具3：查询订单列表 -->
     <route id="tool-demo-list-orders">
         <from uri="langchain4j-tools:listRecentOrders?tags=order-demo&amp;description=List recent orders for a customer by customer ID. Returns a list of recent orders.&amp;parameter.customerId=string&amp;parameter.limit=integer"/>
-        <to uri="servicelog:info?message=[AI-TOOL] listRecentOrders 被调用 customerId=${header.customerId}, limit=${header.limit}&amp;showBody=false"/>
+        <choice>
+            <when>
+                <simple>${header.limit} == null || ${header.limit} == ''</simple>
+                <setHeader name="limit">
+                    <constant>10</constant>
+                </setHeader>
+            </when>
+        </choice>
+        <choice>
+            <when>
+                <simple>${header.limit} &gt; 20</simple>
+                <setHeader name="limit">
+                    <constant>20</constant>
+                </setHeader>
+            </when>
+        </choice>
+        <to uri="servicelog:info?message=[AI-TOOL] listRecentOrders 被调用 toolExchangeId=${exchangeId}, customerId=${header.customerId}, limit=${header.limit}&amp;showBody=false"/>
 
-        <setHeader name="Content-Type">
-            <constant>application/json</constant>
-        </setHeader>
-        <setHeader name="CamelHttpMethod">
-            <constant>GET</constant>
-        </setHeader>
+        <choice>
+            <when>
+                <simple>${header.customerId} == null || ${header.customerId} == ''</simple>
+                <setBody>
+                    <constant>{"success":false,"errorCode":"TOOL_CUSTOMER_ID_REQUIRED","message":"customerId is required"}</constant>
+                </setBody>
+            </when>
+            <otherwise>
+                <setHeader name="Content-Type">
+                    <constant>application/json</constant>
+                </setHeader>
+                <setHeader name="CamelHttpMethod">
+                    <constant>GET</constant>
+                </setHeader>
 
-        <!-- 调用内部 HTTP mock 子路由：bridgeEndpoint=true -->
-        <toD uri="http://127.0.0.1:{{server.port}}/api/ai/agent/mock/orders?customerId=${header.customerId}&amp;limit=${header.limit}&amp;bridgeEndpoint=true&amp;connectTimeout=5000&amp;socketTimeout=30000&amp;throwExceptionOnFailure=false"/>
-        <setProperty name="toolData">
-            <simple>${bodyAs(String)}</simple>
-        </setProperty>
-        <to uri="servicelog:debug?message=[AI-TOOL] listRecentOrders 响应 httpStatus=${header.CamelHttpResponseCode}&amp;showBody=true&amp;maxBodyLength={{ai.debug.max.body.length}}"/>
+                <!-- 调用内部 HTTP mock 子路由：bridgeEndpoint=true -->
+                <toD uri="http://127.0.0.1:{{server.port}}/api/ai/agent/mock/orders?customerId=${header.customerId}&amp;limit=${header.limit}&amp;bridgeEndpoint=true&amp;connectTimeout=5000&amp;socketTimeout=30000&amp;throwExceptionOnFailure=false"/>
+                <to uri="servicelog:debug?message=[AI-TOOL] listRecentOrders 响应 toolExchangeId=${exchangeId}, httpStatus=${header.CamelHttpResponseCode}&amp;showBody=false"/>
+            </otherwise>
+        </choice>
     </route>
 
     <!-- mock 子路由1：查询订单详情测试返回 -->
