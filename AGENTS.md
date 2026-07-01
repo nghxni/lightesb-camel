@@ -31,7 +31,8 @@ LightESB-Camel 交付包内 Agent 协作规则。这里是可运行交付目录�
 | 配置 AI Chat、SAP NetWeaver 等扩展能力 | `skills/lightesb-ai-components/SKILL.md` |
 | 生成、审查或排查 CLI 命令和自动化流程 | `skills/lightesb-cli-automation/SKILL.md` |
 | 运行时诊断、`diagnostics snapshot/warnings`、远程只读排障 | `skills/lightesb-cli-automation/SKILL.md`，再读 `docs/runtime-diagnostics-api.md` |
-| 机器人命令提交、validate/status、MQTT outbox、dispatcher、审计归档 | `skills/lightesb-cli-automation/SKILL.md`，再读 `docs/robot-command-dispatcher-api.md` |
+| 机器人协议样例、MQTT/rosbridge/OPC UA/Modbus/gRPC、命令 dispatcher、审计归档 | `skills/lightesb-robot-integration/SKILL.md` |
+| 机器人命令 CLI 提交、validate/status、MQTT outbox 排查 | `skills/lightesb-cli-automation/SKILL.md`，再读 `skills/lightesb-robot-integration/SKILL.md` |
 | 部署管理、API 响应契约、AI 路由缓存接口 | `skills/lightesb-cli-automation/SKILL.md`，再读对应 `docs/*-api.md` |
 
 ## 编写和修改规则

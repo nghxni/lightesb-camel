@@ -1,6 +1,6 @@
 ---
 name: lightesb-cli-automation
-description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、app/message/service/deploy/route/log/ai 自动化流程时使用。
+description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、app/message/service/deploy/route/log/ai/diagnostics/robot 自动化流程时使用。
 ---
 
 # LightESB CLI 自动化

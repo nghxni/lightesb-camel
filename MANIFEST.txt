@@ -139,6 +139,7 @@ skills/lightesb-ai-components/SKILL.md
 skills/lightesb-cli-automation/SKILL.md
 skills/lightesb-dts-extension/SKILL.md
 skills/lightesb-logging-observability/SKILL.md
+skills/lightesb-robot-integration/SKILL.md
 skills/lightesb-route-authoring/SKILL.md
 skills/lightesb-security-validation/SKILL.md
 skills/lightesb-transform-components/SKILL.md

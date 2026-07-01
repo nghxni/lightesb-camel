@@ -28,6 +28,7 @@
 | `ai-route-cache-api.md` | `docs/ai-route-cache-api.md`，按交付场景压缩整理 |
 | `runtime-diagnostics-api.md` | 运行时诊断 API 契约与 CLI 诊断命令说明，按交付场景压缩整理 |
 | `robot-command-dispatcher-api.md` | 机器人命令 dispatcher、MQTT outbox、审计归档和机器人集成说明，按交付场景压缩整理 |
+| `../skills/lightesb-robot-integration/SKILL.md` | 机器人协议接入经验、机器人 dispatcher API、交付样例和 gRPC IDL 契约，按交付任务路由整理 |
 | `cli/README.md` | `docs/cli/README.md`，外发压缩版 |
 | `cli/01-cli-command-reference.md` | `docs/cli/*` 与 `lightesb-cli/src/main/java/.../cli/command/*`，按命令域压缩整理 |
 

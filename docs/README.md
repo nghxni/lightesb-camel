@@ -75,6 +75,7 @@
 | DTS 扩展 | `../skills/lightesb-dts-extension/SKILL.md` |
 | AI、机器人和外部系统扩展 | `../skills/lightesb-ai-components/SKILL.md` |
 | CLI 命令和自动化流程 | `../skills/lightesb-cli-automation/SKILL.md` |
+| 机器人协议样例、命令 dispatcher 和现场验收边界 | `../skills/lightesb-robot-integration/SKILL.md` |
 
 ## 明确不包含
 
