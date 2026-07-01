@@ -12,6 +12,8 @@ LightESB 聚焦三件事：
 
 本仓库不是完整源码仓库。根目录的 `lightesb-camel-1.0.0.jar`、`lightesb-cli.jar`、`start.sh` / `start.bat`、`lightesb-camel-app/`、`docs/`、`example/`、`skills/`、`AGENTS.md` 共同构成交付上下文。外部 Agent 或大模型只读取本仓库时，应优先从本 README、`AGENTS.md`、`docs/README.md` 和 `example/README.md` 建立上下文。
 
+相比直接使用原生 Apache Camel，本交付包已经封装了启动脚本、服务目录约定、CLI 管理入口、组件文档和可复制样例。常见 HTTP 接入、字段映射、条件转换、校验、日志和协议适配流程优先通过 Camel XML 路由和配置文件表达，适合先用样例完成 POC，再按服务包方式进入交付验证。
+
 ## 核心能力
 
 | 能力 | 交付内容 |
@@ -34,6 +36,9 @@ LightESB 聚焦三件事：
 - 机器人技能或适配能力的动态扩展：通过轻量路由技能包、Camel 路由、配置文件和可选扩展组件，在不重构主系统的前提下新增能力。
 - 在 Camel 路由中完成字段映射、条件转换、schema 校验、权限控制和统一错误响应。
 - 面向制造、工厂自动化和机器人集成场景，承接 OPC UA、MQTT 5、Modbus/PLC、rosbridge/ROS、Kafka 风格数据出流和外部任务接入的适配、验证和交付。
+- 部署在本地服务器、工控机或边缘节点，用于承接现场系统、设备协议、机器人任务和上层业务系统之间的接口转换与流程编排。
+- 将设备、PLC、OPC UA、MQTT 遥测数据标准化后接入 MES/WMS/监控系统，或在边缘侧完成数据清洗、字段映射、校验和本地日志留存后再转发。
+- 打通老旧 ERP、数据库、HTTP 接口与新系统之间的数据同步和协议转换，减少多系统之间的点对点改造。
 - 用 `example/routes/**` 快速构造 POC 样例，再复制到 `lightesb-camel-app/{serviceName}/{serviceVersion}` 运行。
 - 用 CLI 或管理 API 完成部署、状态检查、日志检索和自动化验证。
 - 为 Codex、Claude 或其他 Agent 提供可检索的组件文档、样例和工作规则。
@@ -51,6 +56,14 @@ Windows:
 ```bat
 start.bat
 ```
+
+最小验证流程：
+
+1. 从 `example/routes/**` 选择一个样例服务。
+2. 复制完整服务目录到 `lightesb-camel-app/`。
+3. 执行 `./start.sh` 或 `start.bat`。
+4. 按 `example/README.md` 中的 `curl` 命令验证。
+5. 演示完成后删除临时服务目录。
 
 运行后先阅读：
 
