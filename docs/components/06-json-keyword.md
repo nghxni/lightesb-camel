@@ -41,6 +41,19 @@ curl -G "http://localhost:18083/api/json-keyword/instance-uuids" \
   --data-urlencode "jsonValue=ORD-001"
 ```
 
+## CLI 快速处理
+
+随包 CLI 可直接处理关键字配置和实例反查：
+
+```bash
+lightesb keyword list --service-name DemoOrderSrv --service-version v1.0.0 --output json
+lightesb keyword add --service-name DemoOrderSrv --service-version v1.0.0 --key-name orderId --yes
+lightesb keyword delete --id <keywordConfigId> --yes
+lightesb keyword query-instances --service-name DemoOrderSrv --service-version v1.0.0 --key-name orderId --json-value ORD-001 --output json
+```
+
+`list/query-instances` 是只读操作；`add/delete` 会修改关键字采集配置，必须带 `--yes`。删除配置不清理历史已采集数据。
+
 ## 常见问题
 
 - 查询为空：确认业务路由已执行采集，且 `keyName` 与报文字段名完全一致。

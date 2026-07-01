@@ -204,6 +204,12 @@ lightesb log instance list --service-name DemoSrv --service-version 1.0.0 --keyw
 lightesb log instance get --instance-uuid <instanceUuid>
 lightesb log instance download --instance-uuid <instanceUuid> --type req
 lightesb log instance download --instance-uuid <instanceUuid> --type res > response-body.txt
+
+lightesb keyword list --service-name DemoSrv --service-version 1.0.0
+lightesb keyword add --service-name DemoSrv --service-version 1.0.0 --key-name patientId --yes
+lightesb keyword delete --id <keywordConfigId> --yes
+lightesb keyword query-instances --service-name DemoSrv --service-version 1.0.0 --key-name patientId --json-value 10001
+lightesb keyword query-instances --service-name DemoSrv --service-version 1.0.0 --key-name patientId --json-value 10001 --start-time "2026-06-01 00:00:00" --end-time "2026-06-01 23:59:59" --max-limit 100 --output json
 ```
 
 `deploy history` 默认返回最近 50 条部署记录，可用 `--service-name` 和 `--service-version` 过滤单个服务版本。列表输出只包含概要，不拉取完整部署步骤日志。
@@ -211,6 +217,15 @@ lightesb log instance download --instance-uuid <instanceUuid> --type res > respo
 服务同步命令用于把本地服务版本迁移到远端 LightESB。导出包包含服务定义、接入系统、报文模型和服务目录文件，并在 manifest 中记录 metadata 与服务文件 `sha256`。`serviceVersion` 必须使用 `vX.Y.Z`。`import-plan` 只读远端状态；写入命令必须加 `--yes`。`--skip-existing` 是默认幂等策略的显式写法。远端已有同名服务版本时默认跳过服务文件部署；需要覆盖时加 `--overwrite-service-files`。默认部署后自动启动路由；需要关闭时加 `--no-start`。`sync-remote --keep-package` 可保留中间导出包，也可用 `--package-out <path>` 指定路径。接入系统或服务定义冲突默认失败；需要更新时加 `--update-existing`。远端已有同名报文且内容不一致时会调用消息更新接口，远端当前 `msgVersion` 必须是 `V数字.单数字`，更新后递增单数字小版本并保留更新历史，例如 `V1.9` -> `V2.0`。
 
 日志级别调整后立即生效，不需要执行日志重载。
+
+`keyword` 命令域只调用 `/api/lightesb/json-keyword`，用于 Codex 和自动化快速处理 JSON 关键字配置：
+
+- `list` 查询服务版本已注册 keyName。
+- `add --yes` 新增关键字采集配置。
+- `delete --id --yes` 删除错误配置，不影响历史采集数据。
+- `query-instances` 按 `keyName/jsonValue` 反查实例 UUID；可选 `--start-time`、`--end-time`、`--max-limit` 和 `--output json`。
+
+按关键字查询依赖服务端 JsonKeyword MySQL 同步链路和分表可用；只通过 `log instance list --keyword key=value` 过滤实例日志时，仍可继续使用 `log` 命令域。
 
 `service.json` 最小字段：
 
@@ -345,6 +360,7 @@ message create/update/delete
 service create/update/delete/config save/package deploy/start/stop
 route reload-service/reload-file/unload
 log level set/cleanup
+keyword add/delete
 ```
 
 `deploy upload` 当前示例不强制 `--yes`，但流水线侧应自行增加确认门禁。

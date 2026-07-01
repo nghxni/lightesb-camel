@@ -1,6 +1,6 @@
 ---
 name: lightesb-cli-automation
-description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、app/message/service/deploy/route/log/ai/diagnostics/robot 自动化流程时使用。
+description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、app/message/service/deploy/route/log/keyword/ai/diagnostics/robot 自动化流程时使用。
 ---
 
 # LightESB CLI 自动化
@@ -19,6 +19,7 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 - 需要服务端地址时优先使用 `--server` 或 profile，不在命令中写真实密钥。
 - `--ai-token` 只用于 `X-AI-Token`，不是模型 API key。
 - `ai tool list/save/plan/run` 已删除；AI 路由生成统一走自然语言入口。
+- `keyword list/query-instances` 只读；`keyword add/delete` 修改 JsonKeyword keyName 配置，必须加 `--yes`。
 - `service import-plan` 只读远端状态；`service import` 和 `service sync-remote` 必须加 `--yes`。
 - 服务同步默认跳过远端已有同名服务版本的服务文件部署；覆盖部署需显式 `--overwrite-service-files`。
 - 服务同步默认自动启动部署路由；需要关闭时使用 `--no-start`。`sync-remote --keep-package` 可保留中间导出包。
@@ -50,6 +51,9 @@ lightesb service import-plan --server http://remote-host:8080 --file dist/DemoSr
 lightesb service import --server http://remote-host:8080 --file dist/DemoSrv-v1.0.0.lightesb-service.zip --skip-existing --yes
 lightesb route status
 lightesb log instance list --service-name DemoSrv --service-version 1.0.0
+lightesb keyword list --service-name DemoSrv --service-version 1.0.0 --output json
+lightesb keyword add --service-name DemoSrv --service-version 1.0.0 --key-name patientId --yes
+lightesb keyword query-instances --service-name DemoSrv --service-version 1.0.0 --key-name patientId --json-value 10001 --output json
 lightesb diagnostics snapshot --server http://localhost:8080 --output json
 lightesb diagnostics warnings --server http://localhost:8080 --output json
 lightesb robot command validate --server http://localhost:8080 --file robot-command.json --output json
