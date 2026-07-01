@@ -9,7 +9,7 @@ LightESB CLI 是面向接入建模、交付运维、路由治理、日志检索�
 核心命令域：
 
 ```text
-profile -> doctor -> app -> message -> service -> service export/import/sync-remote -> deploy -> route -> log -> ai -> robot doctor -> robot list/get/capabilities/state/audit -> robot command validate/status/submit
+profile -> doctor -> app -> message -> service -> service export/import/sync-remote -> deploy -> route -> log -> ai -> diagnostics -> robot doctor -> robot list/get/capabilities/state/audit -> robot command validate/status/submit
 ```
 
 基本调用：
@@ -33,8 +33,9 @@ lightesb --file payload.json <command>
 - `log ask` 是可选服务端自然语言 Agent 能力，默认日志治理优先使用确定性 `log` 命令。
 - `--ai-token` 只用于服务端 AI 日志问答的 `X-AI-Token`，不是模型 API key。
 - `ai tool list/save/plan/run` 已删除；AI 路由生成统一走自然语言入口。
+- `diagnostics snapshot/warnings` 是只读远程诊断入口，只调用 `/api/diagnostics/runtime-snapshot`，不重载路由、不清理数据、不读取远程文件；自动化和 Codex 优先使用 `--output json`。
 - `robot doctor --offline` 只做机器人接入静态检查，不连接真实机器人、broker、rosbridge、OPC UA、Modbus 或 Kafka，也不下发命令。
 - `robot list/get/capabilities/state/audit` 只调用机器人管理 API 的只读入口，默认用本机 WSL mock HTTP 和本地测试验证，不证明真实资产库、真实在线状态、真实审计源或真实能力发现。
 - `robot command validate --file` 只调用机器人管理 API 的 `commands:validate` 入口，不创建命令、不下发协议请求、不写执行审计。
-- `robot command status --robot-id --command-id` 只查询已有本地命令结果，不提交新命令，不证明真实协议执行状态。
-- `robot command submit --file --yes` 只提交到本地命令持久化入口；`protocolReceipt.dispatched=false` 时不能当作真实机器人命令下发入口。
+- `robot command status --robot-id --command-id` 只查询已有命令结果，不提交新命令，不单独证明真实协议执行状态。
+- `robot command submit --file --yes` 提交到服务端命令账本、审计和 MQTT outbox；`outboxStatus=pending` 只表示进入可靠派发队列，`protocolReceipt.dispatched=false` 不能当作机器人已收到或已执行。

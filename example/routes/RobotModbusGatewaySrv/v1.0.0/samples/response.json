@@ -1,0 +1,16 @@
+{
+  "commandId": "cmd-modbus-001",
+  "robotId": "station-robot-001",
+  "status": "accepted",
+  "protocolReceipt": {
+    "protocol": "modbus-tcp",
+    "registerAlias": "commandCode",
+    "registerSource": "service.config.properties"
+  },
+  "trace": {
+    "serviceName": "RobotModbusGatewaySrv",
+    "serviceVersion": "v1.0.0",
+    "routeId": "robot-modbus-write-mock",
+    "correlationId": "mes-task-modbus-001"
+  }
+}

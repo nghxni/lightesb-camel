@@ -26,6 +26,7 @@
 | `routes/RobotOpcUaStationSrv/v1.0.0/` | OPC UA 工作站读写边界和工业告警 mock 样例，默认 `server.running=false` | `../docs/experience/01-robotics-protocol-precheck.md` |
 | `routes/RobotModbusGatewaySrv/v1.0.0/` | Modbus 寄存器别名白名单和写回执 mock 样例，默认 `server.running=false` | `../docs/experience/01-robotics-protocol-precheck.md` |
 | `routes/RobotClusterDataSrv/v1.0.0/` | Kafka 风格出流、外部任务和 dashboard 数据 mock 样例，默认 `server.running=false` | `../docs/experience/01-robotics-protocol-precheck.md` |
+| `routes/RobotGrpcGatewaySrv/v1.0.0/` | gRPC IDL 契约、deadline/retry/metadata/TLS 静态配置和 mock receipt 样例，默认 `server.running=false` | `../docs/experience/01-robotics-protocol-precheck.md` |
 | `transform-dts-java/` | DTS Java SPI 扩展示例，提供多个 transform provider | `../docs/extensions/01-dts-extension-guide.md` |
 
 ## 运行方式

@@ -73,8 +73,8 @@ CAN 网关输出建议：
 UI 进入实施前必须满足：
 
 - 只调用稳定机器人管理 API，不直接调用验证 route、mock route 或协议 endpoint。
-- 明确数据来源：mock/management snapshot、本地持久化、真实资产库或真实 dispatcher。
-- 区分 validate-only、本地 accepted、`protocolReceipt.dispatched=false`、duplicate、duplicate_conflict、rejected、timeout、failed 和 succeeded。
+- 明确数据来源：mock/management snapshot、reliable outbox、真实资产库或真实 dispatcher。
+- 区分 validate-only、accepted、outbox queued、`protocolReceipt.dispatched=false`、duplicate、duplicate_conflict、rejected、timeout、failed 和 succeeded。
 - 命令下发必须有二次确认、危险动作提示、幂等结果展示和审计入口。
 - 浏览器验收覆盖空态、加载、错误、无权限、离线、超时、重复提交、后端不可达、桌面和移动宽度。
 
@@ -87,7 +87,7 @@ AI tools 当前不作为交付包能力；评估结论只代表当前不新增�
 - AI route generate 只返回候选 XML 或候选配置，不自动保存、部署或启用真实 endpoint。
 - 协议目标必须来自模板、白名单、能力、点表或服务包配置，不能由 prompt 透传底层 topic/node/register/service/action/endpoint。
 - AI tools 默认只允许只读诊断、配置检查、候选生成和管理 API 查询；写操作必须显式确认并由服务端白名单校验。
-- AI 输出必须标注 mock/local baseline、validate-only、本地持久化-only 或 field/product 语义。
+- AI 输出必须标注 mock/local baseline、validate-only、outbox queued 或 field/product 语义。
 - 没有真实 dispatcher、资产库、权限模型和现场端点验收前，AI 不得自动发起机器人动作或修改运行中服务。
 
 ## 安全约束
@@ -313,7 +313,7 @@ MQTT 样例还提供服务包级 XML 加载验证：
 | command 闭环 | `RobotMqttPrecheckRouteTest` | command 可生成 topic，并产出 ack/result/audit | 真实设备 ack/result 时延、丢包、投递确认 |
 | 动态 topic 拒绝 | `RobotMqttPrecheckRouteTest` | 请求体动态 `topic` 被拒绝，只写 rejected audit | broker ACL 拒绝和非法发布错误映射 |
 | 重复 `commandId` | `RobotMqttPrecheckRouteTest`、机器人管理 API 测试、只读检查 | mock route 重复命令不重复下发；真实 MQTT command route 在发布前使用持久化唯一键识别重复 `commandId`，重复同内容命令不再次发布 | 跨实例分布式锁、ack/result 状态推进幂等 |
-| 管理 API 持久化前置 | 只读 `robot doctor`、机器人管理 API 测试 | 静态检查 `ROBOT_COMMAND`、`ROBOT_AUDIT_LOG` 初始化 SQL、审计清理接口文档和本地持久化幂等测试 | 真实 broker 重投递、跨实例分布式锁和 ack/result 状态推进 |
+| 管理 API outbox 前置 | 只读 `robot doctor`、机器人管理 API 测试 | 静态检查 `ROBOT_COMMAND`、`ROBOT_AUDIT_LOG`、`ROBOT_COMMAND_OUTBOX` 初始化 SQL、审计归档/清理接口文档和 outbox 幂等测试 | 真实 broker 重投递、跨实例分布式锁和 ack/result 状态推进 |
 | 服务包 XML 加载 | `RobotMqttExampleRouteLoadTest` | 两个 MQTT 样例 XML route 可启动并跑通 mock sink | 生产部署热加载、真实日志落盘和查询 |
 
 ## 真实 MQTT broker 联调前置清单
@@ -350,28 +350,29 @@ MQTT 样例还提供服务包级 XML 加载验证：
 
 该验证只覆盖本地 broker 的 telemetry consumer、command producer、ack/result consumer、动态 topic 拒绝、明文/TLS 热更新后连接重建、TLS 单向信任、QoS1/非 retained/非持久会话的在线最小投递和成功路径日志落盘。动态 topic 拒绝发生在第一条业务日志前，HTTP route 由 CamelContext 级全局异常处理接管异常。管理 API 已支持本地命令记录、审计记录和 `commandId` 持久化幂等；真实 broker 重投递、mTLS、broker 重启/断网重连、离线会话补投和 broker ACL 仍需现场或后续环境单独验证。交付样例仍保持 mock-first 默认配置，不携带真实账号、密码或证书。
 
-## 机器人管理 API 本地持久化
+## 机器人管理 API Reliable Outbox
 
-管理 API 已提供本地 H2/JDBC 最小持久化，用于验证命令查询、审计和重启后幂等：
+管理 API 已提供命令账本、审计和 MQTT outbox 持久化，用于验证命令查询、审计、重启后幂等和可靠派发队列：
 
 | 接口 | 用途 |
 | --- | --- |
-| `POST /service-management/v1/robots/{robotId}/commands` | 提交高层动作命令，只写本地命令记录，不下发真实协议请求 |
+| `POST /service-management/v1/robots/{robotId}/commands` | 提交高层动作命令，同事务写入命令账本、审计和 MQTT outbox |
 | `GET /service-management/v1/robots/{robotId}/commands/{commandId}` | 查询持久化命令结果 |
 | `GET /service-management/v1/robots/{robotId}/audit` | 查询命令审计，支持 `commandId`、`eventType` 过滤 |
-| `DELETE /service-management/v1/robots/audit?retentionDays=N&dryRun=true|false` | 按时间清理过期审计日志，`retentionDays` 必须大于等于 1 |
+| `DELETE /service-management/v1/robots/audit?retentionDays=N&dryRun=true|false` | 手动清理过期审计日志，`retentionDays` 必须大于等于 1；默认清理路径是服务端自动 SQL 归档 |
 
-持久化边界：
+持久化与 outbox 边界：
 
-- 命令状态首批保持 `accepted`，`protocolReceipt.dispatched=false`。
+- 命令提交后保持 `accepted`，`protocolReceipt.outboxStatus=pending` 表示已进入 MQTT outbox。
 - 幂等使用请求签名 SHA-256 hash；只保存脱敏请求摘要，不保存完整请求、token、密码、证书路径、broker endpoint 或动态协议目标字段。
-- 管理 API 当前分为只读基线、`commands:validate` 基线和本地持久化前置三类；submit/result 不代表真实协议执行。
+- 审计日志默认每天凌晨 1 点归档到 `${lightesb.deployment.backup-dir}/audit/ROBOT_AUDIT_LOG-yyyyMMddHHmmss.sql`，数据库保留 1 个月，SQL 备份保留 24 个月。
+- 管理 API 当前分为只读基线、`commands:validate` 基线和 reliable outbox 提交三类；accepted/outbox pending 不代表真实协议执行成功。
 - CLI 已增加 `robot command validate --file` 预检能力，并且只能调用 `commands:validate`，不得创建命令、下发协议或写执行审计。
-- CLI 已增加 `robot command submit --file --yes` 本地持久化-only 能力；它只调用 `/commands` 本地持久化入口，必须显式确认，并拒绝 `mode=validate_only` 或 `dryRun=true`。`protocolReceipt.dispatched=false` 时不能解释为真实协议下发或机器人执行。
+- CLI 已增加 `robot command submit --file --yes` 提交能力；它只调用 `/commands` 管理入口，必须显式确认，并拒绝 `mode=validate_only` 或 `dryRun=true`。`protocolReceipt.dispatched=false` 时不能解释为真实协议下发或机器人执行。
 - 审计记录覆盖 submitted、duplicate、duplicate_conflict 和可识别 rejected。
 - 审计清理只删除审计日志，不删除命令记录，避免破坏 `commandId` 幂等。
 - 当前清理接口是手动最小能力；大表场景建议后续接入分批删除、定时保留策略和管理权限控制，避免单次大事务或误删。
-- 真实协议 submit/执行闭环已评估为后置能力；当前没有统一 dispatcher、真实设备或强模拟器、ack/result 状态推进持久化、跨实例幂等、审计补偿和现场故障注入。
+- 当前已具备 MQTT outbox 首期闭环；真实设备或强模拟器、ack/result 状态推进持久化、跨实例幂等、审计补偿和现场故障注入仍需独立验收。
 - 该能力不代表真实 MQTT/rosbridge/OPC UA/Modbus 下发、ack/result 状态推进、跨实例分布式锁或审计补偿已经完成。
 - 正式 `robot doctor` 接入运行态数据源已评估为后置能力；交付包当前只保留 `robot doctor --offline` 静态检查，不连接运行中后端、数据库、日志索引或真实端点。真实资产库、最近心跳、错误日志、权限边界和运行态查询 API 稳定后再重新打开。
 
@@ -603,4 +604,4 @@ Kafka topic、key 和 header 建议：
 7. rosbridge、OPC UA 和 Modbus 当前保持综合样例或网关样例；只有真实产品化需要独立部署、独立权限或独立生命周期时，才拆分遥测/命令专用模板。
 8. 阶段 1-4 mock 服务包闭环已经完整；gRPC 当前只有 mock 模板、`proto/robot/robot_command.proto` IDL 草案和静态配置契约，CLI、UI、AI 生成和自定义 DDS/CAN/EtherCAT 组件继续后置。插件化协议适配器规范、UI/AI 进入验收标准只作为准入门禁，不代表对应功能已交付。
 9. 真实机器人资产注册、服务包关联、运行态资产库、真实在线状态和最近遥测已评估为后置能力；当前管理 API 只代表 mock/management snapshot 和本地查询契约，不代表真实资产库或现场运维数据源。
-10. 真实协议 dispatcher、ack/result 状态推进、跨实例幂等和现场设备执行闭环已评估为后置能力；当前 submit 只代表本地持久化前置，不代表真实协议派发或机器人执行成功。
+10. 真实协议 dispatcher、ack/result 状态推进、跨实例幂等和现场设备执行闭环已评估为后置能力；当前 submit 只代表 accepted/outbox queued，不代表现场机器人执行成功。

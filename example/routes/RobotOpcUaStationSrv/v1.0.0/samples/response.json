@@ -1,0 +1,16 @@
+{
+  "commandId": "cmd-opcua-001",
+  "robotId": "arm-001",
+  "status": "accepted",
+  "protocolReceipt": {
+    "protocol": "opcua",
+    "writeAlias": "station.command",
+    "nodeSource": "service.config.properties"
+  },
+  "trace": {
+    "serviceName": "RobotOpcUaStationSrv",
+    "serviceVersion": "v1.0.0",
+    "routeId": "robot-opcua-station-command-mock",
+    "correlationId": "mes-task-opcua-001"
+  }
+}

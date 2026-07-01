@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+    <route id="robot-grpc-command-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-grpc-command-mock"/>
+        <process ref="robotCommandValidateProcessor"/>
+        <process ref="robotCommandIdempotencyProcessor"/>
+        <setProperty name="robot.command.state.event">
+            <constant>created</constant>
+        </setProperty>
+        <process ref="robotTaskStateProcessor"/>
+        <process ref="robotCommandEnvelopeProcessor"/>
+        <to uri="servicelog:info?message=[ROBOT-GRPC] command accepted by mock gateway&amp;showBody=true&amp;maxBodyLength=2000"/>
+        <toD uri="{{robot.mock.grpc.command.sink}}"/>
+        <setBody>
+            <simple>{"commandId":"${header.robot.commandId}","robotId":"${header.robot.robotId}","status":"accepted","protocolReceipt":{"protocol":"grpc","service":"{{robot.grpc.service.command}}","dispatched":false},"correlationId":"${header.robot.correlationId}"}</simple>
+        </setBody>
+        <toD uri="{{robot.mock.grpc.receipt.sink}}"/>
+        <setProperty name="robot.command.state.event">
+            <constant>accepted</constant>
+        </setProperty>
+        <process ref="robotTaskStateProcessor"/>
+        <process ref="robotAuditProcessor"/>
+    </route>
+
+    <route id="robot-grpc-telemetry-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-grpc-telemetry-mock"/>
+        <process ref="robotTelemetryNormalizeProcessor"/>
+        <to uri="servicelog:info?message=[ROBOT-GRPC] telemetry normalized by mock gateway&amp;showBody=true&amp;maxBodyLength=2000"/>
+        <toD uri="{{robot.mock.grpc.telemetry.sink}}"/>
+    </route>
+
+</routes>

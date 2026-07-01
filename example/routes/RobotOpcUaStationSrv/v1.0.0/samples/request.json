@@ -1,0 +1,17 @@
+{
+  "commandId": "cmd-opcua-001",
+  "robotId": "arm-001",
+  "siteId": "site-a",
+  "stationId": "station-a",
+  "commandType": "pick",
+  "timeoutMs": 30000,
+  "target": {
+    "stationId": "station-a",
+    "objectId": "box-001"
+  },
+  "payload": {
+    "commandCode": 101,
+    "taskNo": "task-opcua-001"
+  },
+  "correlationId": "mes-task-opcua-001"
+}

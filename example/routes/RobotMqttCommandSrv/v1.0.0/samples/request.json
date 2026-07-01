@@ -1,0 +1,17 @@
+{
+  "commandId": "cmd-mqtt-001",
+  "robotId": "quad-001",
+  "siteId": "site-a",
+  "commandType": "move_to",
+  "timeoutMs": 30000,
+  "target": {
+    "frame": "map",
+    "x": 10.5,
+    "y": 2.1,
+    "yaw": 0.0
+  },
+  "constraints": {
+    "maxSpeed": 0.5
+  },
+  "correlationId": "wms-task-10086"
+}

@@ -1,0 +1,17 @@
+{
+  "commandId": "cmd-grpc-001",
+  "robotId": "quad-001",
+  "siteId": "site-a",
+  "commandType": "move_to",
+  "timeoutMs": 30000,
+  "target": {
+    "frame": "map",
+    "x": 4.0,
+    "y": 6.0,
+    "yaw": 0.0
+  },
+  "constraints": {
+    "maxSpeed": 0.5
+  },
+  "correlationId": "wms-task-grpc-001"
+}

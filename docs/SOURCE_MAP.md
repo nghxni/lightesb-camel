@@ -14,7 +14,7 @@
 | `components/09-exception-handling.md` | 异常处理组件说明与管理 API 异常边界，外发整理版 |
 | `components/10-h2-jsonkeyword-chain.md` | `docs/16-h2-jsonkeyword-processor-chain-usage.md` |
 | `components/11-externaldb.md` | `docs/18-externaldb-component-usage.md` |
-| `components/12-ai-chat.md` | AI Chat 组件说明、旧工具接口删除说明和 CLI 自动化说明，按交付场景重写 |
+| `components/12-ai-chat.md` | AI Chat 组件说明、AI 配置可见 runtime 自洽边界、旧工具接口删除说明和 CLI 自动化说明，按交付场景重写 |
 | `components/13-sap-netweaver.md` | `docs/26-sap-netweaver-component-usage.md` |
 | `components/14-timer-routes.md` | 交付样例 `example/routes/timer/` 与 `example/routes/MysqlRouteSrv/` 整理 |
 | `components/15-aveva-plant-scada-opcua-mqtt.md` | `docs/27-aveva-plant-scada-opcua-mqtt-usage.md`，按交付场景重写 |
@@ -26,6 +26,8 @@
 | `api-response-contract.md` | 管理 API 响应契约，外发整理版 |
 | `deployment-management-api.md` | 部署管理 API 说明，外发整理版 |
 | `ai-route-cache-api.md` | `docs/ai-route-cache-api.md`，按交付场景压缩整理 |
+| `runtime-diagnostics-api.md` | 运行时诊断 API 契约与 CLI 诊断命令说明，按交付场景压缩整理 |
+| `robot-command-dispatcher-api.md` | 机器人命令 dispatcher、MQTT outbox、审计归档和机器人集成说明，按交付场景压缩整理 |
 | `cli/README.md` | `docs/cli/README.md`，外发压缩版 |
 | `cli/01-cli-command-reference.md` | `docs/cli/*` 与 `lightesb-cli/src/main/java/.../cli/command/*`，按命令域压缩整理 |
 

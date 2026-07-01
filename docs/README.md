@@ -50,6 +50,8 @@
 - [管理 API 响应契约](api-response-contract.md)
 - [部署管理 API](deployment-management-api.md)
 - [AI 路由缓存管理 API](ai-route-cache-api.md)
+- [运行时诊断 API 与 CLI](runtime-diagnostics-api.md)
+- [机器人命令 dispatcher API](robot-command-dispatcher-api.md)
 
 ## 样例
 

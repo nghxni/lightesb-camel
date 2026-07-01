@@ -1,0 +1,16 @@
+{
+  "commandId": "cmd-grpc-001",
+  "robotId": "quad-001",
+  "status": "accepted",
+  "protocolReceipt": {
+    "protocol": "grpc",
+    "service": "RobotCommandService",
+    "dispatched": false
+  },
+  "trace": {
+    "serviceName": "RobotGrpcGatewaySrv",
+    "serviceVersion": "v1.0.0",
+    "routeId": "robot-grpc-command-mock",
+    "correlationId": "wms-task-grpc-001"
+  }
+}

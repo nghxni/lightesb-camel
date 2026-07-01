@@ -1,0 +1,16 @@
+{
+  "commandId": "cmd-ros-001",
+  "robotId": "quad-001",
+  "status": "accepted",
+  "protocolReceipt": {
+    "protocol": "rosbridge",
+    "op": "call_service",
+    "service": "/robot/quad-001/action/move_to"
+  },
+  "trace": {
+    "serviceName": "RobotRosBridgeSrv",
+    "serviceVersion": "v1.0.0",
+    "routeId": "robot-rosbridge-command-mock",
+    "correlationId": "wms-task-ros-001"
+  }
+}

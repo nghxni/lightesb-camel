@@ -8,6 +8,7 @@ LightESB-Camel 交付包内 Agent 协作规则。这里是可运行交付目录�
 - `example/`：纯演示样例目录。样例可以修改端口、服务名、接口路径和数据，用于复制到 `lightesb-camel-app/` 后临时运行。
 - `docs/`：组件级技术文档，只描述可交付使用的配置、路由写法、样例和验证。
 - `docs/cli/`：CLI 使用参考，只描述命令、输入、输出、确认规则和自动化边界。
+- `docs/runtime-diagnostics-api.md`、`docs/robot-command-dispatcher-api.md`、`docs/*-api.md`：交付 API 与 CLI 边界说明，只写可调用契约、配置、示例和排障边界。
 - `skills/`：轻量任务路由卡片。任务命中时先读对应 `skills/<name>/SKILL.md`，再读 `docs/README.md` 和组件文档。
 - `services/`：第三方扩展交付物和扩展示例。
 
@@ -29,6 +30,9 @@ LightESB-Camel 交付包内 Agent 协作规则。这里是可运行交付目录�
 | 开发或打包第三方 DTS 扩展 | `skills/lightesb-dts-extension/SKILL.md` |
 | 配置 AI Chat、SAP NetWeaver 等扩展能力 | `skills/lightesb-ai-components/SKILL.md` |
 | 生成、审查或排查 CLI 命令和自动化流程 | `skills/lightesb-cli-automation/SKILL.md` |
+| 运行时诊断、`diagnostics snapshot/warnings`、远程只读排障 | `skills/lightesb-cli-automation/SKILL.md`，再读 `docs/runtime-diagnostics-api.md` |
+| 机器人命令提交、validate/status、MQTT outbox、dispatcher、审计归档 | `skills/lightesb-cli-automation/SKILL.md`，再读 `docs/robot-command-dispatcher-api.md` |
+| 部署管理、API 响应契约、AI 路由缓存接口 | `skills/lightesb-cli-automation/SKILL.md`，再读对应 `docs/*-api.md` |
 
 ## 编写和修改规则
 

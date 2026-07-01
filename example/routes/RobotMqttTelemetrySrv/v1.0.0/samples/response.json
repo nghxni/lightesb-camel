@@ -1,0 +1,26 @@
+{
+  "messageType": "telemetry",
+  "robotId": "quad-001",
+  "robotType": "quadruped",
+  "siteId": "site-a",
+  "sourceProtocol": "mqtt5",
+  "pose": {
+    "frame": "map",
+    "x": 1.2,
+    "y": 3.4,
+    "yaw": 1.57
+  },
+  "battery": {
+    "percent": 82,
+    "charging": false
+  },
+  "health": {
+    "status": "OK"
+  },
+  "trace": {
+    "serviceName": "RobotMqttTelemetrySrv",
+    "serviceVersion": "v1.0.0",
+    "routeId": "robot-mqtt-telemetry-mock",
+    "correlationId": "telemetry-demo-001"
+  }
+}

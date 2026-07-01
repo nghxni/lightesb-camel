@@ -9,6 +9,8 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 
 - `docs/cli/README.md`
 - `docs/cli/01-cli-command-reference.md`
+- 诊断任务读 `docs/runtime-diagnostics-api.md`
+- 机器人命令提交、dispatcher 或审计任务读 `docs/robot-command-dispatcher-api.md`
 
 规则：
 
@@ -48,6 +50,10 @@ lightesb service import-plan --server http://remote-host:8080 --file dist/DemoSr
 lightesb service import --server http://remote-host:8080 --file dist/DemoSrv-v1.0.0.lightesb-service.zip --skip-existing --yes
 lightesb route status
 lightesb log instance list --service-name DemoSrv --service-version 1.0.0
+lightesb diagnostics snapshot --server http://localhost:8080 --output json
+lightesb diagnostics warnings --server http://localhost:8080 --output json
+lightesb robot command validate --server http://localhost:8080 --file robot-command.json --output json
+lightesb robot command submit --server http://localhost:8080 --file robot-command.json --yes --output json
 ```
 
 验收：

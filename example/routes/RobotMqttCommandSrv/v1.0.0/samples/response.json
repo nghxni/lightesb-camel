@@ -1,0 +1,17 @@
+{
+  "commandId": "cmd-mqtt-001",
+  "robotId": "quad-001",
+  "status": "succeeded",
+  "protocolReceipt": {
+    "protocol": "mqtt5",
+    "commandTopic": "robot/site-a/quad-001/command/cmd-mqtt-001",
+    "ackTopic": "robot/site-a/quad-001/command/cmd-mqtt-001/ack",
+    "resultTopic": "robot/site-a/quad-001/command/cmd-mqtt-001/result"
+  },
+  "trace": {
+    "serviceName": "RobotMqttCommandSrv",
+    "serviceVersion": "v1.0.0",
+    "routeId": "robot-mqtt-command-mock",
+    "correlationId": "wms-task-10086"
+  }
+}

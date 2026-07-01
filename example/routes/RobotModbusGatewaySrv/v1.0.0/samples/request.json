@@ -1,0 +1,13 @@
+{
+  "commandId": "cmd-modbus-001",
+  "robotId": "station-robot-001",
+  "siteId": "site-a",
+  "commandType": "move_to",
+  "timeoutMs": 30000,
+  "payload": {
+    "registerAlias": "commandCode",
+    "value": 7,
+    "taskNo": "task-modbus-001"
+  },
+  "correlationId": "mes-task-modbus-001"
+}

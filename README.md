@@ -22,7 +22,7 @@ LightESB 聚焦三件事：
 | 数据转换与校验 | ConditionalTransform、JsonTransform、DataSonnet、JSON Schema 校验、DTS Java SPI 扩展 |
 | 安全与治理 | IP/CIDR/Token/Regex 权限校验、全局异常响应、服务日志、H2 缓存和关键字检索 |
 | 企业系统与工业协议适配 | ExternalDB 多数据源、SAP NetWeaver、AVEVA Plant SCADA、OPC UA、MQTT 5、Modbus/PLC 接入、PLC4X 评估路径 |
-| 自动化运维 | LightESB CLI、部署管理 API、服务状态查询、日志查看、样例验证流程 |
+| 自动化运维 | LightESB CLI、部署管理 API、运行时诊断 API、服务状态查询、日志查看、样例验证流程 |
 | AI 集成 | AI Chat、AI Agent + Tools、面向接口编排、技能生成和运维问答的组件上下文 |
 
 边界说明：LightESB 面向管理面、集成面和任务流程编排，不替代机器人实时控制器、PLC 安全回路、ROS2 DDS 高频链路或硬件急停系统。路由 XML、配置和服务包类技能可热加载；Java 代码、依赖、Spring Bean 或启动参数变化仍需要重新打包或重启。
@@ -64,7 +64,7 @@ start.bat
 | --- | --- | --- |
 | 老系统与机器人流程接入 | HTTP/数据库/消息/企业系统接口整合，机器人任务、命令、回执、审计和外部任务流程编排 | `docs/components/01-http-route-basics.md`、`docs/cli/README.md` |
 | 机器人动态技能扩展 | 轻量路由技能包、路由热加载、`server.running=false` 按需禁用、CLI 启停/部署/重载、DTS Java SPI、AI Agent + Tools、配置化协议目标和白名单 | `AGENTS.md`、`docs/cli/README.md`、`docs/extensions/01-dts-extension-guide.md`、`docs/components/12-ai-chat.md` |
-| 机器人核心链路服务 | MQTT telemetry/command、rosbridge WebSocket JSON、ROS service/action 管理面映射、gRPC `RobotCommand` 契约草案 | `docs/experience/01-robotics-protocol-precheck.md`、`proto/robot/robot_command.proto` |
+| 机器人核心链路服务 | MQTT telemetry/command、MQTT outbox dispatcher、rosbridge WebSocket JSON、ROS service/action 管理面映射、gRPC `RobotCommand` 契约草案 | `docs/robot-command-dispatcher-api.md`、`docs/experience/01-robotics-protocol-precheck.md`、`proto/robot/robot_command.proto` |
 | PLC 与工业现场 | OPC UA、Modbus TCP 寄存器别名、PLC4X 依赖基础和复杂 PLC 能力评估路径、AVEVA Plant SCADA | `docs/components/15-aveva-plant-scada-opcua-mqtt.md`、`docs/experience/02-robotics-protocol-correct-practices.md` |
 | 数据平台与业务系统 | Kafka 风格 telemetry/event 出流、WMS/MES 外部任务接入、dashboard 数据契约、ExternalDB、SAP NetWeaver | `example/routes/RobotClusterDataSrv/v1.0.0/`、`docs/components/11-externaldb.md`、`docs/components/13-sap-netweaver.md` |
 
@@ -82,7 +82,7 @@ LightESB 的机器人技能和协议适配能力可以以独立路由服务包�
 - 不需要使用时，可停止服务或保持 `server.running=false`，让平台保留技能资产但控制运行时占用。
 - 适合沉淀大量机器人技能、协议适配模板、客户专用流程和现场调试能力，按任务需要启用。
 
-常用 CLI 入口见 `docs/cli/README.md` 和 `docs/cli/01-cli-command-reference.md`，包括 `service start/stop`、`service package deploy`、`route reload-service`、`route reload-file` 和 `deploy upload`。
+常用 CLI 入口见 `docs/cli/README.md` 和 `docs/cli/01-cli-command-reference.md`，包括 `service start/stop`、`service package deploy`、`route reload-service`、`route reload-file`、`deploy upload`、`diagnostics snapshot/warnings` 和 `robot command validate/status/submit`。
 
 ## 目录结构
 
