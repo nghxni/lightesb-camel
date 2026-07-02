@@ -1,0 +1,338 @@
+# 服务端运行配置参考
+
+本文说明交付包中 LightESB 服务端常用运行配置。运行配置用于启动 LightESB、加载服务包、连接数据库和启用 AI 能力；不要把这些配置写入单个服务的 `common.config.properties` 或 `service.config.properties`，服务包配置只描述该服务自己的路由、端口、组件和业务参数。
+
+## 配置文件入口
+
+默认配置文件：
+
+```text
+lightesb-camel-app/lightesb-config.properties
+```
+
+启动时可覆盖：
+
+```bash
+java -Dlightesb.config.file=/opt/lightesb/lightesb-config.properties -jar lightesb-camel.jar
+```
+
+所有密钥、token、密码、证书路径和真实内网地址必须通过环境变量或现场安全配置注入，不要写入交付包仓库。
+
+## 基础服务配置
+
+| 配置键 | 默认值 | 用法 |
+| --- | --- | --- |
+| `server.port` | `8080` | HTTP 服务端口。 |
+| `spring.application.name` | `lightesb` | Spring 应用名。 |
+| `lightesb.config.file` | `lightesb-camel-app/lightesb-config.properties` | 外部运行配置文件路径，通常通过 JVM 参数覆盖。 |
+| `logging.level.com.oureman.soa.lightesb` | `INFO` | LightESB 应用日志级别。 |
+| `logging.level.org.apache.camel` | `INFO` | Camel 框架日志级别。 |
+| `logging.level.org.springframework` | `WARN` | Spring 日志级别。 |
+| `logging.file.name` | `logs/lightesb.log` | 应用主日志文件。 |
+| `logging.charset.console` | `UTF-8` | 控制台日志编码。 |
+| `logging.charset.file` | `UTF-8` | 文件日志编码。 |
+
+## 路由加载
+
+| 配置键 | 默认值 | 用法 |
+| --- | --- | --- |
+| `lightesb.route.enabled` | `true` | 是否启用动态路由加载器和路由管理 API。 |
+| `lightesb.route.directory` | `lightesb-camel-app` | 服务包根目录。 |
+| `lightesb.app.directory` | `lightesb.route.directory` | 调试文件流和服务日志定位目录，通常省略并跟随路由目录。 |
+| `lightesb.route.temp-only-service` | 空 | 只加载指定服务目录，多个服务用英文逗号分隔；用于本地验收或排障。 |
+| `lightesb.route.encoding` | `UTF-8` | XML 路由文件编码。 |
+| `lightesb.route.recursive-monitoring` | `true` | 是否递归监听服务目录。 |
+| `lightesb.route.file-stable-wait-ms` | `100` | 热加载前文件稳定性检查间隔。 |
+| `lightesb.route.file-stable-max-attempts` | `10` | 文件稳定性检查最大尝试次数。 |
+| `lightesb.route.shutdown-timeout-seconds` | `10` | 关闭时等待路由加载任务结束的时间。 |
+| `lightesb.route.force-shutdown-timeout-seconds` | `5` | 正常关闭超时后的强制终止等待时间。 |
+| `lightesb.route.debounce-cleanup-threshold` | `100` | 防抖事件缓存清理阈值。 |
+| `lightesb.route.debounce-retention-multiplier` | `5` | 防抖事件保留窗口倍数。 |
+| `lightesb.route.startup.virtual-thread.enabled` | `true` | 启动初始加载路由时使用 JDK21 虚拟线程并发加载；设为 `false` 可回退串行加载。 |
+| `lightesb.route.startup.max-concurrency` | `16` | 虚拟线程模式下最大同时加载路由数。 |
+
+常用排障配置：
+
+```properties
+lightesb.route.temp-only-service=PlatformHttp,RobotMqttCommandSrv
+```
+
+该配置只影响启动扫描范围，不改变服务目录结构。任一指定服务目录不存在时，启动会失败，避免误回退到全量加载。
+
+不要写入交付仓库的旧键：
+
+| 配置键 | 原因 |
+| --- | --- |
+| `lightesb.route.file-extensions` | 当前路由文件后缀固定为 `.xml`。 |
+| `lightesb.route.debounce-delay-ms` | 当前防抖窗口使用内置默认值。 |
+
+## 数据源与 H2 POC
+
+| 配置键 | 默认值 | 用法 |
+| --- | --- | --- |
+| `spring.datasource.url` | H2 文件库 | 平台主数据源。POC 可使用 H2，正式环境按现场策略配置。 |
+| `spring.datasource.driver-class-name` | `org.h2.Driver` | 主数据源 JDBC Driver。 |
+| `spring.datasource.username` | `sa` | 主数据源用户名。 |
+| `spring.datasource.password` | 空 | 主数据源密码。 |
+| `spring.h2.console.enabled` | `true` | H2 Console 开关；生产建议关闭。 |
+| `spring.h2.console.path` | `/h2-console` | H2 Console 路径。 |
+| `spring.h2.console.settings.web-allow-others` | `true` | 是否允许远程访问 H2 Console；生产建议关闭。 |
+| `lightesb.poc.h2-fallback.enabled` | `false` | 无 MySQL 小数据量 POC 模式；实例日志、JsonKeyword 查询和机器人命令账本等使用 H2 fallback。 |
+| `lightesb.mysql.url` | 空 | MySQL JDBC URL；生产或正式联调应配置。 |
+| `lightesb.mysql.driver` | 空 | JDBC Driver，例如 `com.mysql.cj.jdbc.Driver`。 |
+| `lightesb.mysql.username` | 空 | MySQL 用户名。 |
+| `lightesb.mysql.password` | 空 | MySQL 密码。 |
+
+示例：
+
+```properties
+spring.datasource.url=${LIGHTESB_DATASOURCE_URL:jdbc:h2:file:./H2Database/data/tempdb;DB_CLOSE_DELAY=-1;MODE=MySQL;AUTO_SERVER=TRUE;AUTO_SERVER_PORT=9092;MV_STORE=TRUE;CACHE_SIZE=65536;}
+spring.datasource.driver-class-name=${LIGHTESB_DATASOURCE_DRIVER:org.h2.Driver}
+spring.datasource.username=${LIGHTESB_DATASOURCE_USERNAME:sa}
+spring.datasource.password=${LIGHTESB_DATASOURCE_PASSWORD:}
+
+lightesb.poc.h2-fallback.enabled=false
+lightesb.mysql.url=${LIGHTESB_MYSQL_URL:}
+lightesb.mysql.driver=com.mysql.cj.jdbc.Driver
+lightesb.mysql.username=${LIGHTESB_MYSQL_USERNAME:}
+lightesb.mysql.password=${LIGHTESB_MYSQL_PASSWORD:}
+```
+
+`lightesb.poc.h2-fallback.enabled=true` 只适合小数据量演示，不承诺生产级归档、迁移或备份恢复。
+
+## 部署上传
+
+| 配置键 | 默认值 | 用法 |
+| --- | --- | --- |
+| `lightesb.deployment.temp-dir` | `${user.dir}/temp` | 服务包上传、解压和校验的临时目录。 |
+| `lightesb.deployment.backup-dir` | `${user.dir}/backups` | 服务部署备份目录，也用于部分归档备份。 |
+| `lightesb.deployment.allowed-extensions` | `zip,tar.gz,tgz` | 允许上传的服务包扩展名。 |
+| `spring.servlet.multipart.max-file-size` | `100MB` | 单个上传文件大小限制。 |
+
+## 服务日志
+
+| 配置键 | 默认值 | 用法 |
+| --- | --- | --- |
+| `lightesb.logging.default-level` | `INFO` | 服务级日志默认级别。 |
+| `lightesb.logging.console-enabled` | `true` | 服务日志是否同时输出控制台。 |
+| `lightesb.logging.file-max-size` | `10MB` | 单个服务日志文件滚动大小。 |
+| `lightesb.logging.file-max-backup` | `10` | 滚动备份数量。 |
+| `lightesb.logging.log-retention-days` | `30` | 服务日志保留天数。 |
+| `lightesb.logging.auto-cleanup-enabled` | `true` | 是否自动清理过期服务日志。 |
+| `lightesb.logging.cleanup-schedule-hours` | `24` | 自动清理间隔。 |
+| `lightesb.logging.debug-file-ttl-minutes` | `30` | 动态 DEBUG 文件保留时间。 |
+| `lightesb.logging.health-check-enabled` | `true` | 服务日志健康检查开关。 |
+| `lightesb.logging.max-log-file-size-mb` | `100` | 健康检查中单文件大小阈值。 |
+
+完整模型 prompt、响应正文、业务 payload 和配置正文不应进入默认日志。排障时可以临时提高局部包日志级别，完成后恢复 `INFO`。
+
+## StreamCache
+
+| 配置键 | 默认值 | 用法 |
+| --- | --- | --- |
+| `lightesb.cache.base-directory` | `lightesb-camel-app/lightesb-StreamCache` | StreamCache 文件缓存根目录。 |
+| `lightesb.cache.directory-pattern` | `#camelId#/#operateName#/#exchangeId#` | 缓存目录模式。 |
+| `lightesb.cache.file-name-pattern` | `#systemId#_#operateName#` | 缓存文件名模式。 |
+| `lightesb.cache.max-files-per-directory` | `1000` | 单目录最大缓存文件数。 |
+| `lightesb.cache.directory-cleanup-enabled` | `true` | 是否清理缓存目录。 |
+| `lightesb.cache.cleanup-retention-hours` | `24` | 缓存保留小时数。 |
+| `lightesb.cache.compression-enabled` | `false` | 是否压缩缓存。 |
+| `lightesb.cache.encryption-enabled` | `false` | 是否加密缓存。 |
+| `lightesb.cache.buffer-size` | `8192` | 缓冲区大小。 |
+
+缓存目录应放在可写数据盘，并排除在服务路由文件监听之外。
+
+## Transform 与 DTS 扩展
+
+| 配置键 | 默认值 | 用法 |
+| --- | --- | --- |
+| `lightesb.transform.config-directory` | `config/transforms` | 转换规则配置目录。 |
+| `lightesb.transform.config-file-pattern` | `*.{yml,yaml,json}` | 转换规则文件匹配模式。 |
+| `lightesb.transform.recursive-search` | `true` | 是否递归搜索转换规则。 |
+| `lightesb.transform.auto-reload` | `true` | 转换规则是否自动重载。 |
+| `lightesb.transform.reload-interval-seconds` | `30` | 转换规则重载间隔。 |
+| `lightesb.transform.cache-enabled` | `true` | 转换配置管理器缓存开关。 |
+| `lightesb.transform.validation-enabled` | `true` | 加载转换规则时是否校验。 |
+| `lightesb.transform.cache.enabled` | `true` | Transform 缓存总开关。 |
+| `lightesb.transform.cache.result-cache-size` | `1000` | 转换结果缓存容量。 |
+| `lightesb.transform.cache.result-ttl-minutes` | `30` | 转换结果缓存 TTL。 |
+| `lightesb.transform.cache.config-cache-size` | `100` | 转换配置缓存容量。 |
+| `lightesb.transform.cache.config-ttl-minutes` | `60` | 转换配置缓存 TTL。 |
+| `lightesb.transform.cache.expression-cache-size` | `500` | 表达式缓存容量。 |
+| `lightesb.transform.cache.expression-ttl-minutes` | `120` | 表达式缓存 TTL。 |
+| `lightesb.transform.cache.stats-enabled` | `true` | 是否记录 Transform 缓存统计。 |
+| `lightesb.transform.cache.warmup-enabled` | `true` | 是否启用 Transform 缓存预热。 |
+| `lightesb.transformds.enabled` | `true` | 是否加载 TransformDS 外部扩展 jar。 |
+| `lightesb.transformds.directory` | `services/TransformDS` | TransformDS 扩展目录。 |
+| `lightesb.transformds.scan-pattern` | `*.jar` | TransformDS 扩展 jar 匹配模式。 |
+
+## AI 模型注册表
+
+AI 能力统一通过模型注册表配置：
+
+```properties
+lightesb.ai.default-model=default
+lightesb.ai.models.default.provider=dashscope
+lightesb.ai.models.default.dashscope.api-key=${DASHSCOPE_API_KEY:}
+lightesb.ai.models.default.dashscope.model-name=qwen-plus
+lightesb.ai.agents.route.model-ref=default
+lightesb.ai.agents.chat.model-ref=default
+```
+
+常用键：
+
+| 配置键 | 用法 |
+| --- | --- |
+| `lightesb.ai.default-model` | 默认模型引用。 |
+| `lightesb.ai.models.<ref>.provider` | 模型提供方：`dashscope`、`gemini`、`openai-responses`、`custom`。 |
+| `lightesb.ai.models.<ref>.name` | 通用模型名。 |
+| `lightesb.ai.models.<ref>.temperature` | 温度。结构化生成建议低温。 |
+| `lightesb.ai.models.<ref>.max-tokens` | 单次响应 token 上限。 |
+| `lightesb.ai.models.<ref>.timeout-seconds` | 模型调用超时。 |
+| `lightesb.ai.models.<ref>.<provider>.api-key` | 模型密钥，只能使用环境变量占位。 |
+| `lightesb.ai.models.<ref>.<provider>.base-url` | 模型服务 base URL。真实私有网关地址不要写入仓库。 |
+| `lightesb.ai.models.<ref>.<provider>.model-name` | provider 专属模型名。 |
+| `lightesb.ai.models.<ref>.dashscope.top-p` | DashScope top-p。 |
+| `lightesb.ai.models.<ref>.custom.api-type` | 自定义网关类型：`chat-completions` 或 `responses`。 |
+| `lightesb.ai.models.<ref>.custom.top-p` | OpenAI-compatible top-p。 |
+| `lightesb.ai.agents.<agent>.model-ref` | 指定 Agent 使用的模型引用。常用 `route`、`chat`。 |
+| `lightesb.ai.agents.<agent>.temperature` | Agent 温度覆盖。 |
+| `lightesb.ai.agents.<agent>.max-tokens` | Agent token 上限覆盖。 |
+| `lightesb.ai.agents.<agent>.timeout-seconds` | Agent 调用超时覆盖。 |
+| `lightesb.ai.agents.<agent>.json-repair-retry` | JSON 外层修复重试次数；AI 路由常用。 |
+
+`provider=openai-responses` 用于 OpenAI 原生 Responses API；自定义网关使用 `provider=custom`，再通过 `custom.api-type=chat-completions|responses` 区分接口形态。
+
+## Agent 记忆
+
+| 配置键 | 默认值 | 用法 |
+| --- | --- | --- |
+| `lightesb.ai.agents.chat.memory.enabled` | `false` | 是否启用 JVM 内存态窗口记忆。 |
+| `lightesb.ai.agents.chat.memory.max-messages` | `20` | 每个会话保留消息数。 |
+| `lightesb.ai.agents.chat.memory.max-sessions` | `1000` | 最大会话数。 |
+| `lightesb.ai.agents.chat.memory.ttl-seconds` | `1800` | 会话 TTL。 |
+
+该记忆不跨 JVM 实例，不持久化，服务重启后丢失。
+
+## AI 路由
+
+| 配置键 | 默认值 | 用法 |
+| --- | --- | --- |
+| `lightesb.ai.route.provider-label` | `route-agent` | AI 路由结果缺少模型响应对象时的展示标签，通常省略。 |
+| `lightesb.ai.route.model.log-payload` | `false` | 是否打印完整 prompt 和模型响应，只用于临时排障。 |
+| `lightesb.ai.route.context.allowed-prefixes` | `docs/,skills/,example/` | AI 路由可读取的外部上下文前缀。 |
+| `lightesb.ai.route.context.candidate-excluded-prefixes` | 内置排除内部经验、商业、待办和研究类目录 | AI 路由候选上下文扫描排除前缀。 |
+| `lightesb.ai.route.context.max-files` | `12` | 单次外部上下文最大文件数。 |
+| `lightesb.ai.route.context.max-file-chars` | `20000` | 单个上下文文件最大字符数。 |
+| `lightesb.ai.route.context.max-total-chars` | `200000` | 单次上下文总字符数上限。 |
+| `lightesb.ai.route.context.selection-cache-ttl-seconds` | `1800` | 上下文选择缓存 TTL。 |
+| `lightesb.ai.route.context.selection-cache-max-size` | `100` | 上下文选择缓存容量。 |
+| `lightesb.ai.route.cache-cleanup.fixed-delay-seconds` | `300` | AI 路由缓存清理调度间隔。 |
+| `lightesb.ai.route.baseline-cache.ttl-seconds` | `900` | baseline 缓存 TTL。 |
+| `lightesb.ai.route.baseline-cache.max-size` | `100` | baseline 缓存容量。 |
+
+`lightesb.ai.route.model.log-payload=true` 会输出完整提示词和模型响应，可能包含业务内容，只能临时启用。
+
+## AI 日志助手
+
+| 配置键 | 默认值 | 用法 |
+| --- | --- | --- |
+| `lightesb.ai.logging.enabled` | `false` | 是否启用 AI 日志聊天接口。 |
+| `lightesb.ai.logging.read-only` | `true` | 只读模式；为 `true` 时不会实际改日志级别。 |
+| `lightesb.ai.logging.auth-token` | 空 | 可选 `X-AI-Token` 鉴权。 |
+| `lightesb.ai.logging.base-url` | `http://localhost:8080` | 管理 API 和 Actuator 根地址。 |
+| `lightesb.ai.logging.agent-gateway-url` | `http://localhost:19093/api/ai/logging/agent` | AI 日志 Agent 路由入口。 |
+| `lightesb.ai.logging.allowed-levels` | 空 | 允许设置的日志级别。 |
+| `lightesb.ai.logging.allowed-logger-prefixes` | 空 | 允许操作的 logger 前缀。 |
+| `lightesb.ai.logging.system-message` | 默认提示词 | 透传给 AI 日志 Agent 的能力约束提示词。 |
+| `lightesb.ai.logging.clarification-fallback-enabled` | `true` | 澄清续答兜底处理开关。 |
+| `lightesb.ai.logging.clarification.max-turns` | `5` | 同一会话澄清最大轮次。 |
+| `lightesb.ai.logging.retry.enabled` | `true` | 限流重试开关。 |
+| `lightesb.ai.logging.retry.max-attempts` | `4` | 最大请求次数，包含首次请求。 |
+| `lightesb.ai.logging.retry.initial-delay-ms` | `1000` | 重试初始等待毫秒数。 |
+| `lightesb.ai.logging.retry.max-delay-ms` | `30000` | 重试最大等待毫秒数。 |
+| `lightesb.ai.logging.retry.multiplier` | `2.0` | 指数退避倍率。 |
+| `lightesb.ai.logging.retry.jitter-ms` | `250` | 重试抖动毫秒数。 |
+
+建议先以只读模式验收：
+
+```properties
+lightesb.ai.logging.enabled=true
+lightesb.ai.logging.read-only=true
+lightesb.ai.logging.auth-token=${AI_LOGGING_AUTH_TOKEN:}
+lightesb.ai.logging.allowed-levels=TRACE,DEBUG,INFO,WARN,ERROR
+lightesb.ai.logging.allowed-logger-prefixes=com.oureman.soa.lightesb,org.apache.camel
+```
+
+## 机器人控制面配置
+
+`lightesb.robot.dispatcher.*` 是控制面命令派发配置，不是服务路由 XML 的 MQTT endpoint 配置。具体服务路由连接哪个 MQTT broker，应在服务包自己的业务配置中维护。
+
+| 配置键 | 默认值 | 用法 |
+| --- | --- | --- |
+| `lightesb.robot.audit.archive.enabled` | `true` | 是否启用机器人审计归档任务。 |
+| `lightesb.robot.audit.archive.retention-months` | `1` | 在线审计记录保留月数。 |
+| `lightesb.robot.audit.archive.backup-retention-months` | `24` | 归档备份保留月数。 |
+| `lightesb.robot.audit.archive.max-field-chars` | `65536` | 单字段归档最大字符数。 |
+| `lightesb.robot.audit.archive.initial-delay-seconds` | `0` | 归档任务启动延迟。 |
+| `lightesb.robot.audit.archive.interval-seconds` | `86400` | 归档任务执行间隔。 |
+| `lightesb.robot.dispatcher.enabled` | `false` | 是否启用控制面 MQTT 命令派发器。 |
+| `lightesb.robot.dispatcher.broker-uri` | 空 | 控制面派发 MQTT broker URI。 |
+| `lightesb.robot.dispatcher.client-id` | `lightesb-robot-dispatcher` | MQTT clientId。 |
+| `lightesb.robot.dispatcher.qos` | `1` | 命令派发 QoS。 |
+| `lightesb.robot.dispatcher.retained` | `false` | 是否发送 retained 消息。 |
+| `lightesb.robot.dispatcher.clean-start` | `true` | MQTT clean start。 |
+| `lightesb.robot.dispatcher.session-expiry-interval` | `0` | MQTT session expiry interval。 |
+| `lightesb.robot.dispatcher.username` | 空 | MQTT 用户名。 |
+| `lightesb.robot.dispatcher.password` | 空 | MQTT 密码。 |
+| `lightesb.robot.dispatcher.command-topic-pattern` | `robot/{siteId}/{robotId}/command/{commandId}` | 命令 topic 模板。 |
+| `lightesb.robot.dispatcher.max-retries` | `3` | 派发最大重试次数。 |
+| `lightesb.robot.dispatcher.retry-delay-seconds` | `30` | 派发重试间隔。 |
+
+## 推荐模板
+
+```properties
+server.port=8080
+logging.level.com.oureman.soa.lightesb=INFO
+logging.level.org.apache.camel=INFO
+
+spring.h2.console.enabled=false
+spring.h2.console.settings.web-allow-others=false
+
+lightesb.route.directory=lightesb-camel-app
+lightesb.route.temp-only-service=
+lightesb.route.startup.virtual-thread.enabled=true
+lightesb.route.startup.max-concurrency=16
+
+lightesb.deployment.temp-dir=${LIGHTESB_DEPLOYMENT_TEMP_DIR:temp}
+lightesb.deployment.backup-dir=${LIGHTESB_DEPLOYMENT_BACKUP_DIR:backups}
+
+lightesb.poc.h2-fallback.enabled=false
+lightesb.mysql.url=${LIGHTESB_MYSQL_URL:}
+lightesb.mysql.driver=com.mysql.cj.jdbc.Driver
+lightesb.mysql.username=${LIGHTESB_MYSQL_USERNAME:}
+lightesb.mysql.password=${LIGHTESB_MYSQL_PASSWORD:}
+
+lightesb.cache.base-directory=${LIGHTESB_CACHE_DIR:lightesb-camel-app/lightesb-StreamCache}
+
+lightesb.ai.default-model=default
+lightesb.ai.models.default.provider=dashscope
+lightesb.ai.models.default.dashscope.api-key=${DASHSCOPE_API_KEY:}
+lightesb.ai.models.default.dashscope.model-name=qwen-plus
+lightesb.ai.agents.route.model-ref=default
+lightesb.ai.agents.chat.model-ref=default
+lightesb.ai.agents.chat.memory.enabled=false
+
+lightesb.robot.dispatcher.enabled=false
+lightesb.robot.dispatcher.broker-uri=${ROBOT_MQTT_BROKER_URI:}
+lightesb.robot.dispatcher.username=${ROBOT_MQTT_USERNAME:}
+lightesb.robot.dispatcher.password=${ROBOT_MQTT_PASSWORD:}
+```
+
+## 不要写入交付仓库
+
+- 真实 API key、token、密码、证书路径。
+- 真实内网数据库地址、模型代理地址、MQTT broker 地址。
+- 本地调试用 `DEBUG` 日志级别作为默认值。
+- 已下线或代码不读取的配置键，例如旧的 `lightesb.ai.logging.model.*`、`lightesb.ai.route.agent-gateway-url`、`lightesb.ai.route.system-message`。
+- 单个服务包 `common.config.properties` 或 `service.config.properties` 中不要写平台运行配置，例如 `lightesb.ai.models.*`、`lightesb.ai.agents.*`、`spring.*`、`logging.*`、`management.*`。

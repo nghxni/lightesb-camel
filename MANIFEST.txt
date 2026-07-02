@@ -9,6 +9,7 @@ docs/api-response-contract.md
 docs/cli/01-cli-command-reference.md
 docs/cli/README.md
 docs/components/01-http-route-basics.md
+docs/runtime-configuration-reference.md
 docs/runtime-route-loading.md
 docs/components/02-service-log.md
 docs/components/03-charset-processing.md

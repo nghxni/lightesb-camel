@@ -12,6 +12,7 @@
 
 - [HTTP 入口与路由基础](components/01-http-route-basics.md)
 - [运行时路由按需加载](runtime-route-loading.md)
+- [服务端运行配置参考](runtime-configuration-reference.md)
 - [服务日志 servicelog](components/02-service-log.md)
 - [字符编码处理](components/03-charset-processing.md)
 - [Timer 定时路由](components/14-timer-routes.md)
