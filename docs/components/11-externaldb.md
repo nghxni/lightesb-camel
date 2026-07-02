@@ -48,14 +48,33 @@ mysqlroute.target.datasource=primary
 ## 路由建议
 
 - SQL 参数使用 Header 或 Exchange Property 传递，不拼接未校验的外部输入。
+- MySQL 支持在 prepared statement 中用参数占位符传递 `LIMIT` 值。HTTP Query 参数进入 Camel Header 后通常是字符串；直接写 `limit :#limit` 可能被绑定成 `LIMIT '20'`，MySQL 会报 `PreparedStatementCallback; bad SQL grammar`。先用 Simple 的 `resultType` 把 Header 转成数值类型，再传给 `LIMIT`：
+
+```xml
+<setHeader name="queryLimit">
+  <simple resultType="java.lang.Integer">${header.limit}</simple>
+</setHeader>
+<to uri="sql:select * from demo_table order by created_at desc limit :#queryLimit?dataSource=#bean:extdb-{{demo.target.datasource}}-datasource"/>
+```
+
+- 若当前 MySQL 版本或查询形态无法使用 `LIMIT` 参数，可退回窗口行号过滤，例如 `row_number() over (...) as rn` 后 `where rn &lt;= least(greatest(cast(:#limit as unsigned), 1), 100)`；该写法依赖 MySQL 8.0 及以上窗口函数能力。
+- `outputType=SelectOne` 查询单列时，Camel SQL 可能直接把该列值作为 body 返回；查询多列时通常返回 Map。若 SQL 只返回一列 JSON 字符串，不要写 `${body[RESPONSE_JSON]}`，直接使用 `${body}` 返回或继续处理。
 - 写操作增加异常分支，避免数据库错误变成不清晰的 500。
 - 健康检查路由保持简单，只验证连接和基础查询。
 - 演示配置可以使用占位符，真实凭据不要写入交付样例。
+
+## 官方参考
+
+- MySQL `SELECT` / `LIMIT`：https://dev.mysql.com/doc/refman/8.4/en/select.html
+- MySQL 窗口函数： https://dev.mysql.com/doc/refman/8.4/en/window-function-descriptions.html
+- Camel SQL 组件： https://camel.apache.org/components/latest/sql-component.html
+- Camel Simple 语言 `resultType`： https://camel.apache.org/components/latest/languages/simple-language.html
 
 ## 验证
 
 - 使用演示库执行一条只读查询。
 - 准备 `testexdb(ID, name, sex)` 表后复制 `example/routes/MysqlRouteSrv` 到 `lightesb-camel-app/`，观察定时健康检查日志。
 - 故意配置错误连接，确认异常日志和响应可定位。
+- 若响应出现 `PreparedStatementCallback; bad SQL grammar`，优先查看服务目录 `logs/` 下的完整异常；MySQL 报错位置在 `LIMIT '20'` 一类片段时，检查 Header 是否仍是字符串，按上面的 `resultType` 写法转成整数。
 - 若出现 `HikariDataSource ... has been closed`，优先确认运行包版本是否包含连接池统一生命周期管理；已关闭的池需要重启应用恢复。
 - 检查连接信息只存在于演示配置，不写入真实凭据。
