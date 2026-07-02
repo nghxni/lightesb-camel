@@ -4,6 +4,7 @@
 | --- | --- |
 | `../README.md` | GitHub 公开技术入口，基于交付包内容、组件文档、样例索引和支持边界整理 |
 | `components/01-http-route-basics.md` | `docs/07-undertow-component-usage.md`，按交付场景重写 |
+| `runtime-route-loading.md` | 运行时生命周期设计结论、路由热加载经验和 jar 快速重启经验，按交付场景重写 |
 | `components/02-service-log.md` | `docs/12-camel-servicelog-component-usage.md`，按交付场景重写 |
 | `components/03-charset-processing.md` | `docs/13-charset-processor-usage.md`，按交付场景重写 |
 | `components/04-transform-components.md` | `docs/09-conditional-jsontransform-component-usage.md`、`docs/10-conditionaltransform-dts-sample.md` |

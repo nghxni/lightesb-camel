@@ -91,11 +91,12 @@ LightESB 的机器人技能和协议适配能力可以以独立路由服务包�
 
 - 技能包放在 `lightesb-camel-app/{serviceName}/{serviceVersion}` 目录中。
 - `server.running=false` 时服务包保留在磁盘上，但默认不加载路由，不占用运行态连接和 Camel route 资源。
+- 业务路由由服务包动态加载，不依赖启动时自动创建全局 CamelContext；Camel 组件能力在启用对应 XML 路由时按需解析和使用。
 - 需要使用某个技能时，可通过 CLI 执行部署、启停、route reload，实现技能按需加载、按需卸载、按需恢复。
 - 不需要使用时，可停止服务或保持 `server.running=false`，让平台保留技能资产但控制运行时占用。
 - 适合沉淀大量机器人技能、协议适配模板、客户专用流程和现场调试能力，按任务需要启用。
 
-常用 CLI 入口见 `docs/cli/README.md` 和 `docs/cli/01-cli-command-reference.md`，包括 `service start/stop`、`service package deploy`、`route reload-service`、`route reload-file`、`deploy upload`、`diagnostics snapshot/warnings` 和 `robot command validate/status/submit`。
+路由按需加载、热更新和重启边界见 `docs/runtime-route-loading.md`。常用 CLI 入口见 `docs/cli/README.md` 和 `docs/cli/01-cli-command-reference.md`，包括 `service start/stop`、`service package deploy`、`route reload-service`、`route reload-file`、`deploy upload`、`diagnostics snapshot/warnings` 和 `robot command validate/status/submit`。
 
 ## 目录结构
 
