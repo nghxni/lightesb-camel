@@ -54,3 +54,15 @@
 - Token 默认从 Exchange 属性 `Token` 读取，不等同于自动读取 `Authorization` 头。
 - 未找到规则会拒绝。
 - 未知类型会按 warn 处理并默认放行，生产使用前应避免误配。
+
+## 离线验证
+
+只验证失败分支时，可以不预置规则，请求会返回局部捕获的 403，错误消息通常为“未找到匹配的权限规则”。验证合法请求通过时，必须先通过管理接口或现场数据预置规则，例如：
+
+```bash
+curl -X PUT "http://localhost:8080/api/lightesb/permission/DOC_MOCK" \
+  -H "Content-Type: application/json" \
+  --data '{"permissionType":"8"}'
+```
+
+路由侧需要把调用方标识写入 `exchangeProperty.SenderID=DOC_MOCK`；Token 规则还需要把请求 token 写入 `exchangeProperty.Token`。

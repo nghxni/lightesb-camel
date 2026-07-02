@@ -42,6 +42,21 @@ LightESB 提供统一异常模型和全局兜底响应。业务路由可以依�
 </doTry>
 ```
 
+## 全局兜底 mock 触发样例
+
+需要验证未捕获异常是否进入全局兜底时，可以在临时 mock 路由中调用一个没有消费者的 `direct:` endpoint，并显式关闭等待：
+
+```xml
+<route id="demo-global-exception-mock">
+  <from uri="undertow:http://0.0.0.0:{{server.port}}/api/demo/exception?httpMethodRestrict=GET"/>
+  <process ref="requestCharsetProcessor"/>
+  <to uri="servicelog:info?message=about to trigger global exception"/>
+  <to uri="direct:demo-missing-consumer?block=false"/>
+</route>
+```
+
+`block=false` 很重要。裸 `direct:demo-missing-consumer` 默认会等待消费者，mock 验证时可能表现为 HTTP 请求超时，而不是立即进入全局异常响应。
+
 ## 建议
 
 - 权限和参数校验错误建议在业务路由局部捕获，明确返回 400/403。

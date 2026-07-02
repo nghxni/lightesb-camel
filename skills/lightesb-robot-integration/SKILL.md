@@ -30,6 +30,8 @@ description: 机器人、工业协议和命令 dispatcher 交付指导。处理 
 - 无 MySQL 小数据量 POC 可使用 `lightesb.poc.h2-fallback.enabled=true`，机器人命令账本、审计和 outbox 使用 H2；用 `diagnostics snapshot --component robot-command --output json` 确认 `pocH2FallbackEnabled` 和 `robotManagementStorage`。
 - H2 fallback 不代表生产级归档、保留、备份恢复或切回 MySQL 后的数据迁移能力。
 - 请求体禁止覆盖底层协议目标字段，例如 `topic`、`broker`、`endpoint`、`node`、`register`、`service`、`unitId`。
+- 需要离线验证协议路由时，用 HTTP 或 `direct:` 构造 mock payload；策略拒绝、动态协议目标字段等可预期错误应局部返回 400/422，未预期异常再交给全局兜底。
+- AVEVA/OPC UA 写控制离线验证时，不连接 `milo-client:`；HTTP mock 只返回固定 `industrial.opcua.write.node` 摘要，请求体包含 `node` 或 `topic` 必须返回 422。
 
 验收：
 

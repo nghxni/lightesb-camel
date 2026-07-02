@@ -96,12 +96,38 @@ industrial.mqtt.tls=PLACEHOLDER_CONFIGURE_IN_SITE
 
 ## 验证
 
+无真实 Server/Broker 时先做离线 mock：
+
+1. 使用 HTTP-only mock 入口构造 OPC UA write 请求，不连接 `milo-client:`。
+2. 请求体只传 `value`，期望返回固定 `industrial.opcua.write.node` 摘要和 `externalWriteInvoked=false`。
+3. 请求体带 `node` 或 `topic` 时，期望返回 `422`，错误码为动态目标拒绝。
+
+示例：
+
+```bash
+curl -X POST "http://localhost:19189/api/doc-mock/aveva/opcua/write" \
+  -H "Content-Type: application/json" \
+  -d '{"value":55.5}'
+```
+
+动态 node 拒绝：
+
+```bash
+curl -X POST "http://localhost:19189/api/doc-mock/aveva/opcua/write" \
+  -H "Content-Type: application/json" \
+  -d '{"value":55.5,"node":"ns=9;s=Override"}'
+```
+
+真实联调时：
+
 1. 配置真实 OPC UA Server 或 MQTT 5 Broker。
 2. 配置现场凭据、证书和安全策略。
 3. 改 `server.running=true`。
 4. 启动服务并确认路由为 `STARTED`。
 5. 验证遥测下游收到标准 JSON。
 6. 调用写控制 API，确认固定 node/topic 被写入或发布。
+
+离线 mock 只证明路由结构、固定目标边界和错误响应，不证明现场 OPC UA Server、MQTT Broker、证书或点位权限已完成互操作。
 
 ## 排障
 

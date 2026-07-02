@@ -74,9 +74,14 @@ ai.system.prompt=你是一个订单管理助手。你可以帮助用户查询订
 ```xml
 <route id="tool-demo-query-order">
     <from uri="langchain4j-tools:queryOrderDetail?tags=order-demo&amp;name=queryOrderDetail&amp;description=Query order details by order ID. Returns order status, items, and total amount.&amp;parameter.orderId=string"/>
-    <toD uri="http://127.0.0.1:{{server.port}}/api/ai/agent/mock/order/${header.orderId}?bridgeEndpoint=true&amp;throwExceptionOnFailure=false"/>
+    <setProperty name="toolOrderId"><simple>${header.orderId}</simple></setProperty>
+    <removeHeader name="orderId"/>
+    <toD uri="http://127.0.0.1:{{server.port}}/api/ai/agent/mock/order/${exchangeProperty.toolOrderId}?bridgeEndpoint=true&amp;throwExceptionOnFailure=false"/>
+    <convertBodyTo type="java.lang.String"/>
 </route>
 ```
+
+工具路由调用同服务 HTTP mock 子路由时，如果入口参数名和 mock 子路由路径变量同名，建议先保存到 Exchange Property 并移除同名 Header，避免 Header 多值化。若 mock 子路由返回经过 `jsonResponseProcessor` 处理后的响应，工具路由继续读取或返回正文前可用 `<convertBodyTo type="java.lang.String"/>`。
 
 ## 请求样例
 

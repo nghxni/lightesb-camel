@@ -348,7 +348,7 @@ MQTT 样例还提供服务包级 XML 加载验证：
 - TLS：已通过 EMQX `8883`、MQTTX TLS、JVM truststore 和 LightESB `ssl://127.0.0.1:8883` 完成 telemetry、command、ack/result、动态 topic 拒绝和 route reload 后连接重建最小验证；运行态已确认 LightESB/Java 连接 `8883`，不再连接 `1883`。
 - MQTT 投递策略：2026-06-23 通过 Java Paho MQTT v5 客户端连接 EMQX TLS `8883`，先订阅 `robot/site-a/quad-001/command/cmd-real-001`，再通过 LightESB HTTP command 入口发布；外部订阅收到 QoS1、`retained=false` 的 command payload，telemetry、ack、result 也被 LightESB consumer 消费并写入服务日志。本轮只验证最小在线投递语义，未验证离线会话补投。
 
-该验证只覆盖本地 broker 的 telemetry consumer、command producer、ack/result consumer、动态 topic 拒绝、明文/TLS 热更新后连接重建、TLS 单向信任、QoS1/非 retained/非持久会话的在线最小投递和成功路径日志落盘。动态 topic 拒绝发生在第一条业务日志前，HTTP route 由 CamelContext 级全局异常处理接管异常。管理 API 已支持本地命令记录、审计记录和 `commandId` 持久化幂等；真实 broker 重投递、mTLS、broker 重启/断网重连、离线会话补投和 broker ACL 仍需现场或后续环境单独验证。交付样例仍保持 mock-first 默认配置，不携带真实账号、密码或证书。
+该验证只覆盖本地 broker 的 telemetry consumer、command producer、ack/result consumer、动态 topic 拒绝、明文/TLS 热更新后连接重建、TLS 单向信任、QoS1/非 retained/非持久会话的在线最小投递和成功路径日志落盘。真实 MQTT command route 的动态 topic 拒绝发生在第一条业务日志前，可由 CamelContext 级全局异常处理接管；如果编写 HTTP 触发的离线 mock route，为了贴近 dispatcher API 的错误码契约，建议局部捕获策略拒绝并返回 422。管理 API 已支持本地命令记录、审计记录和 `commandId` 持久化幂等；真实 broker 重投递、mTLS、broker 重启/断网重连、离线会话补投和 broker ACL 仍需现场或后续环境单独验证。交付样例仍保持 mock-first 默认配置，不携带真实账号、密码或证书。
 
 ## 机器人管理 API Reliable Outbox
 

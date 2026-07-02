@@ -21,6 +21,7 @@ description: 交付包内编写 HTTP 接口、Camel XML 路由、服务目录和
 - 入口放 `requestCharsetProcessor`，出口放 `jsonResponseProcessor`。
 - 关键节点使用 `servicelog:`。
 - 内部 HTTP 调用优先用 `127.0.0.1:{{server.port}}`、`bridgeEndpoint=true` 和明确超时。
+- 内部 HTTP 调用后如果继续处理响应正文，按需 `<convertBodyTo type="java.lang.String"/>`；入口和子路由同名 path header 应先存到 Exchange Property 并 `removeHeader`，避免 Header 多值化。
 - 无 HTTP 入口的定时任务使用 `timer:`，配置 `HTTP.Listener=false`，验收看日志。
 
 验收：

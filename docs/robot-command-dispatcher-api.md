@@ -119,6 +119,35 @@ dispatcher 交付配置：
 | 能力不支持 | 422 | `ROBOT_CAPABILITY_NOT_SUPPORTED` |
 | commandId 重复但 payload 不同 | 409 | `ROBOT_COMMAND_DUPLICATE_CONFLICT` |
 
+## 路由 mock 验证
+
+不连接真实 MQTT broker 或机器人时，可以用 HTTP 路由包装机器人 processor 做 mock 验证：
+
+1. `system.components=undertowhttp,robotics`。
+2. HTTP 入口接收高层命令 JSON。
+3. 路由内调用 `robotCommandValidateProcessor` 和 `robotCommandEnvelopeProcessor`。
+4. 成功时返回 `accepted` 和由配置生成的 command topic。
+5. 参数、能力或动态协议目标字段错误用局部 `doTry/doCatch` 返回 400/422。
+6. 未预期异常再交给全局异常兜底。
+
+示例拒绝分支：
+
+```xml
+<doTry>
+  <process ref="robotCommandValidateProcessor"/>
+  <process ref="robotCommandEnvelopeProcessor"/>
+  <setBody><simple>{"status":"accepted","topic":"${exchangeProperty.robot.mqtt.command.topic}"}</simple></setBody>
+  <doCatch>
+    <exception>java.lang.Exception</exception>
+    <setHeader name="CamelHttpResponseCode"><constant>422</constant></setHeader>
+    <setBody><simple>{"error":"ROBOT_POLICY_REJECTED","message":"${exception.message}"}</simple></setBody>
+  </doCatch>
+</doTry>
+<process ref="jsonResponseProcessor"/>
+```
+
+该 mock 只验证路由、配置、策略和消息封装，不证明 broker 已收到命令，也不证明机器人已执行。
+
 ## 交付边界
 
 - CLI 只调用管理 API，不直连 MQTT broker。

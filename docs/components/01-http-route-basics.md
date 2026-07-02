@@ -136,6 +136,24 @@ service.version=v1.0.0
 - `throwExceptionOnFailure=false`：下游返回 4xx/5xx 时不直接抛异常，便于路由自行判断响应码和 body。
 - `connectTimeout` / `socketTimeout`：内部调用也要设置超时，避免链路挂死。
 
+如果调用方要把内部 HTTP 响应继续作为当前 HTTP 响应返回，注意两点：
+
+1. 被调用子路由如果执行过 `jsonResponseProcessor`，HTTP producer 读回的 body 可能是 `byte[]`。调用方需要继续拼 JSON 或记录正文时，先转回字符串：
+
+```xml
+<toD uri="http://127.0.0.1:{{server.port}}/api/demo/mock/${exchangeProperty.demoId}?bridgeEndpoint=true&amp;connectTimeout=5000&amp;socketTimeout=30000&amp;throwExceptionOnFailure=false"/>
+<convertBodyTo type="java.lang.String"/>
+<process ref="jsonResponseProcessor"/>
+```
+
+2. 调用方入口和被调用子路由如果使用同名路径变量，例如都叫 `{id}` 或 `{orderId}`，Header 可能变成多个值。建议先保存业务参数到 Exchange Property，再移除同名 Header，用 Property 构造内部 HTTP URI：
+
+```xml
+<setProperty name="demoId"><simple>${header.id}</simple></setProperty>
+<removeHeader name="id"/>
+<toD uri="http://127.0.0.1:{{server.port}}/api/demo/mock/${exchangeProperty.demoId}?bridgeEndpoint=true&amp;throwExceptionOnFailure=false"/>
+```
+
 `HttpRequestSrv` 演示了固定 URI 的内部 HTTP 调用：
 
 ```xml
