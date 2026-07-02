@@ -10,6 +10,13 @@ LightESB 提供统一异常模型和全局兜底响应。业务路由可以依�
 - Camel 业务路由面向存量系统协议，继续保留业务报文和 `exchangeId`、`routeId`、`serviceName`、`serviceVersion` 等运行时上下文。
 - 两条链路可以共享错误分类和 HTTP 码建议，但不要把管理 API 响应结构直接套到业务路由上。
 
+## 官方参考
+
+- [Exception Clause](https://camel.apache.org/manual/exception-clause.html)：`onException`、`handled` 和异常匹配规则。
+- [Error Handler](https://camel.apache.org/manual/error-handler.html)：Camel 错误处理器模型。
+- [Dead Letter Channel](https://camel.apache.org/components/4.18.x/eips/dead-letter-channel.html)：全局兜底和失败路由的常见实现方式。
+- [Processor](https://camel.apache.org/manual/processor.html)：异常处理链中调用自定义处理器的模型。
+
 ## 常见映射
 
 | 异常类型 | 建议 HTTP 码 |

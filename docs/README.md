@@ -17,6 +17,17 @@
 - [字符编码处理](components/03-charset-processing.md)
 - [Timer 定时路由](components/14-timer-routes.md)
 
+## Camel 官方语法参考
+
+交付包中的 `example/routes/**` 与服务目录 `lightesb-camel-app/{serviceName}/{serviceVersion}/*-route.xml` 使用 Camel 4.18.x XML DSL。编写或修改路由时，优先按官方文档核对语法和 endpoint 参数。
+
+- [Camel 4.18.x 组件总索引](https://camel.apache.org/components/4.18.x/index.html)
+- [XML IO DSL](https://camel.apache.org/components/4.18.x/others/java-xml-io-dsl.html)
+- [Enterprise Integration Patterns](https://camel.apache.org/components/4.18.x/eips/enterprise-integration-patterns.html)
+- [Simple 语言](https://camel.apache.org/components/4.18.x/languages/simple-language.html)
+- [Properties 组件](https://camel.apache.org/components/4.18.x/properties-component.html)
+- 常用组件：[Undertow](https://camel.apache.org/components/4.18.x/undertow-component.html)、[HTTP](https://camel.apache.org/components/4.18.x/http-component.html)、[SQL](https://camel.apache.org/components/4.18.x/sql-component.html)、[Timer](https://camel.apache.org/components/4.18.x/timer-component.html)、[Direct](https://camel.apache.org/components/4.18.x/direct-component.html)、[Paho MQTT 5](https://camel.apache.org/components/4.18.x/paho-mqtt5-component.html)
+
 ## 数据处理
 
 - [条件转换与 JSON 转换](components/04-transform-components.md)

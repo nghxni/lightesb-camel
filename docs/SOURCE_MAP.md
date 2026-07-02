@@ -3,6 +3,7 @@
 | 交付包文档 | 来源 |
 | --- | --- |
 | `../README.md` | GitHub 公开技术入口，基于交付包内容、组件文档、样例索引和支持边界整理 |
+| `README.md` | `docs/README.md`，按交付包组件索引、样例入口和 Camel 官方参考链接整理 |
 | `components/01-http-route-basics.md` | `docs/07-undertow-component-usage.md`，按交付场景重写 |
 | `runtime-route-loading.md` | 运行时生命周期设计结论、路由热加载经验和 jar 快速重启经验，按交付场景重写 |
 | `runtime-configuration-reference.md` | 服务端运行配置参数参考，按交付配置、安全占位和脱敏边界压缩整理 |

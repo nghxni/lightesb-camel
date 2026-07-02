@@ -10,6 +10,16 @@
 - XML 路由和服务配置文件支持动态热加载；Java 代码、依赖、Spring Bean、启动参数和全局运行参数变化仍需要重新打包或重启。
 - Camel component、dataformat、language 的 Spring Boot 自动装配关闭后，只影响启动期自动扫描，不移除交付包内的 Camel 组件能力；XML 路由中引用的 `timer:`、`undertow:`、`http:`、`sql:`、`mqtt:` 等组件会在对应服务加载时按需解析和使用。
 
+## 路由语法参考
+
+服务路由文件使用 Camel 4.18.x XML DSL。修改 `*-route.xml` 前，建议先用官方文档确认 DSL 元素、EIP、Simple 表达式和 endpoint URI 参数：
+
+- [XML IO DSL](https://camel.apache.org/components/4.18.x/others/java-xml-io-dsl.html)
+- [Enterprise Integration Patterns](https://camel.apache.org/components/4.18.x/eips/enterprise-integration-patterns.html)
+- [Simple 语言](https://camel.apache.org/components/4.18.x/languages/simple-language.html)
+- [Camel 4.18.x 组件总索引](https://camel.apache.org/components/4.18.x/index.html)
+- 常用 endpoint：[Undertow](https://camel.apache.org/components/4.18.x/undertow-component.html)、[HTTP](https://camel.apache.org/components/4.18.x/http-component.html)、[SQL](https://camel.apache.org/components/4.18.x/sql-component.html)、[Timer](https://camel.apache.org/components/4.18.x/timer-component.html)、[Direct](https://camel.apache.org/components/4.18.x/direct-component.html)
+
 ## 服务包状态
 
 服务包位于：

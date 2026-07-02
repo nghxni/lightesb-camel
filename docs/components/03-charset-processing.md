@@ -4,6 +4,11 @@
 
 字符处理器用于统一请求和响应编码，减少中文乱码、响应 Content-Type 缺失和字符串二次编码问题。
 
+## 官方参考
+
+- [Camel Processor](https://camel.apache.org/manual/processor.html)：`<process ref="..."/>` 调用处理器的通用模型。
+- [Camel Registry](https://camel.apache.org/manual/registry.html)：路由中 `ref` 如何解析到运行时注册的 Bean。
+
 ## 可用 Bean
 
 | Bean | 用途 |
