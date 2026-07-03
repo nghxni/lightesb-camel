@@ -481,6 +481,73 @@ section {
   line-height: 1.55;
 }
 
+.featured-doc {
+  border-color: rgba(110, 224, 139, 0.4);
+  background:
+    linear-gradient(135deg, rgba(110, 224, 139, 0.1), transparent 58%),
+    rgba(255, 255, 255, 0.04);
+}
+
+.article-page {
+  padding: 88px 0 96px;
+}
+
+.article-layout {
+  max-width: 920px;
+}
+
+.article-page h1 {
+  max-width: 880px;
+  font-size: clamp(40px, 5.4vw, 70px);
+}
+
+.article-page section {
+  padding: 42px 0 0;
+}
+
+.article-page p {
+  color: #d8e2d9;
+  font-size: 18px;
+  line-height: 1.72;
+}
+
+.article-page a {
+  color: var(--green);
+}
+
+.article-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.article-meta span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.article-steps {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding-left: 22px;
+  color: #d8e2d9;
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.article-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 42px;
+}
+
 .site-footer {
   border-top: 1px solid var(--line);
   padding: 34px 0;
@@ -636,5 +703,21 @@ section {
   .flow-step,
   .docs-link {
     padding: 18px;
+  }
+
+  .article-page {
+    padding: 64px 0 72px;
+  }
+
+  .article-page h1 {
+    font-size: 34px;
+  }
+
+  .article-page p {
+    font-size: 16px;
+  }
+
+  .article-actions {
+    flex-direction: column;
   }
 }

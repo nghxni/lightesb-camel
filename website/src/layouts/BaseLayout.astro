@@ -7,6 +7,10 @@ const {
   current = ""
 } = Astro.props;
 
+const siteUrl = "https://lightesb-camel.nghxni.com";
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString();
+const ogImageUrl = new URL("/images/lightesb-camel-hero.png", siteUrl).toString();
+
 const navItems = [
   ["Capabilities", "/capabilities"],
   ["Architecture", "/architecture"],
@@ -22,6 +26,12 @@ const navItems = [
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
     <title>{title}</title>
   </head>
   <body>
@@ -184,6 +194,8 @@ const navItems = [
           "docs.eyebrow": "文档",
           "docs.title": "按实施团队的顺序阅读交付包",
           "docs.text": "这些链接指向仓库中的公开交付上下文文件，面向路由编写者、运维人员和外部编码 Agent。",
+          "docs.article.title": "存量系统集成现代化",
+          "docs.article.text": "面向集成架构师、Camel 工程师、自动化团队和机器人流程实施人员的英文介绍文章。",
           "docs.repo.title": "仓库 README",
           "docs.repo.text": "项目定位、交付结构、支持边界和快速开始。",
           "docs.product.title": "产品概览",
@@ -197,7 +209,42 @@ const navItems = [
           "docs.diagnostics.title": "运行时诊断 API",
           "docs.diagnostics.text": "诊断流程、告警和运行时检查指南。",
           "docs.source.title": "来源映射",
-          "docs.source.text": "公开交付文档如何从内部材料整理而来。"
+          "docs.source.text": "公开交付文档如何从内部材料整理而来。",
+          "article.eyebrow": "技术文章",
+          "article.title": "不替换核心系统，也能完成存量集成现代化",
+          "article.lead": "LightESB-Camel 是一个可运行的 Apache Camel 交付包，面向需要实用集成路由、协议适配、运维控制和 Agent 可读上下文的团队，帮助他们在完整平台重构之前先完成可验证的集成交付。",
+          "article.meta.site": "主网站：",
+          "article.meta.repo": "仓库：",
+          "article.audience.title": "适合谁使用",
+          "article.audience.p1": "本项目面向集成架构师、Java 与 Apache Camel 工程师、制造业 IT 团队、自动化工程师、机器人集成团队和交付工程师，适合需要用受控交付包连接现有系统的场景。",
+          "article.audience.p2": "它也面向编码 Agent 设计。仓库提供样例、组件文档、CLI 指南和技能说明，让 Agent 能检查交付包、选择路由模式，并在更少歧义下生成或调整集成工作。",
+          "article.problem.title": "它解决的问题",
+          "article.problem.p1": "很多集成项目一开始面对的是短期无法替换的系统：存量 HTTP 接口、数据库、ERP 接口、工厂现场协议、机器人任务流程和本地运维脚本。直接重写通常太慢，而点对点胶水代码又很难治理。",
+          "article.problem.p2": "LightESB-Camel 把第一步做小。团队可以从 Apache Camel XML 路由、服务包约定、配置文件、CLI 命令和文档化样例开始。这个交付包提供足够结构，帮助团队先验证行为，而不是一开始就被迫做完整平台迁移。",
+          "article.contains.title": "交付包包含什么",
+          "article.contains.runtime.title": "运行时与服务包模型",
+          "article.contains.runtime.text": "可运行的 LightESB-Camel 运行时、服务目录约定、可热加载路由资产、启动脚本，以及用于部署和诊断的 CLI 流程。",
+          "article.contains.examples.title": "集成样例",
+          "article.contains.examples.text": "覆盖 HTTP 路由、数据库访问、现场协议、机器人流程、AI Agent + Tools 编排和企业系统适配的可运行样例。",
+          "article.contains.ops.title": "运维控制",
+          "article.contains.ops.text": "部署 API、诊断 API、服务状态检查、路由重载命令、日志、校验模式和面向回滚的文档。",
+          "article.contains.agent.title": "Agent 可读上下文",
+          "article.contains.agent.text": "公开文档和技能说明帮助编码 Agent 理解组件、样例、边界和预期交付行为。",
+          "article.robotics.title": "机器人能力放在哪里",
+          "article.robotics.p1": "LightESB-Camel 聚焦高层机器人流程集成：任务接入、命令校验、遥测标准化、协议网关、审计事件，以及回调外部业务系统。它明确不进入硬实时控制、伺服回路、PLC 安全回路、急停和认证机器人控制器行为。",
+          "article.robotics.p2": "这个边界让它适合 MES、WMS、ERP、调度、监控和 AI 辅助编排场景。目标是治理流程和集成行为，而不是替代运动控制器。",
+          "article.evaluate.title": "团队如何评估",
+          "article.evaluate.1": "打开仓库 README 和产品概览，先理解交付边界。",
+          "article.evaluate.2": "选择一个匹配目标场景的路由样例。",
+          "article.evaluate.3": "把服务包复制到运行时服务目录。",
+          "article.evaluate.4": "调整端点、凭据、字段、校验规则和协议目标。",
+          "article.evaluate.5": "启动运行时，并用 curl、CLI 命令、日志和诊断验证路由行为。",
+          "article.evaluate.6": "把已验证的服务包推进到真实端点、回滚规则和现场 POC 流程中。",
+          "article.camel.title": "为什么选择 Apache Camel 作为基础",
+          "article.camel.p1": "Apache Camel 为集成团队提供成熟的路由模型和丰富的连接器生态。LightESB-Camel 保留这个基础，同时围绕路由打包、服务加载、管理命令、公开样例和 Agent 可读文档增加交付结构。",
+          "article.camel.p2": "因此它不是 Camel 的替代品，而是一个可运行、有文档、面向交付的上下文，用于存量系统现代化、工业集成和机器人流程项目。",
+          "article.docs": "阅读文档",
+          "article.repo": "打开仓库"
         }
       };
 

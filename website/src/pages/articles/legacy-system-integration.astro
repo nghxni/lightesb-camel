@@ -1,0 +1,105 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+---
+
+<BaseLayout
+  current="/docs"
+  title="Modernizing Legacy Integration with LightESB-Camel"
+  description="An English introduction to LightESB-Camel for integration architects, Camel engineers, automation teams, and robotics workflow implementers."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="article.eyebrow">Technical article</p>
+      <h1 data-i18n="article.title">Modernizing legacy integration without replacing core systems</h1>
+      <p class="lead" data-i18n="article.lead">
+        LightESB-Camel is a runnable Apache Camel delivery package for teams that need practical integration routes, protocol adapters, operational controls, and agent-readable context before a full platform rewrite is possible.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="article.meta.site">Primary website:</span> <a href="https://lightesb-camel.nghxni.com">lightesb-camel.nghxni.com</a></span>
+        <span><span data-i18n="article.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="article.audience.title">Who this is for</h2>
+        <p data-i18n="article.audience.p1">
+          The project is aimed at integration architects, Java and Apache Camel engineers, manufacturing IT teams, automation engineers, robotics integration teams, and solution delivery engineers who need to connect existing systems with a controlled delivery package.
+        </p>
+        <p data-i18n="article.audience.p2">
+          It is also designed to be readable by coding agents. The repository includes examples, component documentation, CLI guidance, and skills so an agent can inspect the package, choose a route pattern, and generate or adapt integration work with less ambiguity.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="article.problem.title">The problem it addresses</h2>
+        <p data-i18n="article.problem.p1">
+          Many integration projects start with systems that cannot be replaced quickly: legacy HTTP endpoints, databases, ERP interfaces, plant-floor protocols, robot task flows, and local operational scripts. Rewriting these systems is often too slow for a POC or field pilot, while point-to-point glue code becomes difficult to govern.
+        </p>
+        <p data-i18n="article.problem.p2">
+          LightESB-Camel keeps the first step small. A team can start from Apache Camel XML routes, service-package conventions, configuration files, CLI commands, and documented examples. The delivery package gives enough structure to validate behavior without forcing a full platform migration up front.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="article.contains.title">What the package contains</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="article.contains.runtime.title">Runtime and service package model</h3>
+            <p class="copy" data-i18n="article.contains.runtime.text">A runnable LightESB-Camel runtime, service directory conventions, hot-loadable route assets, startup scripts, and CLI workflows for deployment and diagnostics.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="article.contains.examples.title">Integration examples</h3>
+            <p class="copy" data-i18n="article.contains.examples.text">Runnable examples for HTTP routes, database access, field protocols, robotics workflows, AI Agent + Tools orchestration, and enterprise integration adapters.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="article.contains.ops.title">Operational controls</h3>
+            <p class="copy" data-i18n="article.contains.ops.text">Deployment APIs, diagnostics APIs, service state checks, route reload commands, logs, validation patterns, and rollback-oriented documentation.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="article.contains.agent.title">Agent-readable context</h3>
+            <p class="copy" data-i18n="article.contains.agent.text">Public documentation and skills that help coding agents understand components, examples, boundaries, and expected delivery behavior.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2 data-i18n="article.robotics.title">Where robotics fits</h2>
+        <p data-i18n="article.robotics.p1">
+          LightESB-Camel focuses on high-level robot workflow integration: task intake, command validation, telemetry normalization, protocol gateways, audit events, and callbacks into external business systems. It intentionally stays outside hard real-time control, servo loops, PLC safety circuits, emergency stops, and certified robot controller behavior.
+        </p>
+        <p data-i18n="article.robotics.p2">
+          That boundary makes it useful for MES, WMS, ERP, scheduling, monitoring, and AI-assisted orchestration scenarios where the goal is to govern workflow and integration behavior rather than replace a motion controller.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="article.evaluate.title">How a team can evaluate it</h2>
+        <ol class="article-steps">
+          <li data-i18n="article.evaluate.1">Open the repository README and product overview to understand the delivery boundary.</li>
+          <li data-i18n="article.evaluate.2">Pick a route example that matches the target scenario.</li>
+          <li data-i18n="article.evaluate.3">Copy the service package into the runtime service directory.</li>
+          <li data-i18n="article.evaluate.4">Adjust endpoints, credentials, payload fields, validation rules, and protocol targets.</li>
+          <li data-i18n="article.evaluate.5">Start the runtime and verify the route with curl, CLI commands, logs, and diagnostics.</li>
+          <li data-i18n="article.evaluate.6">Promote the validated service package into a field POC with real endpoints and rollback rules.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2 data-i18n="article.camel.title">Why Apache Camel is a good base</h2>
+        <p data-i18n="article.camel.p1">
+          Apache Camel gives integration teams a mature routing model and a large connector ecosystem. LightESB-Camel keeps that foundation visible while adding a delivery-oriented structure around route packaging, service loading, management commands, public examples, and agent-readable documentation.
+        </p>
+        <p data-i18n="article.camel.p2">
+          The result is not a replacement for Camel. It is a runnable, documented, delivery-focused context for using Camel in legacy modernization, industrial integration, and robotics workflow projects.
+        </p>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href="/docs" data-i18n="article.docs">Read the docs</a>
+        <a class="button" href={repo} data-i18n="article.repo">Open the repository</a>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

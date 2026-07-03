@@ -1,5 +1,13 @@
 # LightESB-Camel
 
+**Website:** [https://lightesb-camel.nghxni.com](https://lightesb-camel.nghxni.com)
+
+**Target users:** integration architects, Java and Apache Camel engineers, manufacturing IT teams, automation and robotics integration teams, solution delivery engineers, and coding agents that need runnable examples for legacy system and industrial protocol integration.
+
+LightESB-Camel is a runnable Apache Camel delivery package for teams that need to connect legacy applications, industrial protocols, robot workflow systems, and AI-assisted orchestration without replacing existing core systems. It packages runtime artifacts, route examples, documentation, CLI guidance, and agent-readable skills so a delivery team can copy examples, adapt configuration, validate behavior, and move from POC to field verification.
+
+## 中文概述
+
 LightESB-Camel 是 LightESB 的可运行 Camel 交付包。LightESB 是一个轻量集成平台，面向存量系统接入，并为机器人系统提供动态热加载的技能扩展能力。
 
 LightESB 聚焦三件事：

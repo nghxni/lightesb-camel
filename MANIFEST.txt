@@ -152,10 +152,13 @@ website/package-lock.json
 website/package.json
 website/public/images/lightesb-camel-hero.png
 website/public/images/lightesb-robotics-integration.png
+website/public/robots.txt
+website/public/sitemap.xml
 website/src/components/HeroVisual.astro
 website/src/components/SectionHead.astro
 website/src/layouts/BaseLayout.astro
 website/src/pages/architecture.astro
+website/src/pages/articles/legacy-system-integration.astro
 website/src/pages/capabilities.astro
 website/src/pages/docs.astro
 website/src/pages/examples.astro
