@@ -1,0 +1,52 @@
+---
+import "../styles/global.css";
+
+const {
+  title = "LightESB-Camel",
+  description = "Lightweight integration runtime for legacy systems, industrial protocols, robotics workflows, and AI-assisted orchestration.",
+  current = ""
+} = Astro.props;
+
+const navItems = [
+  ["Capabilities", "/capabilities"],
+  ["Architecture", "/architecture"],
+  ["Robotics", "/robotics"],
+  ["Examples", "/examples"],
+  ["Docs", "/docs"]
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="site-shell">
+      <header class="site-header">
+        <div class="container nav">
+          <a class="brand" href="/" aria-label="LightESB-Camel home">
+            <span class="brand-mark">L</span>
+            <span>LightESB-Camel</span>
+          </a>
+          <nav class="nav-links" aria-label="Primary navigation">
+            {navItems.map(([label, href]) => (
+              <a href={href} aria-current={current === href ? "page" : undefined}>{label}</a>
+            ))}
+          </nav>
+        </div>
+      </header>
+      <main>
+        <slot />
+      </main>
+      <footer class="site-footer">
+        <div class="container footer-inner">
+          <span>LightESB-Camel delivery context</span>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,27 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SectionHead from "../components/SectionHead.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
+---
+
+<BaseLayout current="/docs" title="Docs | LightESB-Camel">
+  <section>
+    <div class="container">
+      <SectionHead
+        eyebrow="Documentation"
+        title="Read the delivery package in the same order an implementation team would"
+        text="These links point to public delivery context files in the repository. They are written for route authors, operators, and external coding agents."
+      />
+      <div class="docs-list">
+        <a class="docs-link" href={`${repo}/README.md`}><strong>Repository README</strong><span>Project positioning, delivery structure, support boundary, and quick start.</span></a>
+        <a class="docs-link" href={`${repo}/docs/product-overview.md`}><strong>Product overview</strong><span>English capability map, audience, robotics boundary, and website deployment scope.</span></a>
+        <a class="docs-link" href={`${repo}/docs/README.md`}><strong>Docs index</strong><span>Component, CLI, API, extension, experience, and example reading paths.</span></a>
+        <a class="docs-link" href={`${repo}/docs/cli/README.md`}><strong>CLI guide</strong><span>Commands and automation paths for deployment, diagnostics, route operations, and robot workflows.</span></a>
+        <a class="docs-link" href={`${repo}/docs/deployment-management-api.md`}><strong>Deployment management API</strong><span>Management API contracts for deployment and service operations.</span></a>
+        <a class="docs-link" href={`${repo}/docs/runtime-diagnostics-api.md`}><strong>Runtime diagnostics API</strong><span>Diagnostics workflows, warnings, and runtime inspection guidance.</span></a>
+        <a class="docs-link" href={`${repo}/docs/SOURCE_MAP.md`}><strong>Source map</strong><span>How public delivery documents are derived from internal source materials.</span></a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

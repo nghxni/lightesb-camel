@@ -68,6 +68,7 @@ start.bat
 运行后先阅读：
 
 - [docs/README.md](docs/README.md)：组件、CLI、API 和扩展文档索引。
+- [docs/product-overview.md](docs/product-overview.md)：英文产品概览、能力矩阵、适用场景、机器人边界和网站部署口径。
 - [example/README.md](example/README.md)：可复制运行的样例目录和验证命令。
 - [AGENTS.md](AGENTS.md)：Agent 在本交付包内工作的规则。
 

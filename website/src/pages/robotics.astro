@@ -1,0 +1,67 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SectionHead from "../components/SectionHead.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
+---
+
+<BaseLayout current="/robotics" title="Robotics Integration | LightESB-Camel">
+  <section>
+    <div class="container split">
+      <div>
+        <p class="eyebrow">Robotics integration</p>
+        <h1>Govern robot workflows without entering hard real-time control</h1>
+        <p class="lead">LightESB-Camel coordinates high-level task intake, command validation, telemetry normalization, protocol gateways, audit events, and external system callbacks.</p>
+        <div class="hero-actions">
+          <a class="button primary" href={`${repo}/docs/robot-command-dispatcher-api.md`}>Dispatcher API</a>
+          <a class="button" href={`${repo}/docs/experience/01-robotics-protocol-precheck.md`}>Protocol precheck</a>
+        </div>
+      </div>
+      <div class="visual-frame">
+        <img src="/images/lightesb-robotics-integration.png" alt="Robotics integration control plane with industrial robots, gateways, and telemetry paths." />
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="container">
+      <SectionHead
+        eyebrow="Robotics scope"
+        title="Task, protocol, audit, and governance layers"
+        text="The delivery package keeps robot integration at the high-level workflow and protocol adaptation layer. Certified safety systems, servo control, and low-latency motion loops stay outside the runtime boundary."
+      />
+      <div class="grid three">
+        <article class="card"><h3>Task intake</h3><p class="copy">Receive commands from MES, WMS, ERP, schedulers, or AI tools and validate robot, site, command type, timeout, and target payloads.</p></article>
+        <article class="card"><h3>Protocol examples</h3><p class="copy">Use MQTT telemetry and command routes, rosbridge service calls, OPC UA station examples, Modbus gateway routes, and gRPC contract drafts.</p></article>
+        <article class="card"><h3>Audit and state</h3><p class="copy">Track command state, dispatcher outbox behavior, telemetry normalization, trace summaries, and local operational diagnostics.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="grid two">
+        <article class="card">
+          <h3>Included examples</h3>
+          <ul class="list">
+            <li>RobotMqttTelemetrySrv</li>
+            <li>RobotMqttCommandSrv</li>
+            <li>RobotRosBridgeSrv</li>
+            <li>RobotOpcUaStationSrv</li>
+            <li>RobotModbusGatewaySrv</li>
+            <li>RobotGrpcGatewaySrv</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>Explicit non-goals</h3>
+          <ul class="list">
+            <li>No servo loops or motion controller replacement.</li>
+            <li>No PLC safety circuit replacement.</li>
+            <li>No ROS2 DDS high-frequency control path replacement.</li>
+            <li>No emergency stop or certified safety function replacement.</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

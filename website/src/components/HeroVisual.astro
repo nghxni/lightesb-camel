@@ -1,0 +1,28 @@
+---
+const {
+  image,
+  alt,
+  eyebrow,
+  title,
+  lead,
+  primaryHref,
+  primaryLabel,
+  secondaryHref,
+  secondaryLabel
+} = Astro.props;
+---
+
+<section class="hero">
+  <div class="hero-media">
+    <img src={image} alt={alt} />
+  </div>
+  <div class="container hero-content">
+    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+    <h1>{title}</h1>
+    <p class="lead">{lead}</p>
+    <div class="hero-actions">
+      {primaryHref && <a class="button primary" href={primaryHref}>{primaryLabel}</a>}
+      {secondaryHref && <a class="button" href={secondaryHref}>{secondaryLabel}</a>}
+    </div>
+  </div>
+</section>

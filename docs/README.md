@@ -5,6 +5,7 @@
 ## 项目入口
 
 - [仓库 README](../README.md)：项目定位、能力矩阵、快速启动、目录结构、Support 和 License。
+- [Product Overview](product-overview.md)：英文产品定位、能力矩阵、适用场景、机器人边界和网站部署口径。
 - [Agent 规则](../AGENTS.md)：Agent 在本交付包内工作的约束。
 - [Claude 入口](../CLAUDE.md)：Claude/Codex 类 Agent 的简版阅读入口。
 
