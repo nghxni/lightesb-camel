@@ -12,13 +12,16 @@ const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
         eyebrow="Runtime architecture"
         title="Service packages, Camel routes, and operational controls"
         text="The public architecture view focuses on delivery boundaries: what can be changed as route assets, what is controlled by configuration, and what requires a runtime rebuild or restart."
+        eyebrowKey="arch.eyebrow"
+        titleKey="arch.title"
+        textKey="arch.text"
       />
       <div class="flow">
-        <div class="flow-step"><span class="tag">External systems</span><h3>Call or publish</h3><p class="copy">MES, WMS, ERP, HTTP clients, data platforms, AI tools, and operations systems enter through routes or APIs.</p></div>
-        <div class="flow-step"><span class="tag">Control plane</span><h3>Manage services</h3><p class="copy">CLI and management APIs handle deploy, reload, diagnostics, service status, and logs.</p></div>
-        <div class="flow-step"><span class="tag">Route runtime</span><h3>Load packages</h3><p class="copy">Camel XML routes run under service package conventions and can be hot-loaded within route boundaries.</p></div>
-        <div class="flow-step"><span class="tag">Processors</span><h3>Govern traffic</h3><p class="copy">Validation, permissions, transformations, logging, exception mapping, AI tools, and robotics processors apply policy.</p></div>
-        <div class="flow-step"><span class="tag">Adapters</span><h3>Reach endpoints</h3><p class="copy">HTTP, SQL, MQTT, OPC UA, Modbus, SAP, AVEVA, rosbridge, and gateway routes connect outward.</p></div>
+        <div class="flow-step"><span class="tag" data-i18n="arch.ext.tag">External systems</span><h3 data-i18n="arch.ext.title">Call or publish</h3><p class="copy" data-i18n="arch.ext.text">MES, WMS, ERP, HTTP clients, data platforms, AI tools, and operations systems enter through routes or APIs.</p></div>
+        <div class="flow-step"><span class="tag" data-i18n="arch.cp.tag">Control plane</span><h3 data-i18n="arch.cp.title">Manage services</h3><p class="copy" data-i18n="arch.cp.text">CLI and management APIs handle deploy, reload, diagnostics, service status, and logs.</p></div>
+        <div class="flow-step"><span class="tag" data-i18n="arch.runtime.tag">Route runtime</span><h3 data-i18n="arch.runtime.title">Load packages</h3><p class="copy" data-i18n="arch.runtime.text">Camel XML routes run under service package conventions and can be hot-loaded within route boundaries.</p></div>
+        <div class="flow-step"><span class="tag" data-i18n="arch.proc.tag">Processors</span><h3 data-i18n="arch.proc.title">Govern traffic</h3><p class="copy" data-i18n="arch.proc.text">Validation, permissions, transformations, logging, exception mapping, AI tools, and robotics processors apply policy.</p></div>
+        <div class="flow-step"><span class="tag" data-i18n="arch.adapter.tag">Adapters</span><h3 data-i18n="arch.adapter.title">Reach endpoints</h3><p class="copy" data-i18n="arch.adapter.text">HTTP, SQL, MQTT, OPC UA, Modbus, SAP, AVEVA, rosbridge, and gateway routes connect outward.</p></div>
       </div>
     </div>
   </section>
@@ -27,14 +30,14 @@ const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
     <div class="container">
       <div class="grid two">
         <article class="card">
-          <h3>Hot-load boundary</h3>
-          <p class="copy">Route XML, service configuration, and service package assets can be adjusted within the runtime's route loading model. Java code, dependencies, Spring beans, and startup parameters remain rebuild or restart boundaries.</p>
-          <div class="action-row"><a class="button" href={`${repo}/docs/runtime-route-loading.md`}>Route loading docs</a></div>
+          <h3 data-i18n="arch.hot.title">Hot-load boundary</h3>
+          <p class="copy" data-i18n="arch.hot.text">Route XML, service configuration, and service package assets can be adjusted within the runtime's route loading model. Java code, dependencies, Spring beans, and startup parameters remain rebuild or restart boundaries.</p>
+          <div class="action-row"><a class="button" href={`${repo}/docs/runtime-route-loading.md`} data-i18n="arch.hot.button">Route loading docs</a></div>
         </article>
         <article class="card">
-          <h3>Delivery boundary</h3>
-          <p class="copy">The public repository is a delivery context. It contains the runnable package, examples, docs, skills, and website assets. It does not expose internal source implementation paths or development-only materials.</p>
-          <div class="action-row"><a class="button" href={`${repo}/docs/SOURCE_MAP.md`}>Source map</a></div>
+          <h3 data-i18n="arch.delivery.title">Delivery boundary</h3>
+          <p class="copy" data-i18n="arch.delivery.text">The public repository is a delivery context. It contains the runnable package, examples, docs, skills, and website assets. It does not expose internal source implementation paths or development-only materials.</p>
+          <div class="action-row"><a class="button" href={`${repo}/docs/SOURCE_MAP.md`} data-i18n="arch.delivery.button">Source map</a></div>
         </article>
       </div>
     </div>

@@ -8,7 +8,12 @@ const {
   primaryHref,
   primaryLabel,
   secondaryHref,
-  secondaryLabel
+  secondaryLabel,
+  eyebrowKey,
+  titleKey,
+  leadKey,
+  primaryKey,
+  secondaryKey
 } = Astro.props;
 ---
 
@@ -17,12 +22,12 @@ const {
     <img src={image} alt={alt} />
   </div>
   <div class="container hero-content">
-    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
-    <h1>{title}</h1>
-    <p class="lead">{lead}</p>
+    {eyebrow && <p class="eyebrow" data-i18n={eyebrowKey}>{eyebrow}</p>}
+    <h1 data-i18n={titleKey}>{title}</h1>
+    <p class="lead" data-i18n={leadKey}>{lead}</p>
     <div class="hero-actions">
-      {primaryHref && <a class="button primary" href={primaryHref}>{primaryLabel}</a>}
-      {secondaryHref && <a class="button" href={secondaryHref}>{secondaryLabel}</a>}
+      {primaryHref && <a class="button primary" href={primaryHref} data-i18n={primaryKey}>{primaryLabel}</a>}
+      {secondaryHref && <a class="button" href={secondaryHref} data-i18n={secondaryKey}>{secondaryLabel}</a>}
     </div>
   </div>
 </section>

@@ -34,8 +34,9 @@ const navItems = [
           </a>
           <nav class="nav-links" aria-label="Primary navigation">
             {navItems.map(([label, href]) => (
-              <a href={href} aria-current={current === href ? "page" : undefined}>{label}</a>
+              <a href={href} aria-current={current === href ? "page" : undefined} data-i18n={`nav.${label.toLowerCase()}`}>{label}</a>
             ))}
+            <button class="language-toggle" type="button" data-language-toggle aria-label="Switch language">中文</button>
           </nav>
         </div>
       </header>
@@ -44,9 +45,197 @@ const navItems = [
       </main>
       <footer class="site-footer">
         <div class="container footer-inner">
-          <span>LightESB-Camel delivery context</span>
+          <span data-i18n="footer.contact">LightESB-Camel delivery context. nghxni@gmail.com</span>
         </div>
       </footer>
     </div>
+    <script is:inline>
+      const translations = {
+        zh: {
+          "nav.capabilities": "能力",
+          "nav.architecture": "架构",
+          "nav.robotics": "机器人",
+          "nav.examples": "样例",
+          "nav.docs": "文档",
+          "footer.contact": "LightESB-Camel delivery context. 179556428@qq.com",
+          "home.eyebrow": "可运行的集成交付包",
+          "home.title": "LightESB-Camel",
+          "home.lead": "面向存量系统、工业协议、机器人流程和 AI 辅助编排的轻量级 Apache Camel 交付运行时。",
+          "home.primary": "查看能力",
+          "home.secondary": "阅读文档",
+          "home.metric.hot.title": "热加载",
+          "home.metric.hot.text": "按服务名和版本组织的路由服务包。",
+          "home.metric.field.title": "面向现场",
+          "home.metric.field.text": "覆盖 HTTP、数据库、机器人、SAP、AVEVA、OPC UA、MQTT 和 Modbus 的样例。",
+          "home.metric.gov.title": "可治理",
+          "home.metric.gov.text": "CLI、诊断、日志、校验、权限检查和部署 API。",
+          "home.metric.agent.title": "Agent 可读",
+          "home.metric.agent.text": "用于路由编写和运维自动化的文档与技能说明。",
+          "home.why.eyebrow": "为什么需要它",
+          "home.why.title": "不重写核心系统，也能完成集成现代化",
+          "home.why.text": "LightESB-Camel 帮助团队用路由服务、协议适配、校验、日志和运维控制封装现有系统。它足够轻量，适合私有化或边缘部署，也足够结构化，适合 POC 和交付复用。",
+          "home.legacy.tag": "存量系统",
+          "home.legacy.title": "连接正在运行的系统",
+          "home.legacy.text": "通过 Camel XML 路由和配置，暴露或调用 HTTP API、数据库、消息流、ERP 接口和内部服务。",
+          "home.industrial.tag": "工业协议",
+          "home.industrial.title": "桥接现场系统",
+          "home.industrial.text": "提供 OPC UA、MQTT 5、Modbus/PLC、AVEVA Plant SCADA、SAP NetWeaver 和 ExternalDB 的样例与文档。",
+          "home.robot.tag": "机器人与 AI",
+          "home.robot.title": "治理高层编排",
+          "home.robot.text": "协调任务接入、遥测标准化、命令校验、审计事件和 AI Agent + Tools 工作流，不进入硬实时控制链路。",
+          "home.delivery.eyebrow": "交付模型",
+          "home.delivery.title": "一个可阅读、可复制、可验证的公开仓库",
+          "home.delivery.text": "交付上下文包含运行件、文档、样例、技能说明和静态网站。源码仓库仍是编辑源，公开交付仓库由同步脚本生成。",
+          "home.step1.title": "选择样例",
+          "home.step1.text": "从 example/routes 中选择最接近的集成模式。",
+          "home.step2.title": "调整配置",
+          "home.step2.text": "设置服务属性、端点、协议目标和校验规则。",
+          "home.step3.title": "加载路由",
+          "home.step3.text": "部署服务包，并在运行时边界允许的情况下使用热加载。",
+          "home.step4.title": "验证行为",
+          "home.step4.text": "使用 curl、CLI、诊断和服务日志证明路由可用。",
+          "home.step5.title": "安全运行",
+          "home.step5.text": "使用部署 API、审计模式和回滚指南完成受控交付。",
+          "cap.eyebrow": "能力地图",
+          "cap.title": "面向交付打包的集成能力",
+          "cap.text": "LightESB-Camel 围绕实际集成工作组织路由运行时、可复用样例、运维 API 和 Agent 可读说明。",
+          "cap.http.title": "HTTP 路由服务",
+          "cap.http.text": "Undertow 入口、内部 HTTP 转发、服务包约定和路由生命周期指南。",
+          "cap.transform.title": "数据转换",
+          "cap.transform.text": "ConditionalTransform、JsonTransform、DataSonnet、schema 校验、字符处理和流缓存指南。",
+          "cap.security.title": "安全与治理",
+          "cap.security.text": "IP、CIDR、Token、Regex 权限检查、全局异常处理、标准响应、日志和诊断。",
+          "cap.external.title": "外部系统",
+          "cap.external.text": "ExternalDB、SAP NetWeaver、AVEVA Plant SCADA、HTTP 转发和企业集成样例。",
+          "cap.industrial.title": "工业协议",
+          "cap.industrial.text": "MQTT 5、OPC UA、Modbus/PLC 网关模式、PLC4X 评估路径和现场验证边界。",
+          "cap.ai.title": "AI 辅助路由",
+          "cap.ai.text": "AI Agent + Tools 组件，用于编排、请求构建、工具调用和运维流程。",
+          "cap.ops.eyebrow": "运维入口",
+          "cap.ops.title": "为可重复验证而设计",
+          "cap.ops.text": "交付包包含 CLI 和 API 指南，帮助团队一致地部署、检查、重载、诊断和回滚路由服务。",
+          "cap.auto.title": "自动化入口",
+          "cap.auto.1": "服务启动、停止、部署、重载和状态检查。",
+          "cap.auto.2": "运行时状态的诊断快照和告警。",
+          "cap.auto.3": "部署管理和 API 响应契约。",
+          "cap.doc.title": "文档入口",
+          "cap.doc.1": "组件、CLI、API 和扩展的文档索引。",
+          "cap.doc.2": "可运行路由包的样例索引。",
+          "cap.doc.3": "交付定位和范围的产品概览。",
+          "arch.eyebrow": "运行时架构",
+          "arch.title": "服务包、Camel 路由和运维控制",
+          "arch.text": "公开架构视图聚焦交付边界：哪些内容可以作为路由资产调整，哪些由配置控制，哪些需要重建或重启运行时。",
+          "arch.ext.tag": "外部系统",
+          "arch.ext.title": "调用或发布",
+          "arch.ext.text": "MES、WMS、ERP、HTTP 客户端、数据平台、AI 工具和运维系统通过路由或 API 接入。",
+          "arch.cp.tag": "控制面",
+          "arch.cp.title": "管理服务",
+          "arch.cp.text": "CLI 和管理 API 处理部署、重载、诊断、服务状态和日志。",
+          "arch.runtime.tag": "路由运行时",
+          "arch.runtime.title": "加载服务包",
+          "arch.runtime.text": "Camel XML 路由按照服务包约定运行，并可在路由边界内热加载。",
+          "arch.proc.tag": "处理器",
+          "arch.proc.title": "治理流量",
+          "arch.proc.text": "校验、权限、转换、日志、异常映射、AI 工具和机器人处理器应用策略。",
+          "arch.adapter.tag": "适配器",
+          "arch.adapter.title": "连接端点",
+          "arch.adapter.text": "HTTP、SQL、MQTT、OPC UA、Modbus、SAP、AVEVA、rosbridge 和网关路由向外连接。",
+          "arch.hot.title": "热加载边界",
+          "arch.hot.text": "路由 XML、服务配置和服务包资产可在运行时路由加载模型内调整。Java 代码、依赖、Spring Bean 和启动参数仍是重建或重启边界。",
+          "arch.hot.button": "路由加载文档",
+          "arch.delivery.title": "交付边界",
+          "arch.delivery.text": "公开仓库是交付上下文，包含运行件、样例、文档、技能说明和网站资产，不暴露内部源码实现路径或开发期材料。",
+          "arch.delivery.button": "来源映射",
+          "robot.eyebrow": "机器人集成",
+          "robot.title": "治理机器人流程，而不进入硬实时控制",
+          "robot.lead": "LightESB-Camel 协调高层任务接入、命令校验、遥测标准化、协议网关、审计事件和外部系统回调。",
+          "robot.dispatcher": "Dispatcher API",
+          "robot.precheck": "协议预检",
+          "robot.scope.eyebrow": "机器人范围",
+          "robot.scope.title": "任务、协议、审计和治理层",
+          "robot.scope.text": "交付包把机器人集成保持在高层工作流和协议适配层。认证安全系统、伺服控制和低延迟运动链路保持在运行时边界之外。",
+          "robot.task.title": "任务接入",
+          "robot.task.text": "接收来自 MES、WMS、ERP、调度系统或 AI 工具的命令，并校验机器人、站点、命令类型、超时和目标 payload。",
+          "robot.protocol.title": "协议样例",
+          "robot.protocol.text": "使用 MQTT 遥测和命令路由、rosbridge service 调用、OPC UA 站点样例、Modbus 网关路由和 gRPC 契约草案。",
+          "robot.audit.title": "审计与状态",
+          "robot.audit.text": "跟踪命令状态、dispatcher outbox 行为、遥测标准化、trace 摘要和本地运维诊断。",
+          "robot.included.title": "包含样例",
+          "robot.nongoals.title": "明确非目标",
+          "robot.nongoal.1": "不替代伺服回路或运动控制器。",
+          "robot.nongoal.2": "不替代 PLC 安全回路。",
+          "robot.nongoal.3": "不替代 ROS2 DDS 高频控制链路。",
+          "robot.nongoal.4": "不替代急停或认证安全功能。",
+          "examples.eyebrow": "可运行起点",
+          "examples.title": "复制样例、调整配置、验证行为",
+          "examples.text": "交付仓库包含可复制到运行时服务目录的路由包，用于 POC 或现场验证。",
+          "examples.index.title": "样例索引",
+          "examples.index.text": "可运行路由样例和验证路径总览。",
+          "examples.http.title": "HTTP 路由基础",
+          "examples.http.text": "最小 Undertow HTTP 路由服务包。",
+          "examples.platform.title": "Platform HTTP",
+          "examples.platform.text": "HTTP 编排和转换样例。",
+          "examples.mysql.title": "ExternalDB MySQL",
+          "examples.mysql.text": "数据库访问和健康检查路由样例。",
+          "examples.ai.title": "AI Agent + Tools",
+          "examples.ai.text": "面向 Agent 编排的路由样例。",
+          "examples.robot.title": "Robot MQTT command",
+          "examples.robot.text": "机器人命令路由包和样例 payload。",
+          "docs.eyebrow": "文档",
+          "docs.title": "按实施团队的顺序阅读交付包",
+          "docs.text": "这些链接指向仓库中的公开交付上下文文件，面向路由编写者、运维人员和外部编码 Agent。",
+          "docs.repo.title": "仓库 README",
+          "docs.repo.text": "项目定位、交付结构、支持边界和快速开始。",
+          "docs.product.title": "产品概览",
+          "docs.product.text": "英文能力地图、受众、机器人边界和网站部署范围。",
+          "docs.index.title": "文档索引",
+          "docs.index.text": "组件、CLI、API、扩展、经验和样例阅读路径。",
+          "docs.cli.title": "CLI 指南",
+          "docs.cli.text": "部署、诊断、路由操作和机器人流程的命令与自动化路径。",
+          "docs.deploy.title": "部署管理 API",
+          "docs.deploy.text": "部署和服务运维的管理 API 契约。",
+          "docs.diagnostics.title": "运行时诊断 API",
+          "docs.diagnostics.text": "诊断流程、告警和运行时检查指南。",
+          "docs.source.title": "来源映射",
+          "docs.source.text": "公开交付文档如何从内部材料整理而来。"
+        }
+      };
+
+      function setLanguage(lang) {
+        const normalized = lang === "zh" ? "zh" : "en";
+        const dict = translations[normalized] || {};
+        document.documentElement.lang = normalized === "zh" ? "zh-CN" : "en";
+        document.querySelectorAll("[data-i18n]").forEach((node) => {
+          const key = node.getAttribute("data-i18n");
+          const value = dict[key];
+          if (value) node.textContent = value;
+          if (!value && normalized === "en" && node.dataset.i18nDefault) {
+            node.textContent = node.dataset.i18nDefault;
+          }
+        });
+        document.querySelectorAll("[data-i18n-default]").forEach((node) => {
+          if (normalized === "en") node.textContent = node.getAttribute("data-i18n-default");
+        });
+        document.querySelectorAll("[data-language-toggle]").forEach((button) => {
+          button.textContent = normalized === "zh" ? "EN" : "中文";
+          button.setAttribute("aria-label", normalized === "zh" ? "Switch to English" : "切换到中文");
+        });
+        window.localStorage.setItem("lightesb-site-language", normalized);
+      }
+
+      document.querySelectorAll("[data-i18n]").forEach((node) => {
+        node.setAttribute("data-i18n-default", node.textContent || "");
+      });
+
+      const initialLanguage = window.localStorage.getItem("lightesb-site-language") || "en";
+      setLanguage(initialLanguage);
+
+      document.querySelectorAll("[data-language-toggle]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const current = document.documentElement.lang === "zh-CN" ? "zh" : "en";
+          setLanguage(current === "zh" ? "en" : "zh");
+        });
+      });
+    </script>
   </body>
 </html>

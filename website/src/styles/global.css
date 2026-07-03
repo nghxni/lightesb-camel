@@ -110,8 +110,22 @@ img {
   font-size: 14px;
 }
 
+.language-toggle {
+  min-width: 58px;
+  min-height: 36px;
+  border: 1px solid rgba(110, 224, 139, 0.36);
+  border-radius: 7px;
+  background: rgba(110, 224, 139, 0.08);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 720;
+  cursor: pointer;
+}
+
 .nav-links a:hover,
-.nav-links a[aria-current="page"] {
+.nav-links a[aria-current="page"],
+.language-toggle:hover {
   color: var(--text);
   background: rgba(255, 255, 255, 0.06);
 }

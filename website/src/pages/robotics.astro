@@ -9,12 +9,12 @@ const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
   <section>
     <div class="container split">
       <div>
-        <p class="eyebrow">Robotics integration</p>
-        <h1>Govern robot workflows without entering hard real-time control</h1>
-        <p class="lead">LightESB-Camel coordinates high-level task intake, command validation, telemetry normalization, protocol gateways, audit events, and external system callbacks.</p>
+        <p class="eyebrow" data-i18n="robot.eyebrow">Robotics integration</p>
+        <h1 data-i18n="robot.title">Govern robot workflows without entering hard real-time control</h1>
+        <p class="lead" data-i18n="robot.lead">LightESB-Camel coordinates high-level task intake, command validation, telemetry normalization, protocol gateways, audit events, and external system callbacks.</p>
         <div class="hero-actions">
-          <a class="button primary" href={`${repo}/docs/robot-command-dispatcher-api.md`}>Dispatcher API</a>
-          <a class="button" href={`${repo}/docs/experience/01-robotics-protocol-precheck.md`}>Protocol precheck</a>
+          <a class="button primary" href={`${repo}/docs/robot-command-dispatcher-api.md`} data-i18n="robot.dispatcher">Dispatcher API</a>
+          <a class="button" href={`${repo}/docs/experience/01-robotics-protocol-precheck.md`} data-i18n="robot.precheck">Protocol precheck</a>
         </div>
       </div>
       <div class="visual-frame">
@@ -29,11 +29,14 @@ const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
         eyebrow="Robotics scope"
         title="Task, protocol, audit, and governance layers"
         text="The delivery package keeps robot integration at the high-level workflow and protocol adaptation layer. Certified safety systems, servo control, and low-latency motion loops stay outside the runtime boundary."
+        eyebrowKey="robot.scope.eyebrow"
+        titleKey="robot.scope.title"
+        textKey="robot.scope.text"
       />
       <div class="grid three">
-        <article class="card"><h3>Task intake</h3><p class="copy">Receive commands from MES, WMS, ERP, schedulers, or AI tools and validate robot, site, command type, timeout, and target payloads.</p></article>
-        <article class="card"><h3>Protocol examples</h3><p class="copy">Use MQTT telemetry and command routes, rosbridge service calls, OPC UA station examples, Modbus gateway routes, and gRPC contract drafts.</p></article>
-        <article class="card"><h3>Audit and state</h3><p class="copy">Track command state, dispatcher outbox behavior, telemetry normalization, trace summaries, and local operational diagnostics.</p></article>
+        <article class="card"><h3 data-i18n="robot.task.title">Task intake</h3><p class="copy" data-i18n="robot.task.text">Receive commands from MES, WMS, ERP, schedulers, or AI tools and validate robot, site, command type, timeout, and target payloads.</p></article>
+        <article class="card"><h3 data-i18n="robot.protocol.title">Protocol examples</h3><p class="copy" data-i18n="robot.protocol.text">Use MQTT telemetry and command routes, rosbridge service calls, OPC UA station examples, Modbus gateway routes, and gRPC contract drafts.</p></article>
+        <article class="card"><h3 data-i18n="robot.audit.title">Audit and state</h3><p class="copy" data-i18n="robot.audit.text">Track command state, dispatcher outbox behavior, telemetry normalization, trace summaries, and local operational diagnostics.</p></article>
       </div>
     </div>
   </section>
@@ -42,7 +45,7 @@ const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
     <div class="container">
       <div class="grid two">
         <article class="card">
-          <h3>Included examples</h3>
+          <h3 data-i18n="robot.included.title">Included examples</h3>
           <ul class="list">
             <li>RobotMqttTelemetrySrv</li>
             <li>RobotMqttCommandSrv</li>
@@ -53,12 +56,12 @@ const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
           </ul>
         </article>
         <article class="card">
-          <h3>Explicit non-goals</h3>
+          <h3 data-i18n="robot.nongoals.title">Explicit non-goals</h3>
           <ul class="list">
-            <li>No servo loops or motion controller replacement.</li>
-            <li>No PLC safety circuit replacement.</li>
-            <li>No ROS2 DDS high-frequency control path replacement.</li>
-            <li>No emergency stop or certified safety function replacement.</li>
+            <li data-i18n="robot.nongoal.1">No servo loops or motion controller replacement.</li>
+            <li data-i18n="robot.nongoal.2">No PLC safety circuit replacement.</li>
+            <li data-i18n="robot.nongoal.3">No ROS2 DDS high-frequency control path replacement.</li>
+            <li data-i18n="robot.nongoal.4">No emergency stop or certified safety function replacement.</li>
           </ul>
         </article>
       </div>

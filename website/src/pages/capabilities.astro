@@ -1,8 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import SectionHead from "../components/SectionHead.astro";
-
-const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
 ---
 
 <BaseLayout current="/capabilities" title="Capabilities | LightESB-Camel">
@@ -12,14 +10,17 @@ const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
         eyebrow="Capability map"
         title="Integration capabilities packaged for delivery"
         text="LightESB-Camel organizes route runtime, reusable examples, operational APIs, and Agent-readable instructions around practical integration work."
+        eyebrowKey="cap.eyebrow"
+        titleKey="cap.title"
+        textKey="cap.text"
       />
       <div class="grid three">
-        <article class="card"><h3>HTTP route services</h3><p class="copy">Undertow ingress, internal HTTP forwarding, service package conventions, and route lifecycle guidance.</p></article>
-        <article class="card"><h3>Data transformation</h3><p class="copy">ConditionalTransform, JsonTransform, DataSonnet, schema validation, charset processing, and stream cache guidance.</p></article>
-        <article class="card"><h3>Security and governance</h3><p class="copy">IP, CIDR, token, regex permission checks, global exception handling, standard responses, logs, and diagnostics.</p></article>
-        <article class="card"><h3>External systems</h3><p class="copy">ExternalDB, SAP NetWeaver, AVEVA Plant SCADA, HTTP forwarding, and enterprise integration examples.</p></article>
-        <article class="card"><h3>Industrial protocols</h3><p class="copy">MQTT 5, OPC UA, Modbus/PLC gateway patterns, PLC4X evaluation paths, and field validation boundaries.</p></article>
-        <article class="card"><h3>AI-assisted routes</h3><p class="copy">AI Agent + Tools components for orchestration, request construction, tool invocation, and operational workflows.</p></article>
+        <article class="card"><h3 data-i18n="cap.http.title">HTTP route services</h3><p class="copy" data-i18n="cap.http.text">Undertow ingress, internal HTTP forwarding, service package conventions, and route lifecycle guidance.</p></article>
+        <article class="card"><h3 data-i18n="cap.transform.title">Data transformation</h3><p class="copy" data-i18n="cap.transform.text">ConditionalTransform, JsonTransform, DataSonnet, schema validation, charset processing, and stream cache guidance.</p></article>
+        <article class="card"><h3 data-i18n="cap.security.title">Security and governance</h3><p class="copy" data-i18n="cap.security.text">IP, CIDR, token, regex permission checks, global exception handling, standard responses, logs, and diagnostics.</p></article>
+        <article class="card"><h3 data-i18n="cap.external.title">External systems</h3><p class="copy" data-i18n="cap.external.text">ExternalDB, SAP NetWeaver, AVEVA Plant SCADA, HTTP forwarding, and enterprise integration examples.</p></article>
+        <article class="card"><h3 data-i18n="cap.industrial.title">Industrial protocols</h3><p class="copy" data-i18n="cap.industrial.text">MQTT 5, OPC UA, Modbus/PLC gateway patterns, PLC4X evaluation paths, and field validation boundaries.</p></article>
+        <article class="card"><h3 data-i18n="cap.ai.title">AI-assisted routes</h3><p class="copy" data-i18n="cap.ai.text">AI Agent + Tools components for orchestration, request construction, tool invocation, and operational workflows.</p></article>
       </div>
     </div>
   </section>
@@ -30,22 +31,25 @@ const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
         eyebrow="Operational surface"
         title="Built for repeatable validation"
         text="The package includes CLI and API guidance so teams can deploy, inspect, reload, diagnose, and rollback route services consistently."
+        eyebrowKey="cap.ops.eyebrow"
+        titleKey="cap.ops.title"
+        textKey="cap.ops.text"
       />
       <div class="grid two">
         <article class="card">
-          <h3>Automation entry points</h3>
+          <h3 data-i18n="cap.auto.title">Automation entry points</h3>
           <ul class="list">
-            <li>Service start, stop, deploy, reload, and status checks.</li>
-            <li>Diagnostics snapshots and warnings for runtime state.</li>
-            <li>Deployment management and API response contracts.</li>
+            <li data-i18n="cap.auto.1">Service start, stop, deploy, reload, and status checks.</li>
+            <li data-i18n="cap.auto.2">Diagnostics snapshots and warnings for runtime state.</li>
+            <li data-i18n="cap.auto.3">Deployment management and API response contracts.</li>
           </ul>
         </article>
         <article class="card">
-          <h3>Documentation entry points</h3>
+          <h3 data-i18n="cap.doc.title">Documentation entry points</h3>
           <ul class="list">
-            <li><a href="/docs">Documentation index</a> for components, CLI, APIs, and extensions.</li>
-            <li><a href="/examples">Examples index</a> for runnable route packages.</li>
-            <li><a href={`${repo}/docs/product-overview.md`}>Product overview</a> for delivery positioning and scope.</li>
+            <li data-i18n="cap.doc.1">Documentation index for components, CLI, APIs, and extensions.</li>
+            <li data-i18n="cap.doc.2">Examples index for runnable route packages.</li>
+            <li data-i18n="cap.doc.3">Product overview for delivery positioning and scope.</li>
           </ul>
         </article>
       </div>
