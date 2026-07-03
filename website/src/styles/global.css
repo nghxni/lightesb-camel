@@ -32,6 +32,7 @@ body {
     linear-gradient(180deg, rgba(119, 216, 232, 0.06), transparent 520px),
     var(--bg);
   letter-spacing: 0;
+  overflow-wrap: anywhere;
 }
 
 a {
@@ -98,9 +99,11 @@ img {
   justify-content: flex-end;
   gap: 4px;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 .nav-links a {
+  flex: 0 0 auto;
   min-height: 36px;
   display: inline-flex;
   align-items: center;
@@ -108,9 +111,11 @@ img {
   color: var(--muted);
   border-radius: 7px;
   font-size: 14px;
+  white-space: nowrap;
 }
 
 .language-toggle {
+  flex: 0 0 auto;
   min-width: 58px;
   min-height: 36px;
   border: 1px solid rgba(110, 224, 139, 0.36);
@@ -121,6 +126,7 @@ img {
   font-size: 14px;
   font-weight: 720;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .nav-links a:hover,
@@ -186,9 +192,10 @@ p {
 
 h1 {
   margin-bottom: 18px;
-  font-size: clamp(46px, 8vw, 86px);
+  font-size: clamp(36px, 8vw, 86px);
   line-height: 0.96;
   letter-spacing: 0;
+  overflow-wrap: normal;
 }
 
 h2 {
@@ -227,6 +234,7 @@ h3 {
 }
 
 .button {
+  flex: 0 1 auto;
   min-height: 44px;
   display: inline-flex;
   align-items: center;
@@ -239,6 +247,8 @@ h3 {
   color: var(--text);
   font-size: 15px;
   font-weight: 720;
+  text-align: center;
+  white-space: normal;
 }
 
 .button.primary {
@@ -447,6 +457,7 @@ section {
   justify-content: space-between;
   gap: 20px;
   flex-wrap: wrap;
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 900px) {
@@ -457,11 +468,19 @@ section {
   .nav {
     align-items: flex-start;
     flex-direction: column;
+    gap: 12px;
     padding: 16px 0;
   }
 
   .nav-links {
+    width: 100%;
     justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
   }
 
   .hero {
@@ -496,13 +515,44 @@ section {
 }
 
 @media (max-width: 520px) {
+  .container {
+    width: min(100% - 24px, 760px);
+  }
+
   .nav-links a {
-    padding: 0 8px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+
+  .language-toggle {
+    min-width: 52px;
+    padding: 0 10px;
     font-size: 13px;
   }
 
   h1 {
-    font-size: 44px;
+    font-size: 34px;
+    line-height: 1.02;
+  }
+
+  h2 {
+    font-size: 28px;
+    line-height: 1.12;
+  }
+
+  .lead {
+    font-size: 17px;
+    line-height: 1.55;
+  }
+
+  .hero-actions,
+  .action-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .button {
+    width: 100%;
   }
 
   section {
