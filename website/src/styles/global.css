@@ -32,7 +32,7 @@ body {
     linear-gradient(180deg, rgba(119, 216, 232, 0.06), transparent 520px),
     var(--bg);
   letter-spacing: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
 }
 
 a {
@@ -181,6 +181,8 @@ img {
   font-weight: 760;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 h1,
@@ -223,6 +225,7 @@ h3 {
   color: var(--muted);
   font-size: 16px;
   line-height: 1.7;
+  overflow-wrap: break-word;
 }
 
 .hero-actions,
@@ -533,6 +536,12 @@ section {
   h1 {
     font-size: 34px;
     line-height: 1.02;
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    line-height: 1.35;
+    letter-spacing: 0.04em;
   }
 
   h2 {
