@@ -6,9 +6,9 @@ const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
 ---
 
 <BaseLayout current="/robotics" title="Robotics Integration | LightESB-Camel">
-  <section>
-    <div class="container split">
-      <div>
+  <section class="robot-hero">
+    <div class="container split robot-hero-layout">
+      <div class="robot-hero-copy">
         <p class="eyebrow" data-i18n="robot.eyebrow">Robotics integration</p>
         <h1 data-i18n="robot.title">Govern robot workflows without entering hard real-time control</h1>
         <p class="lead" data-i18n="robot.lead">LightESB-Camel coordinates high-level task intake, command validation, telemetry normalization, protocol gateways, audit events, and external system callbacks.</p>
@@ -17,7 +17,7 @@ const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
           <a class="button" href={`${repo}/docs/experience/01-robotics-protocol-precheck.md`} data-i18n="robot.precheck">Protocol precheck</a>
         </div>
       </div>
-      <div class="visual-frame">
+      <div class="visual-frame robot-visual">
         <img src="/images/lightesb-robotics-integration.png" alt="Robotics integration control plane with industrial robots, gateways, and telemetry paths." />
       </div>
     </div>
