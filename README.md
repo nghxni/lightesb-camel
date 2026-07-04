@@ -1,6 +1,6 @@
 # LightESB-Camel
 
-**Website:** [https://lightesb-camel.nghxni.com](https://lightesb-camel.nghxni.com)
+**Website:** [https://lightesb-camel.pages.dev](https://lightesb-camel.pages.dev)
 
 **Target users:** integration architects, Java and Apache Camel engineers, manufacturing IT teams, automation and robotics integration teams, solution delivery engineers, and coding agents that need runnable examples for legacy system and industrial protocol integration.
 
