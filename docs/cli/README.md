@@ -5,6 +5,7 @@ LightESB CLI 是面向接入建模、交付运维、路由治理、日志检索�
 大模型需要生成或修改 CLI 命令时，先读：
 
 - [CLI 命令压缩参考](01-cli-command-reference.md)
+- [Support Diagnostics](support-diagnostics.md)
 
 核心命令域：
 

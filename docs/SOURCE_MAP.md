@@ -35,5 +35,6 @@
 | `../skills/lightesb-robot-integration/SKILL.md` | 机器人协议接入经验、机器人 dispatcher API、交付样例和 gRPC IDL 契约，按交付任务路由整理 |
 | `cli/README.md` | `docs/cli/README.md`，外发压缩版 |
 | `cli/01-cli-command-reference.md` | `docs/cli/*` 与 `lightesb-cli/src/main/java/.../cli/command/*`，按命令域压缩整理 |
+| `cli/support-diagnostics.md` | `docs/cli/12-support-diagnostics-runbook.md`，按外发支持诊断场景重写，不包含内部演示样例命令 |
 
 源码仓库组件文档保持原编号，经验复盘类文档放入 `docs/experience/`。本交付包文档为外发整理版，不直接复制内部实现路径或内部流程说明。

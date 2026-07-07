@@ -9,6 +9,7 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 
 - `docs/cli/README.md`
 - `docs/cli/01-cli-command-reference.md`
+- `docs/cli/support-diagnostics.md`
 - 诊断任务读 `docs/runtime-diagnostics-api.md`
 - 机器人命令提交、dispatcher 或审计任务读 `docs/robot-command-dispatcher-api.md`
 
@@ -33,6 +34,8 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 - 机器人 CLI 默认只要求本机 WSL 可运行 Maven；用 mock HTTP 和本地测试验证，不要求真实地址或真实机器人环境。
 - AI 路由生成和优化只返回候选内容，不自动保存、打包或部署。
 - 排查部署问题时先查 `deploy status/history`、`route status/mapping`、`log instance`。
+- 售后诊断先按问题类型选择只读命令，优先 `--output json`，记录服务名/版本、fileKey/routeId、requestId/traceId/exchangeId、CLI 输出摘要和恢复动作。
+- 售后输出不得包含完整 prompt、完整模型响应、完整 payload、完整 XML/properties、连接串、本地绝对路径或客户敏感数据。
 
 常用链路：
 
@@ -56,6 +59,7 @@ lightesb keyword add --service-name DemoSrv --service-version 1.0.0 --key-name p
 lightesb keyword query-instances --service-name DemoSrv --service-version 1.0.0 --key-name patientId --json-value 10001 --output json
 lightesb diagnostics snapshot --server http://localhost:8080 --output json
 lightesb diagnostics warnings --server http://localhost:8080 --output json
+lightesb diagnostics snapshot --server http://localhost:8080 --service-name DemoSrv --service-version v1.0.0 --component route-runtime --output json
 lightesb robot command validate --server http://localhost:8080 --file robot-command.json --output json
 lightesb robot command submit --server http://localhost:8080 --file robot-command.json --yes --output json
 ```
@@ -66,3 +70,4 @@ lightesb robot command submit --server http://localhost:8080 --file robot-comman
 - 写操作有 `--yes` 或明确说明需要人工确认。
 - 输出给 CI 的命令使用 `--output json`。
 - AI 相关说明不要求本地保存模型 provider 密钥。
+- 售后诊断证据已脱敏，且不会把只读采证误写成 reload、deploy、cleanup 或日志级别调整。
