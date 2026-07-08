@@ -106,6 +106,16 @@ GET /service-management/v1/robots/{robotId}/commands/{commandId}
 
 补偿积压分页查询当前直接使用管理 API `GET /service-management/v1/robots/compensations`；CLI 暂不新增对应命令。远程排查优先用 `lightesb diagnostics snapshot --component robot-command --output json` 查看 `compensationRequired` 和 `lastCompensationRequired`。
 
+禁用策略 CLI：
+
+```text
+lightesb robot policy list --server http://localhost:8080 --scope-type site --enabled true
+lightesb robot policy add --server http://localhost:8080 --scope-type robot --scope-value quad-001 --reason "maintenance" --yes
+lightesb robot policy disable --server http://localhost:8080 --id <policyId> --yes
+```
+
+这些命令只调用 `GET/POST /service-management/v1/robots/policies/denylist` 及 `POST /service-management/v1/robots/policies/denylist/{id}:disable`。命中启用策略时，`commands:validate` 和 `commands` 返回 `ROBOT_POLICY_REJECTED`，不会触发协议调用。
+
 当前默认用本机 WSL mock HTTP 和本地测试验证，不证明真实资产库、真实在线状态、真实审计源、真实协议执行状态或真实能力发现。
 
 `robot command validate --file` 从 JSON 文件读取 `robotId`，只调用：

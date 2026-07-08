@@ -31,6 +31,7 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 - `robot command status --robot-id --command-id` 只调用 `GET /service-management/v1/robots/{robotId}/commands/{commandId}`，不提交新命令或连接真实协议 endpoint。
 - `robot command submit --file --yes` 只调用 `POST /service-management/v1/robots/{robotId}/commands` 命令账本、审计和 MQTT outbox 入口；`protocolReceipt.dispatched=false` 时不能当作真实协议执行成功。
 - `robot command ingest-receipt --receipt-type ack|result --topic --payload-file|--payload-json --yes` 只调用 `POST /service-management/v1/robots/mqtt-receipts:ingest`，不订阅 MQTT、不直连 broker、不自动 submit/dispatch 命令。
+- `robot policy list/add/disable` 只调用机器人管理 API denylist；`add` 和 `disable` 必须带 `--yes`，不直连数据库、不连接真实机器人、不触发协议调用。
 - 机器人 CLI 后续真实执行能力必须另开协议闭环切片；不要生成协议写控命令。
 - 机器人 CLI 默认只要求本机 WSL 可运行 Maven；用 mock HTTP 和本地测试验证，不要求真实地址或真实机器人环境。
 - AI 路由生成和优化只返回候选内容，不自动保存、打包或部署。
@@ -64,6 +65,7 @@ lightesb diagnostics snapshot --server http://localhost:8080 --service-name Demo
 lightesb robot command validate --server http://localhost:8080 --file robot-command.json --output json
 lightesb robot command submit --server http://localhost:8080 --file robot-command.json --yes --output json
 lightesb robot command ingest-receipt --server http://localhost:8080 --receipt-type ack --topic robot/site-a/quad-001/command/cmd-001/ack --payload-file ack.json --yes --output json
+lightesb robot policy list --server http://localhost:8080 --output json
 ```
 
 验收：
