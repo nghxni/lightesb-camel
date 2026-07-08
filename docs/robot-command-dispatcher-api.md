@@ -94,6 +94,8 @@ result 可以早于 ack 到达：只要命令已 `dispatched`，result 可直接
 
 成功推进状态的 dispatcher、ack 和 result 会派生最新状态快照。`GET /service-management/v1/robots/{robotId}/state` 优先读取持久化快照；无快照时返回管理面样例快照并标记 `sourceType=management_snapshot`。`GET /service-management/v1/robots/state-snapshots` 只读查询已持久化快照，支持 `siteId`、`onlineStatus`、`health`、`protocolProfile`、`pageNum`、`pageSize`，返回 `items`、`total`、`pageNum`、`pageSize`、`filters` 和固定排序 `updatedAt desc, robotId asc`；`pageSize` 范围为 `1..100`，越界返回 `ROBOT_QUERY_SCHEMA_INVALID`。快照字段包括 `onlineStatus`、`health`、`protocolProfile`、`lastTelemetryAt`、`lastCommandId`、`lastErrorCode`、`sourceType` 和 `updatedAt`。第一版不开放状态 upsert API，也不代表真实遥测、真实在线心跳或现场位姿已经接入。
 
+补偿第一版不新增补偿队列表。已派发或已推进状态的命令在写入 `ROBOT_STATE_SNAPSHOT` 失败时会标记 `ROBOT_COMMAND.STATUS=compensation_required`，写入 `robot.command.compensation_required` 审计事件，并可通过 `GET /service-management/v1/robots/compensations?pageNum=1&pageSize=20` 只读查询。响应包含 `items`、`total`、`pageNum`、`pageSize`、`sort`，单条记录包含 `robotId`、`commandId`、`reasonCode`、`reasonMessage`、`retryable`、`routeId`、`correlationId`、`updatedAt`。`robot-command` diagnostics 输出 `compensationRequired`、`lastCompensationRequired`，并在存在补偿积压时返回 warning。该能力只处理平台账本、审计和状态一致性，不自动重试真实协议，不重新下发 MQTT。
+
 该 HTTP 入口用于 mock/local 和运行态 E2E 验证，不代表默认生产环境已启用真实 MQTT consumer。真实 MQTT consumer 仍需单独接入 broker 订阅、凭据、ACL、弱网和跨实例验证。
 
 本机已有 EMQX 或强模拟器时，可用交付脚本验证正式 dispatcher 与回执入账闭环：

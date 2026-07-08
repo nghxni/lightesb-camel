@@ -104,6 +104,8 @@ GET /service-management/v1/robots/{robotId}/commands/{commandId}
 
 批量状态快照分页查询当前直接使用管理 API `GET /service-management/v1/robots/state-snapshots`，支持 `siteId`、`onlineStatus`、`health`、`protocolProfile`、`pageNum`、`pageSize`；CLI 暂不新增对应命令。
 
+补偿积压分页查询当前直接使用管理 API `GET /service-management/v1/robots/compensations`；CLI 暂不新增对应命令。远程排查优先用 `lightesb diagnostics snapshot --component robot-command --output json` 查看 `compensationRequired` 和 `lastCompensationRequired`。
+
 当前默认用本机 WSL mock HTTP 和本地测试验证，不证明真实资产库、真实在线状态、真实审计源、真实协议执行状态或真实能力发现。
 
 `robot command validate --file` 从 JSON 文件读取 `robotId`，只调用：
