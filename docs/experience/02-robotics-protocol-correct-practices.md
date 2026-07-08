@@ -37,6 +37,7 @@
 - 真实联调前必须明确 TLS/mTLS、ACL、离线会话、重连、重复投递和延迟 result。
 - 没有真实固件环境时，应先做模拟固件前置验证：正式 dispatcher 发布 command，模拟客户端订阅 command 并回传 ack/result/telemetry，由 MQTT 观察证据确认 topic、payload、`commandId` 和 `correlationId` 可对齐。
 - 模拟固件验证通过不等于真实固件执行通过；如果尚未实现正式 ack/result ingest，只能把 ack/result 作为 MQTT 观察证据，不能声称命令状态已由机器人结果推进。已有 ingest 入口时，可以用显式 local simulator 模式验证 `accepted -> dispatched -> acknowledged -> succeeded`，但仍不能替代现场固件、ACL、弱网和跨实例验收。
+- 已有 ingest 入口时，状态机必须允许 result 早于 ack 到达；`timeout` 或 `failed` 后迟到的 `succeeded` 不能覆盖终态；重复 ack/result 第一版不写重复审计。
 
 ### rosbridge / ROS2
 

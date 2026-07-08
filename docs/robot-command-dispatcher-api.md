@@ -90,7 +90,7 @@ payload 至少包含 `siteId`、`robotId`、`commandId` 和 `status`，并且 `s
 | result | `timeout` | `dispatched|acknowledged -> timeout` |
 | result | `rejected` | 映射为 `failed`，原始拒绝语义保留在 payload 摘要中 |
 
-重复回执、终态后的迟到 ack 和乱序 result 不会重复写审计，也不会回退状态。审计写入失败时，状态推进和审计写入同事务回滚。
+result 可以早于 ack 到达：只要命令已 `dispatched`，result 可直接推进到 `succeeded`、`failed` 或 `timeout` 终态；后续迟到 ack 返回 ignored 语义，不回退状态。`timeout` 或 `failed` 后迟到的 `succeeded` 不允许覆盖终态。重复回执、终态后的迟到 ack 和乱序 result 不会重复写审计，也不会回退状态。审计写入失败时，状态推进和审计写入同事务回滚。
 
 该 HTTP 入口用于 mock/local 和运行态 E2E 验证，不代表默认生产环境已启用真实 MQTT consumer。真实 MQTT consumer 仍需单独接入 broker 订阅、凭据、ACL、弱网和跨实例验证。
 
