@@ -52,7 +52,7 @@ curl -sS -X POST http://127.0.0.1:8080/service-management/v1/robots/commands:dis
 
 ## MQTT 回执接入基线
 
-交付包已提供可被 MQTT consumer 复用的 ack/result 回执接入服务基线。当前自动化验证使用 mock topic 和 JSON payload，不连接真实 broker，也不新增默认真实 MQTT consumer route。
+交付包已提供可被 MQTT consumer 复用的 ack/result 回执接入服务基线。当前自动化验证可使用 mock topic 和 JSON payload；也可在本机 EMQX 或强模拟器环境下，先由正式 dispatcher 派发 command，再把模拟固件捕获并发布的 ack/result 转交 ingest。该能力不新增默认真实 MQTT consumer route。
 
 运行态 mock/local E2E 可调用：
 
@@ -93,6 +93,16 @@ payload 至少包含 `siteId`、`robotId`、`commandId` 和 `status`，并且 `s
 重复回执、终态后的迟到 ack 和乱序 result 不会重复写审计，也不会回退状态。审计写入失败时，状态推进和审计写入同事务回滚。
 
 该 HTTP 入口用于 mock/local 和运行态 E2E 验证，不代表默认生产环境已启用真实 MQTT consumer。真实 MQTT consumer 仍需单独接入 broker 订阅、凭据、ACL、弱网和跨实例验证。
+
+本机已有 EMQX 或强模拟器时，可用交付脚本验证正式 dispatcher 与回执入账闭环：
+
+```bash
+export LIGHTESB_BASE=http://127.0.0.1:8080
+export ROBOT_MQTT_BROKER_URI=tcp://127.0.0.1:1883
+tools/robot-mqtt-firmware-precheck/test_robot_mqtt_firmware_precheck.sh --dispatcher-ingest
+```
+
+通过标准是 `accepted -> dispatched -> acknowledged -> succeeded`，并能查询到 submitted、dispatched、ack、result 审计。该模式仍属于 local simulator 验证，不等同于现场机器人、ACL、弱网、离线会话或跨实例验收。
 
 ## 审计归档
 
