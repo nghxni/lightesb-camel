@@ -197,6 +197,6 @@ robot doctor --offline
 14. 插件化协议适配器规范只代表准入门禁，不代表 ROS2/DDS、SocketCAN、EtherCAT/Profinet SDK 或厂商私有协议组件已经交付。
 15. UI/AI 进入验收标准只代表准入门禁，不代表机器人页面、AI 自动生成、AI tools 写操作或真实动作执行能力已经交付。
 16. MQTT 本地 EMQX TLS 单向信任、QoS1、非 retained、非持久会话在线最小投递和发布前 `commandId` 幂等，不代表 mTLS、离线补投、弱网重连、ack/result 状态推进或跨实例一致性已经验证。
-17. 管理 API 的 list/get/capabilities/state/audit/status 只代表 mock/management snapshot 和本地查询契约；真实资产库、服务包关联、真实在线状态和最近遥测必须等资产模型、状态存储、权限和查询 API 齐备后再打开。
+17. 管理 API 的 list/get/capabilities/state/audit/status 只代表 mock/management snapshot、本地查询契约或命令状态派生快照；真实资产库、服务包关联、真实在线状态和最近遥测必须等资产模型、状态存储、权限和查询 API 齐备后再打开。
 18. submit accepted、HTTP 200、`outboxStatus=pending`、MQTT publish 成功或 `protocolReceipt.dispatched=false` 都不能解释为真实现场执行完成；真实执行闭环必须用状态机、ack/result 持久化、跨实例一致性、审计补偿、权限和强模拟器/现场设备验收共同证明。
 19. 正式 dispatcher 验证必须走管理 API、命令账本、审计、outbox、dispatcher、MQTT 接收、状态查询和诊断快照闭环；验证 route 或 demo 路由不能替代正式 dispatcher 证据。

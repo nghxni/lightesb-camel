@@ -48,7 +48,7 @@ curl -sS -X POST http://127.0.0.1:8080/service-management/v1/robots/commands:dis
 
 `POST /commands:dispatch-next` 手动触发一次 dispatcher，从 outbox claim 一条到期 `pending` 记录并派发到 MQTT。成功后 outbox 变为 `dispatched`，命令状态推进到 `dispatched`，并追加 `robot.command.dispatched` 审计。该接口用于运维验证和手动补偿，不代表自动调度循环已经启用。
 
-无 MySQL POC 可配置 `lightesb.poc.h2-fallback.enabled=true`，机器人命令账本、审计和 outbox 使用 H2 同名表。该模式只用于小数据量演示，不承诺生产级归档、保留、备份恢复或切回 MySQL 后的数据迁移。
+无 MySQL POC 可配置 `lightesb.poc.h2-fallback.enabled=true`，机器人命令账本、审计、outbox 和状态快照使用 H2 同名表。该模式只用于小数据量演示，不承诺生产级归档、保留、备份恢复或切回 MySQL 后的数据迁移。
 
 ## MQTT 回执接入基线
 
@@ -91,6 +91,8 @@ payload 至少包含 `siteId`、`robotId`、`commandId` 和 `status`，并且 `s
 | result | `rejected` | 映射为 `failed`，原始拒绝语义保留在 payload 摘要中 |
 
 result 可以早于 ack 到达：只要命令已 `dispatched`，result 可直接推进到 `succeeded`、`failed` 或 `timeout` 终态；后续迟到 ack 返回 ignored 语义，不回退状态。`timeout` 或 `failed` 后迟到的 `succeeded` 不允许覆盖终态。重复回执、终态后的迟到 ack 和乱序 result 不会重复写审计，也不会回退状态。审计写入失败时，状态推进和审计写入同事务回滚。
+
+成功推进状态的 dispatcher、ack 和 result 会派生最新状态快照。`GET /service-management/v1/robots/{robotId}/state` 优先读取持久化快照；无快照时返回管理面样例快照并标记 `sourceType=management_snapshot`。快照字段包括 `onlineStatus`、`health`、`protocolProfile`、`lastTelemetryAt`、`lastCommandId`、`lastErrorCode`、`sourceType` 和 `updatedAt`。第一版不开放状态 upsert API，也不代表真实遥测、真实在线心跳或现场位姿已经接入。
 
 该 HTTP 入口用于 mock/local 和运行态 E2E 验证，不代表默认生产环境已启用真实 MQTT consumer。真实 MQTT consumer 仍需单独接入 broker 订阅、凭据、ACL、弱网和跨实例验证。
 
@@ -207,6 +209,7 @@ dispatcher 交付配置：
 
 - CLI 只调用管理 API，不直连 MQTT broker。
 - `outboxStatus=pending` 不代表机器人已收到或已执行。
+- `robot state` 可查询管理面状态快照，但 `sourceType=command_status|ack|result|management_snapshot` 都不等同于真实设备在线验收。
 - 完整大报文应进入实例日志；审计只保存短摘要和 trace。
 - H2 只用于 mock/local POC；真实 dispatcher 使用生产数据库。
 - `commands:dispatch-next` 是手动运维入口，不代表自动调度循环已经启用。

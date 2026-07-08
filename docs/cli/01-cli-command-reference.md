@@ -100,7 +100,9 @@ GET /service-management/v1/robots/{robotId}/audit
 GET /service-management/v1/robots/{robotId}/commands/{commandId}
 ```
 
-这些命令是只读查询，不提交动作，不清理审计数据，不连接真实协议 endpoint。当前默认用本机 WSL mock HTTP 和本地测试验证，不证明真实资产库、真实在线状态、真实审计源、真实协议执行状态或真实能力发现。
+这些命令是只读查询，不提交动作，不清理审计数据，不连接真实协议 endpoint。`robot state` 文本输出包含 `onlineStatus`、`protocolProfile`、`lastCommandId`、`lastErrorCode`、`sourceType` 和 `updatedAt`；`--output json` 保留服务端完整标准响应。状态快照可能来自命令状态、ack/result 派生或管理面样例快照，不代表真实设备在线验收。
+
+当前默认用本机 WSL mock HTTP 和本地测试验证，不证明真实资产库、真实在线状态、真实审计源、真实协议执行状态或真实能力发现。
 
 `robot command validate --file` 从 JSON 文件读取 `robotId`，只调用：
 
