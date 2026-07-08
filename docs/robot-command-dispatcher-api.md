@@ -92,7 +92,7 @@ payload 至少包含 `siteId`、`robotId`、`commandId` 和 `status`，并且 `s
 
 result 可以早于 ack 到达：只要命令已 `dispatched`，result 可直接推进到 `succeeded`、`failed` 或 `timeout` 终态；后续迟到 ack 返回 ignored 语义，不回退状态。`timeout` 或 `failed` 后迟到的 `succeeded` 不允许覆盖终态。重复回执、终态后的迟到 ack 和乱序 result 不会重复写审计，也不会回退状态。审计写入失败时，状态推进和审计写入同事务回滚。
 
-成功推进状态的 dispatcher、ack 和 result 会派生最新状态快照。`GET /service-management/v1/robots/{robotId}/state` 优先读取持久化快照；无快照时返回管理面样例快照并标记 `sourceType=management_snapshot`。快照字段包括 `onlineStatus`、`health`、`protocolProfile`、`lastTelemetryAt`、`lastCommandId`、`lastErrorCode`、`sourceType` 和 `updatedAt`。第一版不开放状态 upsert API，也不代表真实遥测、真实在线心跳或现场位姿已经接入。
+成功推进状态的 dispatcher、ack 和 result 会派生最新状态快照。`GET /service-management/v1/robots/{robotId}/state` 优先读取持久化快照；无快照时返回管理面样例快照并标记 `sourceType=management_snapshot`。`GET /service-management/v1/robots/state-snapshots` 只读查询已持久化快照，支持 `siteId`、`onlineStatus`、`health`、`protocolProfile`、`pageNum`、`pageSize`，返回 `items`、`total`、`pageNum`、`pageSize`、`filters` 和固定排序 `updatedAt desc, robotId asc`；`pageSize` 范围为 `1..100`，越界返回 `ROBOT_QUERY_SCHEMA_INVALID`。快照字段包括 `onlineStatus`、`health`、`protocolProfile`、`lastTelemetryAt`、`lastCommandId`、`lastErrorCode`、`sourceType` 和 `updatedAt`。第一版不开放状态 upsert API，也不代表真实遥测、真实在线心跳或现场位姿已经接入。
 
 该 HTTP 入口用于 mock/local 和运行态 E2E 验证，不代表默认生产环境已启用真实 MQTT consumer。真实 MQTT consumer 仍需单独接入 broker 订阅、凭据、ACL、弱网和跨实例验证。
 
