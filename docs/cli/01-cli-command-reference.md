@@ -113,10 +113,11 @@ GET /service-management/v1/robots/{robotId}/commands/{commandId}
 ```text
 lightesb robot policy list --server http://localhost:8080 --scope-type site --enabled true
 lightesb robot policy add --server http://localhost:8080 --scope-type robot --scope-value quad-001 --reason "maintenance" --yes
+lightesb robot policy enable --server http://localhost:8080 --id <policyId> --yes
 lightesb robot policy disable --server http://localhost:8080 --id <policyId> --yes
 ```
 
-这些命令只调用 `GET/POST /service-management/v1/robots/policies/denylist` 及 `POST /service-management/v1/robots/policies/denylist/{id}:disable`。命中启用策略时，`commands:validate` 和 `commands` 返回 `ROBOT_POLICY_REJECTED`，不会触发协议调用。
+这些命令只调用 `GET/POST /service-management/v1/robots/policies/denylist` 及 `POST /service-management/v1/robots/policies/denylist/{id}:enable|disable`。写操作必须带 `--yes`，会写控制面审计。命中启用策略时，`commands:validate` 和 `commands` 返回 `ROBOT_POLICY_REJECTED`，不会触发协议调用。
 
 当前默认用本机 WSL mock HTTP 和本地测试验证，不证明真实资产库、真实在线状态、真实审计源、真实协议执行状态或真实能力发现。
 

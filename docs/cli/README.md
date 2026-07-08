@@ -43,4 +43,4 @@ lightesb --file payload.json <command>
 - `robot command status --robot-id --command-id` 只查询已有命令结果，不提交新命令，不单独证明真实协议执行状态。
 - `robot command submit --file --yes` 提交到服务端命令账本、审计和 MQTT outbox；`outboxStatus=pending` 只表示进入可靠派发队列，`protocolReceipt.dispatched=false` 不能当作机器人已收到或已执行。
 - `robot command ingest-receipt --receipt-type ack|result --topic --payload-file|--payload-json --yes` 只调用服务端 MQTT 回执 ingest 入口；不订阅 MQTT、不直连 broker、不自动 submit/dispatch 命令。
-- `robot policy list|add|disable` 只调用机器人管理 API 的 denylist 入口。`add` 和 `disable` 必须加 `--yes`；不直连数据库、不连接真实机器人、不触发协议调用。
+- `robot policy list|add|enable|disable` 只调用机器人管理 API 的 denylist 入口。`add`、`enable` 和 `disable` 必须加 `--yes`；不直连数据库、不连接真实机器人、不触发协议调用。

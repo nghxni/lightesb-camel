@@ -139,7 +139,7 @@ robot doctor --offline
 - CLI 只调用稳定管理 API 或本地只读检查，不直接调用验证 route。
 - CLI 不接收动态协议目标参数。
 - `robot doctor --runtime` 只调用运行态诊断 API 的 `robot-command` 组件，不连接真实 endpoint，不调用测试 route。
-- `robot policy list/add/disable` 只调用管理 API denylist，不直接读写数据库、不连接真实机器人、不触发协议调用。
+- `robot policy list/add/enable/disable` 只调用管理 API denylist，不直接读写数据库、不连接真实机器人、不触发协议调用；写操作必须带 `--yes`。
 - `robot command validate --file` 不创建命令、不下发协议、不写执行审计。
 - `robot command submit --file --yes` 必须明确 outbox queued 不等于真实执行成功。
 - `robot command status` 只查已有命令，不提交新命令。
@@ -203,4 +203,4 @@ robot doctor --offline
 17. 管理 API 的 list/get/capabilities/state/audit/status 只代表 mock/management snapshot、本地查询契约或命令状态派生快照；真实资产库、服务包关联、真实在线状态和最近遥测必须等资产模型、状态存储、权限和查询 API 齐备后再打开。
 18. submit accepted、HTTP 200、`outboxStatus=pending`、MQTT publish 成功或 `protocolReceipt.dispatched=false` 都不能解释为真实现场执行完成；真实执行闭环必须用状态机、ack/result 持久化、跨实例一致性、审计补偿、权限和强模拟器/现场设备验收共同证明。
 19. 正式 dispatcher 验证必须走管理 API、命令账本、审计、outbox、dispatcher、MQTT 接收、状态查询和诊断快照闭环；验证 route 或 demo 路由不能替代正式 dispatcher 证据。
-20. 禁用策略应通过管理 API/CLI 和 denylist 管理；不要写进路由 XML，不要让 CLI 直连数据库，也不要把它描述成现场安全互锁。
+20. 禁用策略应通过管理 API/CLI 和 denylist 管理；CLI 支持 `list/add/enable/disable`，不要写进路由 XML，不要让 CLI 直连数据库，也不要把它描述成现场安全互锁。

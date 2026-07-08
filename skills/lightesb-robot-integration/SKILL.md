@@ -27,7 +27,7 @@ description: 机器人、工业协议和命令 dispatcher 交付指导。处理 
 - 真实设备联调前必须准备 endpoint、凭据、ACL/TLS、点表、测试窗口和回滚方案。
 - 不把 mock-first 验证当作真实机器人、broker、rosbridge、OPC UA、Modbus 或 gRPC 互通证明。
 - `robot command submit` 进入命令账本、审计和 MQTT outbox；`robot command ingest-receipt` 只把已捕获 MQTT ack/result 回执转交服务端 ingest API；`outboxStatus=pending` 不代表机器人已收到或已执行。
-- `ROBOT_POLICY_DENYLIST` 支持 site、robot、protocolProfile 禁用策略；命中启用策略时 `commands:validate` 和 `commands` 返回 `ROBOT_POLICY_REJECTED`，不触发协议调用。
+- `ROBOT_POLICY_DENYLIST` 支持 site、robot、protocolProfile 禁用策略；命中启用策略时 `commands:validate` 和 `commands` 返回 `ROBOT_POLICY_REJECTED`，不触发协议调用，拒绝详情包含策略 ID 和禁用来源。
 - 本机 EMQX 或强模拟器可用时，使用 `tools/robot-mqtt-firmware-precheck/test_robot_mqtt_firmware_precheck.sh --dispatcher-ingest` 验证 `accepted -> dispatched -> acknowledged -> succeeded`；该结果仍属于 local simulator，不等同于现场机器人验收。
 - 无 MySQL 小数据量 POC 可使用 `lightesb.poc.h2-fallback.enabled=true`，机器人命令账本、审计和 outbox 使用 H2；用 `diagnostics snapshot --component robot-command --output json` 确认 `pocH2FallbackEnabled` 和 `robotManagementStorage`。
 - 运行态 doctor 用 `lightesb robot doctor --runtime --output json` 或 `diagnostics snapshot --component robot-command --output json` 查看表、outbox、状态快照、补偿、denylist 和最近错误码分布；该检查不连接真实 endpoint。
