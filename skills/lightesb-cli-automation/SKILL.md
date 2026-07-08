@@ -26,6 +26,7 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 - 服务同步默认自动启动部署路由；需要关闭时使用 `--no-start`。`sync-remote --keep-package` 可保留中间导出包。
 - 服务同步中远端已有同名报文且内容不一致时走消息更新接口，要求远端当前版本为 `V数字.单数字`，更新后递增单数字小版本并保留历史；小版本为 `9` 时进位，例如 `V1.9` -> `V2.0`。
 - `robot doctor --offline` 只做本地静态检查，不连接真实 endpoint，不下发机器人命令。
+- `robot doctor --runtime` 只调用 `/api/diagnostics/runtime-snapshot?component=robot-command`，检查表、outbox、状态快照、补偿、denylist 和最近错误码分布；保持 `connectivityChecked=false`，不连接真实 endpoint、不调用验证 route。
 - `robot list/get/capabilities/state/audit` 只做机器人管理 API 只读查询，不证明真实资产库、真实在线状态、真实审计源或真实能力发现。
 - `robot command validate --file` 只调用 `POST /service-management/v1/robots/{robotId}/commands:validate`，不调用 `/commands`，不创建命令或执行审计。
 - `robot command status --robot-id --command-id` 只调用 `GET /service-management/v1/robots/{robotId}/commands/{commandId}`，不提交新命令或连接真实协议 endpoint。
@@ -62,6 +63,7 @@ lightesb keyword query-instances --service-name DemoSrv --service-version 1.0.0 
 lightesb diagnostics snapshot --server http://localhost:8080 --output json
 lightesb diagnostics warnings --server http://localhost:8080 --output json
 lightesb diagnostics snapshot --server http://localhost:8080 --service-name DemoSrv --service-version v1.0.0 --component route-runtime --output json
+lightesb robot doctor --server http://localhost:8080 --runtime --output json
 lightesb robot command validate --server http://localhost:8080 --file robot-command.json --output json
 lightesb robot command submit --server http://localhost:8080 --file robot-command.json --yes --output json
 lightesb robot command ingest-receipt --server http://localhost:8080 --receipt-type ack --topic robot/site-a/quad-001/command/cmd-001/ack --payload-file ack.json --yes --output json

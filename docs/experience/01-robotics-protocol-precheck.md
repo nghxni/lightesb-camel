@@ -374,7 +374,7 @@ MQTT 样例还提供服务包级 XML 加载验证：
 - 当前清理接口是手动最小能力；大表场景建议后续接入分批删除、定时保留策略和管理权限控制，避免单次大事务或误删。
 - 当前已具备 MQTT outbox 首期闭环；真实设备或强模拟器、ack/result 状态推进持久化、跨实例幂等、审计补偿和现场故障注入仍需独立验收。
 - 该能力不代表真实 MQTT/rosbridge/OPC UA/Modbus 下发、ack/result 状态推进、跨实例分布式锁或审计补偿已经完成。
-- 正式 `robot doctor` 接入运行态数据源已评估为后置能力；交付包当前只保留 `robot doctor --offline` 静态检查，不连接运行中后端、数据库、日志索引或真实端点。真实资产库、最近心跳、错误日志、权限边界和运行态查询 API 稳定后再重新打开。
+- 正式 `robot doctor` 第一版分为 `--offline` 和 `--runtime`：`--offline` 做静态检查，`--runtime` 只读取 `robot-command` 管理面运行态摘要，覆盖表、outbox、状态快照、补偿、denylist 和最近错误码分布；两者都保持 `connectivityChecked=false`，不连接真实端点，也不代表真实资产在线或现场动作成功。
 
 ## gRPC IDL 契约
 

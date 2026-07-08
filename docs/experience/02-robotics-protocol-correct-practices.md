@@ -16,7 +16,7 @@
 | 幂等 | `commandId` 是幂等键，重复同 payload 返回稳定结果，不重复执行 |
 | 安全 | 默认只开放白名单高层动作，禁止裸写、任意脚本和未登记目标 |
 | 凭据 | broker、证书、密码和 endpoint 通过环境变量或安全配置注入，不写入交付包 |
-| doctor | `robot doctor --offline` 只做静态检查，不证明真实端点连通 |
+| doctor | `robot doctor --offline` 只做静态检查，`robot doctor --runtime` 只做管理面运行态摘要，二者都不证明真实端点连通 |
 
 ## 命令模型
 
@@ -128,6 +128,7 @@ AI tools 当前不交付机器人接入诊断工具。已有准入标准只说�
 
 ```text
 robot doctor --offline
+-> robot doctor --runtime
 -> robot command validate --file
 -> robot list/get/capabilities/state/audit/status
 -> robot command submit reliable outbox
@@ -137,12 +138,13 @@ robot doctor --offline
 
 - CLI 只调用稳定管理 API 或本地只读检查，不直接调用验证 route。
 - CLI 不接收动态协议目标参数。
+- `robot doctor --runtime` 只调用运行态诊断 API 的 `robot-command` 组件，不连接真实 endpoint，不调用测试 route。
 - `robot policy list/add/disable` 只调用管理 API denylist，不直接读写数据库、不连接真实机器人、不触发协议调用。
 - `robot command validate --file` 不创建命令、不下发协议、不写执行审计。
 - `robot command submit --file --yes` 必须明确 outbox queued 不等于真实执行成功。
 - `robot command status` 只查已有命令，不提交新命令。
 - 真实协议 submit/执行闭环必须等统一 dispatcher、ack/result 状态推进、审计补偿、跨实例幂等、权限/人工确认和真实或强模拟设备验证齐备后再打开。
-- 在线 `robot doctor` 必须等真实资产库、最近心跳/遥测数据源、结构化错误日志或日志检索 API、只读权限和站点隔离齐备后再打开；`robot doctor --offline` 不能写成在线诊断。
+- 真实 endpoint 连通性 doctor 必须等真实资产库、最近心跳/遥测数据源、结构化错误日志或日志检索 API、只读权限和站点隔离齐备后再打开；`robot doctor --offline` 和 `robot doctor --runtime` 都不能写成真实在线诊断。
 
 ## 真实联调前置清单
 
@@ -190,7 +192,7 @@ robot doctor --offline
 6. ack 不等于成功，result 才能证明最终结果。
 7. 默认只开放白名单高层动作。
 8. 真实联调前先明确认证、ACL、会话、重连、点表和故障注入方式。
-9. robot doctor --offline 只能做离线检查。
+9. robot doctor --offline 只能做离线检查；robot doctor --runtime 只能做管理面运行态摘要。
 10. 本地模拟器验证不等于现场设备验收。
 11. 临时工作目录不是交付证据，结论必须沉淀到正式文档。
 12. 综合样例已覆盖时，可以决策暂不拆分；不能虚构专用模板或真实互操作能力。

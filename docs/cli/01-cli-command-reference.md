@@ -34,6 +34,8 @@ lightesb doctor
 lightesb doctor --server http://localhost:8080 --output json
 lightesb robot doctor --offline
 lightesb robot doctor --offline --output json
+lightesb robot doctor --runtime --server http://localhost:8080
+lightesb robot doctor --runtime --server http://localhost:8080 --output json
 lightesb robot list
 lightesb robot list --site-id site-a --robot-type quadruped --online true
 lightesb robot get --robot-id quad-001
@@ -87,7 +89,7 @@ lightesb diagnostics snapshot --component robot-command --output json
 
 `robot doctor --offline` 只做机器人接入静态检查，输出 PASS/WARN/FAIL 和 `connectivityChecked=false`；不连接真实 endpoint，不下发机器人命令，不调用验证 route。
 
-在线 `robot doctor` 当前不启用。真实资产库、最近心跳/遥测数据源、结构化错误日志或日志检索 API、只读权限和站点隔离稳定前，不能把 offline 输出解释为真实资产在线、最近心跳健康或现场错误日志已检查。
+`robot doctor --runtime` 只调用 `GET /api/diagnostics/runtime-snapshot?component=robot-command`，输出管理面运行态 doctor 检查项。检查项覆盖数据库表存在性、outbox 积压、状态快照陈旧、补偿积压、启用 denylist 策略和最近错误码分布。`--output json` 保留服务端标准 envelope；table 输出展示 `overallStatus`、`connectivityChecked=false`、检查项和 warning。该命令不连接真实 endpoint、不下发命令、不调用验证 route，不能解释为真实资产在线、最近心跳健康或现场错误日志已检查。
 
 `robot list/get/capabilities/state/audit` 只调用：
 

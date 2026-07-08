@@ -58,7 +58,7 @@ Use logs to correlate `requestId`, `traceId`, `exchangeId`, routeId, service ver
 | Downstream failed | `log instance list --keyword traceId=...` | downstream name, error code, timeout summary | Check downstream network/account/business status |
 | Authorization failed | `doctor`, logs by traceId/requestId | HTTP 401/403, requestId | Check gateway and API authorization |
 | AI route issue | `ai route cache status`, `diagnostics snapshot --component ai-route-cache`, `diagnostics snapshot --component ai-model-session` | provider/modelRef if observable, duration, failure class | Treat AI output as a candidate; review before apply |
-| Robot command issue | `robot doctor --offline`, `robot command validate/status/ingest-receipt`, `diagnostics snapshot --component robot-command` | robotId, commandId, outbox and ack/result receipt status | Validate dispatcher/protocol closure separately |
+| Robot command issue | `robot doctor --offline`, `robot doctor --runtime`, `robot command validate/status/ingest-receipt`, `diagnostics snapshot --component robot-command` | robotId, commandId, outbox, state snapshot, compensation, denylist, doctor checks, and ack/result receipt status | Validate dispatcher/protocol closure separately |
 
 ## Recovery
 
