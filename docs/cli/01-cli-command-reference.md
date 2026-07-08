@@ -47,6 +47,8 @@ lightesb robot command status --robot-id quad-001 --command-id cmd-001
 lightesb robot command status --robot-id quad-001 --command-id cmd-001 --output json
 lightesb robot command submit --file command.json --yes
 lightesb robot command submit --file command.json --yes --output json
+lightesb robot command ingest-receipt --receipt-type ack --topic robot/site-a/quad-001/command/cmd-001/ack --payload-file ack.json --yes
+lightesb robot command ingest-receipt --receipt-type result --topic robot/site-a/quad-001/command/cmd-001/result --payload-json '{"commandId":"cmd-001","robotId":"quad-001","siteId":"site-a","status":"succeeded"}' --yes --output json
 lightesb diagnostics snapshot
 lightesb diagnostics snapshot --component route-runtime --output json
 lightesb diagnostics snapshot --service-name DemoSrv --service-version v1.0.0 --output json
@@ -117,6 +119,14 @@ POST /service-management/v1/robots/{robotId}/commands
 ```
 
 它会提交到服务端命令入口，必须显式传 `--yes`，并拒绝 `mode=validate_only` 和 `dryRun=true`。服务端返回 `protocolReceipt.outboxStatus=pending` 时，只表示命令已进入可靠派发队列；`protocolReceipt.dispatched=false` 不能当作机器人已收到或已执行。
+
+`robot command ingest-receipt --receipt-type ack|result --topic --payload-file|--payload-json --yes` 只调用：
+
+```text
+POST /service-management/v1/robots/mqtt-receipts:ingest
+```
+
+CLI 会向管理 API 发送 `receiptType`、`topic` 和原始 `payloadJson`。`--receipt-type` 只允许 `ack` 或 `result`；`--payload-file` 与 `--payload-json` 必须二选一；该命令可能推进命令状态并写审计，所以必须显式传 `--yes`。CLI 不订阅 MQTT topic，不连接 broker，不提交命令，不派发 outbox，也不改写回执 payload。topic/payload 一致性、重复回执、乱序回执、状态合法性和审计事务边界由服务端校验。
 
 ## App 与 Message
 
@@ -330,6 +340,7 @@ AI 边界：
 - `robot command validate --file` 只做服务端 validate-only 预检；请求体中的动态协议目标字段仍由服务端拒绝。
 - `robot command status --robot-id --command-id` 只查已有命令结果，不提交新命令。
 - `robot command submit --file --yes` 只提交到服务端命令账本、审计和 MQTT outbox；不直连协议端点，不证明真实执行成功。
+- `robot command ingest-receipt --receipt-type ack|result --topic --payload-file|--payload-json --yes` 只把已捕获的 MQTT ack/result 回执转交服务端 ingest API；不订阅 MQTT，不派发命令。
 - 当前 CLI 不提供 `move_to`、OPC UA write、Modbus write 或 rosbridge action 直连调用。
 - 后续如需真实协议执行，必须另开真实协议闭环切片，不能把 `accepted` 当作执行成功。
 - 默认自动化验证只要求本机 WSL 可运行 Maven；使用 mock HTTP 和本地单元测试，不要求真实地址或真实机器人环境。

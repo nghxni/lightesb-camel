@@ -50,6 +50,50 @@ curl -sS -X POST http://127.0.0.1:8080/service-management/v1/robots/commands:dis
 
 无 MySQL POC 可配置 `lightesb.poc.h2-fallback.enabled=true`，机器人命令账本、审计和 outbox 使用 H2 同名表。该模式只用于小数据量演示，不承诺生产级归档、保留、备份恢复或切回 MySQL 后的数据迁移。
 
+## MQTT 回执接入基线
+
+交付包已提供可被 MQTT consumer 复用的 ack/result 回执接入服务基线。当前自动化验证使用 mock topic 和 JSON payload，不连接真实 broker，也不新增默认真实 MQTT consumer route。
+
+运行态 mock/local E2E 可调用：
+
+```bash
+curl -sS -X POST http://127.0.0.1:8080/service-management/v1/robots/mqtt-receipts:ingest \
+  -H "Content-Type: application/json" \
+  -d '{"receiptType":"ack","topic":"robot/site-a/quad-001/command/cmd-001/ack","payloadJson":"{\"commandId\":\"cmd-001\",\"robotId\":\"quad-001\",\"siteId\":\"site-a\",\"status\":\"accepted\",\"correlationId\":\"corr-cmd-001\"}"}'
+```
+
+请求字段：
+
+| 字段 | 说明 |
+| --- | --- |
+| `receiptType` | `ack` 或 `result`，必须与 topic 后缀一致。 |
+| `topic` | MQTT 回执 topic。 |
+| `payloadJson` | MQTT 回执 payload 的 JSON 字符串。 |
+
+回执 topic：
+
+| 回执 | Topic |
+| --- | --- |
+| ack | `robot/{siteId}/{robotId}/command/{commandId}/ack` |
+| result | `robot/{siteId}/{robotId}/command/{commandId}/result` |
+
+payload 至少包含 `siteId`、`robotId`、`commandId` 和 `status`，并且 `siteId`、`robotId`、`commandId` 必须与 topic 一致。不一致、缺字段或非法 status 会返回 `ROBOT_MQTT_RECEIPT_INVALID`，不推进状态，也不写命令审计。
+
+状态映射：
+
+| 回执 | status | 状态推进 |
+| --- | --- | --- |
+| ack | `accepted` | `dispatched -> acknowledged` |
+| ack | `rejected` | `dispatched -> failed` |
+| result | `succeeded` | `dispatched|acknowledged -> succeeded` |
+| result | `failed` | `dispatched|acknowledged -> failed` |
+| result | `timeout` | `dispatched|acknowledged -> timeout` |
+| result | `rejected` | 映射为 `failed`，原始拒绝语义保留在 payload 摘要中 |
+
+重复回执、终态后的迟到 ack 和乱序 result 不会重复写审计，也不会回退状态。审计写入失败时，状态推进和审计写入同事务回滚。
+
+该 HTTP 入口用于 mock/local 和运行态 E2E 验证，不代表默认生产环境已启用真实 MQTT consumer。真实 MQTT consumer 仍需单独接入 broker 订阅、凭据、ACL、弱网和跨实例验证。
+
 ## 审计归档
 
 `ROBOT_AUDIT_LOG` 默认由服务端自动归档，不需要 CLI 触发：
@@ -118,6 +162,7 @@ dispatcher 交付配置：
 | 动态协议目标字段 | 422 | `ROBOT_POLICY_REJECTED` |
 | 能力不支持 | 422 | `ROBOT_CAPABILITY_NOT_SUPPORTED` |
 | commandId 重复但 payload 不同 | 409 | `ROBOT_COMMAND_DUPLICATE_CONFLICT` |
+| MQTT 回执 topic/payload 不合法 | 400 | `ROBOT_MQTT_RECEIPT_INVALID` |
 
 ## 路由 mock 验证
 

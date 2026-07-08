@@ -1,6 +1,6 @@
 ---
 name: lightesb-robot-integration
-description: 机器人、工业协议和命令 dispatcher 交付指导。处理 MQTT telemetry/command、rosbridge、OPC UA、Modbus、gRPC IDL/mock、机器人命令 validate/status/submit、outbox dispatcher、审计归档和现场验收边界时使用。
+description: 机器人、工业协议和命令 dispatcher 交付指导。处理 MQTT telemetry/command、rosbridge、OPC UA、Modbus、gRPC IDL/mock、机器人命令 validate/status/submit/ingest-receipt、outbox dispatcher、审计归档和现场验收边界时使用。
 ---
 
 # LightESB 机器人集成
@@ -26,7 +26,7 @@ description: 机器人、工业协议和命令 dispatcher 交付指导。处理 
 - 机器人样例默认可保持 `server.running=false`，用于复制、阅读和 mock 验证。
 - 真实设备联调前必须准备 endpoint、凭据、ACL/TLS、点表、测试窗口和回滚方案。
 - 不把 mock-first 验证当作真实机器人、broker、rosbridge、OPC UA、Modbus 或 gRPC 互通证明。
-- `robot command submit` 进入命令账本、审计和 MQTT outbox；`outboxStatus=pending` 不代表机器人已收到或已执行。
+- `robot command submit` 进入命令账本、审计和 MQTT outbox；`robot command ingest-receipt` 只把已捕获 MQTT ack/result 回执转交服务端 ingest API；`outboxStatus=pending` 不代表机器人已收到或已执行。
 - 无 MySQL 小数据量 POC 可使用 `lightesb.poc.h2-fallback.enabled=true`，机器人命令账本、审计和 outbox 使用 H2；用 `diagnostics snapshot --component robot-command --output json` 确认 `pocH2FallbackEnabled` 和 `robotManagementStorage`。
 - H2 fallback 不代表生产级归档、保留、备份恢复或切回 MySQL 后的数据迁移能力。
 - 请求体禁止覆盖底层协议目标字段，例如 `topic`、`broker`、`endpoint`、`node`、`register`、`service`、`unitId`。
