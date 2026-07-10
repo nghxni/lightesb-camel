@@ -28,6 +28,7 @@
 | `extensions/01-dts-extension-guide.md` | `docs/23-third-party-dts-extension-guide.md` |
 | `extensions/02-dts-minimal-template.md` | `docs/24-third-party-dts-extension-minimal-template.md` |
 | `api-response-contract.md` | 管理 API 响应契约，外发整理版 |
+| `service-runtime-management-api.md` | `docs/service-runtime-management-api.md` 与运行时生命周期结论，按交付启停场景重写 |
 | `deployment-management-api.md` | 部署管理 API 说明，外发整理版 |
 | `ai-route-cache-api.md` | `docs/ai-route-cache-api.md`，按交付场景压缩整理 |
 | `runtime-diagnostics-api.md` | 运行时诊断 API 与 H2 fallback POC 设计结论，按交付场景压缩整理 |

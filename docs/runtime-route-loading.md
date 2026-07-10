@@ -5,10 +5,13 @@
 ## 结论
 
 - LightESB-Camel 不依赖 Spring Boot 启动时自动创建全局 CamelContext 来承载业务路由。
-- 业务路由按服务目录动态加载，每个启用的服务文件会在运行时创建对应的 Camel 上下文和路由。
+- 业务路由按服务版本目录动态加载；每个 `serviceName + serviceVersion` 目录必须恰好包含一个 XML 路由文件，该文件可以定义多个 `routeId`，运行时只创建一个对应的 Camel 上下文。
 - `server.running=false` 的服务包会保留在磁盘上，但不会加载 XML 路由，也不会占用运行态 route、endpoint 或连接资源。
+- `server.running` 控制整个服务版本是否加载；XML route 可以使用 Camel 原生 `autoStartup=false` 做单路由启停，服务进入 `RUNNING` 前所有允许自动启动的 route 必须启动成功。
 - XML 路由和服务配置文件支持动态热加载；Java 代码、依赖、Spring Bean、启动参数和全局运行参数变化仍需要重新打包或重启。
 - Camel component、dataformat、language 的 Spring Boot 自动装配关闭后，只影响启动期自动扫描，不移除交付包内的 Camel 组件能力；XML 路由中引用的 `timer:`、`undertow:`、`http:`、`sql:`、`mqtt:` 等组件会在对应服务加载时按需解析和使用。
+- 服务只有在配置、必需组件、异常处理、XML 解析、端口绑定以及全部 route 启动成功后才进入 `RUNNING`；任一必需阶段失败均公开为 `STOPPED`，不影响其他服务和应用整体健康状态。
+- 服务启停 API 会等待 Camel 上下文真实启动或卸载；同方向请求共享转换，相反方向请求返回 HTTP `409`，超时不会回滚 `server.running`。
 
 ## 路由语法参考
 
@@ -28,6 +31,14 @@
 lightesb-camel-app/{serviceName}/{serviceVersion}
 ```
 
+每个版本目录只允许一个 `*.xml` 路由文件。部署包缺少 XML 或包含多个 XML 会校验失败；运行中新增第二个 XML 会停止该服务版本原有上下文并将服务公开为 `STOPPED`，不会修改已有部署状态。删除多余 XML 后会自动加载剩余唯一 XML。
+
+路由普通占位符 `{{key}}` 只读取同目录 `common.config.properties` 与 `service.config.properties` 的合并结果，同名键由 service 覆盖 common。普通占位符不会读取平台 Spring 配置、JVM system property 或环境变量；需要环境变量时必须显式使用 `{{env:ENV_NAME}}`。
+
+两个配置文件都可以缺省；文件一旦存在，读取或解析失败会阻断该服务版本加载，不会使用默认配置掩盖错误。`system.components` 使用精确 token，未知 token 或必需组件注册失败同样阻断加载。
+
+共享 HTTP 端口由平台统一维护底层监听器。单个服务卸载只注销自己的 endpoint/handler 和日志资源，不会停止同端口的其他服务；最后一个使用者退出后才关闭监听器。
+
 服务配置通常包含：
 
 ```properties
@@ -40,8 +51,12 @@ server.running=false
 | --- | --- |
 | `server.running=false` | 服务包保留，不加载路由，不占用运行态 Camel 资源 |
 | `server.running=true` | 动态加载该服务版本下的 XML 路由和配置 |
+| 加载失败 | 公开状态为 `STOPPED`，部署状态保持不变；通过服务日志和运行时诊断查看失败阶段与摘要 |
 | 停止服务 | 卸载对应路由和上下文，释放运行态资源 |
+| 删除唯一 XML | 卸载服务版本，服务状态进入 `DEFINE`，部署状态进入 `UNDEPLOYED` |
 | 删除服务包 | 移除服务资产，需要重新部署才可恢复 |
+
+启停 API 默认等待 30 秒，可通过 `lightesb.route.transition-timeout-seconds` 调整为 1 到 120 秒。停止失败且旧上下文仍在运行时，接口返回真实 `RUNNING` 和失败诊断。完整契约见 [服务启停 API](service-runtime-management-api.md)。
 
 ## 变更边界
 
@@ -59,6 +74,10 @@ server.running=false
 - 修改 Spring Bean、全局配置、启动参数或 JVM 参数。
 - 新增需要注册到运行时的全局组件能力。
 - 热加载失败后，服务状态、路由状态或端口占用状态不一致。
+
+单个服务版本加载失败不会使 LightESB 应用整体 readiness 失败。修正配置或 XML 后等待文件监听重新加载，再确认服务进入 `RUNNING`；热重载不自动恢复旧实例。
+
+不要在同一服务版本目录中通过新增第二个 XML 拆分路由；需要多个 Camel route 时，应放在该版本唯一 XML 内。
 
 ## 验证方式
 

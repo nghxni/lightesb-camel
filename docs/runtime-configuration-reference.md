@@ -16,7 +16,7 @@ lightesb-camel-app/lightesb-config.properties
 java -Dlightesb.config.file=/opt/lightesb/lightesb-config.properties -jar lightesb-camel.jar
 ```
 
-所有密钥、token、密码、证书路径和真实内网地址必须通过环境变量或现场安全配置注入，不要写入交付包仓库。
+所有密钥、token、密码、证书路径和真实内网地址必须通过环境变量或现场安全配置注入，不要写入交付包仓库。服务 XML 需要读取环境变量时使用显式 `{{env:ENV_NAME}}`；普通 `{{key}}` 只读取同服务版本的 common/service 配置，不会隐式读取平台配置或环境变量。
 
 ## 基础服务配置
 
@@ -50,6 +50,7 @@ java -Dlightesb.config.file=/opt/lightesb/lightesb-config.properties -jar lighte
 | `lightesb.route.debounce-retention-multiplier` | `5` | 防抖事件保留窗口倍数。 |
 | `lightesb.route.startup.virtual-thread.enabled` | `true` | 启动初始加载路由时使用 JDK21 虚拟线程并发加载；设为 `false` 可回退串行加载。 |
 | `lightesb.route.startup.max-concurrency` | `16` | 虚拟线程模式下最大同时加载路由数。 |
+| `lightesb.route.transition-timeout-seconds` | `30` | 服务启停 API 等待真实 Camel 上下文状态的超时，允许 1 到 120 秒；超时不回滚 `server.running`。 |
 
 常用排障配置：
 

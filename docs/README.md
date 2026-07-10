@@ -62,6 +62,7 @@
 - [LightESB CLI 使用参考](cli/README.md)
 - [CLI 命令压缩参考](cli/01-cli-command-reference.md)
 - [管理 API 响应契约](api-response-contract.md)
+- [服务启停 API](service-runtime-management-api.md)
 - [部署管理 API](deployment-management-api.md)
 - [AI 路由缓存管理 API](ai-route-cache-api.md)
 - [运行时诊断 API 与 CLI](runtime-diagnostics-api.md)
