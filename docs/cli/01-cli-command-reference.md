@@ -260,6 +260,8 @@ lightesb keyword query-instances --service-name DemoSrv --service-version 1.0.0 
 
 `service start/stop` 等待服务端确认 Camel 上下文真实启动或卸载。同方向并发请求共享一次转换；相反方向、加载失败或超时会返回 HTTP `409` 并使 CLI 非零退出。超时不回滚 `server.running`，自动化脚本应查询服务状态或运行时诊断后再决定后续动作。成功结果中的 `idempotent=true` 表示没有重复写配置，`transitionReused=true` 表示复用了同方向任务。详见 [服务启停 API](../service-runtime-management-api.md)。
 
+CLI 对 `service start/stop` 使用 130 秒 HTTP 请求超时，以覆盖服务端允许的 120 秒最大转换等待时间并接收结构化失败详情；其他命令仍使用默认 30 秒请求超时。
+
 服务同步命令用于把本地服务版本迁移到远端 LightESB。导出包包含服务定义、接入系统、报文模型和服务目录文件，并在 manifest 中记录 metadata 与服务文件 `sha256`。`serviceVersion` 必须使用 `vX.Y.Z`。`import-plan` 只读远端状态；写入命令必须加 `--yes`。`--skip-existing` 是默认幂等策略的显式写法。远端已有同名服务版本时默认跳过服务文件部署；需要覆盖时加 `--overwrite-service-files`。默认部署后自动启动路由；需要关闭时加 `--no-start`。`sync-remote --keep-package` 可保留中间导出包，也可用 `--package-out <path>` 指定路径。接入系统或服务定义冲突默认失败；需要更新时加 `--update-existing`。远端已有同名报文且内容不一致时会调用消息更新接口，远端当前 `msgVersion` 必须是 `V数字.单数字`，更新后递增单数字小版本并保留更新历史，例如 `V1.9` -> `V2.0`。
 
 日志级别调整后立即生效，不需要执行日志重载。

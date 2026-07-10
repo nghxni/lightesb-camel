@@ -73,6 +73,8 @@ lightesb robot command ingest-receipt --server http://localhost:8080 --receipt-t
 lightesb robot policy list --server http://localhost:8080 --output json
 ```
 
+`service start/stop` 最长会等待 130 秒以接收服务端转换结果；CI 或外层脚本不要设置短于该值的命令超时，否则可能丢失结构化 `409` 和诊断详情。
+
 验收：
 
 - 命令能说明输入文件、服务端地址和是否写操作。
