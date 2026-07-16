@@ -167,16 +167,18 @@ lightesb message delete --id <messageId> --yes
 lightesb message structure xml --msg-name DemoRequest
 lightesb message parse --file sample.json
 lightesb message parse --file sample.xml
+lightesb message schema generate --id <messageId> --service-name DemoSrv --service-version v1.0.0 --schema-file request-schema.json --yes
+lightesb message schema generate --file message.json --service-name DemoSrv --service-version v1.0.0 --schema-file request-schema.json --yes
 lightesb message constraints
 lightesb message domains
 ```
 
-后端已提供消息体 JSON Schema 预览接口：
+`message schema generate` 封装消息体 JSON Schema 预览接口：
 
 - `POST /message-management/v1/json-schema/preview`
 - `GET /message-management/v1/json-schema/preview/{id}`
 
-当前 CLI 尚未封装独立命令；自动化场景可通过通用 HTTP 调用控制面接口。
+`--id` 与 `--file` 必须且只能选择一个。`--app-dir` 默认是 `lightesb-camel-app`，目标 `{serviceName}/{serviceVersion}` 目录必须已存在。命令把 `data.schema` 写为该目录下的 `--schema-file`，写文件需要 `--yes`；`--output json` 返回 `data.file`、可直接用于路由的 `data.jsonSchemaPath`、`data.schema` 和 `data.warnings`。命令不会部署或重载服务。
 
 `app.json` 最小字段：
 
@@ -381,6 +383,7 @@ lightesb message create --file response-message.json --yes
 lightesb service create --file service.json --yes
 lightesb service config preview --file service.json
 lightesb service config save --file service.json --yes
+lightesb message schema generate --id <requestMessageId> --service-name DemoSrv --service-version v1.0.0 --schema-file request-schema.json --yes --output json
 lightesb service package build --file package.json
 lightesb service package deploy --file package.json --yes
 lightesb route status
@@ -405,7 +408,7 @@ lightesb log instance list --service-name DemoSrv --service-version 1.0.0
 
 ```text
 app create/update/delete
-message create/update/delete
+message create/update/delete/schema generate
 service create/update/delete/config save/package deploy/start/stop
 route reload-service/reload-file/unload
 log level set/cleanup

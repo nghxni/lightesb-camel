@@ -10,7 +10,7 @@ LightESB CLI 是面向接入建模、交付运维、路由治理、日志检索�
 核心命令域：
 
 ```text
-profile -> doctor -> app -> message -> service -> service export/import/sync-remote -> deploy -> route -> log -> keyword -> ai -> diagnostics -> robot doctor --offline/--runtime -> robot list/get/capabilities/state/audit -> robot command validate/status/submit/ingest-receipt
+profile -> doctor -> app -> message -> message schema generate -> service -> service export/import/sync-remote -> deploy -> route -> log -> keyword -> ai -> diagnostics -> robot doctor --offline/--runtime -> robot list/get/capabilities/state/audit -> robot command validate/status/submit/ingest-receipt
 ```
 
 基本调用：
@@ -25,7 +25,7 @@ lightesb --file payload.json <command>
 
 安全边界：
 
-- CLI 是控制面客户端，不直接修改 `lightesb-camel-app/`。
+- CLI 是控制面客户端；仅 `message schema generate` 可在 `--yes` 确认后把服务端生成的 Schema 写入已有 `lightesb-camel-app/{serviceName}/{serviceVersion}`，但不会部署或重载服务。
 - 写操作默认传 `--yes`。
 - CI 中优先用 `--output json`。
 - `service import-plan` 只读远端状态；`service import` 和 `service sync-remote` 会写远端，必须加 `--yes`。
@@ -36,6 +36,7 @@ lightesb --file payload.json <command>
 - `ai tool list/save/plan/run` 已删除；AI 路由生成统一走自然语言入口。
 - `diagnostics snapshot/warnings` 是只读远程诊断入口，只调用 `/api/diagnostics/runtime-snapshot`，不重载路由、不清理数据、不读取远程文件；自动化和 Codex 优先使用 `--output json`。
 - `keyword list/query-instances` 是只读 JSON 关键字配置和实例查询入口；`keyword add/delete` 修改关键字采集配置，必须加 `--yes`。
+- `message schema generate` 使用 `--id` 或 `--file` 调用消息 Schema 预览接口，并写入显式服务版本目录；JSON 输出中的 `jsonSchemaPath` 可直接用于路由 `JsonSchemaPath`。
 - `robot doctor --offline` 只做机器人接入静态检查，不连接真实机器人、broker、rosbridge、OPC UA、Modbus 或 Kafka，也不下发命令。
 - `robot doctor --runtime` 只调用 `/api/diagnostics/runtime-snapshot?component=robot-command`，检查表、outbox、状态快照、补偿、denylist 和最近错误码分布；输出 `connectivityChecked=false`，不连接真实机器人、不调用验证 route。
 - `robot list/get/capabilities/state/audit` 只调用机器人管理 API 的只读入口。`robot state` 文本输出包含 `onlineStatus`、`protocolProfile`、`lastCommandId`、`lastErrorCode`、`sourceType` 和 `updatedAt`；批量状态快照和补偿积压分页查询当前直接使用管理 API `GET /service-management/v1/robots/state-snapshots`、`GET /service-management/v1/robots/compensations`，不新增 CLI 命令。默认用本机 WSL mock HTTP 和本地测试验证，不证明真实资产库、真实在线状态、真实审计源或真实能力发现。

@@ -15,12 +15,13 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 
 规则：
 
-- CLI 是控制面客户端，不直接修改 `lightesb-camel-app/`。
+- CLI 是控制面客户端；`message schema generate` 是窄化例外，可在 `--yes` 后把控制面生成的 Schema 写入已有服务版本目录，但不会部署或重载服务。
 - 写操作加 `--yes`，CI 中优先加 `--output json`。
 - 需要服务端地址时优先使用 `--server` 或 profile，不在命令中写真实密钥。
 - `--ai-token` 只用于 `X-AI-Token`，不是模型 API key。
 - `ai tool list/save/plan/run` 已删除；AI 路由生成统一走自然语言入口。
 - `keyword list/query-instances` 只读；`keyword add/delete` 修改 JsonKeyword keyName 配置，必须加 `--yes`。
+- JSON 校验路由已有消息模型时，自动执行 `message schema generate --id|--file --service-name --service-version --schema-file --yes --output json`，检查 warnings，并使用返回的 `jsonSchemaPath`；不要手写重复 Schema。
 - `service import-plan` 只读远端状态；`service import` 和 `service sync-remote` 必须加 `--yes`。
 - 服务同步默认跳过远端已有同名服务版本的服务文件部署；覆盖部署需显式 `--overwrite-service-files`。
 - 服务同步默认自动启动部署路由；需要关闭时使用 `--no-start`。`sync-remote --keep-package` 可保留中间导出包。
@@ -50,6 +51,7 @@ lightesb doctor
 lightesb app create --file app.json --yes
 lightesb message create --file request-message.json --yes
 lightesb message create --file response-message.json --yes
+lightesb message schema generate --server http://localhost:8080 --id <messageId> --service-name DemoSrv --service-version v1.0.0 --schema-file request-schema.json --yes --output json
 lightesb service create --file service.json --yes
 lightesb service config save --file service.json --yes
 lightesb service package deploy --file package.json --yes

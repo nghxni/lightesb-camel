@@ -67,3 +67,16 @@
 映射范围：`ROOT/ENTRY -> object`、`COLLECTION -> array`（优先第一个 `ENTRY` 子节点作为 `items`）、`VARCHAR2 -> string`、`REGEX.constraint -> pattern`、`INT -> integer`、`DATE -> date-time string`、`ifRequired == "1" -> required`。
 
 当前不从 `constraint` 推导 `enum`；无法自洽映射的规则通过 `warnings` 返回。
+
+CLI 可直接生成到对应服务版本目录：
+
+```bash
+lightesb message schema generate \
+  --id <messageId> \
+  --service-name DemoSrv \
+  --service-version v1.0.0 \
+  --schema-file request-schema.json \
+  --yes --output json
+```
+
+也可将 `--id` 替换为 `--file message.json`，从尚未保存的消息定义生成。目标 `{app-dir}/{serviceName}/{serviceVersion}` 必须已存在。路由需要 JSON 校验且已有消息模型时，应先调用该命令、检查 warnings，再将返回的 `data.jsonSchemaPath` 写入 `JsonSchemaPath`；不要根据同一 `msgStructure` 手工维护第二份 Schema。
