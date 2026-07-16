@@ -2,7 +2,7 @@
 
 ## 用途
 
-`jsonSchemaValidationProcessor` 用于在 Camel 路由中校验请求 JSON 结构。
+`jsonSchemaValidationProcessor` 用于在 Camel 路由中校验输入、输出或回调 JSON 结构。
 
 当前实现使用 `com.networknt:json-schema-validator`，默认按 JSON Schema Draft 2020-12 校验。Schema 建议显式声明：
 
@@ -12,13 +12,27 @@
 }
 ```
 
+## 三个校验方向
+
+已有消息模型时，先查询当前服务关系，再按方向选择消息和固定文件：
+
+| 方向 | 消息 ID | 固定文件 | 校验位置 |
+| --- | --- | --- | --- |
+| `INPUT` | 当前服务的 `serviceInId` | `request-schema.json` | 入站后、业务处理前 |
+| `OUTPUT` | 当前服务的 `serviceOutId` | `response-schema.json` | 响应返回前 |
+| `CALLBACK` | 回调服务的 `serviceInId` | `callback-schema.json` | 调用回调服务前 |
+
+`serviceCallbackId` 是回调服务 ID，不是消息 ID。必须先用它查询回调服务，再读取回调服务的 `serviceInId`。三个 Schema 都写入当前服务版本目录。
+
 ## 使用方式
 
 ```xml
-<setProperty name="JsonSchemaPath"><constant>example/routes/security-validation/order-schema.json</constant></setProperty>
+<setProperty name="JsonSchemaPath"><constant>lightesb-camel-app/DemoSrv/v1.0.0/request-schema.json</constant></setProperty>
 <setProperty name="JsonSchemaValidationMode"><constant>STRICT</constant></setProperty>
 <process ref="jsonSchemaValidationProcessor"/>
 ```
+
+OUTPUT 和 CALLBACK 使用同一完整校验块，只替换为 `response-schema.json` 或 `callback-schema.json`，并放到上表指定位置。route XML 是校验是否启用的唯一事实：需要就加入完整块，不需要就删除完整块；不要新增全局、服务配置或数据库开关，也不要用 `SKIP` 充当业务开关。
 
 ## Exchange 属性
 
@@ -79,4 +93,6 @@ lightesb message schema generate \
   --yes --output json
 ```
 
-也可将 `--id` 替换为 `--file message.json`，从尚未保存的消息定义生成。目标 `{app-dir}/{serviceName}/{serviceVersion}` 必须已存在。路由需要 JSON 校验且已有消息模型时，应先调用该命令、检查 warnings，再将返回的 `data.jsonSchemaPath` 写入 `JsonSchemaPath`；不要根据同一 `msgStructure` 手工维护第二份 Schema。
+也可将 `--id` 替换为 `--file message.json`，从尚未保存的消息定义生成。目标 `{app-dir}/{serviceName}/{serviceVersion}` 必须已存在。
+
+Schema 内容只能使用接口返回的 `data.schema`，不得由模型根据 `msgStructure` 自行生成、补写或修改。`data.warnings` 非空时停止自动 apply，展示完整 warnings，只有用户明确确认后才能继续。将 `data.jsonSchemaPath` 原样写入路由；用户审核 route、properties 和 Schema 候选后，使用 `lightesb ai route apply --save-remote --yes` 一次提交路由实际引用的固定 Schema。删除某方向校验块后重新 apply 会删除对应受管固定 Schema，不影响自定义 Schema。

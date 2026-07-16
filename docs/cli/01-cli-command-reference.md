@@ -180,6 +180,8 @@ lightesb message domains
 
 `--id` 与 `--file` 必须且只能选择一个。`--app-dir` 默认是 `lightesb-camel-app`，目标 `{serviceName}/{serviceVersion}` 目录必须已存在。命令把 `data.schema` 写为该目录下的 `--schema-file`，写文件需要 `--yes`；`--output json` 返回 `data.file`、可直接用于路由的 `data.jsonSchemaPath`、`data.schema` 和 `data.warnings`。命令不会部署或重载服务。
 
+自动生成校验路由时先用 `service list/get --output json` 查询服务关系。INPUT 取当前 `serviceInId`，OUTPUT 取当前 `serviceOutId`；CALLBACK 先把 `serviceCallbackId` 作为服务 ID 查询回调服务，再取回调服务的 `serviceInId`。固定文件分别为 `request-schema.json`、`response-schema.json`、`callback-schema.json`。只使用服务端返回的 Schema；`warnings` 非空时停止自动 apply 并展示完整内容，只有用户明确确认后继续。
+
 `app.json` 最小字段：
 
 ```json
@@ -318,7 +320,7 @@ lightesb ai route cache clear --service-name DemoAiSrv --service-version v1.0.0 
 lightesb ai route optimize --file ai-route-chat.json
 lightesb ai route optimize --file ai-route-chat.json --save-remote --return-logs --log-lines 80 --yes
 lightesb ai route optimize --file ai-route-chat.json --save-local --app-dir lightesb-camel-app --service-name DemoAiSrv --service-version 1.0.0 --route-file-name DemoAiSrv-ai-route.xml --yes
-lightesb ai route apply --file route.xml --save-remote --service-name DemoAiSrv --service-version 1.0.0 --route-file-name DemoAiSrv-ai-route.xml --resource-file input-transform.ds --resource-file output-transform.ds --return-logs --log-lines 80 --timeout 30 --yes
+lightesb ai route apply --file DemoAiSrv-route.xml --save-remote --service-name DemoAiSrv --service-version v1.0.0 --route-file-name DemoAiSrv-route.xml --resource-file common.config.properties --resource-file service.config.properties --resource-file request-schema.json --return-logs --log-lines 80 --timeout 30 --yes --output json
 lightesb ai route apply --file route.xml --save-local --app-dir lightesb-camel-app --service-name DemoAiSrv --service-version 1.0.0 --route-file-name DemoAiSrv-ai-route.xml --resource-file input-transform.ds --resource-file output-transform.ds --yes
 lightesb ai diagnose
 lightesb ai diagnose --service-name DemoAiSrv --service-version 1.0.0 --output json
@@ -350,8 +352,9 @@ AI 边界：
 - `--save-remote --yes` 会调用服务端 `/service-management/v1/ai/route/apply`，由服务端备份、写入、等待 XML/properties 热加载并返回状态；CLI 不通过 SSH/SCP 或共享磁盘写远程文件。
 - `--return-logs` 控制成功时是否返回远程日志摘要；失败时即使未传 `--return-logs`，也会展示服务端返回的多个日志来源摘要。
 - `--log-lines <n>` 控制每个日志来源最多返回多少行。
-- `--save-local --yes` 会写入本地 `{appDir}/{serviceName}/{serviceVersion}`，必须显式传入 `--service-name`、`--service-version`、`--route-file-name`；它支持 XML、`common.config.properties`、`service.config.properties` 和 `.ds` 资源文件，不主动 deploy/reload。
-- `ai route apply --save-remote --yes` 从本地 XML 和重复 `--resource-file` 调用服务端 apply API；远程 apply 必须提供 `common.config.properties` 与 `service.config.properties`，`.ds` 等资源仅在 route XML 引用时必须提供；`--timeout <seconds>` 传给服务端等待热加载。
+- `--save-local --yes` 会写入本地 `{appDir}/{serviceName}/{serviceVersion}`，必须显式传入 `--service-name`、`--service-version`、`--route-file-name`；它支持 XML、`common.config.properties`、`service.config.properties`、`.ds` 和三个受管固定 Schema，不主动 deploy/reload。
+- `ai route apply --save-remote --yes` 从本地 XML 和重复 `--resource-file` 调用服务端 apply API；远程 apply 必须提供 `common.config.properties` 与 `service.config.properties`，`.ds` 等资源仅在 route XML 引用时必须提供。JSON 资源只接受 `request-schema.json`、`response-schema.json`、`callback-schema.json`，且必须与 route 引用一一对应；`--timeout <seconds>` 传给服务端等待热加载。
+- 远程 apply 返回 `FAILED`、`FAILED_ROLLED_BACK` 或 `ROLLBACK_FAILED` 时，CLI 先输出 `operationId`、删除文件、恢复状态和日志，再以退出码 `69` 结束。保留本地候选，不自动重试。
 - `ai route apply --save-local --yes` 从本地 XML 和重复 `--resource-file` 写入服务目录；写入前把已有服务目录备份到 app 目录同级 `{appDirName}-backups`，可选 `--wait-reload --timeout <seconds>` 只读轮询路由详情。
 - `--save-local` 与 `--save-remote` 互斥；本地保存是脚本和非 Codex 本地开发入口，不是 Codex 直接编辑服务文件的必经流程。
 - `ai route optimize` 不接入 SSE。
@@ -410,6 +413,7 @@ lightesb log instance list --service-name DemoSrv --service-version 1.0.0
 app create/update/delete
 message create/update/delete/schema generate
 service create/update/delete/config save/package deploy/start/stop
+ai route apply
 route reload-service/reload-file/unload
 log level set/cleanup
 keyword add/delete

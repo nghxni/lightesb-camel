@@ -26,6 +26,7 @@ LightESB-Camel 交付包内 Agent 协作规则。这里是可运行交付目录�
 | 新增 HTTP 接口、编写 Camel XML、配置 `undertow`、服务目录结构 | `skills/lightesb-route-authoring/SKILL.md` |
 | 配置 `conditionaltransform`、`jsontransform`、DTS 转换规则 | `skills/lightesb-transform-components/SKILL.md` |
 | 配置权限校验、JSON Schema 校验、生成服务 Schema 文件、失败分支 | `skills/lightesb-security-validation/SKILL.md`，生成文件时再读 `skills/lightesb-cli-automation/SKILL.md` |
+| 按自然语言生成输入、输出或回调 JSON 校验路由并远程 apply | `skills/lightesb-route-authoring/SKILL.md`、`skills/lightesb-security-validation/SKILL.md`、`skills/lightesb-cli-automation/SKILL.md` |
 | 配置 `servicelog`、异常兜底、H2 缓存、JsonKeyword、StreamCache | `skills/lightesb-logging-observability/SKILL.md` |
 | 开发或打包第三方 DTS 扩展 | `skills/lightesb-dts-extension/SKILL.md` |
 | 配置 AI Agent + Tools、SAP NetWeaver 等扩展能力 | `skills/lightesb-ai-components/SKILL.md` |
@@ -57,6 +58,7 @@ LightESB-Camel 交付包内 Agent 协作规则。这里是可运行交付目录�
 - 不写源码级实现路径、内部状态机细节、开发工作流、临时方案、本机路径、真实凭据或不可外发信息。
 - 如需吸收内部结论，必须改写成交付视角，用组件名、配置键、命令、接口契约和示例说明。
 - 外发规则文件不需要、也不应该与源码仓库内部 `AGENTS.md` 完全一致；本文件只描述随包交付目录内可执行的约束。
+- 输入、输出或回调 Schema 校验路由只通过 `message schema generate` 和 `ai route apply` CLI 完成，不新增或直接调用本能力的管理 API 文档。
 - 文档更新不是只改单一文件。修改组件、CLI、样例、API 或交付说明时，必须检查随包的 `docs/README.md`、对应 `docs/components/` 或 `docs/cli/`、相关 `skills/` 和 `example/` 是否需要同步。
 - 如果对应文档、skill 或样例存在但不需要改，交付说明中写明原因，避免随包文档之间出现不一致。
 
