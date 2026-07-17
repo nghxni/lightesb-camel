@@ -31,7 +31,7 @@ GET /api/diagnostics/runtime-snapshot
 
 | 组件 | 说明 |
 | --- | --- |
-| `route-runtime` | 路由文件、routeId、CamelContext 状态、动态 watcher 状态。 |
+| `route-runtime` | 服务版本内部/公开状态、路由文件、routeId、CamelContext 状态、失败阶段、诊断编号、脱敏错误摘要和动态 watcher 状态。 |
 | `service-log` | 服务日志 logger/config/path 摘要和一致性。 |
 | `ai-route-cache` | AI 路由缓存条目数、TTL、命中和清理统计。 |
 | `ai-model-session` | AI 路由模型本地 session 数量、TTL 和上限。 |
@@ -64,19 +64,34 @@ GET /api/diagnostics/runtime-snapshot
         "component": "route-runtime",
         "status": "WARN",
         "summary": {
-          "totalFiles": 0,
+          "totalServices": 1,
+          "totalFiles": 1,
           "totalRoutes": 0,
-          "dynamicLoaderActive": false
+          "failedServices": 1,
+          "dynamicLoaderActive": true,
+          "files": [
+            {
+              "fileKey": "DemoSrv@v1.0.0@route.xml",
+              "serviceName": "DemoSrv",
+              "serviceVersion": "v1.0.0",
+              "internalStatus": "FAILED",
+              "serviceStatus": "STOPPED",
+              "contextStatus": "NOT_CREATED",
+              "failureStage": "CONFIGURATION",
+              "diagnosticId": "...",
+              "errorSummary": "missing required configuration"
+            }
+          ]
         },
         "warnings": [
-          "dynamic route watcher is not active"
+          "one or more route services are in FAILED state"
         ]
       }
     ],
     "warnings": [
       {
         "component": "route-runtime",
-        "message": "dynamic route watcher is not active"
+        "message": "one or more route services are in FAILED state"
       }
     ]
   },

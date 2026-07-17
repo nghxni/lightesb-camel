@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+    <route id="temp-approval-form-page" description="Temporary approval form webpage (mock, no persistence)">
+        <from uri="undertow:http://0.0.0.0:{{server.port}}/api/temp-approval/form?httpMethodRestrict=GET"/>
+        <to uri="servicelog:info?message=[TempApprovalMock] form page requested"/>
+        <setHeader name="Content-Type">
+            <constant>text/html;charset=UTF-8</constant>
+        </setHeader>
+        <setBody>
+            <constant><![CDATA[<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>临时审批单 Mock</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:720px;margin:24px auto;padding:0 16px;color:#333}
+h1{font-size:20px}
+fieldset{margin-bottom:16px;border:1px solid #ddd;border-radius:8px;padding:16px}
+legend{font-weight:600;padding:0 8px}
+label{display:block;margin:8px 0 4px}
+input,textarea{width:100%;box-sizing:border-box;padding:6px;border:1px solid #ccc;border-radius:4px}
+button{margin-top:8px;margin-right:8px;padding:6px 16px;border:0;border-radius:4px;background:#2f6fed;color:#fff;cursor:pointer}
+button.reject{background:#d9534f}
+pre{background:#f6f8fa;padding:12px;border-radius:8px;white-space:pre-wrap;word-break:break-all}
+.tip{color:#888;font-size:12px}
+h2{font-size:16px}
+</style>
+</head>
+<body>
+<h1>临时审批单（Mock 服务）</h1>
+<p class="tip">TempApprovalMockSrv · 无持久化，数据为 Mock 生成；删除服务目录路由 XML 即销毁本服务。</p>
+
+<fieldset><legend>1. 填写提交</legend>
+<label>标题</label><input id="title" value="办公用品采购申请">
+<label>申请人</label><input id="applicant" value="张三">
+<label>金额</label><input id="amount" type="number" value="1000">
+<label>事由</label><textarea id="reason" rows="3">采购打印纸与硒鼓</textarea>
+<button onclick="submitForm()">提交审批</button>
+</fieldset>
+
+<fieldset><legend>2. 查看</legend>
+<label>审批单号</label><input id="viewId" placeholder="MOCK-...">
+<button onclick="viewOne()">查看</button>
+</fieldset>
+
+<fieldset><legend>3. 审批</legend>
+<label>审批单号</label><input id="approveId" placeholder="MOCK-...">
+<label>审批意见</label><input id="comment" value="同意">
+<button onclick="approve('APPROVE')">通过</button>
+<button class="reject" onclick="approve('REJECT')">驳回</button>
+</fieldset>
+
+<h2>结果</h2>
+<pre id="result">等待操作...</pre>
+
+<script>
+var base = '/api/temp-approval';
+function show(o){ document.getElementById('result').textContent = (typeof o === 'string') ? o : JSON.stringify(o, null, 2); }
+function submitForm(){
+  var payload = {
+    title: document.getElementById('title').value,
+    applicant: document.getElementById('applicant').value,
+    amount: Number(document.getElementById('amount').value),
+    reason: document.getElementById('reason').value
+  };
+  fetch(base + '/submit', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      show(d);
+      if(d && d.data && d.data.approvalId){
+        document.getElementById('viewId').value = d.data.approvalId;
+        document.getElementById('approveId').value = d.data.approvalId;
+      }
+    })
+    .catch(function(e){ show('请求失败: ' + e); });
+}
+function viewOne(){
+  var id = document.getElementById('viewId').value;
+  fetch(base + '/view?approvalId=' + encodeURIComponent(id))
+    .then(function(r){ return r.json(); }).then(show)
+    .catch(function(e){ show('请求失败: ' + e); });
+}
+function approve(action){
+  var payload = {
+    approvalId: document.getElementById('approveId').value,
+    action: action,
+    comment: document.getElementById('comment').value
+  };
+  fetch(base + '/approve', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)})
+    .then(function(r){ return r.json(); }).then(show)
+    .catch(function(e){ show('请求失败: ' + e); });
+}
+</script>
+</body>
+</html>
+]]></constant>
+        </setBody>
+    </route>
+
+    <route id="temp-approval-submit" description="Submit approval request, mock persistence">
+        <from uri="undertow:http://0.0.0.0:{{server.port}}/api/temp-approval/submit?httpMethodRestrict=POST"/>
+        <process ref="requestCharsetProcessor"/>
+        <to uri="servicelog:info?message=[TempApprovalMock] submit received&amp;showBody=true&amp;maxBodyLength={{temp.approval.log.max.body.length}}"/>
+
+        <setProperty name="title">
+            <jsonpath suppressExceptions="true">$.title</jsonpath>
+        </setProperty>
+        <setProperty name="applicant">
+            <jsonpath suppressExceptions="true">$.applicant</jsonpath>
+        </setProperty>
+        <setProperty name="amount">
+            <jsonpath suppressExceptions="true">$.amount</jsonpath>
+        </setProperty>
+        <setProperty name="reason">
+            <jsonpath suppressExceptions="true">$.reason</jsonpath>
+        </setProperty>
+
+        <choice>
+            <when>
+                <simple>${exchangeProperty.title} == null || ${exchangeProperty.applicant} == null || ${exchangeProperty.amount} == null || ${exchangeProperty.reason} == null</simple>
+                <setHeader name="CamelHttpResponseCode">
+                    <constant>400</constant>
+                </setHeader>
+                <setBody>
+                    <simple>{"success":false,"code":"MISSING_FIELD","message":"缺少必填字段 title/applicant/amount/reason"}</simple>
+                </setBody>
+            </when>
+            <otherwise>
+                <setProperty name="approvalId">
+                    <simple>MOCK-${date:now:yyyyMMddHHmmss}-${random(1000,9999)}</simple>
+                </setProperty>
+                <setProperty name="submittedAt">
+                    <simple>${date:now:yyyy-MM-dd HH:mm:ss}</simple>
+                </setProperty>
+                <setHeader name="CamelHttpResponseCode">
+                    <constant>200</constant>
+                </setHeader>
+                <setBody>
+                    <simple>{"success":true,"code":"TEMP_APPROVAL_SUBMITTED","message":"提交成功（Mock，未持久化）","data":{"approvalId":"${exchangeProperty.approvalId}","title":"${exchangeProperty.title}","applicant":"${exchangeProperty.applicant}","amount":${exchangeProperty.amount},"reason":"${exchangeProperty.reason}","status":"PENDING","submittedAt":"${exchangeProperty.submittedAt}"}}</simple>
+                </setBody>
+            </otherwise>
+        </choice>
+        <process ref="jsonResponseProcessor"/>
+        <to uri="servicelog:info?message=[TempApprovalMock] submitted approvalId=${exchangeProperty.approvalId}"/>
+    </route>
+
+    <route id="temp-approval-view" description="View approval request by id, mock data">
+        <from uri="undertow:http://0.0.0.0:{{server.port}}/api/temp-approval/view?httpMethodRestrict=GET"/>
+        <to uri="servicelog:info?message=[TempApprovalMock] view approvalId=${header.approvalId}"/>
+        <choice>
+            <when>
+                <simple>${header.approvalId} == null || ${header.approvalId} == ''</simple>
+                <setHeader name="CamelHttpResponseCode">
+                    <constant>400</constant>
+                </setHeader>
+                <setBody>
+                    <simple>{"success":false,"code":"MISSING_APPROVAL_ID","message":"缺少查询参数 approvalId"}</simple>
+                </setBody>
+            </when>
+            <otherwise>
+                <setHeader name="CamelHttpResponseCode">
+                    <constant>200</constant>
+                </setHeader>
+                <setBody>
+                    <simple>{"success":true,"code":"TEMP_APPROVAL_VIEW","data":{"approvalId":"${header.approvalId}","title":"Mock 审批单","applicant":"mock-user","amount":1000,"reason":"这是一条 Mock 数据（服务无持久化，销毁即失）","status":"PENDING","submittedAt":"${date:now:yyyy-MM-dd HH:mm:ss}"}}</simple>
+                </setBody>
+            </otherwise>
+        </choice>
+        <process ref="jsonResponseProcessor"/>
+    </route>
+
+    <route id="temp-approval-approve" description="Approve or reject approval request, mock result">
+        <from uri="undertow:http://0.0.0.0:{{server.port}}/api/temp-approval/approve?httpMethodRestrict=POST"/>
+        <process ref="requestCharsetProcessor"/>
+        <to uri="servicelog:info?message=[TempApprovalMock] approve received&amp;showBody=true&amp;maxBodyLength={{temp.approval.log.max.body.length}}"/>
+
+        <setProperty name="approvalId">
+            <jsonpath suppressExceptions="true">$.approvalId</jsonpath>
+        </setProperty>
+        <setProperty name="action">
+            <jsonpath suppressExceptions="true">$.action</jsonpath>
+        </setProperty>
+        <setProperty name="comment">
+            <jsonpath suppressExceptions="true">$.comment</jsonpath>
+        </setProperty>
+        <setProperty name="approver">
+            <constant>{{temp.approval.mock.approver}}</constant>
+        </setProperty>
+
+        <choice>
+            <when>
+                <simple>${exchangeProperty.approvalId} == null || ${exchangeProperty.action} == null</simple>
+                <setHeader name="CamelHttpResponseCode">
+                    <constant>400</constant>
+                </setHeader>
+                <setBody>
+                    <simple>{"success":false,"code":"MISSING_FIELD","message":"缺少 approvalId 或 action"}</simple>
+                </setBody>
+            </when>
+            <when>
+                <simple>${exchangeProperty.action} == 'APPROVE' || ${exchangeProperty.action} == 'REJECT'</simple>
+                <choice>
+                    <when>
+                        <simple>${exchangeProperty.action} == 'APPROVE'</simple>
+                        <setProperty name="finalStatus">
+                            <constant>APPROVED</constant>
+                        </setProperty>
+                    </when>
+                    <otherwise>
+                        <setProperty name="finalStatus">
+                            <constant>REJECTED</constant>
+                        </setProperty>
+                    </otherwise>
+                </choice>
+                <setHeader name="CamelHttpResponseCode">
+                    <constant>200</constant>
+                </setHeader>
+                <setBody>
+                    <simple>{"success":true,"code":"TEMP_APPROVAL_DONE","message":"审批完成（Mock，未持久化）","data":{"approvalId":"${exchangeProperty.approvalId}","status":"${exchangeProperty.finalStatus}","approvedBy":"${exchangeProperty.approver}","comment":"${exchangeProperty.comment}","approvedAt":"${date:now:yyyy-MM-dd HH:mm:ss}"}}</simple>
+                </setBody>
+            </when>
+            <otherwise>
+                <setHeader name="CamelHttpResponseCode">
+                    <constant>400</constant>
+                </setHeader>
+                <setBody>
+                    <simple>{"success":false,"code":"INVALID_ACTION","message":"action 仅支持 APPROVE 或 REJECT"}</simple>
+                </setBody>
+            </otherwise>
+        </choice>
+        <process ref="jsonResponseProcessor"/>
+        <to uri="servicelog:info?message=[TempApprovalMock] approve done approvalId=${exchangeProperty.approvalId}, action=${exchangeProperty.action}"/>
+    </route>
+
+</routes>

@@ -117,6 +117,22 @@ curl -X POST "http://localhost:19095/api/ai/agent/chat" \
 rm -rf lightesb-camel-app/AiAgentDemoSrv
 ```
 
+临时审批表单演示（路由自吐 HTML 页面，mock 数据无持久化，删除路由 XML 即销毁）：
+
+```bash
+cp -R example/routes/TempApprovalMockSrv lightesb-camel-app/
+./start.sh
+# 浏览器打开表单页：http://127.0.0.1:19097/api/temp-approval/form
+curl -X POST "http://127.0.0.1:19097/api/temp-approval/submit" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"办公用品采购","applicant":"张三","amount":1000,"reason":"采购打印纸"}'
+curl "http://127.0.0.1:19097/api/temp-approval/view?approvalId=MOCK-1"
+curl -X POST "http://127.0.0.1:19097/api/temp-approval/approve" \
+  -H "Content-Type: application/json" \
+  -d '{"approvalId":"MOCK-1","action":"APPROVE","comment":"同意"}'
+rm -rf lightesb-camel-app/TempApprovalMockSrv
+```
+
 AVEVA Plant SCADA OPC UA / MQTT 样例：
 
 ```bash

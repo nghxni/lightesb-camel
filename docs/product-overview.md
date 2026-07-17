@@ -46,10 +46,10 @@ LightESB-Camel uses a service package model:
 lightesb-camel-app/{serviceName}/{serviceVersion}/
 ├── common.config.properties
 ├── service.config.properties
-└── *-route.xml
+└── one-route-file.xml
 ```
 
-Each service package can be copied from `example/routes/**`, adjusted through configuration and Camel XML, and then loaded by the runtime. Route-level changes can be hot-loaded when they stay within the service package boundary. Java code, dependencies, Spring beans, and startup parameters still require a rebuild or restart.
+Each service version contains exactly one Camel XML route file, which may define multiple route IDs. Each service package can be copied from `example/routes/**`, adjusted through configuration and Camel XML, and then loaded by the runtime. Route-level changes can be hot-loaded when they stay within the service package boundary. Java code, dependencies, Spring beans, and startup parameters still require a rebuild or restart.
 
 ## Robotics Boundary
 

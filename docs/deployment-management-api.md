@@ -15,6 +15,8 @@ BasePath：`/api/deployment`
 | 部署回退 | POST | `/rollback/{deploymentId}` | 撤销指定部署，恢复到该部署前的备份状态 |
 | 仅验证 | POST | `/validate` | 校验服务包，不执行部署 |
 
+部署和仅验证接口都会检查服务目录结构。每个 `serviceName + serviceVersion` 目录必须包含 `service.config.properties`，并且恰好包含一个 `*.xml` 路由文件；缺少 XML 或存在多个 XML 时返回验证失败，不会复制服务文件或启动路由。
+
 ## 部署历史列表
 
 ```bash

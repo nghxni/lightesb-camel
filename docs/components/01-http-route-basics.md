@@ -4,6 +4,8 @@
 
 `undertow` 用于把 HTTP 请求接入 Camel XML 路由。交付包内新增接口时，优先参考 `example/routes/http-undertow/`，确认可运行后再复制到 `lightesb-camel-app/`。
 
+当多个服务使用相同 `server.port` 且 `port.level` 不是 `version` 时，平台共享底层监听端口，但每个服务仍保留独立 Camel 组件和 handler。停止一个服务不会中断同端口的其他服务；最后一个服务停止后监听器才关闭。共享端口上的业务 path 必须保持唯一。
+
 相关样例：
 
 - `example/routes/http-undertow/DemoHttpSrv/v1.0.0/`：最小 HTTP 入站。

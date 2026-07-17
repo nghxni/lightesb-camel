@@ -112,6 +112,9 @@ example/routes/RobotRosBridgeSrv/v1.0.0/robot-rosbridge-route.xml
 example/routes/RobotRosBridgeSrv/v1.0.0/samples/request.json
 example/routes/RobotRosBridgeSrv/v1.0.0/samples/response.json
 example/routes/RobotRosBridgeSrv/v1.0.0/service.config.properties
+example/routes/TempApprovalMockSrv/v1.0.0/common.config.properties
+example/routes/TempApprovalMockSrv/v1.0.0/service.config.properties
+example/routes/TempApprovalMockSrv/v1.0.0/temp-approval-mock-route.xml
 example/routes/http-undertow/DemoHttpSrv/v1.0.0/common.config.properties
 example/routes/http-undertow/DemoHttpSrv/v1.0.0/demo-http-route.xml
 example/routes/http-undertow/DemoHttpSrv/v1.0.0/service.config.properties
@@ -147,6 +150,7 @@ skills/lightesb-logging-observability/SKILL.md
 skills/lightesb-robot-integration/SKILL.md
 skills/lightesb-route-authoring/SKILL.md
 skills/lightesb-security-validation/SKILL.md
+skills/lightesb-temp-form/SKILL.md
 skills/lightesb-transform-components/SKILL.md
 website/.gitignore
 website/astro.config.mjs
