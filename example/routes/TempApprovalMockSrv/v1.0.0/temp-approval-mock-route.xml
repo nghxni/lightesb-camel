@@ -15,49 +15,142 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>临时审批单 Mock</title>
 <style>
-body{font-family:system-ui,sans-serif;max-width:720px;margin:24px auto;padding:0 16px;color:#333}
-h1{font-size:20px}
-fieldset{margin-bottom:16px;border:1px solid #ddd;border-radius:8px;padding:16px}
-legend{font-weight:600;padding:0 8px}
-label{display:block;margin:8px 0 4px}
-input,textarea{width:100%;box-sizing:border-box;padding:6px;border:1px solid #ccc;border-radius:4px}
-button{margin-top:8px;margin-right:8px;padding:6px 16px;border:0;border-radius:4px;background:#2f6fed;color:#fff;cursor:pointer}
-button.reject{background:#d9534f}
-pre{background:#f6f8fa;padding:12px;border-radius:8px;white-space:pre-wrap;word-break:break-all}
-.tip{color:#888;font-size:12px}
-h2{font-size:16px}
+:root{
+  --primary:#4f46e5;
+  --primary-2:#7c3aed;
+  --bg:#f4f5fa;
+  --card:#ffffff;
+  --text:#1f2430;
+  --muted:#6b7280;
+  --border:#e5e7eb;
+  --ok:#16a34a;
+  --err:#dc2626;
+  --radius:14px;
+  --shadow:0 1px 2px rgba(16,24,40,.05),0 10px 30px rgba(16,24,40,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0f1117;
+    --card:#171b26;
+    --text:#e5e7eb;
+    --muted:#9ca3af;
+    --border:#2a3040;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);background:linear-gradient(180deg,#e3e7fb 0,var(--bg) 340px)}
+@media (prefers-color-scheme: dark){body{background:linear-gradient(180deg,#1a1e35 0,var(--bg) 340px)}}
+.wrap{max-width:820px;margin:0 auto;padding:36px 16px 56px}
+.hero{margin-bottom:24px}
+.hero-badge{display:inline-block;padding:3px 12px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-2))}
+h1{margin:10px 0 6px;font-size:26px;line-height:1.3;background:linear-gradient(135deg,var(--primary),var(--primary-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.tip{margin:0;font-size:13px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 22px;margin-bottom:18px}
+.step{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.step-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-2))}
+h2{margin:0;font-size:16px;font-weight:600}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+.span2{grid-column:1/-1}
+label{display:block;margin-bottom:5px;font-size:13px;font-weight:500;color:var(--muted)}
+input,textarea{width:100%;padding:9px 11px;font-size:14px;font-family:inherit;color:var(--text);background:var(--card);border:1px solid var(--border);border-radius:9px;transition:border-color .15s,box-shadow .15s}
+input:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,70,229,.16)}
+textarea{resize:vertical}
+.inline{display:flex;gap:10px;align-items:center}
+.inline input{flex:1}
+.actions{display:flex;gap:10px;margin-top:14px}
+.btn{padding:9px 20px;font-size:14px;font-weight:500;font-family:inherit;border:1px solid var(--border);border-radius:9px;color:var(--text);background:var(--card);cursor:pointer;transition:transform .12s,box-shadow .12s,filter .12s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(16,24,40,.12)}
+.btn:active{transform:translateY(0);box-shadow:none}
+.btn.primary{border:0;color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-2))}
+.btn.success{border:0;color:#fff;background:var(--ok)}
+.btn.danger{border:0;color:#fff;background:var(--err)}
+.btn.primary:hover,.btn.success:hover,.btn.danger:hover{filter:brightness(1.06)}
+.result-card{border-left:4px solid var(--border)}
+.result-card.ok{border-left-color:var(--ok)}
+.result-card.err{border-left-color:var(--err)}
+.badge{padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.badge.pending{color:#92400e;background:#fef3c7}
+.badge.approved{color:#166534;background:#dcfce7}
+.badge.rejected{color:#991b1b;background:#fee2e2}
+@media (prefers-color-scheme: dark){
+  .badge.pending{color:#fcd34d;background:rgba(217,119,6,.18)}
+  .badge.approved{color:#86efac;background:rgba(22,163,74,.18)}
+  .badge.rejected{color:#fca5a5;background:rgba(220,38,38,.18)}
+}
+pre{margin:0;padding:14px;border-radius:10px;font-size:13px;line-height:1.6;white-space:pre-wrap;word-break:break-all;background:#f6f8fa;color:#334155}
+@media (prefers-color-scheme: dark){pre{background:#0d1017;color:#cbd5e1}}
+@media (max-width:640px){.grid2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<h1>临时审批单（Mock 服务）</h1>
+<div class="wrap">
+
+<header class="hero">
+<span class="hero-badge">Mock 服务</span>
+<h1>临时审批单</h1>
 <p class="tip">TempApprovalMockSrv · 无持久化，数据为 Mock 生成；删除服务目录路由 XML 即销毁本服务。</p>
+</header>
 
-<fieldset><legend>1. 填写提交</legend>
-<label>标题</label><input id="title" value="办公用品采购申请">
-<label>申请人</label><input id="applicant" value="张三">
-<label>金额</label><input id="amount" type="number" value="1000">
-<label>事由</label><textarea id="reason" rows="3">采购打印纸与硒鼓</textarea>
-<button onclick="submitForm()">提交审批</button>
-</fieldset>
+<section class="card">
+<div class="step"><span class="step-num">1</span><h2>填写提交</h2></div>
+<div class="grid2">
+<div><label for="title">标题</label><input id="title" value="办公用品采购申请"></div>
+<div><label for="applicant">申请人</label><input id="applicant" value="张三"></div>
+<div><label for="amount">金额</label><input id="amount" type="number" value="1000"></div>
+<div><label for="reason">事由</label><textarea id="reason" rows="3">采购打印纸与硒鼓</textarea></div>
+</div>
+<div class="actions"><button class="btn primary" onclick="submitForm()">提交审批</button></div>
+</section>
 
-<fieldset><legend>2. 查看</legend>
-<label>审批单号</label><input id="viewId" placeholder="MOCK-...">
-<button onclick="viewOne()">查看</button>
-</fieldset>
+<section class="card">
+<div class="step"><span class="step-num">2</span><h2>查看</h2></div>
+<div class="inline">
+<input id="viewId" placeholder="审批单号 MOCK-...">
+<button class="btn" onclick="viewOne()">查看</button>
+</div>
+</section>
 
-<fieldset><legend>3. 审批</legend>
-<label>审批单号</label><input id="approveId" placeholder="MOCK-...">
-<label>审批意见</label><input id="comment" value="同意">
-<button onclick="approve('APPROVE')">通过</button>
-<button class="reject" onclick="approve('REJECT')">驳回</button>
-</fieldset>
+<section class="card">
+<div class="step"><span class="step-num">3</span><h2>审批</h2></div>
+<div class="grid2">
+<div><label for="approveId">审批单号</label><input id="approveId" placeholder="MOCK-..."></div>
+<div><label for="comment">审批意见</label><input id="comment" value="同意"></div>
+</div>
+<div class="actions">
+<button class="btn success" onclick="approve('APPROVE')">通过</button>
+<button class="btn danger" onclick="approve('REJECT')">驳回</button>
+</div>
+</section>
 
-<h2>结果</h2>
+<section class="card result-card" id="resultCard">
+<div class="step"><h2>结果</h2><span class="badge" id="statusBadge" style="display:none"></span></div>
 <pre id="result">等待操作...</pre>
+</section>
+
+</div>
 
 <script>
 var base = '/api/temp-approval';
-function show(o){ document.getElementById('result').textContent = (typeof o === 'string') ? o : JSON.stringify(o, null, 2); }
+function show(o){
+  document.getElementById('result').textContent = (typeof o === 'string') ? o : JSON.stringify(o, null, 2);
+  var card = document.getElementById('resultCard');
+  var badge = document.getElementById('statusBadge');
+  var cls = '';
+  var status = '';
+  if (o && typeof o === 'object'){
+    cls = o.success ? 'ok' : 'err';
+    if (o.data && o.data.status){ status = o.data.status; }
+  }
+  card.className = 'card result-card' + (cls ? ' ' + cls : '');
+  if (status){
+    badge.textContent = status;
+    badge.className = 'badge ' + status.toLowerCase();
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+}
 function submitForm(){
   var payload = {
     title: document.getElementById('title').value,

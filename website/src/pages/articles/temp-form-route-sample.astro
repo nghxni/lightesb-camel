@@ -1,0 +1,94 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+const sample = `${repo}/tree/main/example/routes/TempApprovalMockSrv`;
+---
+
+<BaseLayout
+  current="/articles"
+  title="A Route That Serves a Web Page | LightESB-Camel"
+  description="How the TempApprovalMockSrv sample serves a styled approval form from a single Camel XML route package, with no frontend build, no database, and a delete-to-destroy lifecycle."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="formpage.eyebrow">Technical article</p>
+      <h1 data-i18n="formpage.title">A route that serves a web page: the temporary approval form sample</h1>
+      <p class="lead" data-i18n="formpage.lead">
+        TempApprovalMockSrv shows how one Camel XML route package can serve a designed approval form, accept JSON submissions, and unload cleanly when the route file is deleted — no frontend build, no database, no restart.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="formpage.meta.sample">Sample:</span> <a href={sample}>example/routes/TempApprovalMockSrv</a></span>
+        <span><span data-i18n="formpage.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="formpage.routes.title">What the sample contains</h2>
+        <p data-i18n="formpage.routes.text">
+          Four routes in a single XML file form a complete temporary approval loop.
+        </p>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="formpage.routes.form.title">Form page (GET)</h3>
+            <p class="copy" data-i18n="formpage.routes.form.text">An Undertow listener returns a complete HTML page inlined with CDATA, with an explicit text/html;charset=UTF-8 content type.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="formpage.routes.submit.title">Submit (POST)</h3>
+            <p class="copy" data-i18n="formpage.routes.submit.text">JSON fields are extracted with jsonpath, missing fields return a 400, and a successful submit returns a mock approval id.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="formpage.routes.view.title">View (GET)</h3>
+            <p class="copy" data-i18n="formpage.routes.view.text">Returns fixed mock data for the requested approval id.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="formpage.routes.approve.title">Approve (POST)</h3>
+            <p class="copy" data-i18n="formpage.routes.approve.text">Validates the APPROVE/REJECT action and returns the approval result with a final status.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2 data-i18n="formpage.design.title">Page design without a frontend stack</h2>
+        <p data-i18n="formpage.design.p1">
+          The page is styled entirely through CSS variables: a gradient brand color, card-based sections with numbered step markers, semantic status badges (amber for PENDING, green for APPROVED, red for REJECTED), and automatic dark mode via prefers-color-scheme.
+        </p>
+        <p data-i18n="formpage.design.p2">
+          Interactions use plain fetch and a few lines of vanilla JavaScript. No UI framework and no CDN resources are loaded, so the page works the same in offline and intranet environments, and re-branding only means editing the CSS variables.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="formpage.lifecycle.title">Mock boundary and lifecycle</h2>
+        <p data-i18n="formpage.lifecycle.p1">
+          The service has no persistence. Both the page and the API responses state clearly that the data is mocked and disappears with the service.
+        </p>
+        <p data-i18n="formpage.lifecycle.p2">
+          Deleting the route XML unloads the service and releases its port; putting the file back hot-loads it again. That is exactly the right shape for a temporary demonstration service.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="formpage.run.title">Run it yourself</h2>
+        <ol class="article-steps">
+          <li data-i18n="formpage.run.1">Copy example/routes/TempApprovalMockSrv into the runtime lightesb-camel-app/ directory.</li>
+          <li data-i18n="formpage.run.2">Wait for hot loading, then open http://127.0.0.1:19097/api/temp-approval/form in a browser.</li>
+          <li data-i18n="formpage.run.3">Submit an approval request, view it, and approve or reject it — watch the status badge and result card change.</li>
+          <li data-i18n="formpage.run.4">Delete the route XML and confirm the routes unload and the port is released.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2 data-i18n="formpage.when.title">When to use this pattern</h2>
+        <p data-i18n="formpage.when.p1">
+          Temporary forms, approval demos, data collection pages, and POC mock services all fit this pattern. A formal approval workflow that needs persistence and a state machine should connect to H2 storage instead — see the H2 component documentation in the delivery package.
+        </p>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href={sample} data-i18n="formpage.example">Open the sample</a>
+        <a class="button" href="/docs" data-i18n="formpage.docs">Read the docs</a>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

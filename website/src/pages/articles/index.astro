@@ -1,0 +1,23 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SectionHead from "../../components/SectionHead.astro";
+---
+
+<BaseLayout current="/articles" title="Articles | LightESB-Camel">
+  <section>
+    <div class="container">
+      <SectionHead
+        eyebrow="Technical articles"
+        title="Route samples and integration practice"
+        text="Articles for implementation teams covering route sample capabilities and integration modernization paths in the delivery package."
+        eyebrowKey="articles.eyebrow"
+        titleKey="articles.title"
+        textKey="articles.text"
+      />
+      <div class="docs-list">
+        <a class="docs-link featured-doc" href="/articles/temp-form-route-sample/"><strong data-i18n="articles.tempform.title">A route that serves a web page</strong><span data-i18n="articles.tempform.text">The temporary approval form sample: route-served page design, mock boundary, and delete-to-destroy lifecycle.</span></a>
+        <a class="docs-link" href="/articles/legacy-system-integration/"><strong data-i18n="docs.article.title">Modernizing legacy integration</strong><span data-i18n="docs.article.text">English article for integration architects, Camel engineers, automation teams, and robotics workflow implementers.</span></a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

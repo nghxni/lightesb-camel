@@ -16,6 +16,8 @@ description: 交付包内创建临时表单/审批/收集类网页服务（路�
 
 - 最小创建集 = 路由 XML + `common.config.properties` + `service.config.properties` 三个文件；`log4j2.properties` 运行时自动生成，不要手工创建；Schema、samples 等只在实际使用时才添加。
 - 表单页（GET）：`setBody` + `<constant><![CDATA[...]]></constant>` 内联完整 HTML，显式 `Content-Type: text/html;charset=UTF-8`；不要用 `jsonResponseProcessor`/`responseCharsetProcessor` 收尾，HTML 中不出现本地绝对路径。
+- 页面样式：默认沿用 `example/routes/TempApprovalMockSrv/v1.0.0/` 样例的样式体系（CSS 变量 token、卡片 + 编号步骤布局、状态徽章语义色 `PENDING` 琥珀/`APPROVED` 绿/`REJECTED` 红、结果卡按 `success` 显示绿/红左边框、`prefers-color-scheme` 暗色自适应）；完整实现以样例为准，不复制到本文档。
+- 不引 UI 框架和 CDN 资源，交互用原生 fetch + 少量 vanilla JS，保证内网/离线可用；品牌色与风格只是默认值，用户指定风格时以用户要求为准。
 - 提交/审批（POST JSON）：`requestCharsetProcessor` 入口 → `jsonpath suppressExceptions="true"` 提取字段 → simple 空值判断兜底 400 → 拼装 mock 响应 → `jsonResponseProcessor` 出口。
 - 查看（GET）：query 参数经 header 读取，返回固定 mock 数据；页面和响应文案明确标注 mock、无持久化。
 - 端口：独立空闲 `server.port` + `port.level=version`，`system.components=undertowhttp,servicelog`，`server.running=true` 默认启动。
