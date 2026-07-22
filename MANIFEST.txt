@@ -31,6 +31,7 @@ docs/extensions/01-dts-extension-guide.md
 docs/extensions/02-dts-minimal-template.md
 docs/product-overview.md
 docs/robot-command-dispatcher-api.md
+docs/robot-edge-inference-mock.md
 docs/runtime-configuration-reference.md
 docs/runtime-diagnostics-api.md
 docs/runtime-route-loading.md
@@ -76,6 +77,10 @@ example/routes/RobotClusterDataSrv/v1.0.0/README.md
 example/routes/RobotClusterDataSrv/v1.0.0/common.config.properties
 example/routes/RobotClusterDataSrv/v1.0.0/robot-cluster-data-route.xml
 example/routes/RobotClusterDataSrv/v1.0.0/service.config.properties
+example/routes/RobotEdgeInferenceSrv/v1.0.0/README.md
+example/routes/RobotEdgeInferenceSrv/v1.0.0/common.config.properties
+example/routes/RobotEdgeInferenceSrv/v1.0.0/robot-edge-inference-route.xml
+example/routes/RobotEdgeInferenceSrv/v1.0.0/service.config.properties
 example/routes/RobotGrpcGatewaySrv/v1.0.0/README.md
 example/routes/RobotGrpcGatewaySrv/v1.0.0/common.config.properties
 example/routes/RobotGrpcGatewaySrv/v1.0.0/robot-grpc-gateway-route.xml

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+    <route id="robot-edge-inference-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-edge-inference-mock"/>
+        <process ref="robotEdgeInferencePolicyProcessor"/>
+        <toD uri="{{robot.ai.inference.mock.decision.sink}}"/>
+    </route>
+
+</routes>

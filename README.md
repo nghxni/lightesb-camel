@@ -86,7 +86,7 @@ start.bat
 | --- | --- | --- |
 | 老系统与机器人流程接入 | HTTP/数据库/消息/企业系统接口整合，机器人任务、命令、回执、审计和外部任务流程编排 | `docs/components/01-http-route-basics.md`、`docs/cli/README.md` |
 | 机器人动态技能扩展 | 轻量路由技能包、路由热加载、`server.running=false` 按需禁用、CLI 启停/部署/重载、DTS Java SPI、AI Agent + Tools、配置化协议目标和白名单 | `AGENTS.md`、`docs/cli/README.md`、`docs/extensions/01-dts-extension-guide.md`、`docs/components/12-ai-chat.md` |
-| 机器人核心链路服务 | MQTT telemetry/command、MQTT outbox dispatcher、rosbridge WebSocket JSON、ROS service/action 管理面映射、gRPC `RobotCommand` 契约草案 | `docs/robot-command-dispatcher-api.md`、`docs/experience/01-robotics-protocol-precheck.md`、`proto/robot/robot_command.proto` |
+| 机器人核心链路服务 | MQTT telemetry/command、边缘 AI 推理 mock 门禁、MQTT outbox dispatcher、rosbridge WebSocket JSON、ROS service/action 管理面映射、gRPC `RobotCommand` 契约草案 | `docs/robot-edge-inference-mock.md`、`docs/robot-command-dispatcher-api.md`、`docs/experience/01-robotics-protocol-precheck.md`、`proto/robot/robot_command.proto` |
 | PLC 与工业现场 | OPC UA、Modbus TCP 寄存器别名、PLC4X 依赖基础和复杂 PLC 能力评估路径、AVEVA Plant SCADA | `docs/components/15-aveva-plant-scada-opcua-mqtt.md`、`docs/experience/02-robotics-protocol-correct-practices.md` |
 | 数据平台与业务系统 | Kafka 风格 telemetry/event 出流、WMS/MES 外部任务接入、dashboard 数据契约、ExternalDB、SAP NetWeaver | `example/routes/RobotClusterDataSrv/v1.0.0/`、`docs/components/11-externaldb.md`、`docs/components/13-sap-netweaver.md` |
 

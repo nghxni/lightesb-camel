@@ -169,6 +169,18 @@ robot doctor --offline
 
 交付说明中应使用“mock/local baseline 已完成，field/product 验收后置”这类表述，避免把模拟器结果写成现场验收。
 
+## 边缘 AI 推理 mock 门禁
+
+- 推理结果使用独立 envelope，不塞入 telemetry DTO，也不能直接进入命令 submit。
+- 可选 processor 默认关闭；只有 `system.components=robotics` 与 `robot.ai.inference.enabled=true` 同时满足并且完整策略配置合法时才启用。
+- 最终 decision 必须同时覆盖模型/时效/置信度、同 ID 异 digest、capability 和共享安全策略；通过结果仍为 `pending_approval/submittable=false`。
+- canonical digest 绑定身份、模型、候选命令、策略版本和证据摘要；replay 缓存通过与稳定拒绝，避免替换同一 inferenceId 的内容绕过冲突。
+- 内存 replay 只证明当前单实例生命周期内的 mock 幂等，不代表跨实例或重启后防重放。
+- decision 不回显媒体 URL、detections 或 raw action vector；mock route 只用 `direct:` + `mock:`，不写命令账本/outbox，不连接协议 endpoint，也不作为 CLI/API。
+- 没有可信 approval provider 和持久化 validation decision 时，任何客户端审批字段都不能让候选下发。
+
+该能力当前只能标记为 Build B mock baseline，不能描述为真实模型认证、可调用推理 API、跨实例防重放、可信人工审批、AI submit 或机器人执行已交付。
+
 ## Review 清单
 
 - 默认样例是否仍是 mock-first。
@@ -182,6 +194,7 @@ robot doctor --offline
 - `robot doctor --offline` 是否被误描述为在线连通性检查。
 - 是否引用了临时工作目录、一次性脚本输出或内部路径作为交付证据。
 - 是否把“当前综合样例已覆盖，暂不拆分”误写成已经实现了专用模板或真实端点能力。
+- AI 候选是否在审批前保持 `submittable=false`，并经过身份、时效/replay、置信度、capability 与共享 safety。
 
 ## 可复用规则句
 

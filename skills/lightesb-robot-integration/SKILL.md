@@ -1,6 +1,6 @@
 ---
 name: lightesb-robot-integration
-description: 机器人、工业协议和命令 dispatcher 交付指导。处理 MQTT telemetry/command、rosbridge、OPC UA、Modbus、gRPC IDL/mock、机器人命令 validate/status/submit/ingest-receipt、outbox dispatcher、审计归档和现场验收边界时使用。
+description: 机器人、工业协议、边缘 AI 推理门禁和命令 dispatcher 交付指导。处理 MQTT telemetry/command、机器人推理 mock、rosbridge、OPC UA、Modbus、gRPC IDL/mock、机器人命令 validate/status/submit/ingest-receipt、outbox dispatcher、审计归档和现场验收边界时使用。
 ---
 
 # LightESB 机器人集成
@@ -10,6 +10,7 @@ description: 机器人、工业协议和命令 dispatcher 交付指导。处理 
 - `docs/experience/01-robotics-protocol-precheck.md`
 - `docs/experience/02-robotics-protocol-correct-practices.md`
 - `docs/robot-command-dispatcher-api.md`
+- `docs/robot-edge-inference-mock.md`
 - `docs/runtime-diagnostics-api.md`
 - `proto/robot/robot_command.proto`
 - `example/routes/RobotMqttTelemetrySrv/v1.0.0/`
@@ -18,6 +19,7 @@ description: 机器人、工业协议和命令 dispatcher 交付指导。处理 
 - `example/routes/RobotOpcUaStationSrv/v1.0.0/`
 - `example/routes/RobotModbusGatewaySrv/v1.0.0/`
 - `example/routes/RobotGrpcGatewaySrv/v1.0.0/`
+- `example/routes/RobotEdgeInferenceSrv/v1.0.0/`
 
 规则：
 
@@ -29,6 +31,7 @@ description: 机器人、工业协议和命令 dispatcher 交付指导。处理 
 - `robot command submit` 进入命令账本、审计和 MQTT outbox；`robot command ingest-receipt` 只把已捕获 MQTT ack/result 回执转交服务端 ingest API；`outboxStatus=pending` 不代表机器人已收到或已执行。
 - `ROBOT_POLICY_DENYLIST` 支持 site、robot、protocolProfile 禁用策略；命中启用策略时 `commands:validate` 和 `commands` 返回 `ROBOT_POLICY_REJECTED`，不触发协议调用，拒绝详情包含策略 ID 和禁用来源。
 - `commands:validate` 和 `commands` 执行同一高层命令安全策略：`move_to` 检查区域/速度，已配置的 `pick/place` 检查工位/互锁/载荷；策略通过不代表现场安全回路或设备执行已验证。
+- 边缘推理样例只允许固定可信 ingress、白名单高层候选、时效/置信度/replay/capability/shared safety 验证；可信审批落地前始终 `submittable=false`，不得调用 submit 或写 outbox。实例内 replay 不代表跨实例保证。
 - 本机 EMQX 或强模拟器可用时，使用 `tools/robot-mqtt-firmware-precheck/test_robot_mqtt_firmware_precheck.sh --dispatcher-ingest` 验证 `accepted -> dispatched -> acknowledged -> succeeded`；该结果仍属于 local simulator，不等同于现场机器人验收。
 - 无 MySQL 小数据量 POC 可使用 `lightesb.poc.h2-fallback.enabled=true`，机器人命令账本、审计和 outbox 使用 H2；用 `diagnostics snapshot --component robot-command --output json` 确认 `pocH2FallbackEnabled` 和 `robotManagementStorage`。
 - 运行态 doctor 用 `lightesb robot doctor --runtime --output json` 或 `diagnostics snapshot --component robot-command --output json` 查看表、outbox、状态快照、补偿、denylist 和最近错误码分布；该检查不连接真实 endpoint。

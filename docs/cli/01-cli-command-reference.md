@@ -91,6 +91,8 @@ lightesb diagnostics snapshot --component robot-command --output json
 
 `robot doctor --runtime` 只调用 `GET /api/diagnostics/runtime-snapshot?component=robot-command`，输出管理面运行态 doctor 检查项。检查项覆盖数据库表存在性、outbox 积压、状态快照陈旧、补偿积压、启用 denylist 策略和最近错误码分布。`--output json` 保留服务端标准 envelope；table 输出展示 `overallStatus`、`connectivityChecked=false`、检查项和 warning。该命令不连接真实 endpoint、不下发命令、不调用验证 route，不能解释为真实资产在线、最近心跳健康或现场错误日志已检查。
 
+`RobotEdgeInferenceSrv` 当前是 `direct:` + `mock:` 样例，没有推理 CLI 命令或对外 HTTP/MQTT/gRPC API。现有 `robot doctor`、`robot command validate` 和 `robot command submit` 都不调用该 route；不得使用 `robot command submit` 绕过推理响应中的 `submittable=false`。
+
 `robot list/get/capabilities/state/audit` 只调用：
 
 ```text

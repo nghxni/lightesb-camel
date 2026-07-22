@@ -33,7 +33,8 @@
 | `ai-route-cache-api.md` | `docs/api/01-ai-route-cache.md`，按交付场景压缩整理 |
 | `runtime-diagnostics-api.md` | 运行时诊断 API 与 H2 fallback POC 设计结论，按交付场景压缩整理 |
 | `robot-command-dispatcher-api.md` | 机器人 dispatcher API、MQTT 回执接入基线与 H2 fallback POC 设计结论，按交付场景压缩整理 |
-| `../skills/lightesb-robot-integration/SKILL.md` | 机器人协议接入经验、机器人 dispatcher API、交付样例和 gRPC IDL 契约，按交付任务路由整理 |
+| `robot-edge-inference-mock.md` | 机器人边缘 AI 推理设计与 Build B mock baseline，按可交付配置、输入输出、验收和限制重写 |
+| `../skills/lightesb-robot-integration/SKILL.md` | 机器人协议接入经验、边缘 AI 推理 mock 门禁、dispatcher API、交付样例和 gRPC IDL 契约，按交付任务路由整理 |
 | `../skills/lightesb-temp-form/SKILL.md` | `skills/lightesb-temp-form/SKILL.md` 与 `skills/lightesb-route-development/SKILL.md` 最小创建集及 simple 常见坑，按交付场景重写 |
 | `cli/README.md` | `docs/cli/README.md`，外发压缩版 |
 | `cli/01-cli-command-reference.md` | `docs/cli/*` 与 `lightesb-cli/src/main/java/.../cli/command/*`，按命令域压缩整理 |
