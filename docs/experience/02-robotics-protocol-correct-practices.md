@@ -22,6 +22,7 @@
 
 - `RobotCommand` 应区分必填业务字段、可选元数据、服务端补齐字段和版本字段。
 - `validate_only` / `dryRun` 只做 schema、能力和策略预检，不下发协议请求。
+- 预检和正式提交必须执行同一高层命令安全规则，避免调用方跳过 validate 后绕过区域、速度、载荷、工位或互锁门禁；当前服务端策略结果不等于现场安全回路验收。
 - `timeoutMs` 表示等待结果超时，`ttlMs` / `expiresAt` 表示提交有效期。
 - 默认同一机器人同一时刻只允许一个执行中高层动作；`stop`、`cancel` 可抢占但仍需校验。
 - `outboxStatus=pending` 和 `protocolReceipt.dispatched=false` 时，只能解释为 accepted/outbox queued，不代表真实机器人执行。
@@ -204,3 +205,4 @@ robot doctor --offline
 18. submit accepted、HTTP 200、`outboxStatus=pending`、MQTT publish 成功或 `protocolReceipt.dispatched=false` 都不能解释为真实现场执行完成；真实执行闭环必须用状态机、ack/result 持久化、跨实例一致性、审计补偿、权限和强模拟器/现场设备验收共同证明。
 19. 正式 dispatcher 验证必须走管理 API、命令账本、审计、outbox、dispatcher、MQTT 接收、状态查询和诊断快照闭环；验证 route 或 demo 路由不能替代正式 dispatcher 证据。
 20. 禁用策略应通过管理 API/CLI 和 denylist 管理；CLI 支持 `list/add/enable/disable`，不要写进路由 XML，不要让 CLI 直连数据库，也不要把它描述成现场安全互锁。
+21. `commands:validate` 与 `commands` 必须执行同一高层安全策略；策略通过只代表当前服务端 snapshot 接受，不代表现场地图、PLC 或控制器互锁已验证。

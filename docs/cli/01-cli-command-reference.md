@@ -127,7 +127,7 @@ lightesb robot policy disable --server http://localhost:8080 --id <policyId> --y
 POST /service-management/v1/robots/{robotId}/commands:validate
 ```
 
-它用于命令预检，不调用 `/commands`，不创建命令记录，不连接 MQTT、rosbridge、OPC UA、Modbus、Kafka、WMS/MES，也不写执行审计。`--output json` 保留服务端标准响应。
+它用于命令预检，不调用 `/commands`，不创建命令记录，不连接 MQTT、rosbridge、OPC UA、Modbus、Kafka、WMS/MES，也不写执行审计。服务端会检查 schema、能力、denylist 和共享高层命令安全策略；`move_to` 覆盖区域/速度，已配置的 `pick/place` 覆盖工位/互锁/载荷。策略拒绝返回 `ROBOT_POLICY_REJECTED`，预检通过不代表现场互锁或设备执行已验证。`--output json` 保留服务端标准响应。
 
 `robot command status --robot-id --command-id` 只查询已有命令结果，不调用 `POST /commands`，不创建新命令。`--output json` 保留服务端标准响应。
 

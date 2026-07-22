@@ -2,6 +2,12 @@
 
 本文说明交付包中机器人命令提交、MQTT outbox 和状态查询边界。
 
+## 命令预检与共享安全策略
+
+`POST /service-management/v1/robots/{robotId}/commands:validate` 只做预检，不创建命令或 outbox。预检和正式 `POST .../commands` 使用相同高层命令安全规则：`move_to` 检查目标区域与请求速度，已配置的 `pick/place` 检查工位白名单、服务端互锁和载荷。区域、速度、工位、互锁或载荷拒绝返回 `422 ROBOT_POLICY_REJECTED`，数值类型非法返回 `400 ROBOT_COMMAND_SCHEMA_INVALID`。
+
+预检通过只说明当前服务端 policy snapshot 接受该命令，不代表现场地图、PLC/控制器安全回路或机器人执行已经验证。正式提交同样执行安全策略；拒绝时不创建命令或 outbox。
+
 ## 提交命令
 
 ```bash
@@ -10,7 +16,7 @@ curl -sS -X POST http://127.0.0.1:8080/service-management/v1/robots/quad-001/com
   -d '{"commandId":"cmd-001","robotId":"quad-001","siteId":"site-a","commandType":"move_to","mode":"submit","timeoutMs":30000,"target":{"frame":"map","x":1.2,"y":3.4}}'
 ```
 
-成功后服务端写入命令账本、审计和 MQTT outbox。响应中的 `status=accepted` 与 `protocolReceipt.outboxStatus=pending` 只表示命令已进入可靠派发队列。
+通过 schema、能力、denylist 和共享高层命令安全策略后，服务端写入命令账本、审计和 MQTT outbox。响应中的 `status=accepted` 与 `protocolReceipt.outboxStatus=pending` 只表示命令已进入可靠派发队列。
 
 示例响应：
 

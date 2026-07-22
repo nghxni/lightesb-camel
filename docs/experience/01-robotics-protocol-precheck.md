@@ -100,6 +100,7 @@ AI tools 当前不作为交付包能力；评估结论只代表当前不新增�
 - `robot.asset.{robotId}.online=true`。
 - `move_to` 必须满足目标区域和速度策略。
 - `pick/place` 必须满足工位白名单、工位互锁和载荷策略。
+- 管理 API 的预检和正式提交执行同一高层命令安全规则；策略拒绝不创建命令或 outbox。该结果只属于服务端 mock/management baseline，不代表现场地图或 PLC/控制器互锁已验证。
 - 请求体不允许动态覆盖 `topic`、`node`、`register`、`service` 等协议目标。
 - 写操作必须生成 ack/result/audit，重复 `commandId` 不得重复执行。
 
