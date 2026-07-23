@@ -35,7 +35,6 @@
 | `robot-command-dispatcher-api.md` | 机器人 dispatcher API、MQTT 回执接入基线与 H2 fallback POC 设计结论，按交付场景压缩整理 |
 | `robot-edge-inference-mock.md` | 机器人边缘 AI 推理设计与 Build B mock baseline，按可交付配置、输入输出、验收和限制重写 |
 | `robot-ai-approval-api.md` | `docs/api/04-robot-ai-approval-callback.md`、`docs/api/05-robot-ai-decision-submit.md` 和机器人 AI 可信审批架构结论，按交付配置、HMAC 回调、查询、提交与 MySQL 部署场景重写 |
-| `sql/robot-ai-approval-mysql.sql` | `docs/sql/robot-ai-approval-mysql.sql`，MySQL 8 DBA 预建表交付脚本 |
 | `../skills/lightesb-robot-integration/SKILL.md` | 机器人协议接入经验、边缘 AI 推理 mock/可信审批门禁、dispatcher API、交付样例和 gRPC IDL 契约，按交付任务路由整理 |
 | `../skills/lightesb-temp-form/SKILL.md` | `skills/lightesb-temp-form/SKILL.md` 与 `skills/lightesb-route-development/SKILL.md` 最小创建集及 simple 常见坑，按交付场景重写 |
 | `cli/README.md` | `docs/cli/README.md`，外发压缩版 |

@@ -37,7 +37,6 @@ docs/runtime-configuration-reference.md
 docs/runtime-diagnostics-api.md
 docs/runtime-route-loading.md
 docs/service-runtime-management-api.md
-docs/sql/robot-ai-approval-mysql.sql
 example/README.md
 example/routes/AiAgentDemoSrv/v1.0.0/ai-agent-demo-route.xml
 example/routes/AiAgentDemoSrv/v1.0.0/common.config.properties

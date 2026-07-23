@@ -219,4 +219,4 @@ CLI 不提供 approve/reject，不读取候选命令文件，不保存 HMAC secr
 
 ## MySQL 与 H2 边界
 
-生产 MySQL 8 使用 `docs/sql/robot-ai-approval-mysql.sql` 预建两张表和索引。H2 fallback 只用于小数据量 POC，不代表生产级并发、备份恢复或迁移能力。交付环境仍应验证 MySQL DDL 权限、唯一键冲突、行锁、事务回滚和索引元数据。
+生产 MySQL 8 由 DBA 预建 `ROBOT_AI_VALIDATION_DECISION`、`ROBOT_AI_APPROVAL_EVENT` 两张表和索引，应用账号只保留 DML 权限；运行时 `CREATE TABLE IF NOT EXISTS` 仅作空库/测试兜底，不替代 DBA 初始化。H2 fallback 只用于小数据量 POC，不代表生产级并发、备份恢复或迁移能力。交付环境仍应验证 MySQL DDL 权限、唯一键冲突、行锁、事务回滚和索引元数据。
