@@ -1,0 +1,21 @@
+{
+  "commandId": "instant-20260720-001",
+  "robotId": "amr-001",
+  "siteId": "site-a",
+  "commandType": "vda_instant_action",
+  "timeoutMs": 10000,
+  "correlationId": "instant-20260720-001",
+  "payload": {
+    "headerId": 2,
+    "version": "3.0.0",
+    "manufacturer": "ExampleAGV",
+    "serialNumber": "amr-001",
+    "instantActions": [
+      {
+        "actionId": "a1",
+        "actionType": "cancelOrder",
+        "blockingType": "hardBlock"
+      }
+    ]
+  }
+}

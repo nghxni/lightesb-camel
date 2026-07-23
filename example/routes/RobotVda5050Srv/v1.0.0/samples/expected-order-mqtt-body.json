@@ -1,0 +1,32 @@
+{
+  "headerId": 1,
+  "timestamp": "2026-07-20T10:00:00Z",
+  "version": "3.0.0",
+  "manufacturer": "ExampleAGV",
+  "serialNumber": "amr-001",
+  "orderId": "order-20260720-001",
+  "orderUpdateId": 1,
+  "nodes": [
+    {
+      "nodeId": "n1",
+      "sequenceId": 0,
+      "nodePosition": { "x": 1.0, "y": 2.0, "theta": 0.0, "mapId": "map-a" },
+      "actions": []
+    },
+    {
+      "nodeId": "n2",
+      "sequenceId": 1,
+      "nodePosition": { "x": 5.0, "y": 2.0, "theta": 0.0, "mapId": "map-a" },
+      "actions": []
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "e1",
+      "sequenceId": 0,
+      "startNodeId": "n1",
+      "endNodeId": "n2",
+      "actions": []
+    }
+  ]
+}

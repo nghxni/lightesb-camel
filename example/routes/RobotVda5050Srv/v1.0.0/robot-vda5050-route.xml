@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+    <route id="robot-vda5050-order-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-vda5050-order-mock"/>
+        <process ref="robotCommandValidateProcessor"/>
+        <process ref="robotCommandIdempotencyProcessor"/>
+        <choice>
+            <when>
+                <simple>${exchangeProperty.robot.command.idempotency.duplicate} == true</simple>
+                <to uri="servicelog:info?message=[ROBOT-VDA5050] duplicate order ignored commandId=${exchangeProperty.robot.command.id} robotId=${exchangeProperty.robot.robotId}&amp;showBody=true&amp;maxBodyLength=2000"/>
+                <setBody>
+                    <simple>{"status":"duplicate","commandId":"${exchangeProperty.robot.command.id}","robotId":"${exchangeProperty.robot.robotId}","exchangeId":"${exchangeId}"}</simple>
+                </setBody>
+            </when>
+            <otherwise>
+                <process ref="robotVdaOrderEnvelopeProcessor"/>
+                <to uri="servicelog:info?message=[ROBOT-VDA5050] order built topic=${exchangeProperty.robot.vda5050.topic}&amp;showBody=true&amp;maxBodyLength=2000"/>
+                <toD uri="{{robot.mock.vda5050.order.sink}}"/>
+            </otherwise>
+        </choice>
+    </route>
+
+    <route id="robot-vda5050-instant-action-mock" routeConfigurationId="globalError">
+        <from uri="direct:robot-vda5050-instant-action-mock"/>
+        <process ref="robotCommandValidateProcessor"/>
+        <process ref="robotCommandIdempotencyProcessor"/>
+        <choice>
+            <when>
+                <simple>${exchangeProperty.robot.command.idempotency.duplicate} == true</simple>
+                <to uri="servicelog:info?message=[ROBOT-VDA5050] duplicate instantAction ignored commandId=${exchangeProperty.robot.command.id} robotId=${exchangeProperty.robot.robotId}&amp;showBody=true&amp;maxBodyLength=2000"/>
+                <setBody>
+                    <simple>{"status":"duplicate","commandId":"${exchangeProperty.robot.command.id}","robotId":"${exchangeProperty.robot.robotId}","exchangeId":"${exchangeId}"}</simple>
+                </setBody>
+            </when>
+            <otherwise>
+                <process ref="robotVdaOrderEnvelopeProcessor"/>
+                <to uri="servicelog:info?message=[ROBOT-VDA5050] instantAction built topic=${exchangeProperty.robot.vda5050.topic}&amp;showBody=true&amp;maxBodyLength=2000"/>
+                <toD uri="{{robot.mock.vda5050.instantAction.sink}}"/>
+            </otherwise>
+        </choice>
+    </route>
+
+</routes>

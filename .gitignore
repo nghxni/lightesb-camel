@@ -25,3 +25,4 @@ replay_pid*
 log4j2.properties
 target/
 lightesb-camel-app/
+backups
