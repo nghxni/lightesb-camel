@@ -49,6 +49,9 @@ lightesb robot command status --robot-id quad-001 --command-id cmd-001
 lightesb robot command status --robot-id quad-001 --command-id cmd-001 --output json
 lightesb robot command submit --file command.json --yes
 lightesb robot command submit --file command.json --yes --output json
+lightesb robot inference decision-status --robot-id quad-001 --decision-id vaid_0123456789abcdef0123456789abcdef
+lightesb robot inference decision-status --robot-id quad-001 --decision-id vaid_0123456789abcdef0123456789abcdef --output json
+lightesb robot inference submit --robot-id quad-001 --decision-id vaid_0123456789abcdef0123456789abcdef --yes --output json
 lightesb robot command ingest-receipt --receipt-type ack --topic robot/site-a/quad-001/command/cmd-001/ack --payload-file ack.json --yes
 lightesb robot command ingest-receipt --receipt-type result --topic robot/site-a/quad-001/command/cmd-001/result --payload-json '{"commandId":"cmd-001","robotId":"quad-001","siteId":"site-a","status":"succeeded"}' --yes --output json
 lightesb diagnostics snapshot
@@ -91,7 +94,7 @@ lightesb diagnostics snapshot --component robot-command --output json
 
 `robot doctor --runtime` 只调用 `GET /api/diagnostics/runtime-snapshot?component=robot-command`，输出管理面运行态 doctor 检查项。检查项覆盖数据库表存在性、outbox 积压、状态快照陈旧、补偿积压、启用 denylist 策略和最近错误码分布。`--output json` 保留服务端标准 envelope；table 输出展示 `overallStatus`、`connectivityChecked=false`、检查项和 warning。该命令不连接真实 endpoint、不下发命令、不调用验证 route，不能解释为真实资产在线、最近心跳健康或现场错误日志已检查。
 
-`RobotEdgeInferenceSrv` 当前是 `direct:` + `mock:` 样例，没有推理 CLI 命令或对外 HTTP/MQTT/gRPC API。现有 `robot doctor`、`robot command validate` 和 `robot command submit` 都不调用该 route；不得使用 `robot command submit` 绕过推理响应中的 `submittable=false`。
+`RobotEdgeInferenceSrv` 当前是 `direct:` + `mock:` 样例，没有对外 HTTP/MQTT/gRPC 推理 API。`robot inference` 只调用控制面 decision 查询/提交 API，不调用该 route；不得使用普通 `robot command submit` 绕过 AI reservation。
 
 `robot list/get/capabilities/state/audit` 只调用：
 
@@ -140,6 +143,8 @@ POST /service-management/v1/robots/{robotId}/commands
 ```
 
 它会提交到服务端命令入口，必须显式传 `--yes`，并拒绝 `mode=validate_only` 和 `dryRun=true`。服务端返回 `protocolReceipt.outboxStatus=pending` 时，只表示命令已进入可靠派发队列；`protocolReceipt.dispatched=false` 不能当作机器人已收到或已执行。
+
+`robot inference decision-status --robot-id --decision-id` 调用 decision GET 入口，返回脱敏 `persistedStatus/effectiveStatus` 与摘要。`robot inference submit --robot-id --decision-id --yes` 调用同路径的 `:submit` POST，请求体固定为 `{}`。CLI 不提供 approve/reject、不传候选命令、不计算 HMAC。完整契约见 `docs/robot-ai-approval-api.md`。
 
 `robot command ingest-receipt --receipt-type ack|result --topic --payload-file|--payload-json --yes` 只调用：
 
@@ -370,6 +375,7 @@ AI 边界：
 - `robot command validate --file` 只做服务端 validate-only 预检；请求体中的动态协议目标字段仍由服务端拒绝。
 - `robot command status --robot-id --command-id` 只查已有命令结果，不提交新命令。
 - `robot command submit --file --yes` 只提交到服务端命令账本、审计和 MQTT outbox；不直连协议端点，不证明真实执行成功。
+- `robot inference decision-status` 只读；`robot inference submit` 必须 `--yes` 且只能消费已由验签 provider 批准的 decision。
 - `robot command ingest-receipt --receipt-type ack|result --topic --payload-file|--payload-json --yes` 只把已捕获的 MQTT ack/result 回执转交服务端 ingest API；不订阅 MQTT，不派发命令。
 - 当前 CLI 不提供 `move_to`、OPC UA write、Modbus write 或 rosbridge action 直连调用。
 - 后续如需真实协议执行，必须另开真实协议闭环切片，不能把 `accepted` 当作执行成功。

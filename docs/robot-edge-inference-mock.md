@@ -5,7 +5,7 @@
 1. 使用 `example/routes/RobotEdgeInferenceSrv/v1.0.0/` 的完整服务目录。
 2. 保持 `server.running=false`；该样例没有 HTTP、MQTT 或 gRPC 对外入口。
 3. 向 `direct:robot-edge-inference-mock` 投递 `robot-edge-inference.v1` JSON，读取 `mock:robotEdgeInferenceDecisionSink`。
-4. 安全候选应返回 `status=pending_approval`、`valid=true`、`submittable=false`；低置信、过期、身份不一致、重放冲突或共享安全策略失败应返回 `status=rejected`。
+4. 默认未开启 approval 时，安全候选应返回 `status=pending_approval`、`valid=true`、`submittable=false`；低置信、过期、身份不一致、重放冲突或共享安全策略失败应返回 `status=rejected`。
 5. 检查 route 只包含 `direct:` 与 `mock:`，没有命令 submit、outbox 或真实协议 endpoint。
 
 ## 必要配置
@@ -41,6 +41,12 @@ robot.ai.inference.model.warehouse-vlm-v1.command.move_to.maxTtlMs=5000
 
 完整资源上限、机器人资产/capability 和区域/速度策略见样例配置。`allowedCommands` 必须是 `robot.command.allowedActions` 的子集；replay retention 必须覆盖推理时效与允许时钟偏差。
 
+若要让 mock 候选创建持久化 validation decision，还需先按 [机器人 AI 可信审批](robot-ai-approval-api.md) 开启全局 provider，并在该服务配置中只在启用时增加：
+
+```properties
+robot.ai.inference.approval.enabled=true
+```
+
 ## 输入与输出边界
 
 输入只能提出白名单高层候选命令。请求不能自报 `sourceSystem`、`modelKey`、`riskLevel`、`policyVersion`、审批结果或动态 `topic/node/register/service/endpoint`。`observedAt` 必须是当前时效窗口内的 RFC 3339 时间。
@@ -57,10 +63,10 @@ robot.ai.inference.model.warehouse-vlm-v1.command.move_to.maxTtlMs=5000
 | 置信度过低 | 422 | `ROBOT_AI_CONFIDENCE_TOO_LOW` |
 | capability、区域或速度拒绝 | 422 | `ROBOT_POLICY_REJECTED` |
 
-## 未交付能力
+## 交付边界
 
-- 当前没有推理 CLI 命令或可调用 HTTP/MQTT/gRPC API。
+- 当前没有可调用 HTTP/MQTT/gRPC 推理 ingress；`robot inference` CLI 只查询/提交已由控制面创建的 decision，不调用该 mock route。
 - 固定 ingress profile 只用于 mock，不代表真实认证。
-- 内存 replay registry 只覆盖当前单实例生命周期，不提供跨实例或重启后防重放。
-- 当前没有可信人工审批 provider、持久化 validation decision 或 AI submit。
-- `pending_approval` 不代表已创建审批记录；任何候选都不能据此下发机器人。
+- approval 关闭时，内存 replay registry 只覆盖当前单实例生命周期，`pending_approval` 不代表已创建持久化记录。
+- approval 显式开启时，安全候选可创建服务端 decision，但仍始终 `submittable=false`；只能先经验签 provider 审批，再由 decision-only submit 重验当前策略。
+- HMAC provider 契约和本地控制面不代表已与客户真实审批平台、真实模型或机器人现场联调。

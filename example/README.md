@@ -27,6 +27,7 @@
 | `routes/RobotModbusGatewaySrv/v1.0.0/` | Modbus 寄存器别名白名单和写回执 mock 样例，默认 `server.running=false` | `../docs/experience/01-robotics-protocol-precheck.md` |
 | `routes/RobotClusterDataSrv/v1.0.0/` | Kafka 风格出流、外部任务和 dashboard 数据 mock 样例，默认 `server.running=false` | `../docs/experience/01-robotics-protocol-precheck.md` |
 | `routes/RobotGrpcGatewaySrv/v1.0.0/` | gRPC IDL 契约、deadline/retry/metadata/TLS 静态配置和 mock receipt 样例，默认 `server.running=false` | `../docs/experience/01-robotics-protocol-precheck.md` |
+| `routes/RobotVda5050Srv/v1.0.0/` | VDA 5050 order/instantActions 命令校验、幂等和 envelope 构造 mock 样例，默认 `server.running=false` | `../docs/robot-command-dispatcher-api.md` |
 | `routes/RobotEdgeInferenceSrv/v1.0.0/` | 边缘 AI 推理身份、时效、置信度、replay 与共享安全策略 mock 门禁，默认 `server.running=false` | `../docs/robot-edge-inference-mock.md` |
 | `transform-dts-java/` | DTS Java SPI 扩展示例，提供多个 transform provider | `../docs/extensions/01-dts-extension-guide.md` |
 

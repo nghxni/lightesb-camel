@@ -12,6 +12,7 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 - `docs/cli/support-diagnostics.md`
 - 诊断任务读 `docs/runtime-diagnostics-api.md`
 - 机器人命令提交、dispatcher 或审计任务读 `docs/robot-command-dispatcher-api.md`
+- 机器人 AI decision 查询/提交读 `docs/robot-ai-approval-api.md`
 
 规则：
 
@@ -37,6 +38,7 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 - `robot command validate --file` 只调用 `POST /service-management/v1/robots/{robotId}/commands:validate`，不调用 `/commands`，不创建命令或执行审计。
 - `robot command status --robot-id --command-id` 只调用 `GET /service-management/v1/robots/{robotId}/commands/{commandId}`，不提交新命令或连接真实协议 endpoint。
 - `robot command submit --file --yes` 只调用 `POST /service-management/v1/robots/{robotId}/commands` 命令账本、审计和 MQTT outbox 入口；`protocolReceipt.dispatched=false` 时不能当作真实协议执行成功。
+- `robot inference decision-status` 只查询脱敏 decision；`robot inference submit --yes` 只发送 opaque decision ID 和空对象。不生成 approve/reject 命令，不读候选命令文件，不保存 HMAC secret。
 - `robot command ingest-receipt --receipt-type ack|result --topic --payload-file|--payload-json --yes` 只调用 `POST /service-management/v1/robots/mqtt-receipts:ingest`，不订阅 MQTT、不直连 broker、不自动 submit/dispatch 命令。
 - `robot policy list/add/enable/disable` 只调用机器人管理 API denylist；`add`、`enable` 和 `disable` 必须带 `--yes`，不直连数据库、不连接真实机器人、不触发协议调用。
 - 机器人 CLI 后续真实执行能力必须另开协议闭环切片；不要生成协议写控命令。
@@ -76,6 +78,8 @@ lightesb diagnostics snapshot --server http://localhost:8080 --service-name Demo
 lightesb robot doctor --server http://localhost:8080 --runtime --output json
 lightesb robot command validate --server http://localhost:8080 --file robot-command.json --output json
 lightesb robot command submit --server http://localhost:8080 --file robot-command.json --yes --output json
+lightesb robot inference decision-status --server http://localhost:8080 --robot-id quad-001 --decision-id "$DECISION_ID" --output json
+lightesb robot inference submit --server http://localhost:8080 --robot-id quad-001 --decision-id "$DECISION_ID" --yes --output json
 lightesb robot command ingest-receipt --server http://localhost:8080 --receipt-type ack --topic robot/site-a/quad-001/command/cmd-001/ack --payload-file ack.json --yes --output json
 lightesb robot policy list --server http://localhost:8080 --output json
 ```

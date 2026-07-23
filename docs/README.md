@@ -56,6 +56,7 @@
 - [机器人协议接入前置验证](experience/01-robotics-protocol-precheck.md)
 - [机器人协议接入正确做法](experience/02-robotics-protocol-correct-practices.md)
 - [机器人边缘 AI 推理 mock 门禁](robot-edge-inference-mock.md)
+- [机器人 AI 可信审批与一次性提交](robot-ai-approval-api.md)
 - 机器人/ROS/PLC 场景以“动态热加载路由技能”和“核心能力全链路功能服务”为交付口径，覆盖 MQTT、rosbridge、OPC UA、Modbus TCP、PLC4X 评估路径、Kafka 风格出流和 gRPC 契约；技能包可用 `server.running=false` 保留但不加载，需要时通过 CLI 启停、部署或重载；真实现场执行按 mock-first / local baseline / field validation 分层验收。
 
 ## CLI 自动化
@@ -68,6 +69,7 @@
 - [AI 路由缓存管理 API](ai-route-cache-api.md)
 - [运行时诊断 API 与 CLI](runtime-diagnostics-api.md)
 - [机器人命令 dispatcher API](robot-command-dispatcher-api.md)
+- [机器人 AI 可信审批 API](robot-ai-approval-api.md)
 
 ## 样例
 

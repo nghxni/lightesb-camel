@@ -33,7 +33,7 @@ LightESB-Camel is designed for:
 | Route service runtime | Apache Camel XML routes, service directories, hot loading, and route lifecycle guidance |
 | Legacy integration | HTTP ingress, internal HTTP forwarding, database access, JSON transformation, schema validation, and error handling |
 | Industrial connectivity | OPC UA, MQTT 5, Modbus/PLC gateway examples, AVEVA Plant SCADA, SAP NetWeaver, and ExternalDB patterns |
-| Robotics integration | MQTT telemetry and command routes, rosbridge examples, Modbus and OPC UA station examples, dispatcher API docs, and robot command proto |
+| Robotics integration | MQTT telemetry and command routes, edge-inference mock plus HMAC approval/decision-only submit gate, rosbridge examples, Modbus and OPC UA station examples, dispatcher API docs, and robot command proto |
 | AI-assisted orchestration | AI Agent + Tools component guidance for request building, tool calling, and operational workflows |
 | Operations and governance | CLI automation, deployment management API, diagnostics API, service logs, permission checks, and audit-oriented patterns |
 | Agent context | Skills, examples, and documentation that external coding agents can use to author or adapt route services |
@@ -77,7 +77,7 @@ It does not replace:
 2. Review the component and workflow index in [docs/README.md](README.md).
 3. Pick a runnable example from [example/README.md](../example/README.md).
 4. Use the CLI guide in [docs/cli/README.md](cli/README.md) for deployment and diagnostics.
-5. For robotics work, read [robot-command-dispatcher-api.md](robot-command-dispatcher-api.md) and the robotics experience notes under `docs/experience/`.
+5. For robotics work, read [robot-command-dispatcher-api.md](robot-command-dispatcher-api.md), [robot-ai-approval-api.md](robot-ai-approval-api.md), and the robotics experience notes under `docs/experience/`.
 
 ## Hosting and Website
 

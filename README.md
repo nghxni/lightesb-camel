@@ -86,7 +86,7 @@ start.bat
 | --- | --- | --- |
 | 老系统与机器人流程接入 | HTTP/数据库/消息/企业系统接口整合，机器人任务、命令、回执、审计和外部任务流程编排 | `docs/components/01-http-route-basics.md`、`docs/cli/README.md` |
 | 机器人动态技能扩展 | 轻量路由技能包、路由热加载、`server.running=false` 按需禁用、CLI 启停/部署/重载、DTS Java SPI、AI Agent + Tools、配置化协议目标和白名单 | `AGENTS.md`、`docs/cli/README.md`、`docs/extensions/01-dts-extension-guide.md`、`docs/components/12-ai-chat.md` |
-| 机器人核心链路服务 | MQTT telemetry/command、边缘 AI 推理 mock 门禁、MQTT outbox dispatcher、rosbridge WebSocket JSON、ROS service/action 管理面映射、gRPC `RobotCommand` 契约草案 | `docs/robot-edge-inference-mock.md`、`docs/robot-command-dispatcher-api.md`、`docs/experience/01-robotics-protocol-precheck.md`、`proto/robot/robot_command.proto` |
+| 机器人核心链路服务 | MQTT telemetry/command、边缘 AI 推理 mock 与 HMAC 可信审批/decision-only submit 门禁、MQTT outbox dispatcher、rosbridge WebSocket JSON、ROS service/action 管理面映射、gRPC `RobotCommand` 契约草案 | `docs/robot-edge-inference-mock.md`、`docs/robot-ai-approval-api.md`、`docs/robot-command-dispatcher-api.md`、`docs/experience/01-robotics-protocol-precheck.md`、`proto/robot/robot_command.proto` |
 | PLC 与工业现场 | OPC UA、Modbus TCP 寄存器别名、PLC4X 依赖基础和复杂 PLC 能力评估路径、AVEVA Plant SCADA | `docs/components/15-aveva-plant-scada-opcua-mqtt.md`、`docs/experience/02-robotics-protocol-correct-practices.md` |
 | 数据平台与业务系统 | Kafka 风格 telemetry/event 出流、WMS/MES 外部任务接入、dashboard 数据契约、ExternalDB、SAP NetWeaver | `example/routes/RobotClusterDataSrv/v1.0.0/`、`docs/components/11-externaldb.md`、`docs/components/13-sap-netweaver.md` |
 
@@ -105,7 +105,7 @@ LightESB 的机器人技能和协议适配能力可以以独立路由服务包�
 - 不需要使用时，可停止服务或保持 `server.running=false`，让平台保留技能资产但控制运行时占用。
 - 适合沉淀大量机器人技能、协议适配模板、客户专用流程和现场调试能力，按任务需要启用。
 
-路由按需加载、热更新和重启边界见 `docs/runtime-route-loading.md`。常用 CLI 入口见 `docs/cli/README.md` 和 `docs/cli/01-cli-command-reference.md`，包括 `service start/stop`、`service package deploy`、`route reload-service`、`route reload-file`、`deploy upload`、`diagnostics snapshot/warnings` 和 `robot command validate/status/submit`。
+路由按需加载、热更新和重启边界见 `docs/runtime-route-loading.md`。常用 CLI 入口见 `docs/cli/README.md` 和 `docs/cli/01-cli-command-reference.md`，包括 `service start/stop`、`service package deploy`、`route reload-service`、`route reload-file`、`deploy upload`、`diagnostics snapshot/warnings`、`robot command validate/status/submit` 和 `robot inference decision-status/submit`。
 
 ## 目录结构
 

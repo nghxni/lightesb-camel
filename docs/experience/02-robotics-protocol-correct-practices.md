@@ -177,9 +177,11 @@ robot doctor --offline
 - canonical digest 绑定身份、模型、候选命令、策略版本和证据摘要；replay 缓存通过与稳定拒绝，避免替换同一 inferenceId 的内容绕过冲突。
 - 内存 replay 只证明当前单实例生命周期内的 mock 幂等，不代表跨实例或重启后防重放。
 - decision 不回显媒体 URL、detections 或 raw action vector；mock route 只用 `direct:` + `mock:`，不写命令账本/outbox，不连接协议 endpoint，也不作为 CLI/API。
-- 没有可信 approval provider 和持久化 validation decision 时，任何客户端审批字段都不能让候选下发。
+- 没有显式开启可信 approval provider 和持久化 validation decision 时，任何客户端审批字段都不能让候选下发。
 
-该能力当前只能标记为 Build B mock baseline，不能描述为真实模型认证、可调用推理 API、跨实例防重放、可信人工审批、AI submit 或机器人执行已交付。
+mock route 仍只能标记为 Build B mock baseline，不能描述为真实模型认证或可调用推理 API。控制面已可在显式开启后创建持久化 decision、接收 HMAC 验签审批、查询脱敏状态并一次性 submit；这不代表真实审批平台、真实推理 ingress 或机器人现场执行已验收。
+
+可信审批与提交交付应保持：全局与路由双开关默认关闭；HMAC 只覆盖原始 body；event 使用 provider + event ID 唯一键防重放；query 只返回安全 VO 和 persisted/effective status；submit 只接收 opaque decision ID，同事务消费 decision 并写 command/audit/outbox。CLI 不能提供 approve/reject 捷径。
 
 ## Review 清单
 

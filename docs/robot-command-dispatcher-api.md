@@ -18,6 +18,8 @@ curl -sS -X POST http://127.0.0.1:8080/service-management/v1/robots/quad-001/com
 
 通过 schema、能力、denylist 和共享高层命令安全策略后，服务端写入命令账本、审计和 MQTT outbox。响应中的 `status=accepted` 与 `protocolReceipt.outboxStatus=pending` 只表示命令已进入可靠派发队列。
 
+若同一 `robotId + commandId` 已被 AI validation decision 保留，普通 `/commands` 返回 `422 ROBOT_AI_APPROVAL_REQUIRED`，不写 command 或 outbox。该命令只能按 [机器人 AI 可信审批与一次性提交](robot-ai-approval-api.md) 使用 opaque decision ID 提交，不能复制候选正文绕过审批。
+
 示例响应：
 
 ```json
@@ -184,6 +186,7 @@ dispatcher 交付配置：
 | 动态协议目标字段 | 422 | `ROBOT_POLICY_REJECTED` |
 | 能力不支持 | 422 | `ROBOT_CAPABILITY_NOT_SUPPORTED` |
 | commandId 重复但 payload 不同 | 409 | `ROBOT_COMMAND_DUPLICATE_CONFLICT` |
+| AI decision 保留命令从普通入口提交 | 422 | `ROBOT_AI_APPROVAL_REQUIRED` |
 | MQTT 回执 topic/payload 不合法 | 400 | `ROBOT_MQTT_RECEIPT_INVALID` |
 
 ## 路由 mock 验证
@@ -223,4 +226,5 @@ dispatcher 交付配置：
 - 完整大报文应进入实例日志；审计只保存短摘要和 trace。
 - H2 只用于 mock/local POC；真实 dispatcher 使用生产数据库。
 - `commands:dispatch-next` 是手动运维入口，不代表自动调度循环已经启用。
+- VDA 5050 profile（P0）：`/commands` 可接收 `commandType=vda_order/vda_instant_action` 写入命令账本、审计并做 `commandId` 幂等，但 P0 不通过 dispatcher 派发 VDA outbox——dispatcher 只按单一全局 command topic 模板构造 LightESB envelope，无法发出合规 VDA 5050 消息。VDA topic（`uagv/{siteId}/{robotId}/order`、`uagv/{siteId}/{robotId}/instantActions`）和 VDA body 生成由 `example/routes/RobotVda5050Srv/v1.0.0/` mock 样例（`robotVdaOrderEnvelopeProcessor` + `mock:` sink）独立验证，不连接真实 broker 或 AMR；真实 MQTT 发布和 dispatcher 端到端集成后置。
 - 手动审计清理 API 只作为运维入口保留；默认使用自动 SQL 归档清理。
