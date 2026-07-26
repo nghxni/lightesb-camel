@@ -25,7 +25,7 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 - `keyword list/query-instances` 只读；`keyword add/delete` 修改 JsonKeyword keyName 配置，必须加 `--yes`。
 - JSON 校验路由已有消息模型时，先用 `service list/get --output json` 解析服务关系：INPUT 取当前 `serviceInId`，OUTPUT 取当前 `serviceOutId`，CALLBACK 先用 `serviceCallbackId` 查询回调服务再取其 `serviceInId`。
 - 按方向执行 `message schema generate --id|--file --service-name --service-version --schema-file request-schema.json|response-schema.json|callback-schema.json --yes --output json`，只使用返回的 `schema` 和 `jsonSchemaPath`；不要手写或由模型补齐 Schema。
-- `warnings` 非空时停止自动 apply 并展示完整 warnings，只有用户明确确认后继续。审核候选后用 `ai route apply --save-remote --yes` 一次提交实际 route 文件名、两个 properties 和 route 引用的固定 Schema。
+- `warnings` 非空时停止自动 apply 并展示完整 warnings，只有用户明确确认后继续。用户明确授权远程写入时，才用 `ai route apply --save-remote --yes` 一次提交实际 route 文件名、两个 properties 和 route 引用的固定 Schema；普通本地直接编辑服务文件不以 CLI apply 为前置。
 - `ai route apply --resource-file` 只接受三个固定 Schema `.json`；删除校验块时不提交对应 Schema，服务端会删除受管文件。`FAILED`、`FAILED_ROLLED_BACK`、`ROLLBACK_FAILED` 都按失败处理，先读取 operationId 和恢复诊断，不自动重试。
 - `service import-plan` 只读远端状态；`service import` 和 `service sync-remote` 必须加 `--yes`。
 - 服务同步默认跳过远端已有同名服务版本的服务文件部署；覆盖部署需显式 `--overwrite-service-files`。

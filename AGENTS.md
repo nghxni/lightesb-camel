@@ -4,7 +4,7 @@ LightESB-Camel 交付包内 Agent 协作规则。这里是可运行交付目录�
 
 ## 目录边界
 
-- `lightesb-camel-app/`：正式接口运行目录，只读参考。不要新增索引、说明或代理上下文文件。需要演示时，可以把 `example/` 中的纯演示服务复制进去运行，演示完成后删除。
+- `lightesb-camel-app/`：正式接口运行目录。用户明确要求开发、修复或新增实际服务时，直接在 `lightesb-camel-app/{serviceName}/{serviceVersion}` 修改 XML、两个 properties 和实际引用资源；不要在其中新增索引、说明或代理上下文文件。文件变更可能被已运行的 LightESB 热加载，需在交付说明中披露，但不得因此自动启动、重启或调用业务接口。
 - `example/`：纯演示样例目录。样例可以修改端口、服务名、接口路径和数据，用于复制到 `lightesb-camel-app/` 后临时运行。
 - `docs/`：组件级技术文档，只描述可交付使用的配置、路由写法、样例和验证。
 - `docs/cli/`：CLI 使用参考，只描述命令、输入、输出、确认规则和自动化边界。
@@ -27,7 +27,7 @@ LightESB-Camel 交付包内 Agent 协作规则。这里是可运行交付目录�
 | 创建临时表单/审批网页服务、mock 数据演示、用完销毁路由 | `skills/lightesb-temp-form/SKILL.md`，再读 `skills/lightesb-route-authoring/SKILL.md` |
 | 配置 `conditionaltransform`、`jsontransform`、DTS 转换规则 | `skills/lightesb-transform-components/SKILL.md` |
 | 配置权限校验、JSON Schema 校验、生成服务 Schema 文件、失败分支 | `skills/lightesb-security-validation/SKILL.md`，生成文件时再读 `skills/lightesb-cli-automation/SKILL.md` |
-| 按自然语言生成输入、输出或回调 JSON 校验路由并远程 apply | `skills/lightesb-route-authoring/SKILL.md`、`skills/lightesb-security-validation/SKILL.md`、`skills/lightesb-cli-automation/SKILL.md` |
+| 按自然语言生成输入、输出或回调 JSON 校验路由 | `skills/lightesb-route-authoring/SKILL.md`、`skills/lightesb-security-validation/SKILL.md`；仅在用户明确要求 CLI/远程 apply 时再读 `skills/lightesb-cli-automation/SKILL.md` |
 | 配置 `servicelog`、异常兜底、H2 缓存、JsonKeyword、StreamCache | `skills/lightesb-logging-observability/SKILL.md` |
 | 开发或打包第三方 DTS 扩展 | `skills/lightesb-dts-extension/SKILL.md` |
 | 配置 AI Agent + Tools、SAP NetWeaver 等扩展能力 | `skills/lightesb-ai-components/SKILL.md` |
@@ -40,8 +40,8 @@ LightESB-Camel 交付包内 Agent 协作规则。这里是可运行交付目录�
 
 ## 编写和修改规则
 
-- 优先修改 `example/` 中的演示样例，不直接改 `lightesb-camel-app/`。
-- 如确需验证运行，把 `example/` 中的完整服务目录复制到 `lightesb-camel-app/`，运行后删除临时服务目录。
+- 用户要求实际项目服务时，直接修改目标 `lightesb-camel-app/{serviceName}/{serviceVersion}`；用户要求演示、模板或 POC 时，才优先修改 `example/routes/**`。
+- 不以复制样例、启动服务或删除临时服务作为普通路由生成的默认步骤。
 - 服务目录结构保持：
 
 ```text
@@ -62,13 +62,16 @@ LightESB-Camel 交付包内 Agent 协作规则。这里是可运行交付目录�
 - 输入、输出或回调 Schema 校验路由只通过 `message schema generate` 和 `ai route apply` CLI 完成，不新增或直接调用本能力的管理 API 文档。
 - 文档更新不是只改单一文件。修改组件、CLI、样例、API 或交付说明时，必须检查随包的 `docs/README.md`、对应 `docs/components/` 或 `docs/cli/`、相关 `skills/` 和 `example/` 是否需要同步。
 - 如果对应文档、skill 或样例存在但不需要改，交付说明中写明原因，避免随包文档之间出现不一致。
+- 默认只做文件和静态自检：不启动 LightESB、不执行 curl、不连接外部系统、不执行远程 apply、不调用业务接口。只有用户明确授权对应运行态、外部连接或远程写入操作时才执行。
+- `ai route apply --save-remote --yes`、Schema warnings 后的继续、服务启停/部署和其他远程写操作都需要用户明确授权；保留 CLI 的 `--yes`、warnings 停止和失败后不自动重试语义。
+- 普通本地路由编辑完成后自行修正明显 XML、properties、资源和占位符问题；交付时说明已改文件、静态检查、未验证的运行态/外部事项和最小手工验证入口。未经用户明确要求，不执行 `git commit` 或 `git push`。
 
 ## 可运行命令
 
 - 启动交付包：`./start.sh`
 - Windows 启动：`start.bat`
 - 查看服务日志：优先查看对应服务目录下的 `logs/`。
-- 验证样例：按 `docs/README.md` 或 `example/README.md` 中的 curl 示例执行。
+- 用户明确要求运行态验证时，再按 `docs/README.md` 或 `example/README.md` 中的 curl 示例执行。
 
 ## 验收习惯
 
