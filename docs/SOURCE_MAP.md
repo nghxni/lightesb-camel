@@ -22,6 +22,7 @@
 | `components/13-sap-netweaver.md` | `docs/26-sap-netweaver-component-usage.md` |
 | `components/14-timer-routes.md` | 交付样例 `example/routes/timer/` 与 `example/routes/MysqlRouteSrv/` 整理 |
 | `components/15-aveva-plant-scada-opcua-mqtt.md` | `docs/27-aveva-plant-scada-opcua-mqtt-usage.md`，按交付场景重写 |
+| `components/16-route-static-preflight.md` | 交付包路由文件闭包、组件配置、占位符和资源自检要求，结合现有组件文档和样例整理 |
 | `experience/01-robotics-protocol-precheck.md` | `docs/experience/01-robotics-protocol-precheck.md`，按机器人协议接入交付场景重写 |
 | `experience/02-robotics-protocol-correct-practices.md` | `docs/experience/02-robotics-protocol-correct-practices.md`，按机器人协议接入交付场景重写 |
 | `../proto/robot/robot_command.proto` | `proto/robot/robot_command.proto`，机器人 gRPC IDL 契约草案 |

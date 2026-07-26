@@ -5,23 +5,14 @@ description: 机器人、工业协议、边缘 AI 推理/可信审批门禁和�
 
 # LightESB 机器人集成
 
-先读：
+先读 `docs/components/16-route-static-preflight.md`，再按协议选择最小上下文：
 
-- `docs/experience/01-robotics-protocol-precheck.md`
-- `docs/experience/02-robotics-protocol-correct-practices.md`
-- `docs/robot-command-dispatcher-api.md`
-- `docs/robot-edge-inference-mock.md`
-- `docs/robot-ai-approval-api.md`
-- `docs/runtime-diagnostics-api.md`
-- `proto/robot/robot_command.proto`
-- `example/routes/RobotMqttTelemetrySrv/v1.0.0/`
-- `example/routes/RobotMqttCommandSrv/v1.0.0/`
-- `example/routes/RobotRosBridgeSrv/v1.0.0/`
-- `example/routes/RobotOpcUaStationSrv/v1.0.0/`
-- `example/routes/RobotModbusGatewaySrv/v1.0.0/`
-- `example/routes/RobotGrpcGatewaySrv/v1.0.0/`
-- `example/routes/RobotVda5050Srv/v1.0.0/`
-- `example/routes/RobotEdgeInferenceSrv/v1.0.0/`
+| 场景 | 补充文档/样例 |
+| --- | --- |
+| MQTT telemetry/command | `docs/components/15-aveva-plant-scada-opcua-mqtt.md`、`example/routes/RobotMqttTelemetrySrv/v1.0.0/` 或 `RobotMqttCommandSrv/v1.0.0/` |
+| OPC UA / Modbus | `docs/components/15-aveva-plant-scada-opcua-mqtt.md`、`example/routes/RobotOpcUaStationSrv/v1.0.0/` 或 `RobotModbusGatewaySrv/v1.0.0/` |
+| rosbridge / gRPC / VDA5050 | 只读对应 `example/routes/` 服务和 `proto/robot/robot_command.proto` |
+| 命令 dispatcher、推理审批 | 再读对应 dispatcher、edge inference、approval API 和 experience 文档 |
 
 规则：
 
@@ -43,9 +34,11 @@ description: 机器人、工业协议、边缘 AI 推理/可信审批门禁和�
 - 请求体禁止覆盖底层协议目标字段，例如 `topic`、`broker`、`endpoint`、`node`、`register`、`service`、`unitId`。
 - 需要离线验证协议路由时，用 HTTP 或 `direct:` 构造 mock payload；策略拒绝、动态协议目标字段等可预期错误应局部返回 400/422，未预期异常再交给全局兜底。
 - AVEVA/OPC UA 写控制离线验证时，不连接 `milo-client:`；HTTP mock 只返回固定 `industrial.opcua.write.node` 摘要，请求体包含 `node` 或 `topic` 必须返回 422。
+- 交付前确认 `system.components` 包含 `industrial`、服务默认 `server.running=false`、所有协议 URI 只引用同目录 `industrial.*` 配置、现场身份/端点仍是占位符，并拒绝动态协议目标字段。默认不连接 broker、OPC UA、Modbus、ROS 或机器人。
 
 验收：
 
 - 样例配置不包含真实密钥、证书路径、内网地址或生产账号。
 - 命令状态语义区分 `accepted`、`dispatched`、`acknowledged`、`succeeded`、`failed`。
 - 文档、CLI 和样例的服务名、版本、路径一致。
+- 只有用户明确授权现场或 runtime 验证时才连接协议端点；静态自检不能表述为现场互通或设备执行成功。

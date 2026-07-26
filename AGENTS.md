@@ -26,6 +26,7 @@ LightESB-Camel 交付包内 Agent 协作规则。这里是可运行交付目录�
 | 新增 HTTP 接口、编写 Camel XML、配置 `undertow`、服务目录结构 | `skills/lightesb-route-authoring/SKILL.md` |
 | 创建临时表单/审批网页服务、mock 数据演示、用完销毁路由 | `skills/lightesb-temp-form/SKILL.md`，再读 `skills/lightesb-route-authoring/SKILL.md` |
 | 配置 `conditionaltransform`、`jsontransform`、DTS 转换规则 | `skills/lightesb-transform-components/SKILL.md` |
+| 配置 ExternalDB 只读查询、健康检查或写入 | `skills/lightesb-route-authoring/SKILL.md`，再读 `docs/components/11-externaldb.md` |
 | 配置权限校验、JSON Schema 校验、生成服务 Schema 文件、失败分支 | `skills/lightesb-security-validation/SKILL.md`，生成文件时再读 `skills/lightesb-cli-automation/SKILL.md` |
 | 按自然语言生成输入、输出或回调 JSON 校验路由 | `skills/lightesb-route-authoring/SKILL.md`、`skills/lightesb-security-validation/SKILL.md`；仅在用户明确要求 CLI/远程 apply 时再读 `skills/lightesb-cli-automation/SKILL.md` |
 | 配置 `servicelog`、异常兜底、H2 缓存、JsonKeyword、StreamCache | `skills/lightesb-logging-observability/SKILL.md` |

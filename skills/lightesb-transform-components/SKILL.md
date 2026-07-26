@@ -7,12 +7,9 @@ description: 配置 conditionaltransform、jsontransform、JSON 映射和 DTS �
 
 先读：
 
+- `docs/components/16-route-static-preflight.md`
 - `docs/components/04-transform-components.md`
-- `example/routes/PlatformHttp/v1.0.0/`
-- `example/routes/PlatformHttp/v2.0.0/`
-- `example/routes/PlatformHttp/v3.0.0/`
-- `docs/extensions/01-dts-extension-guide.md`
-- `docs/extensions/02-dts-minimal-template.md`
+- 基础转换读 `example/routes/transform-json/`；DataSonnet import 再读 `example/routes/PlatformHttp/v1.0.0/`；DTS Java 扩展才读 `docs/extensions/01-dts-extension-guide.md` 和 `docs/extensions/02-dts-minimal-template.md`。
 
 规则：
 
@@ -26,10 +23,9 @@ description: 配置 conditionaltransform、jsontransform、JSON 映射和 DTS �
 - `PlatformHttp/v3.0.0` 默认端口 `18080`，入口包括 `/api/transform/order` 和 `/api/transform/order1`。
 - DTS 扩展示例只使用演示数据。
 - `example/routes/**/log4j2.properties` 不需要随样例提供，运行时会自动生成。
+- 交付前确认 `system.components` 同时包含所用的 `jsontransform` / `conditionaltransform`，`input-transform.file` 与同目录 `.ds` 文件一致；默认只做该静态检查，不运行样例。
 
 验收：
 
-- 合法输入能输出目标 JSON。
-- 缺失配置或非法 JSON 有明确错误。
-- 样例可从 `example/` 复制到 `lightesb-camel-app/` 临时运行。
-- `PlatformHttp` 样例复制后，v1/v3 的端口配置不要与现有正式服务冲突。
+- 静态检查确认转换组件、配置键、`.ds` 资源和 XML 引用一致。
+- 用户明确授权运行态验证时，才验证合法/非法输入与端口冲突。

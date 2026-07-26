@@ -5,14 +5,16 @@ description: 交付包内编写 HTTP 接口、Camel XML 路由、服务目录、
 
 # LightESB 路由编写
 
-先读：
+先读 `docs/components/16-route-static-preflight.md`，再按任务选择最小上下文：
 
-- `docs/components/01-http-route-basics.md`
-- `docs/components/02-service-log.md`
-- `docs/components/03-charset-processing.md`
-- `docs/components/14-timer-routes.md`
-- `example/README.md`
-- JSON 格式校验任务再读 `docs/components/05-json-schema-validation.md` 和 `docs/cli/01-cli-command-reference.md`。
+| 场景 | 补充文档/样例 |
+| --- | --- |
+| HTTP、内部 HTTP | `docs/components/01-http-route-basics.md`、`docs/components/02-service-log.md`、`docs/components/03-charset-processing.md`、`example/routes/http-undertow/` |
+| Timer | `docs/components/14-timer-routes.md`、`example/routes/timer/v1.0.1/` |
+| JSON Schema | `docs/components/05-json-schema-validation.md`；仅在用户授权 CLI/远程操作时再读 `docs/cli/01-cli-command-reference.md` |
+| ExternalDB | `docs/components/11-externaldb.md`、`example/routes/MysqlRouteSrv/v1.0.0/` |
+| 转换 | `skills/lightesb-transform-components/SKILL.md` |
+| AI、SAP、工业协议 | 对应专项 skill 和组件文档 |
 
 规则：
 
@@ -27,7 +29,7 @@ description: 交付包内编写 HTTP 接口、Camel XML 路由、服务目录、
 - 无 HTTP 入口的定时任务使用 `timer:`，配置 `HTTP.Listener=false`。默认仅检查 XML、配置和 route id；只有用户明确授权运行态验证时才查看周期日志。
 - 自然语言要求输入、输出或回调 JSON 校验时，不自行生成 Schema。按服务关系调用 `message schema generate`，检查 warnings，再把返回路径写入对应位置的完整校验块。
 - route XML 是校验唯一开关，不生成额外配置开关。普通本地编辑直接完成候选并自行修正明显静态问题；`ai route apply --save-remote --yes` 仅在用户明确授权远程写入后调用。apply 失败时保留候选并读取恢复诊断，不自动重试。
-- 交付前检查：服务目录只有一个 XML；route id 唯一；XML 可解析；两个 properties 含服务名/版本和所需组件开关；所有 `{{...}}` 占位符有同目录配置来源；`.ds`、固定 Schema 等引用资源存在；没有用户未要求的外部 endpoint、凭据或能力。
+- 按 `docs/components/16-route-static-preflight.md` 完成通用和场景配置闭包检查：服务目录只有一个 XML；route id 唯一；XML 可解析；两个 properties 含服务名/版本和所需组件开关；所有 `{{...}}` 占位符有同目录配置来源；`.ds`、固定 Schema 等引用资源存在；没有用户未要求的外部 endpoint、凭据或能力。
 
 验收：
 

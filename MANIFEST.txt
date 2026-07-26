@@ -24,6 +24,7 @@ docs/components/12-ai-chat.md
 docs/components/13-sap-netweaver.md
 docs/components/14-timer-routes.md
 docs/components/15-aveva-plant-scada-opcua-mqtt.md
+docs/components/16-route-static-preflight.md
 docs/deployment-management-api.md
 docs/experience/01-robotics-protocol-precheck.md
 docs/experience/02-robotics-protocol-correct-practices.md
