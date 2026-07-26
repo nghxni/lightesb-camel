@@ -163,6 +163,7 @@ skills/lightesb-dts-extension/SKILL.md
 skills/lightesb-logging-observability/SKILL.md
 skills/lightesb-robot-integration/SKILL.md
 skills/lightesb-route-authoring/SKILL.md
+skills/lightesb-route-authoring/scripts/route-static-preflight.py
 skills/lightesb-security-validation/SKILL.md
 skills/lightesb-temp-form/SKILL.md
 skills/lightesb-transform-components/SKILL.md

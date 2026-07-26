@@ -10,6 +10,17 @@
 4. `.ds`、`request-schema.json`、`response-schema.json`、`callback-schema.json` 等实际引用资源与 XML 路径一致且文件存在。
 5. 不写真实凭据、生产地址或用户未要求的 endpoint/组件；修改已有服务时不重写无关 route。
 
+可在交付包根目录运行确定性离线检查：
+
+```bash
+python3 skills/lightesb-route-authoring/scripts/route-static-preflight.py \
+  --service-dir lightesb-camel-app/{serviceName}/{serviceVersion} \
+  --profile externaldb \
+  --route-file {route.xml}
+```
+
+`--profile` 可选 `http`、`timer`、`transform`、`schema`、`externaldb`、`ai-agent`、`mqtt`、`opcua`、`modbus`、`sap-mock`。工具检查 XML 唯一性、两个 properties、服务标识、XML 占位符、场景配置键/组件、已引用 `.ds`/JSON 资源和部分场景 endpoint；不读取环境变量实际值、不连接外部系统，也不替代加载或业务验证。
+
 ## 按场景的最小检查
 
 | 场景 | 必需配置/文件 | XML 检查 | 权威资料 |
