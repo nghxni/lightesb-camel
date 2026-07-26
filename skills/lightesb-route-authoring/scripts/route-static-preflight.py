@@ -18,26 +18,26 @@ from pathlib import Path
 PROFILE_REQUIREMENTS = {
     "externaldb": {
         "properties": ["HTTP.Listener", "system.components", "extdb.enabled", "extdb.default", "extdb.ids", "extdb.primary.url", "extdb.primary.username", "extdb.primary.password"],
-        "components": ["externaldb"], "xml": [r"sql:", r"extdb-\{\{extdb\.default\}\}-datasource"],
+        "components": ["externaldb"], "values": {"HTTP.Listener": "false"}, "xml": [r"sql:", r"extdb-\{\{extdb\.default\}\}-datasource"],
     },
     "mqtt": {
         "properties": ["HTTP.Listener", "server.running", "system.components", "industrial.mqtt.broker.url", "industrial.mqtt.username", "industrial.mqtt.password"],
-        "components": ["industrial"], "xml": [r"mqtt:"],
+        "components": ["industrial"], "values": {"HTTP.Listener": "false", "server.running": "false"}, "xml": [r"mqtt:"],
     },
     "opcua": {
         "properties": ["HTTP.Listener", "server.running", "system.components", "industrial.opcua.endpoint.uri", "industrial.opcua.username", "industrial.opcua.password"],
-        "components": ["industrial"], "xml": [r"opcua:"],
+        "components": ["industrial"], "values": {"HTTP.Listener": "false", "server.running": "false"}, "xml": [r"opcua:"],
     },
     "modbus": {
         "properties": ["HTTP.Listener", "server.running", "system.components", "industrial.modbus.host", "industrial.modbus.port", "industrial.modbus.unitId", "industrial.modbus.address"],
-        "components": ["industrial"], "xml": [r"modbus:"],
+        "components": ["industrial"], "values": {"HTTP.Listener": "false", "server.running": "false"}, "xml": [r"modbus:"],
     },
-    "http": {"properties": ["HTTP.Listener", "server.port", "system.components"], "components": ["undertowhttp"], "xml": [r"undertow:"]},
-    "timer": {"properties": ["HTTP.Listener"], "components": [], "xml": [r"timer:"]},
-    "transform": {"properties": ["system.components", "input-transform", "input-transform.file"], "components": ["jsontransform", "conditionaltransform"], "xml": [r"conditionaltransform:"]},
-    "schema": {"properties": [], "components": [], "xml": [r"JsonSchemaPath", r"JsonSchemaValidationMode", r"jsonSchemaValidationProcessor"]},
-    "ai-agent": {"properties": ["service.ai.route", "service.ai.type", "service.ai.mode", "ai.agent.tags"], "components": [], "xml": [r"langchain4j-agent", r"langchain4j-tools"]},
-    "sap-mock": {"properties": [], "components": [], "xml": []},
+    "http": {"properties": ["HTTP.Listener", "server.port", "system.components"], "components": ["undertowhttp"], "values": {"HTTP.Listener": "true"}, "xml": [r"undertow:"]},
+    "timer": {"properties": ["HTTP.Listener"], "components": [], "values": {"HTTP.Listener": "false"}, "xml": [r"timer:" ]},
+    "transform": {"properties": ["HTTP.Listener", "server.port", "system.components", "input-transform", "input-transform.file"], "components": ["undertowhttp", "jsontransform", "conditionaltransform"], "values": {"HTTP.Listener": "true"}, "xml": [r"undertow:", r"conditionaltransform:"]},
+    "schema": {"properties": ["HTTP.Listener", "server.port", "system.components"], "components": ["undertowhttp"], "values": {"HTTP.Listener": "true"}, "xml": [r"undertow:", r"JsonSchemaPath", r"JsonSchemaValidationMode", r"jsonSchemaValidationProcessor"]},
+    "ai-agent": {"properties": ["HTTP.Listener", "server.port", "system.components", "service.ai.route", "service.ai.type", "service.ai.mode", "ai.agent.tags"], "components": ["undertowhttp"], "values": {"HTTP.Listener": "true", "service.ai.mode": "agent"}, "xml": [r"undertow:", r"langchain4j-agent", r"langchain4j-tools"]},
+    "sap-mock": {"properties": ["HTTP.Listener", "server.port", "system.components"], "components": ["undertowhttp"], "values": {"HTTP.Listener": "true"}, "xml": [r"undertow:"]},
 }
 
 
@@ -96,6 +96,9 @@ def main() -> int:
     for key in profile["properties"]:
         if key not in configs:
             errors.append(f"[{args.profile}] 缺少配置键：{key}")
+    for key, expected in profile.get("values", {}).items():
+        if key in configs and configs[key].lower() != expected:
+            errors.append(f"[{args.profile}] 配置值必须为 {key}={expected}")
     components = {item.strip() for item in configs.get("system.components", "").split(",") if item.strip()}
     for component in profile["components"]:
         if component not in components:
