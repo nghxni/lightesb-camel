@@ -7,7 +7,7 @@
 1. 一个服务版本目录只保留一个 `*.xml`；route id 唯一。
 2. XML 可解析；`common.config.properties`、`service.config.properties` 可解析，且有 `service.name`、`service.version`。
 3. XML 中每个 `{{key}}` 都能在同目录两个 properties 找到；环境变量只能写成 `{{env:NAME}}`。
-4. `.ds`、`request-schema.json`、`response-schema.json`、`callback-schema.json` 等实际引用资源与 XML 路径一致且文件存在。
+4. `.ds`、`request-schema.json`、`response-schema.json`、`callback-schema.json` 等实际引用资源与 XML 路径一致且文件存在；资源可位于当前服务目录，或使用以 `lightesb-camel-app/` 开头的仓库相对路径。
 5. 不写真实凭据、生产地址或用户未要求的 endpoint/组件；修改已有服务时不重写无关 route。
 
 可在交付包根目录运行确定性离线检查：

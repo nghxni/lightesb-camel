@@ -54,6 +54,17 @@ def parse_properties(path: Path) -> dict[str, str]:
     return values
 
 
+def resource_exists(service_dir: Path, resource: str) -> bool:
+    resource_path = Path(resource)
+    if resource_path.is_absolute() or ".." in resource_path.parts:
+        return False
+
+    candidates = [service_dir / resource_path]
+    if resource_path.parts and resource_path.parts[0] == "lightesb-camel-app":
+        candidates.append(service_dir.parent.parent.parent / resource_path)
+    return any(candidate.is_file() for candidate in candidates)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="LightESB 服务目录离线静态预检")
     parser.add_argument("--service-dir", required=True, type=Path, help="服务版本目录")
@@ -117,7 +128,7 @@ def main() -> int:
             if not re.search(pattern, xml, flags=re.IGNORECASE):
                 errors.append(f"[{args.profile}] XML 缺少必要模式：{pattern}")
         for resource in sorted(set(re.findall(r"(?:[\w.-]+/)*[\w.-]+\.(?:ds|json)", xml))):
-            if not (service_dir / resource).is_file():
+            if not resource_exists(service_dir, resource):
                 errors.append(f"XML 引用资源不存在：{resource}")
         if args.profile == "sap-mock" and re.search(r"sap-netweaver:", xml, flags=re.IGNORECASE):
             errors.append("[sap-mock] 不应使用 sap-netweaver: endpoint")
