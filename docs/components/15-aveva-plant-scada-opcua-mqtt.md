@@ -154,6 +154,8 @@ curl -X POST "http://localhost:19189/api/doc-mock/aveva/opcua/write" \
 
 离线 mock 只证明路由结构、固定目标边界和错误响应，不证明现场 OPC UA Server、MQTT Broker、证书或点位权限已完成互操作。
 
+已获本地运行授权时，可用仅绑定回环地址的 Apache Milo OPC UA Mock 验证 `milo-client:` 的只读订阅和数值遥测标准化。处理器会将 OPC UA `DataValue` 的值转换为标准 JSON `value` 字段；该验证不覆盖现场 Server、认证、证书、复杂数据类型或业务点位语义。
+
 ## 排障
 
 - 找不到 processor：检查 `system.components` 是否包含 `industrial`。
