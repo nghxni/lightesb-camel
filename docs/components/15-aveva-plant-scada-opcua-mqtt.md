@@ -1,6 +1,6 @@
-# AVEVA Plant SCADA OPC UA / MQTT 接入
+# AVEVA Plant SCADA OPC UA / MQTT / Modbus TCP 接入
 
-本文说明交付包中如何通过 LightESB 接入 AVEVA Plant SCADA 的标准接口。首版使用 `industrial` 轻封装：路由仍使用 Camel 原生 `milo-client:` 和 `paho-mqtt5:`，校验、脱敏、标准 JSON 和错误映射由 `industrial` processor 完成。
+本文说明交付包中如何通过 LightESB 接入 AVEVA Plant SCADA 的标准接口，并提供默认关闭的 Modbus TCP（PLC4X）只读模板。首版使用 `industrial` 轻封装：路由仍使用 Camel 原生 `milo-client:`、`paho-mqtt5:` 和 `plc4x:`，校验、脱敏、标准 JSON 和错误映射由 `industrial` processor 完成。
 
 ## 启用方式
 
@@ -44,7 +44,7 @@ industrial.opcua.security=PLACEHOLDER_CONFIGURE_IN_SITE
 遥测路由：
 
 ```xml
-<route id="aveva-opcua-read-telemetry" routeConfigurationId="globalError">
+<route id="aveva-opcua-read-telemetry">
   <from uri="milo-client:{{industrial.opcua.endpoint.uri}}?node={{industrial.opcua.read.node}}&amp;clientId={{industrial.opcua.client.id}}-reader"/>
   <process ref="opcUaTelemetryNormalizeProcessor"/>
   <toD uri="{{industrial.target.http.uri}}?httpMethod=POST&amp;bridgeEndpoint=true&amp;connectTimeout={{industrial.target.http.connectTimeout}}&amp;socketTimeout={{industrial.target.http.socketTimeout}}"/>
@@ -81,7 +81,7 @@ industrial.mqtt.tls=PLACEHOLDER_CONFIGURE_IN_SITE
 遥测路由：
 
 ```xml
-<route id="aveva-mqtt-telemetry-consumer" routeConfigurationId="globalError">
+<route id="aveva-mqtt-telemetry-consumer">
   <from uri="paho-mqtt5:{{industrial.mqtt.telemetry.topic}}?brokerUrl={{industrial.mqtt.broker.url}}&amp;clientId={{industrial.mqtt.client.id}}-telemetry&amp;qos={{industrial.mqtt.qos}}&amp;userName={{industrial.mqtt.username}}&amp;password={{industrial.mqtt.password}}"/>
   <process ref="mqttTelemetryNormalizeProcessor"/>
   <toD uri="{{industrial.target.http.uri}}?httpMethod=POST&amp;bridgeEndpoint=true&amp;connectTimeout={{industrial.target.http.connectTimeout}}&amp;socketTimeout={{industrial.target.http.socketTimeout}}"/>
@@ -94,7 +94,32 @@ industrial.mqtt.tls=PLACEHOLDER_CONFIGURE_IN_SITE
 - 请求体：`{"command":"start","deviceId":"Pump101"}`
 - 只允许发布到 `industrial.mqtt.command.topic`，请求体不能包含 `topic` 或 `node`。
 
+## Modbus TCP（PLC4X）只读模板
+
+Camel 4.18 的 Modbus 路由使用 `plc4x:` consumer 和 PLC4X Modbus driver；`connection` 是完整的 PLC4X connection string，读取 tag 保持为配置值，不从消息体接收寄存器或 unit id。
+
+```properties
+HTTP.Listener=false
+server.running=false
+system.components=industrial
+
+industrial.modbus.connection=PLACEHOLDER_CONFIGURE_IN_SITE
+industrial.modbus.read.tag=PLACEHOLDER_CONFIGURE_IN_SITE
+industrial.modbus.polling.ms=1000
+```
+
+```xml
+<route id="modbus-read-route">
+  <from uri="plc4x:{{industrial.modbus.connection}}?tag.holdingRegister={{industrial.modbus.read.tag}}&amp;period={{industrial.modbus.polling.ms}}"/>
+  <to uri="servicelog:info?message=Modbus%20holding%20register%20read"/>
+</route>
+```
+
+仅在现场确认 connection、只读 tag、unit id、地址偏移和数据类型后再改 `server.running=true`。该模板不包含写寄存器能力；本地 simulator 验证不构成 PLC、字节序、异常码或现场安全互锁的互操作结论。
+
 ## 验证
+
+路由加载会自动应用全局错误处理；业务路由 XML 不需要手工声明 `routeConfigurationId="globalError"`。
 
 无真实 Server/Broker 时先做离线 mock：
 

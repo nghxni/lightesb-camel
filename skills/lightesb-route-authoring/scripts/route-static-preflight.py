@@ -21,16 +21,16 @@ PROFILE_REQUIREMENTS = {
         "components": ["externaldb"], "values": {"HTTP.Listener": "false"}, "xml": [r"sql:", r"extdb-\{\{extdb\.default\}\}-datasource"],
     },
     "mqtt": {
-        "properties": ["HTTP.Listener", "server.running", "system.components", "industrial.mqtt.broker.url", "industrial.mqtt.username", "industrial.mqtt.password"],
-        "components": ["industrial"], "values": {"HTTP.Listener": "false", "server.running": "false"}, "xml": [r"mqtt:"],
+        "properties": ["HTTP.Listener", "server.running", "system.components", "industrial.mqtt.broker.url", "industrial.mqtt.client.id", "industrial.mqtt.telemetry.topic", "industrial.mqtt.qos", "industrial.mqtt.username", "industrial.mqtt.password"],
+        "components": ["industrial"], "values": {"HTTP.Listener": "false", "server.running": "false"}, "xml": [r"paho-mqtt5:\{\{industrial\.mqtt\.telemetry\.topic\}\}", r"brokerUrl=\{\{industrial\.mqtt\.broker\.url\}\}", r"clientId=\{\{industrial\.mqtt\.client\.id\}\}", r"qos=\{\{industrial\.mqtt\.qos\}\}"],
     },
     "opcua": {
-        "properties": ["HTTP.Listener", "server.running", "system.components", "industrial.opcua.endpoint.uri", "industrial.opcua.username", "industrial.opcua.password"],
-        "components": ["industrial"], "values": {"HTTP.Listener": "false", "server.running": "false"}, "xml": [r"opcua:"],
+        "properties": ["HTTP.Listener", "server.running", "system.components", "industrial.opcua.endpoint.uri", "industrial.opcua.client.id", "industrial.opcua.read.node", "industrial.opcua.username", "industrial.opcua.password", "industrial.opcua.security"],
+        "components": ["industrial"], "values": {"HTTP.Listener": "false", "server.running": "false"}, "xml": [r"milo-client:\{\{industrial\.opcua\.endpoint\.uri\}\}", r"node=\{\{industrial\.opcua\.read\.node\}\}", r"clientId=\{\{industrial\.opcua\.client\.id\}\}"],
     },
     "modbus": {
-        "properties": ["HTTP.Listener", "server.running", "system.components", "industrial.modbus.host", "industrial.modbus.port", "industrial.modbus.unitId", "industrial.modbus.address"],
-        "components": ["industrial"], "values": {"HTTP.Listener": "false", "server.running": "false"}, "xml": [r"modbus:"],
+        "properties": ["HTTP.Listener", "server.running", "system.components", "industrial.modbus.connection", "industrial.modbus.read.tag", "industrial.modbus.polling.ms"],
+        "components": ["industrial"], "values": {"HTTP.Listener": "false", "server.running": "false"}, "xml": [r"plc4x:\{\{industrial\.modbus\.connection\}\}", r"tag\.[^=]+=\{\{industrial\.modbus\.read\.tag\}\}", r"period=\{\{industrial\.modbus\.polling\.ms\}\}"],
     },
     "http": {"properties": ["HTTP.Listener", "server.port", "system.components"], "components": ["undertowhttp"], "values": {"HTTP.Listener": "true"}, "xml": [r"undertow:"]},
     "timer": {"properties": ["HTTP.Listener"], "components": [], "values": {"HTTP.Listener": "false"}, "xml": [r"timer:" ]},
