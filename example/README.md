@@ -96,8 +96,10 @@ MysqlRouteSrv 演示：
 
 ```bash
 cp -R example/routes/MysqlRouteSrv lightesb-camel-app/
+# 先替换 service.config.properties 中的 PLACEHOLDER_CONFIGURE_IN_SITE，
+# 准备 testexdb 表，再把 common.config.properties 的 server.running 改为 true。
 ./start.sh
-# 准备 MySQL 连接配置和 testexdb 表后，观察 mysql-healthcheck-route 定时日志。
+# 观察 mysql-healthcheck-route 定时日志。
 rm -rf lightesb-camel-app/MysqlRouteSrv
 ```
 

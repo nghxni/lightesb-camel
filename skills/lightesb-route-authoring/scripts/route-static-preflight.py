@@ -18,7 +18,9 @@ from pathlib import Path
 PROFILE_REQUIREMENTS = {
     "externaldb": {
         "properties": ["HTTP.Listener", "system.components", "extdb.enabled", "extdb.default", "extdb.ids", "extdb.primary.url", "extdb.primary.username", "extdb.primary.password"],
-        "components": ["externaldb"], "values": {"HTTP.Listener": "false"}, "xml": [r"sql:", r"extdb-\{\{extdb\.default\}\}-datasource"],
+        "components": ["externaldb"],
+        "values": {"HTTP.Listener": "false"},
+        "xml": [r"sql:", r"extdb-(?:\{\{(?:extdb\.default|[A-Za-z0-9_.-]+\.target\.datasource)\}\}|primary)-datasource"],
     },
     "mqtt": {
         "properties": ["HTTP.Listener", "server.running", "system.components", "industrial.mqtt.broker.url", "industrial.mqtt.client.id", "industrial.mqtt.telemetry.topic", "industrial.mqtt.qos", "industrial.mqtt.username", "industrial.mqtt.password"],

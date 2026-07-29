@@ -25,13 +25,15 @@ extdb.enabled=true
 extdb.default=primary
 extdb.ids=primary
 extdb.primary.type=mysql
-extdb.primary.url=${lightesb.mysql.url}
-extdb.primary.driver=${lightesb.mysql.driver}
-extdb.primary.username=${lightesb.mysql.username}
-extdb.primary.password=${lightesb.mysql.password}
+extdb.primary.url=PLACEHOLDER_CONFIGURE_IN_SITE
+extdb.primary.driver=com.mysql.cj.jdbc.Driver
+extdb.primary.username=PLACEHOLDER_CONFIGURE_IN_SITE
+extdb.primary.password=PLACEHOLDER_CONFIGURE_IN_SITE
 extdb.primary.maxPoolSize=10
 mysqlroute.target.datasource=primary
 ```
+
+连接字段按 properties 字面值读取，不会继续解析 `${lightesb.mysql.*}` 一类 Spring 占位符。部署时必须通过站点安全配置流程替换 `PLACEHOLDER_CONFIGURE_IN_SITE`；替换并验证前保持 `server.running=false`。
 
 ## 4. Camel Registry 中的 Bean 名
 
@@ -58,10 +60,10 @@ mysqlroute.target.datasource=primary
 extdb.ids=primary,archive
 
 extdb.archive.type=postgresql
-extdb.archive.url=jdbc:postgresql://127.0.0.1:5432/lightesb
+extdb.archive.url=PLACEHOLDER_CONFIGURE_IN_SITE
 extdb.archive.driver=org.postgresql.Driver
-extdb.archive.username=postgres
-extdb.archive.password=postgres
+extdb.archive.username=PLACEHOLDER_CONFIGURE_IN_SITE
+extdb.archive.password=PLACEHOLDER_CONFIGURE_IN_SITE
 extdb.archive.maxPoolSize=10
 ```
 
@@ -73,4 +75,3 @@ SQLServer/Oracle 可按同样键模型追加：
 - `extdb.<id>.username`
 - `extdb.<id>.password`
 - `extdb.<id>.maxPoolSize`
-

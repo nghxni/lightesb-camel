@@ -290,6 +290,20 @@ lightesb.ai.logging.allowed-logger-prefixes=com.oureman.soa.lightesb,org.apache.
 | `lightesb.robot.dispatcher.max-retries` | `3` | 派发最大重试次数。 |
 | `lightesb.robot.dispatcher.retry-delay-seconds` | `30` | 派发重试间隔。 |
 
+机器人 AI 审批默认关闭；只有显式开启时才注册回调、decision 查询和一次性 AI submit 能力。以下字段在开启时全部必填，完整签名和 API 契约见 [机器人 AI 可信审批与一次性提交](robot-ai-approval-api.md)。
+
+| 配置键 | 默认值 | 用法 |
+| --- | --- | --- |
+| `lightesb.robot.ai.approval.enabled` | `false` | 机器人 AI 审批总开关。 |
+| `lightesb.robot.ai.approval.provider` | 空 | 当前必须设置为 `hmac-webhook`。 |
+| `lightesb.robot.ai.approval.decision-max-age-ms` | 空 | decision 最大存活时间；最终有效期还受推理时效和候选 TTL 限制。 |
+| `lightesb.robot.ai.approval.hmac.provider-name` | 空 | 审批 provider 稳定名称。 |
+| `lightesb.robot.ai.approval.hmac.key-id` | 空 | 当前激活 HMAC key 标识。 |
+| `lightesb.robot.ai.approval.hmac.secret` | 空 | HMAC secret，只能使用受控配置或环境变量占位。 |
+| `lightesb.robot.ai.approval.hmac.allowed-approver-ids` | 空列表 | 允许审批的 approver allowlist。 |
+| `lightesb.robot.ai.approval.hmac.max-clock-skew-seconds` | 空 | 回调时间戳允许的最大时钟偏差，必须为正数。 |
+| `lightesb.robot.ai.approval.hmac.max-body-bytes` | 空 | 回调 raw body 最大字节数，必须为正数。 |
+
 ## 推荐模板
 
 ```properties

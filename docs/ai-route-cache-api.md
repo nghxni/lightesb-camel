@@ -9,7 +9,7 @@ BasePath：`/service-management/v1/ai/route/cache`
 | 能力 | Method | Endpoint | 说明 |
 | --- | --- | --- | --- |
 | 查询缓存状态 | GET | `/status` | 查询上下文选择、baseline 和最近生成结果缓存状态 |
-| 清理全部缓存 | DELETE | `` | 清理全部 AI 路由缓存 |
+| 清理全部缓存 | DELETE | `/` | 清理全部 AI 路由缓存 |
 | 按服务清理缓存 | DELETE | `/{serviceName}/{serviceVersion}` | 清理指定服务版本关联缓存 |
 
 ## 查询缓存状态
@@ -64,6 +64,15 @@ lightesb ai route cache clear --service-name DemoAiSrv --service-version v1.0.0 
 ```
 
 `cache clear` 是写操作，必须显式传 `--yes`。
+
+## 错误响应
+
+| HTTP | `error.code` | 场景 |
+| --- | --- | --- |
+| `404` | `NOT_FOUND` | 请求了不存在的管理 API 路径 |
+| `500` | `INTERNAL_ERROR` | 未处理的服务端异常 |
+
+错误响应仍使用统一的 `success/data/error/timestamp/requestId` 结构。
 
 ## 边界
 

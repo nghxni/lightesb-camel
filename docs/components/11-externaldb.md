@@ -16,13 +16,15 @@ extdb.enabled=true
 extdb.default=primary
 extdb.ids=primary
 extdb.primary.type=mysql
-extdb.primary.url=${lightesb.mysql.url}
-extdb.primary.driver=${lightesb.mysql.driver}
-extdb.primary.username=${lightesb.mysql.username}
-extdb.primary.password=${lightesb.mysql.password}
+extdb.primary.url=PLACEHOLDER_CONFIGURE_IN_SITE
+extdb.primary.driver=com.mysql.cj.jdbc.Driver
+extdb.primary.username=PLACEHOLDER_CONFIGURE_IN_SITE
+extdb.primary.password=PLACEHOLDER_CONFIGURE_IN_SITE
 extdb.primary.maxPoolSize=10
 mysqlroute.target.datasource=primary
 ```
+
+`extdb.*` 的连接字段按 properties 字面值读取，不会继续解析 `${lightesb.mysql.*}` 一类 Spring 占位符。部署时通过站点安全配置流程替换 `PLACEHOLDER_CONFIGURE_IN_SITE`；替换完成并验证前保持 `server.running=false`。当前组件没有独立的环境变量密钥解析层。
 
 组件注册成功后，数据源 Bean 名为 `extdb-<id>-datasource`，例如 `extdb-primary-datasource`。路由可通过属性拼接目标数据源：
 
@@ -61,7 +63,7 @@ mysqlroute.target.datasource=primary
 - `outputType=SelectOne` 查询单列时，Camel SQL 可能直接把该列值作为 body 返回；查询多列时通常返回 Map。若 SQL 只返回一列 JSON 字符串，不要写 `${body[RESPONSE_JSON]}`，直接使用 `${body}` 返回或继续处理。
 - 写操作增加异常分支，避免数据库错误变成不清晰的 500。
 - 健康检查路由保持简单，只验证连接和基础查询。
-- 演示配置可以使用占位符，真实凭据不要写入交付样例。
+- 交付样例使用 `PLACEHOLDER_CONFIGURE_IN_SITE`，真实连接信息不要写入版本库。
 
 ## 官方参考
 
@@ -77,4 +79,4 @@ mysqlroute.target.datasource=primary
 - 故意配置错误连接，确认异常日志和响应可定位。
 - 若响应出现 `PreparedStatementCallback; bad SQL grammar`，优先查看服务目录 `logs/` 下的完整异常；MySQL 报错位置在 `LIMIT '20'` 一类片段时，检查 Header 是否仍是字符串，按上面的 `resultType` 写法转成整数。
 - 若出现 `HikariDataSource ... has been closed`，优先确认运行包版本是否包含连接池统一生命周期管理；已关闭的池需要重启应用恢复。
-- 检查连接信息只存在于演示配置，不写入真实凭据。
+- 检查占位符已在站点安全配置流程中替换，且真实连接信息未提交到版本库。

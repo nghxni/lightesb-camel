@@ -11,6 +11,10 @@ SAP NetWeaver 样例用于把 HTTP 请求转换为 SAP NetWeaver 调用参数，
 - 不把真实账号、口令或内网地址提交到交付样例。
 - 无 SAP 环境时，先做 HTTP-only mock：构造 SAP 请求摘要并返回固定响应，不调用 `sap-netweaver:` endpoint。
 
+当前已验证的范围是：生成候选可在隔离的外部 runnable jar 中启动，HTTP-only mock 请求可返回 `200`。这不证明 `sap-netweaver:` endpoint、真实 SAP Gateway 认证、错误映射或性能目标；这些项目仍需在授权现场验证。
+
+服务配置中的 SAP 地址、用户名和密码应先写为 `PLACEHOLDER_CONFIGURE_IN_SITE`，通过站点安全配置流程替换后再启用服务。服务目录 properties 按字面值读取，不会把 `${SAP_GW_PASSWORD}` 二次解析为环境变量；需要环境变量时，应在路由 URI 中显式使用 `{{env:SAP_GW_PASSWORD}}`。
+
 ## 路由编排
 
 典型步骤：

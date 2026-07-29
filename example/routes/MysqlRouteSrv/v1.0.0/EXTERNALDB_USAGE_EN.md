@@ -25,13 +25,15 @@ extdb.enabled=true
 extdb.default=primary
 extdb.ids=primary
 extdb.primary.type=mysql
-extdb.primary.url=${lightesb.mysql.url}
-extdb.primary.driver=${lightesb.mysql.driver}
-extdb.primary.username=${lightesb.mysql.username}
-extdb.primary.password=${lightesb.mysql.password}
+extdb.primary.url=PLACEHOLDER_CONFIGURE_IN_SITE
+extdb.primary.driver=com.mysql.cj.jdbc.Driver
+extdb.primary.username=PLACEHOLDER_CONFIGURE_IN_SITE
+extdb.primary.password=PLACEHOLDER_CONFIGURE_IN_SITE
 extdb.primary.maxPoolSize=10
 mysqlroute.target.datasource=primary
 ```
+
+Connection fields are read as literal property values; `${lightesb.mysql.*}`-style Spring placeholders are not resolved again. Replace `PLACEHOLDER_CONFIGURE_IN_SITE` through the site's secure deployment process, and keep `server.running=false` until the values have been replaced and verified.
 
 ## 4. Bean Names in Camel Registry
 
@@ -58,10 +60,10 @@ You can continue adding multiple data sources in the same service:
 extdb.ids=primary,archive
 
 extdb.archive.type=postgresql
-extdb.archive.url=jdbc:postgresql://127.0.0.1:5432/lightesb
+extdb.archive.url=PLACEHOLDER_CONFIGURE_IN_SITE
 extdb.archive.driver=org.postgresql.Driver
-extdb.archive.username=postgres
-extdb.archive.password=postgres
+extdb.archive.username=PLACEHOLDER_CONFIGURE_IN_SITE
+extdb.archive.password=PLACEHOLDER_CONFIGURE_IN_SITE
 extdb.archive.maxPoolSize=10
 ```
 
@@ -73,4 +75,3 @@ SQLServer/Oracle can be added using the same key model:
 - `extdb.<id>.username`
 - `extdb.<id>.password`
 - `extdb.<id>.maxPoolSize`
-
