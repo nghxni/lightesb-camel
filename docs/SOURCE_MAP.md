@@ -11,6 +11,7 @@
 | `components/02-service-log.md` | `docs/12-camel-servicelog-component-usage.md`，按交付场景重写 |
 | `components/03-charset-processing.md` | `docs/13-charset-processor-usage.md`，按交付场景重写 |
 | `components/04-transform-components.md` | `docs/09-conditional-jsontransform-component-usage.md`、`docs/10-conditionaltransform-dts-sample.md` |
+| `transform-logging-operations-api.md` | `docs/api/06-transform-and-logging-operations.md`，按交付调用、响应和错误处理场景重写 |
 | `components/05-json-schema-validation.md` | `docs/14-jsonschema-validation-processor-usage.md` |
 | `components/06-json-keyword.md` | `docs/01-json-keyword.md`，重新编写外发版 |
 | `components/07-stream-cache.md` | `docs/11-streamcache-component-usage.md` |

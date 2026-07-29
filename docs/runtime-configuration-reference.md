@@ -147,11 +147,6 @@ lightesb.mysql.password=${LIGHTESB_MYSQL_PASSWORD:}
 
 | 配置键 | 默认值 | 用法 |
 | --- | --- | --- |
-| `lightesb.transform.config-directory` | `config/transforms` | 转换规则配置目录。 |
-| `lightesb.transform.config-file-pattern` | `*.{yml,yaml,json}` | 转换规则文件匹配模式。 |
-| `lightesb.transform.recursive-search` | `true` | 是否递归搜索转换规则。 |
-| `lightesb.transform.auto-reload` | `true` | 转换规则是否自动重载。 |
-| `lightesb.transform.reload-interval-seconds` | `30` | 转换规则重载间隔。 |
 | `lightesb.transform.cache-enabled` | `true` | 转换配置管理器缓存开关。 |
 | `lightesb.transform.validation-enabled` | `true` | 加载转换规则时是否校验。 |
 | `lightesb.transform.cache.enabled` | `true` | Transform 缓存总开关。 |
@@ -163,9 +158,39 @@ lightesb.mysql.password=${LIGHTESB_MYSQL_PASSWORD:}
 | `lightesb.transform.cache.expression-ttl-minutes` | `120` | 表达式缓存 TTL。 |
 | `lightesb.transform.cache.stats-enabled` | `true` | 是否记录 Transform 缓存统计。 |
 | `lightesb.transform.cache.warmup-enabled` | `true` | 是否启用 Transform 缓存预热。 |
-| `lightesb.transformds.enabled` | `true` | 是否加载 TransformDS 外部扩展 jar。 |
+| `lightesb.transformds.enabled` | `false` | 是否加载 TransformDS 外部扩展 jar；必须显式启用。 |
 | `lightesb.transformds.directory` | `services/TransformDS` | TransformDS 扩展目录。 |
 | `lightesb.transformds.scan-pattern` | `*.jar` | TransformDS 扩展 jar 匹配模式。 |
+
+Transform 规则没有全局扫描目录。规则文件必须与所属路由一起放在
+`lightesb-camel-app/{serviceName}/{serviceVersion}`，文件名包含
+`transform`，后缀为 `.yml`、`.yaml` 或 `.json`。运行时通过服务目录监听完成
+热更新；解析或校验失败时保留最后一次有效配置。
+
+启用第三方 DTS：
+
+```properties
+lightesb.transformds.enabled=true
+```
+
+正式 SPI 是
+`com.oureman.soa.lightesb.core.dts.spi.LightesbDtsExtension`。旧
+`TransformDtsExtension` 仅用于一个版本的迁移兼容。
+
+## 服务版本内的兼容与临时状态配置
+
+以下键写入目标服务版本的 `service.config.properties`，不是平台全局配置：
+
+| 配置键 | 默认值 | 用法 |
+| --- | --- | --- |
+| `charset.legacy-mojibake-repair.enabled` | `false` | 显式兼容已确认的 ISO-8859-1 误解码历史数据；常规 UTF-8 链路保持关闭。 |
+| `robot.command.state.max-entries` | `10000` | 单个 CamelContext 路由内临时命令状态容量。 |
+| `robot.command.state.ttl-seconds` | `86400` | 路由内临时命令状态 TTL。 |
+| `robot.audit.max-events` | `10000` | 单个 CamelContext 路由内临时审计事件容量。 |
+| `robot.audit.ttl-seconds` | `86400` | 路由内临时审计事件 TTL。 |
+
+机器人这四个键只保护路由内存 Bean，不替代管理面数据库中的生产命令账本、
+状态快照和审计。
 
 ## AI 模型注册表
 

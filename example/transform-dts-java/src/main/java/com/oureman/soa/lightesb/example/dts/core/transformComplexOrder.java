@@ -3,7 +3,6 @@ package com.oureman.soa.lightesb.example.dts.core;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -102,31 +101,10 @@ public class transformComplexOrder {
             return new LinkedHashMap<>();
         }
         try {
-            String normalizedJson = normalizePotentiallyGarbled(jsonPayload);
-            return OBJECT_MAPPER.readValue(normalizedJson, Map.class);
+            return OBJECT_MAPPER.readValue(jsonPayload, Map.class);
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("Invalid JSON payload: " + e.getMessage(), e);
         }
-    }
-
-    private static String normalizePotentiallyGarbled(String value) {
-        if (value == null || value.isEmpty()) {
-            return value;
-        }
-        if (!containsGarbledChinese(value)) {
-            return value;
-        }
-        try {
-            return new String(value.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            return value;
-        }
-    }
-
-    private static boolean containsGarbledChinese(String str) {
-        return str.contains("å") || str.contains("æ") || str.contains("ç")
-                || str.contains("é") || str.contains("è") || str.contains("ä")
-                || str.contains("ï") || str.contains("±") || str.contains("¼");
     }
 
     @SuppressWarnings("unchecked")
@@ -156,18 +134,12 @@ public class transformComplexOrder {
                 return null;
             }
         }
-        if (current instanceof String) {
-            return normalizePotentiallyGarbled((String) current);
-        }
         return current;
     }
 
     private static String str(Object o) {
         if (o == null) {
             return "";
-        }
-        if (o instanceof String) {
-            return normalizePotentiallyGarbled((String) o);
         }
         return o.toString();
     }

@@ -29,6 +29,10 @@ description: 机器人、工业协议、边缘 AI 推理/可信审批门禁和�
 - 生产 MySQL 8 优先由 DBA 预建 `ROBOT_AI_VALIDATION_DECISION`、`ROBOT_AI_APPROVAL_EVENT` 两张表，应用账号只保留 DML 权限；H2 fallback 只用于小数据量 POC。
 - 本机 EMQX 或强模拟器可用时，使用 `tools/robot-mqtt-firmware-precheck/test_robot_mqtt_firmware_precheck.sh --dispatcher-ingest` 验证 `accepted -> dispatched -> acknowledged -> succeeded`；该结果仍属于 local simulator，不等同于现场机器人验收。
 - 无 MySQL 小数据量 POC 可使用 `lightesb.poc.h2-fallback.enabled=true`，机器人命令账本、审计和 outbox 使用 H2；用 `diagnostics snapshot --component robot-command --output json` 确认 `pocH2FallbackEnabled` 和 `robotManagementStorage`。
+- 路由 `robotCommandStateMachine`/`robotAuditHook` 只保存当前 CamelContext 的
+  短时内存状态，可用 `robot.command.state.max-entries`、
+  `robot.command.state.ttl-seconds`、`robot.audit.max-events`、
+  `robot.audit.ttl-seconds` 限制；生产命令状态与审计以管理面数据库为准。
 - 运行态 doctor 用 `lightesb robot doctor --runtime --output json` 或 `diagnostics snapshot --component robot-command --output json` 查看表、outbox、状态快照、补偿、denylist 和最近错误码分布；该检查不连接真实 endpoint。
 - H2 fallback 不代表生产级归档、保留、备份恢复或切回 MySQL 后的数据迁移能力。
 - 请求体禁止覆盖底层协议目标字段，例如 `topic`、`broker`、`endpoint`、`node`、`register`、`service`、`unitId`。

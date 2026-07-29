@@ -86,6 +86,22 @@ jsontransform:configId?strictMode=false&failOnError=true
 <to uri="jsontransform:dynamic"/>
 ```
 
+### 规则文件位置与热更新
+
+转换规则只从所属服务版本目录读取：
+
+```text
+lightesb-camel-app/{serviceName}/{serviceVersion}/
+```
+
+文件名必须包含 `transform`，后缀为 `.yml`、`.yaml` 或 `.json`。规则配置 ID
+在当前运行时全局唯一；不同服务使用相同 ID 会被拒绝。文件创建、修改和删除
+由服务目录监听器处理，更新内容解析或校验失败时继续使用最后一次有效配置。
+不要再创建全局 `config/transforms` 目录。
+
+管理面可执行真实重载、校验和测试，详见
+[Transform 与日志重载 API](../transform-logging-operations-api.md)。
+
 ## JSONPath 与 commonFunctions
 
 路由中可以直接使用 JSONPath 提取请求字段，或通过 `commonFunctions` 调用内置/扩展转换函数。参考 `example/routes/PlatformHttp/v3.0.0/platform-http-route.xml` 和 `example/routes/PlatformHttp/v1.0.0/complex-json-transform-route.xml`。
@@ -112,6 +128,7 @@ JSONPath 提取到 Exchange Property：
 
 - JSONPath 路径不存在时可能抛异常，演示路由用于说明写法；正式接口建议增加异常分支或 `suppressExceptions`。
 - `commonFunctions` 调用适合演示和复用转换能力，复杂场景建议把转换规则和样例输入一起放在服务版本目录。
+- `commonFunctions` 和 DTS 示例默认不猜测乱码编码。确认历史链路确实需要兼容时，才在服务配置中设置 `charset.legacy-mojibake-repair.enabled=true`。
 - `example/routes/**/log4j2.properties` 不需要手工维护，运行时会自动生成。
 
 ## 常见误用

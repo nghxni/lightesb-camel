@@ -16,6 +16,7 @@
 - [服务端运行配置参考](runtime-configuration-reference.md)
 - [服务日志 servicelog](components/02-service-log.md)
 - [字符编码处理](components/03-charset-processing.md)
+- [Transform 与日志重载 API](transform-logging-operations-api.md)
 - [Timer 定时路由](components/14-timer-routes.md)
 - [路由静态自检与配置闭包](components/16-route-static-preflight.md)
 

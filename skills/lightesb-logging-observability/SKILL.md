@@ -26,6 +26,9 @@ description: 配置 servicelog、异常处理、H2 缓存、JsonKeyword 和 Stre
 - 异常分支返回前调用 `jsonResponseProcessor`。
 - 临时验证全局兜底时可用无消费者 `direct:` endpoint，但必须写 `?block=false`，避免 mock 请求因等待消费者而超时。
 - Timer 路由没有 HTTP 响应时，主要通过 `servicelog:` 或 Camel 标准日志验收。
+- 修改服务日志配置后，用 `POST /api/logging/reload/{fileKey}` 或
+  `POST /api/logging/reload/{serviceName}@{serviceVersion}` 重新读取服务目录；
+  服务或 fileKey 不存在会返回 `SERVICE_LOG_CONFIG_NOT_FOUND`。
 
 验收：
 

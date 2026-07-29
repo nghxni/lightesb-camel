@@ -49,3 +49,30 @@ servicelog:level?message=...&showBody=false&showHeaders=false&maxBodyLength=1000
 
 - 请求接口后检查服务目录下的 `logs/`。
 - 动态排障时优先查看服务日志中的最新记录和 `DEBUG.log`。
+
+## 重新读取日志配置
+
+按 route `fileKey` 重载：
+
+```bash
+curl -X POST \
+  "http://127.0.0.1:8080/api/logging/reload/PlatformHttp@v3.0.0@platform-http-route.xml"
+```
+
+按服务版本重载全部已加载 route logger：
+
+```bash
+curl -X POST \
+  "http://127.0.0.1:8080/api/logging/reload/PlatformHttp@v3.0.0"
+```
+
+兼容入口：
+
+```bash
+curl -X POST \
+  "http://127.0.0.1:8080/api/lightesb/config/logging/reconfigure/PlatformHttp/v3.0.0"
+```
+
+接口使用运行时服务配置重新读取服务版本目录并重建 logger，同时清除对应健康
+缓存。服务或 fileKey 未加载时返回 `SERVICE_LOG_CONFIG_NOT_FOUND`，不会返回
+伪成功。成功后应发送一条业务请求并检查服务版本目录下的 `logs/`。

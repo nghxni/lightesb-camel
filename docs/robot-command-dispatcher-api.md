@@ -58,6 +58,19 @@ curl -sS -X POST http://127.0.0.1:8080/service-management/v1/robots/commands:dis
 
 无 MySQL POC 可配置 `lightesb.poc.h2-fallback.enabled=true`，机器人命令账本、审计、outbox 和状态快照使用 H2 同名表。该模式只用于小数据量演示，不承诺生产级归档、保留、备份恢复或切回 MySQL 后的数据迁移。
 
+路由组件中的 `robotCommandStateMachine` 与 `robotAuditHook` 只保留当前
+CamelContext 的短时内存状态，重启或卸载后丢失，不能作为生产账本。可在服务
+版本的 `service.config.properties` 中限制：
+
+| 配置键 | 默认值 | 说明 |
+| --- | --- | --- |
+| `robot.command.state.max-entries` | `10000` | 临时命令状态容量。 |
+| `robot.command.state.ttl-seconds` | `86400` | 临时命令状态 TTL。 |
+| `robot.audit.max-events` | `10000` | 临时审计事件容量。 |
+| `robot.audit.ttl-seconds` | `86400` | 临时审计事件 TTL。 |
+
+生产命令状态、审计、补偿和归档均以管理面数据库为准。
+
 ## MQTT 回执接入基线
 
 交付包已提供可被 MQTT consumer 复用的 ack/result 回执接入服务基线。当前自动化验证可使用 mock topic 和 JSON payload；也可在本机 EMQX 或强模拟器环境下，先由正式 dispatcher 派发 command，再把模拟固件捕获并发布的 ack/result 转交 ingest。该能力不新增默认真实 MQTT consumer route。
