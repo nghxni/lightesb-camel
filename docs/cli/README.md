@@ -25,10 +25,11 @@ lightesb --file payload.json <command>
 
 安全边界：
 
-- CLI 是控制面客户端；仅 `message schema generate` 可在 `--yes` 确认后把服务端生成的 Schema 写入已有 `lightesb-camel-app/{serviceName}/{serviceVersion}`，但不会部署或重载服务。
+- CLI 是控制面客户端；受控本地写例外只有 `message schema generate` 和显式 `ai route generate/optimize/apply --save-local`。两者都必须加 `--yes`、限制在真实服务目录边界内并原子替换目标文件，不会自行部署或重载服务。
 - 写操作默认传 `--yes`。
 - CI 中优先用 `--output json`。
-- `service import-plan` 只读远端状态；`service import` 和 `service sync-remote` 会写远端，必须加 `--yes`。
+- 任意命令层级都支持 `--help`；profile JSON 只返回 `tokenConfigured`、`aiTokenConfigured` 状态，不输出 token 值。
+- `service import-plan` 只读远端状态；`service package build`、`service export/import/sync-remote` 和 `deploy upload` 是写操作，必须加 `--yes`。
 - 服务同步默认跳过远端已有同名服务版本的服务文件部署；覆盖部署需显式 `--overwrite-service-files`。
 - 需要关闭部署后自动启动时加 `--no-start`；需要保留一步同步的中间导出包时加 `sync-remote --keep-package`。
 - `log ask` 是可选服务端自然语言 Agent 能力，默认日志治理优先使用确定性 `log` 命令。

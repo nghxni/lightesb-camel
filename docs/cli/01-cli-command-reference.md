@@ -2,15 +2,18 @@
 
 ## 定位
 
-CLI 只调用 LightESB 控制面 API 和本地配置，不承载 Camel 运行时，不直接读写 `lightesb-camel-app/` 服务目录，不绕过服务端状态机。
+CLI 只调用 LightESB 控制面 API 和本地配置，不承载 Camel 运行时，不绕过服务端状态机。受控本地写例外只有 `message schema generate` 和显式 `ai route generate/optimize/apply --save-local`；两者都必须加 `--yes`、校验真实服务目录边界并原子替换目标文件。
 
 ## 安装与入口
 
 ```bash
 java -jar lightesb-cli.jar --help
 java -jar lightesb-cli.jar --version
+java -jar lightesb-cli.jar service package build --help
 alias lightesb='java -jar /path/to/lightesb-cli.jar'
 ```
+
+顶层、命令组和叶子命令都支持 `-h/--help`。
 
 ## 全局参数
 
@@ -60,6 +63,8 @@ lightesb diagnostics snapshot --service-name DemoSrv --service-version v1.0.0 --
 lightesb diagnostics warnings
 lightesb diagnostics warnings --component service-log --output json
 ```
+
+`profile current/list --output json` 只返回 `server`、`tokenConfigured` 和 `aiTokenConfigured` 等状态，不输出 token 值；配置不存在时只读 profile 命令不会创建文件。
 
 `doctor` 只做环境和只读 API 检查，不修改服务端状态。
 
@@ -223,18 +228,18 @@ lightesb service delete --id <serviceId> --yes
 lightesb service config preview --file service.json
 lightesb service config save --file service.json --yes
 lightesb service package preview --file package.json
-lightesb service package build --file package.json
+lightesb service package build --file package.json --yes
 lightesb service package deploy --file package.json --yes
 lightesb service start --id <serviceId> --yes
 lightesb service stop --id <serviceId> --yes
-lightesb service export --local-server http://localhost:8080 --app-dir lightesb-camel-app --service-name DemoSrv --service-version v1.0.0 --out dist/DemoSrv-v1.0.0.lightesb-service.zip
+lightesb service export --local-server http://localhost:8080 --app-dir lightesb-camel-app --service-name DemoSrv --service-version v1.0.0 --out dist/DemoSrv-v1.0.0.lightesb-service.zip --yes
 lightesb service import-plan --server http://remote-host:8080 --file dist/DemoSrv-v1.0.0.lightesb-service.zip
 lightesb service import --server http://remote-host:8080 --file dist/DemoSrv-v1.0.0.lightesb-service.zip --skip-existing --yes
 lightesb service sync-remote --server http://remote-host:8080 --local-server http://localhost:8080 --app-dir lightesb-camel-app --service-name DemoSrv --service-version v1.0.0 --keep-package --yes
 
 lightesb deploy validate ./DemoSrv.zip
-lightesb deploy upload ./DemoSrv.zip
-lightesb deploy upload ./DemoSrv.zip --target-directory /opt/lightesb/services --no-auto-start
+lightesb deploy upload ./DemoSrv.zip --yes
+lightesb deploy upload ./DemoSrv.zip --target-directory /opt/lightesb/services --no-auto-start --yes
 lightesb deploy status <deploymentId>
 lightesb deploy history --limit 20
 lightesb deploy history --service-name DemoSrv --service-version 1.0.0 --limit 20
@@ -273,7 +278,9 @@ lightesb keyword query-instances --service-name DemoSrv --service-version 1.0.0 
 
 CLI 对 `service start/stop` 使用 130 秒 HTTP 请求超时，以覆盖服务端允许的 120 秒最大转换等待时间并接收结构化失败详情；其他命令仍使用默认 30 秒请求超时。
 
-服务同步命令用于把本地服务版本迁移到远端 LightESB。导出包包含服务定义、接入系统、报文模型和服务目录文件，并在 manifest 中记录 metadata 与服务文件 `sha256`。`serviceVersion` 必须使用 `vX.Y.Z`。`import-plan` 只读远端状态；写入命令必须加 `--yes`。`--skip-existing` 是默认幂等策略的显式写法。远端已有同名服务版本时默认跳过服务文件部署；需要覆盖时加 `--overwrite-service-files`。默认部署后自动启动路由；需要关闭时加 `--no-start`。`sync-remote --keep-package` 可保留中间导出包，也可用 `--package-out <path>` 指定路径。接入系统或服务定义冲突默认失败；需要更新时加 `--update-existing`。远端已有同名报文且内容不一致时会调用消息更新接口，远端当前 `msgVersion` 必须是 `V数字.单数字`，更新后递增单数字小版本并保留更新历史，例如 `V1.9` -> `V2.0`。
+服务同步命令用于把本地服务版本迁移到远端 LightESB。导出包包含服务定义、接入系统、报文模型和服务目录文件，并在 manifest 中记录 metadata 与服务文件 `sha256`。`serviceVersion` 必须使用 `vX.Y.Z`。`service export` 会写本地包，必须加 `--yes`，并校验真实路径/符号链接边界后通过同目录临时文件原子替换。`import-plan` 只读远端状态；`import/sync-remote` 必须加 `--yes`。导入包拒绝路径穿越、重复 entry、服务目录不匹配和 SHA-256 不一致；包最大 50 MiB、最多 256 个 entry、单 entry 解压后最大 5 MiB、解压总量最大 50 MiB。`--skip-existing` 是默认幂等策略的显式写法。远端已有同名服务版本时默认跳过服务文件部署；需要覆盖时加 `--overwrite-service-files`。默认部署后自动启动路由；需要关闭时加 `--no-start`。`sync-remote --keep-package` 可保留中间导出包，也可用 `--package-out <path>` 指定路径。接入系统或服务定义冲突默认失败；需要更新时加 `--update-existing`。远端已有同名报文且内容不一致时会调用消息更新接口，远端当前 `msgVersion` 必须是 `V数字.单数字`，更新后递增单数字小版本并保留更新历史，例如 `V1.9` -> `V2.0`。
+
+`deploy upload` 必须加 `--yes`，文件正文使用流式 multipart 发送；服务端大小上限仍由运行配置控制。
 
 日志级别调整后立即生效，不需要执行日志重载。
 
@@ -359,10 +366,10 @@ AI 边界：
 - `--save-remote --yes` 会调用服务端 `/service-management/v1/ai/route/apply`，由服务端备份、写入、等待 XML/properties 热加载并返回状态；CLI 不通过 SSH/SCP 或共享磁盘写远程文件。
 - `--return-logs` 控制成功时是否返回远程日志摘要；失败时即使未传 `--return-logs`，也会展示服务端返回的多个日志来源摘要。
 - `--log-lines <n>` 控制每个日志来源最多返回多少行。
-- `--save-local --yes` 会写入本地 `{appDir}/{serviceName}/{serviceVersion}`，必须显式传入 `--service-name`、`--service-version`、`--route-file-name`；它支持 XML、`common.config.properties`、`service.config.properties`、`.ds` 和三个受管固定 Schema，不主动 deploy/reload。
+- `--save-local --yes` 会写入本地 `{appDir}/{serviceName}/{serviceVersion}`，必须显式传入 `--service-name`、`--service-version`、`--route-file-name`；它支持 XML、`common.config.properties`、`service.config.properties`、`.ds` 和三个受管固定 Schema，校验真实路径/符号链接边界并通过同目录临时文件原子替换，不主动 deploy/reload。
 - `ai route apply --save-remote --yes` 从本地 XML 和重复 `--resource-file` 调用服务端 apply API，仅在用户明确授权远程写入时使用；远程 apply 必须提供 `common.config.properties` 与 `service.config.properties`，`.ds` 等资源仅在 route XML 引用时必须提供。JSON 资源只接受 `request-schema.json`、`response-schema.json`、`callback-schema.json`，且必须与 route 引用一一对应；`--timeout <seconds>` 传给服务端等待热加载。普通本地直接编辑服务文件不以 CLI apply 为前置。
 - 远程 apply 返回 `FAILED`、`FAILED_ROLLED_BACK` 或 `ROLLBACK_FAILED` 时，CLI 先输出 `operationId`、删除文件、恢复状态和日志，再以退出码 `69` 结束。保留本地候选，不自动重试。
-- `ai route apply --save-local --yes` 从本地 XML 和重复 `--resource-file` 写入服务目录；写入前把已有服务目录备份到 app 目录同级 `{appDirName}-backups`，可选 `--wait-reload --timeout <seconds>` 只读轮询路由详情。
+- `ai route apply --save-local --yes` 从本地 XML 和重复 `--resource-file` 写入服务目录；写入前把已有服务目录备份到 app 目录同级 `{appDirName}-backups`，拒绝备份源符号链接，可选 `--wait-reload --timeout <seconds>` 只读轮询路由详情。
 - `--save-local` 与 `--save-remote` 互斥；本地保存是脚本和非 Codex 本地开发入口，不是 Codex 直接编辑服务文件的必经流程。
 - `ai route optimize` 不接入 SSE。
 - 模型 provider、base URL、model name、API key 都由服务端 `lightesb.ai.models.*` 注册表和 `lightesb.ai.agents.*.model-ref` 管理；不要写入 CLI profile。AI 路由生成/微调使用 `lightesb.ai.agents.route.model-ref`；Agent + Tools POC 使用 `lightesb.ai.agents.chat.model-ref`，推荐指向 DashScope `qwen-plus` 或 OpenAI-compatible Chat Completions 这类支持工具调用的模型。
@@ -395,7 +402,7 @@ lightesb service create --file service.json --yes
 lightesb service config preview --file service.json
 lightesb service config save --file service.json --yes
 lightesb message schema generate --id <requestMessageId> --service-name DemoSrv --service-version v1.0.0 --schema-file request-schema.json --yes --output json
-lightesb service package build --file package.json
+lightesb service package build --file package.json --yes
 lightesb service package deploy --file package.json --yes
 lightesb route status
 lightesb log instance list --service-name DemoSrv --service-version 1.0.0
@@ -420,11 +427,12 @@ lightesb log instance list --service-name DemoSrv --service-version 1.0.0
 ```text
 app create/update/delete
 message create/update/delete/schema generate
-service create/update/delete/config save/package deploy/start/stop
+service create/update/delete/export/config save/package build/package deploy/import/sync-remote/start/stop
+deploy upload
 ai route apply
 route reload-service/reload-file/unload
 log level set/cleanup
 keyword add/delete
 ```
 
-`deploy upload` 当前示例不强制 `--yes`，但流水线侧应自行增加确认门禁。
+HTTP 错误摘要会保留 status、错误码和可行动信息，并脱敏 token、password、secret、authorization、apiKey 等常见凭据。

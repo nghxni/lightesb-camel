@@ -16,9 +16,10 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 
 规则：
 
-- CLI 是控制面客户端；`message schema generate` 是窄化例外，可在 `--yes` 后把控制面生成的 Schema 写入已有服务版本目录，但不会部署或重载服务。
+- CLI 是控制面客户端；受控本地写例外只有 `message schema generate` 和显式 `ai route generate/optimize/apply --save-local`。两类操作都必须加 `--yes`，限制在真实服务目录边界内并原子替换目标文件，不会自行部署或重载服务。
 - 输入、输出或回调 JSON 校验工作流只生成 CLI 命令，不生成 Schema preview 或 AI route apply 的直接 API 调用。
 - 写操作加 `--yes`，CI 中优先加 `--output json`。
+- 任意命令层级都可用 `--help`；profile JSON 只使用 `tokenConfigured`、`aiTokenConfigured` 状态，不读取或记录 token 值。
 - 需要服务端地址时优先使用 `--server` 或 profile，不在命令中写真实密钥。
 - `--ai-token` 只用于 `X-AI-Token`，不是模型 API key。
 - `ai tool list/save/plan/run` 已删除；AI 路由生成统一走自然语言入口。
@@ -27,7 +28,7 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 - 按方向执行 `message schema generate --id|--file --service-name --service-version --schema-file request-schema.json|response-schema.json|callback-schema.json --yes --output json`，只使用返回的 `schema` 和 `jsonSchemaPath`；不要手写或由模型补齐 Schema。
 - `warnings` 非空时停止自动 apply 并展示完整 warnings，只有用户明确确认后继续。用户明确授权远程写入时，才用 `ai route apply --save-remote --yes` 一次提交实际 route 文件名、两个 properties 和 route 引用的固定 Schema；普通本地直接编辑服务文件不以 CLI apply 为前置。
 - `ai route apply --resource-file` 只接受三个固定 Schema `.json`；删除校验块时不提交对应 Schema，服务端会删除受管文件。`FAILED`、`FAILED_ROLLED_BACK`、`ROLLBACK_FAILED` 都按失败处理，先读取 operationId 和恢复诊断，不自动重试。
-- `service import-plan` 只读远端状态；`service import` 和 `service sync-remote` 必须加 `--yes`。
+- `service import-plan` 只读远端状态；`service package build`、`service export/import/sync-remote` 和 `deploy upload` 必须加 `--yes`。
 - 服务同步默认跳过远端已有同名服务版本的服务文件部署；覆盖部署需显式 `--overwrite-service-files`。
 - 服务同步默认自动启动部署路由；需要关闭时使用 `--no-start`。`sync-remote --keep-package` 可保留中间导出包。
 - `service start/stop` 会等待真实 Camel 上下文状态；HTTP 409 时先查询服务状态或运行时诊断，超时不会回滚 `server.running`，不要立即发送反向请求覆盖目标。
@@ -61,12 +62,14 @@ lightesb message schema generate --server http://localhost:8080 --id <messageId>
 lightesb ai route apply --server http://localhost:8080 --file DemoSrv-route.xml --service-name DemoSrv --service-version v1.0.0 --route-file-name DemoSrv-route.xml --resource-file common.config.properties --resource-file service.config.properties --resource-file request-schema.json --save-remote --return-logs --yes --output json
 lightesb service create --file service.json --yes
 lightesb service config save --file service.json --yes
+lightesb service package build --file package.json --yes
 lightesb service package deploy --file package.json --yes
-lightesb service export --local-server http://localhost:8080 --app-dir lightesb-camel-app --service-name DemoSrv --service-version v1.0.0 --out dist/DemoSrv-v1.0.0.lightesb-service.zip
+lightesb service export --local-server http://localhost:8080 --app-dir lightesb-camel-app --service-name DemoSrv --service-version v1.0.0 --out dist/DemoSrv-v1.0.0.lightesb-service.zip --yes
 lightesb service import-plan --server http://remote-host:8080 --file dist/DemoSrv-v1.0.0.lightesb-service.zip
 lightesb service import --server http://remote-host:8080 --file dist/DemoSrv-v1.0.0.lightesb-service.zip --skip-existing --yes
 lightesb service start --id <serviceId> --yes --output json
 lightesb service stop --id <serviceId> --yes --output json
+lightesb deploy upload ./DemoSrv.zip --yes
 lightesb route status
 lightesb log instance list --service-name DemoSrv --service-version 1.0.0
 lightesb keyword list --service-name DemoSrv --service-version 1.0.0 --output json

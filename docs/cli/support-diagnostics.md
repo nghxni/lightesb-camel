@@ -19,6 +19,8 @@ lightesb doctor --server http://localhost:8080 --output json
 lightesb diagnostics warnings --server http://localhost:8080 --output json
 ```
 
+Profile JSON only reports the server and `tokenConfigured`/`aiTokenConfigured` flags; it does not print token values. Review whether the server address itself needs redaction before sharing evidence.
+
 Use this path when CLI cannot connect, returns `401/403`, or diagnostics reports global warnings.
 
 ## Service And Route
