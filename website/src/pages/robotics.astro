@@ -15,6 +15,7 @@ const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
         <div class="hero-actions">
           <a class="button primary" href={`${repo}/docs/robot-command-dispatcher-api.md`} data-i18n="robot.dispatcher">Dispatcher API</a>
           <a class="button" href={`${repo}/docs/experience/01-robotics-protocol-precheck.md`} data-i18n="robot.precheck">Protocol precheck</a>
+          <a class="button" href={`${repo}/docs/robot-ai-approval-api.md`} data-i18n="robot.approvalApi">AI approval API</a>
         </div>
       </div>
       <div class="visual-frame robot-visual">
@@ -43,6 +44,23 @@ const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
 
   <section>
     <div class="container">
+      <SectionHead
+        eyebrow="AI governance"
+        title="Approve AI-proposed commands before they dispatch"
+        text="Robot AI capabilities stay off by default. When explicitly enabled, edge inference candidates pass policy checks, signed provider approval, and a one-shot submit gate."
+        eyebrowKey="robot.ai.eyebrow"
+        titleKey="robot.ai.title"
+        textKey="robot.ai.text"
+      />
+      <div class="grid two">
+        <article class="card"><h3 data-i18n="robot.approval.title">Trusted AI approval</h3><p class="copy" data-i18n="robot.approval.text">Persist validation decisions, receive HMAC-signed approval callbacks from a configured provider, and submit approved decisions once through the decision-only API or CLI.</p></article>
+        <article class="card"><h3 data-i18n="robot.edge.title">Edge AI inference</h3><p class="copy" data-i18n="robot.edge.text">Validate allowlisted candidate commands from edge models against confidence, freshness, identity, replay, and shared safety policies, with a mock route package for offline verification.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
       <div class="grid two">
         <article class="card">
           <h3 data-i18n="robot.included.title">Included examples</h3>
@@ -53,6 +71,9 @@ const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
             <li>RobotOpcUaStationSrv</li>
             <li>RobotModbusGatewaySrv</li>
             <li>RobotGrpcGatewaySrv</li>
+            <li>RobotClusterDataSrv</li>
+            <li>RobotEdgeInferenceSrv</li>
+            <li>RobotVda5050Srv</li>
           </ul>
         </article>
         <article class="card">

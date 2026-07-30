@@ -1,0 +1,94 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+const sample = `${repo}/tree/main/example/routes/RobotEdgeInferenceSrv`;
+---
+
+<BaseLayout
+  current="/articles"
+  title="The Robot AI Approval Gate | LightESB-Camel"
+  description="How an AI-proposed robot command becomes a dispatched command only after policy validation, HMAC-signed provider approval, and a one-shot submit — with every bypass path failing closed."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="aigate.eyebrow">Technical article</p>
+      <h1 data-i18n="aigate.title">The robot AI approval gate: from edge inference candidate to one-shot submit</h1>
+      <p class="lead" data-i18n="aigate.lead">
+        RobotEdgeInferenceSrv and the robot AI approval API show how an AI-proposed robot command reaches dispatch only after policy validation, signed provider approval, and a one-shot submit — with every bypass path failing closed.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="aigate.meta.sample">Sample:</span> <a href={sample}>example/routes/RobotEdgeInferenceSrv</a></span>
+        <span><span data-i18n="aigate.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="aigate.problem.title">AI output is a proposal, not a command</h2>
+        <p data-i18n="aigate.problem.p1">
+          Edge models can suggest high-level robot commands, but a suggestion must never reach dispatch directly. LightESB-Camel treats AI output as a candidate: it cannot declare its own source identity, risk level, policy version, or approval result, and the normal command API rejects AI-reserved command IDs with 422 ROBOT_AI_APPROVAL_REQUIRED.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="aigate.flow.title">From candidate to persisted decision</h2>
+        <p data-i18n="aigate.flow.text">
+          Every step is explicit; missing or incomplete configuration fails closed.
+        </p>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="aigate.flow.policy.title">Policy validation</h3>
+            <p class="copy" data-i18n="aigate.flow.policy.text">Candidates are checked against allowlisted commands, confidence thresholds, freshness windows, identity binding, anti-replay, and shared safety policies. Failures return rejected with a specific error code.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="aigate.flow.enable.title">Explicit enablement</h3>
+            <p class="copy" data-i18n="aigate.flow.enable.text">The capability is off by default. Enabling it requires a global HMAC provider configuration plus an approval switch in the service route, and secrets are injected through environment variables — never written to files, logs, or responses.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="aigate.flow.decision.title">Persisted decision</h3>
+            <p class="copy" data-i18n="aigate.flow.decision.text">Safe candidates become server-side validation decisions with an expiry derived from inference freshness, command TTL, and the configured maximum decision age. A pending decision is not an approval.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="aigate.flow.callback.title">HMAC approval callback</h3>
+            <p class="copy" data-i18n="aigate.flow.callback.text">The configured provider signs callbacks with HMAC-SHA256 over the raw request body. Verified callbacks move the decision to approved or rejected; retries are idempotent, and same-ID different-body replays return 409.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2 data-i18n="aigate.submit.title">One-shot submit through the decision-only path</h2>
+        <p data-i18n="aigate.submit.p1">
+          Submitting an approved decision takes no command payload. The server restores the candidate from the persisted decision, re-verifies the digest, denylist, capability, and current safety policy, then writes command, audit, outbox, state snapshot, and the consumed binding in one transaction — any failure rolls everything back.
+        </p>
+        <p data-i18n="aigate.submit.p2">
+          The CLI mirrors this boundary: it can query a decision and submit it with --yes, but it cannot approve or reject, never reads candidate command files, and never stores the HMAC secret. Expired decisions, replayed events, and double consumption all fail closed.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="aigate.mock.title">A mock boundary you can verify offline</h2>
+        <p data-i18n="aigate.mock.p1">
+          RobotEdgeInferenceSrv ships as a direct: + mock: route package with server.running=false and no HTTP, MQTT, or gRPC ingress. Post robot-edge-inference.v1 JSON to direct:robot-edge-inference-mock and read decisions from mock:robotEdgeInferenceDecisionSink.
+        </p>
+        <p data-i18n="aigate.mock.p2">
+          The fixed ingress profile is not production authentication, the in-memory replay registry covers a single instance only, and the HMAC provider contract still needs field verification against a real approval platform. The mock package exists to prove the gate semantics before that integration starts.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="aigate.run.title">Try it yourself</h2>
+        <ol class="article-steps">
+          <li data-i18n="aigate.run.1">Copy example/routes/RobotEdgeInferenceSrv into the runtime service directory and keep server.running=false.</li>
+          <li data-i18n="aigate.run.2">Post a robot-edge-inference.v1 candidate to direct:robot-edge-inference-mock and read the decision from mock:robotEdgeInferenceDecisionSink.</li>
+          <li data-i18n="aigate.run.3">Confirm safe candidates return pending_approval with submittable=false, while stale, low-confidence, identity-mismatched, or replayed candidates return rejected.</li>
+          <li data-i18n="aigate.run.4">Enable the HMAC provider and the service approval switch, send a signed approval callback, then query and submit the decision with lightesb robot inference submit --yes.</li>
+        </ol>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href={`${repo}/blob/main/docs/robot-ai-approval-api.md`} data-i18n="aigate.apidoc">AI approval API</a>
+        <a class="button" href={`${repo}/blob/main/docs/robot-edge-inference-mock.md`} data-i18n="aigate.mockdoc">Edge inference mock guide</a>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

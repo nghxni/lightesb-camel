@@ -182,6 +182,7 @@ website/src/layouts/BaseLayout.astro
 website/src/pages/architecture.astro
 website/src/pages/articles/index.astro
 website/src/pages/articles/legacy-system-integration.astro
+website/src/pages/articles/robot-ai-approval.astro
 website/src/pages/articles/temp-form-route-sample.astro
 website/src/pages/capabilities.astro
 website/src/pages/docs.astro
