@@ -71,12 +71,45 @@ img {
   gap: 20px;
 }
 
+.brand-area {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   font-weight: 760;
   white-space: nowrap;
+}
+
+.partner-referral {
+  display: grid;
+  gap: 2px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 7px 10px;
+  border: 1px solid rgba(240, 184, 90, 0.58);
+  border-radius: 7px;
+  background: rgba(240, 184, 90, 0.1);
+  color: #ffe2a4;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.partner-referral strong {
+  color: #fff0c8;
+}
+
+.partner-referral span {
+  color: var(--muted);
+}
+
+.partner-referral:hover {
+  border-color: var(--amber);
+  background: rgba(240, 184, 90, 0.16);
 }
 
 .brand-mark {

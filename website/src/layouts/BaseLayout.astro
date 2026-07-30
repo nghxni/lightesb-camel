@@ -4,7 +4,8 @@ import "../styles/global.css";
 const {
   title = "LightESB-Camel",
   description = "Lightweight integration runtime for legacy systems, industrial protocols, robotics workflows, and AI-assisted orchestration.",
-  current = ""
+  current = "",
+  showReferral = false
 } = Astro.props;
 
 const siteUrl = "https://lightesb-camel.pages.dev";
@@ -39,10 +40,19 @@ const navItems = [
     <div class="site-shell">
       <header class="site-header">
         <div class="container nav">
-          <a class="brand" href="/" aria-label="LightESB-Camel home">
-            <span class="brand-mark">L</span>
-            <span>LightESB-Camel</span>
-          </a>
+          <div class="brand-area">
+            <a class="brand" href="/" aria-label="LightESB-Camel home">
+              <span class="brand-mark">L</span>
+              <span>LightESB-Camel</span>
+            </a>
+            {showReferral && (
+              <a class="partner-referral" href="mailto:nghxni@gmail.com" data-referral-email>
+                <strong data-i18n="referral.reward">Introduce a signed deal — earn a 20% referral fee.</strong>
+                <span data-i18n="referral.contact">Partner referrals: nghxni@gmail.com</span>
+                <span data-i18n="referral.wechat">WeChat: nghxni</span>
+              </a>
+            )}
+          </div>
           <nav class="nav-links" aria-label="Primary navigation">
             {navItems.map(([label, href]) => (
               <a href={href} aria-current={current === href ? "page" : undefined} data-i18n={`nav.${label.toLowerCase()}`}>{label}</a>
@@ -69,7 +79,10 @@ const navItems = [
           "nav.examples": "样例",
           "nav.articles": "文章",
           "nav.docs": "文档",
-          "footer.contact": "LightESB-Camel delivery context. 179556428@qq.com",
+          "footer.contact": "LightESB-Camel 交付上下文。179556428@qq.com",
+          "referral.reward": "介绍签单，提供 20% 介绍费。",
+          "referral.contact": "合作介绍：179556428@qq.com",
+          "referral.wechat": "微信：nghxni",
           "home.eyebrow": "可运行的集成交付包",
           "home.title": "LightESB-Camel",
           "home.lead": "面向存量系统、工业协议、机器人流程和 AI 辅助编排的轻量级 Apache Camel 交付运行时。",
@@ -305,6 +318,10 @@ const navItems = [
         document.querySelectorAll("[data-language-toggle]").forEach((button) => {
           button.textContent = normalized === "zh" ? "EN" : "中文";
           button.setAttribute("aria-label", normalized === "zh" ? "Switch to English" : "切换到中文");
+        });
+        const referralEmail = normalized === "zh" ? "179556428@qq.com" : "nghxni@gmail.com";
+        document.querySelectorAll("[data-referral-email]").forEach((link) => {
+          link.setAttribute("href", `mailto:${referralEmail}`);
         });
         window.localStorage.setItem("lightesb-site-language", normalized);
       }
