@@ -239,7 +239,7 @@ lightesb service sync-remote --server http://remote-host:8080 --local-server htt
 
 lightesb deploy validate ./DemoSrv.zip
 lightesb deploy upload ./DemoSrv.zip --yes
-lightesb deploy upload ./DemoSrv.zip --target-directory /opt/lightesb/services --no-auto-start --yes
+lightesb deploy upload ./DemoSrv.zip --no-auto-start --yes
 lightesb deploy status <deploymentId>
 lightesb deploy history --limit 20
 lightesb deploy history --service-name DemoSrv --service-version 1.0.0 --limit 20
@@ -250,8 +250,8 @@ lightesb route mapping
 lightesb route detail --file-key <fileKey>
 lightesb route config --file-key <fileKey>
 lightesb route reload-service --service-name DemoSrv --service-version 1.0.0 --yes
-lightesb route reload-file --file-path /path/on/server/route.xml --yes
-lightesb route unload --file-path /path/on/server/route.xml --yes
+lightesb route reload-file --file-path /server/lightesb-camel-app/DemoSrv/v1.0.0/route.xml --yes
+lightesb route unload --file-path /server/lightesb-camel-app/DemoSrv/v1.0.0/route.xml --yes
 
 lightesb log status
 lightesb log health
@@ -280,7 +280,13 @@ CLI 对 `service start/stop` 使用 130 秒 HTTP 请求超时，以覆盖服务�
 
 服务同步命令用于把本地服务版本迁移到远端 LightESB。导出包包含服务定义、接入系统、报文模型和服务目录文件，并在 manifest 中记录 metadata 与服务文件 `sha256`。`serviceVersion` 必须使用 `vX.Y.Z`。`service export` 会写本地包，必须加 `--yes`，并校验真实路径/符号链接边界后通过同目录临时文件原子替换。`import-plan` 只读远端状态；`import/sync-remote` 必须加 `--yes`。导入包拒绝路径穿越、重复 entry、服务目录不匹配和 SHA-256 不一致；包最大 50 MiB、最多 256 个 entry、单 entry 解压后最大 5 MiB、解压总量最大 50 MiB。`--skip-existing` 是默认幂等策略的显式写法。远端已有同名服务版本时默认跳过服务文件部署；需要覆盖时加 `--overwrite-service-files`。默认部署后自动启动路由；需要关闭时加 `--no-start`。`sync-remote --keep-package` 可保留中间导出包，也可用 `--package-out <path>` 指定路径。接入系统或服务定义冲突默认失败；需要更新时加 `--update-existing`。远端已有同名报文且内容不一致时会调用消息更新接口，远端当前 `msgVersion` 必须是 `V数字.单数字`，更新后递增单数字小版本并保留更新历史，例如 `V1.9` -> `V2.0`。
 
-`deploy upload` 必须加 `--yes`，文件正文使用流式 multipart 发送；服务端大小上限仍由运行配置控制。
+`deploy upload` 必须加 `--yes`，文件正文使用流式 multipart 发送；CLI 不提供
+`--target-directory`，部署目标由服务端运行配置决定。服务端同时限制上传大小、
+归档条目数、单文件解压大小、解压总量和目录深度。
+
+`route reload-file/unload --file-path` 使用服务端路径，并且必须解析到服务端受管路由
+根内真实存在的 XML 普通文件。`route config` 只返回相对服务目录，敏感配置值和
+绝对路径显示为 `<redacted>`。
 
 日志级别调整后立即生效，不需要执行日志重载。
 

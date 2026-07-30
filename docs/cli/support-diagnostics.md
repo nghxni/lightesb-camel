@@ -67,10 +67,13 @@ Use logs to correlate `requestId`, `traceId`, `exchangeId`, routeId, service ver
 For route XML or service configuration changes:
 
 ```bash
-lightesb route reload-file --file-path <serverRouteXmlPath> --yes
+lightesb route reload-file --file-path <managedServerRouteXmlPath> --yes
 lightesb route reload-service --service-name <serviceName> --service-version <versionWithoutLeadingV> --yes
 lightesb diagnostics warnings --output json
 ```
+
+`managedServerRouteXmlPath` 必须位于服务端受管路由根目录内并解析为真实 XML 普通
+文件。`route config` 输出已脱敏，不要尝试从诊断结果恢复密码、连接凭据或服务器绝对路径。
 
 Restart the backend only when Java code, dependencies, Spring beans, global configuration, or startup parameters changed, or when hot reload fails and state is inconsistent.
 

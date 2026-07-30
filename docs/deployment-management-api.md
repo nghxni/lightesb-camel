@@ -17,6 +17,27 @@ BasePath：`/api/deployment`
 
 部署和仅验证接口都会检查服务目录结构。每个 `serviceName + serviceVersion` 目录必须包含 `service.config.properties`，并且恰好包含一个 `*.xml` 路由文件；缺少 XML 或存在多个 XML 时返回验证失败，不会复制服务文件或启动路由。
 
+## 上传与解压边界
+
+```bash
+curl -X POST "http://localhost:8080/api/deployment/upload" \
+  -F "file=@PlatformHttp-v3.0.0.zip" \
+  -F "autoStart=true"
+```
+
+| 参数 | 必填 | 说明 |
+| --- | --- | --- |
+| `file` | 是 | `.zip`、`.tar.gz` 或 `.tgz` 服务包 |
+| `autoStart` | 否 | 部署后是否启动路由，默认 `true` |
+| `targetDirectory` | 否 | 已废弃；非空时返回 `400 TARGET_DIRECTORY_UNSUPPORTED` |
+
+部署目标由 `lightesb.route.directory` 统一决定。服务端使用受控临时文件名，并拒绝
+路径穿越、重复文件、TAR 链接/特殊条目，以及超过条目数、单文件、总解压量或
+目录深度限制的归档。上传或归档验证失败返回
+`400 DEPLOYMENT_VALIDATION_ERROR`。
+
+`POST /api/deployment/upload/batch` 使用相同的 `targetDirectory` 拒绝语义和归档边界。
+
 ## 部署历史列表
 
 ```bash

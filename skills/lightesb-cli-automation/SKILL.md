@@ -29,6 +29,9 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 - `warnings` 非空时停止自动 apply 并展示完整 warnings，只有用户明确确认后继续。用户明确授权远程写入时，才用 `ai route apply --save-remote --yes` 一次提交实际 route 文件名、两个 properties 和 route 引用的固定 Schema；普通本地直接编辑服务文件不以 CLI apply 为前置。
 - `ai route apply --resource-file` 只接受三个固定 Schema `.json`；删除校验块时不提交对应 Schema，服务端会删除受管文件。`FAILED`、`FAILED_ROLLED_BACK`、`ROLLBACK_FAILED` 都按失败处理，先读取 operationId 和恢复诊断，不自动重试。
 - `service import-plan` 只读远端状态；`service package build`、`service export/import/sync-remote` 和 `deploy upload` 必须加 `--yes`。
+- `deploy upload` 不接受 `--target-directory`；部署目标由服务端运行配置统一决定。
+- `route reload-file/unload --file-path` 必须指向服务端受管路由根内真实 XML 文件；
+  `route config` 只返回相对服务目录和脱敏配置，不得期待服务器绝对路径或敏感值。
 - 服务同步默认跳过远端已有同名服务版本的服务文件部署；覆盖部署需显式 `--overwrite-service-files`。
 - 服务同步默认自动启动部署路由；需要关闭时使用 `--no-start`。`sync-remote --keep-package` 可保留中间导出包。
 - `service start/stop` 会等待真实 Camel 上下文状态；HTTP 409 时先查询服务状态或运行时诊断，超时不会回滚 `server.running`，不要立即发送反向请求覆盖目标。

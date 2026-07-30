@@ -108,7 +108,14 @@ lightesb.mysql.password=${LIGHTESB_MYSQL_PASSWORD:}
 | `lightesb.deployment.temp-dir` | `${user.dir}/temp` | 服务包上传、解压和校验的临时目录。 |
 | `lightesb.deployment.backup-dir` | `${user.dir}/backups` | 服务部署备份目录，也用于部分归档备份。 |
 | `lightesb.deployment.allowed-extensions` | `zip,tar.gz,tgz` | 允许上传的服务包扩展名。 |
+| `lightesb.deployment.max-archive-entries` | `2000` | 单个服务包最大归档条目数。 |
+| `lightesb.deployment.max-entry-size` | `50MB` | 单个归档文件最大解压后大小。 |
+| `lightesb.deployment.max-extracted-size` | `200MB` | 单个服务包最大解压总量。 |
+| `lightesb.deployment.max-entry-depth` | `16` | 归档条目的最大相对目录深度。 |
 | `spring.servlet.multipart.max-file-size` | `100MB` | 单个上传文件大小限制。 |
+
+服务端使用受控临时文件名，拒绝路径穿越、重复条目、TAR 链接/特殊条目和超过
+上述配额的归档。部署目录由 `lightesb.route.directory` 统一决定。
 
 ## 服务日志
 
