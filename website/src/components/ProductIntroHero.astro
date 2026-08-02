@@ -1,0 +1,186 @@
+---
+import "./ProductIntroHero.css";
+---
+
+<section class="intro-hero" aria-labelledby="intro-title" data-intro-root data-intro-active="false">
+  <div class="intro-glow intro-glow-one" aria-hidden="true"></div>
+  <div class="intro-glow intro-glow-two" aria-hidden="true"></div>
+
+  <div class="container intro-grid">
+    <div class="intro-copy">
+      <div class="intro-kicker-row">
+        <p class="eyebrow" data-i18n="home.intro.eyebrow">Runnable integration delivery package</p>
+        <button
+          class="intro-trigger"
+          type="button"
+          aria-controls="product-intro-animation"
+          aria-pressed="false"
+          aria-expanded="false"
+          aria-label="Play animated introduction"
+          data-intro-trigger
+        >
+          <span class="play-mark" aria-hidden="true">▶</span>
+          <span class="trigger-play" data-i18n="home.intro.play">Introduction</span>
+        </button>
+      </div>
+      <h1 id="intro-title" data-i18n="home.intro.title">Make existing systems work together — without starting over.</h1>
+      <p class="lead" data-i18n="home.intro.lead">
+        LightESB connects old applications, factory equipment, robots, and AI tools. It translates data, checks access,
+        records every step, and delivers it where the business needs it.
+      </p>
+      <div class="hero-actions">
+        <a class="button primary" href="/capabilities" data-i18n="home.primary">See what it can do</a>
+        <a class="button" href="/examples" data-i18n="home.intro.examples">View real examples</a>
+      </div>
+      <ul class="intro-points" aria-label="Product highlights">
+        <li data-i18n="home.intro.point.keep">Keep the systems that already work</li>
+        <li data-i18n="home.intro.point.start">Start with one small integration</li>
+        <li data-i18n="home.intro.point.private">Run privately or at the edge</li>
+      </ul>
+    </div>
+
+    <div
+      id="product-intro-animation"
+      class="story-panel"
+      aria-label="LightESB integration flow"
+      aria-hidden="true"
+      data-playing="false"
+    >
+      <div class="story-heading">
+        <div>
+          <span class="story-kicker" data-i18n="home.intro.story.kicker">The problem, simplified</span>
+          <h2 data-i18n="home.intro.story.title">Many systems. One controlled flow.</h2>
+          <p data-i18n="home.intro.story.lead">
+            LightESB sits between the systems you already use: connecting different protocols, translating data, applying
+            rules, and leaving a trace for operations.
+          </p>
+        </div>
+        <div class="story-controls">
+          <span class="live-pill">
+            <span></span>
+            <b data-i18n="home.intro.story.live">Flowing now</b>
+          </span>
+          <button
+            class="story-close"
+            type="button"
+            aria-controls="product-intro-animation"
+            aria-label="End animated introduction"
+            data-intro-trigger
+          >
+            <span aria-hidden="true">×</span>
+            <b data-i18n="home.intro.close">End introduction</b>
+          </button>
+        </div>
+      </div>
+
+      <div class="core-advantage">
+        <span data-i18n="home.intro.advantage.label">Core advantage</span>
+        <strong data-i18n="home.intro.advantage.text">Keep your core systems. Connect faster. Stay in control.</strong>
+      </div>
+
+      <div class="story-horizontal">
+        <div class="story-wide">
+          <div class="story-canvas">
+        <div class="story-stack source-stack">
+          <article class="story-card source-card source-one">
+            <span class="story-icon">ERP</span>
+            <div>
+              <strong data-i18n="home.intro.source.legacy">Existing software</strong>
+              <small data-i18n="home.intro.source.legacy.detail">ERP · MES · databases</small>
+            </div>
+          </article>
+          <article class="story-card source-card source-two">
+            <span class="story-icon">PLC</span>
+            <div>
+              <strong data-i18n="home.intro.source.field">Factory & devices</strong>
+              <small data-i18n="home.intro.source.field.detail">OPC UA · MQTT · Modbus</small>
+            </div>
+          </article>
+          <article class="story-card source-card source-three">
+            <span class="story-icon">AI</span>
+            <div>
+              <strong data-i18n="home.intro.source.new">Robots & AI</strong>
+              <small data-i18n="home.intro.source.new.detail">Tasks · tools · events</small>
+            </div>
+          </article>
+        </div>
+
+        <div class="story-link story-link-in" aria-hidden="true"><span class="data-dot"></span></div>
+
+        <div class="story-core">
+          <div class="core-rings" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="core-brand"><span>L</span><strong>LightESB</strong></div>
+          <div class="core-actions">
+            <span data-i18n="home.intro.action.connect">Connect</span>
+            <span data-i18n="home.intro.action.protocol">Adapt protocols</span>
+            <span data-i18n="home.intro.action.translate">Translate</span>
+            <span data-i18n="home.intro.action.govern">Validate</span>
+            <span data-i18n="home.intro.action.trace">Trace</span>
+          </div>
+        </div>
+
+        <div class="story-link story-link-out" aria-hidden="true"><span class="data-dot"></span></div>
+
+        <div class="story-stack outcome-stack">
+          <article class="story-card outcome-card outcome-one">
+            <span class="check">✓</span>
+            <div><strong data-i18n="home.intro.outcome.access">Unified access</strong><small data-i18n="home.intro.outcome.access.detail">One way to connect</small></div>
+          </article>
+          <article class="story-card outcome-card outcome-two">
+            <span class="check">✓</span>
+            <div><strong data-i18n="home.intro.outcome.delivery">Reliable delivery</strong><small data-i18n="home.intro.outcome.delivery.detail">Rules and errors handled</small></div>
+          </article>
+          <article class="story-card outcome-card outcome-three">
+            <span class="check">✓</span>
+            <div><strong data-i18n="home.intro.outcome.ops">Visible operations</strong><small data-i18n="home.intro.outcome.ops.detail">Status, logs, and diagnostics</small></div>
+          </article>
+        </div>
+          </div>
+
+          <div class="story-summary">
+            <span data-i18n="home.intro.summary.before">Before: scattered point-to-point work</span>
+            <strong data-i18n="home.intro.summary.after">After: reusable, governed integration</strong>
+          </div>
+
+          <div class="story-benefits">
+            <article>
+              <span>01</span>
+              <div><strong data-i18n="home.intro.benefit.keep">Keep core systems stable</strong><small data-i18n="home.intro.benefit.keep.detail">Add an integration layer instead of rewriting everything.</small></div>
+            </article>
+            <article>
+              <span>02</span>
+              <div><strong data-i18n="home.intro.benefit.reuse">Reuse successful connections</strong><small data-i18n="home.intro.benefit.reuse.detail">Turn one working route into the next delivery pattern.</small></div>
+            </article>
+            <article>
+              <span>03</span>
+              <div><strong data-i18n="home.intro.benefit.operate">Find problems faster</strong><small data-i18n="home.intro.benefit.operate.detail">Use status, logs, validation, and diagnostics to see what happened.</small></div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll("[data-intro-trigger]").forEach((trigger) => {
+    trigger.addEventListener("click", () => {
+      const root = trigger.closest("[data-intro-root]");
+      const targetId = trigger.getAttribute("aria-controls");
+      const animation = targetId ? document.getElementById(targetId) : null;
+      if (!root || !animation) return;
+
+      const isActive = root.dataset.introActive !== "true";
+      root.dataset.introActive = String(isActive);
+      animation.dataset.playing = String(isActive);
+      animation.setAttribute("aria-hidden", String(!isActive));
+      root.querySelectorAll("[data-intro-trigger]").forEach((control) => {
+        control.setAttribute("aria-pressed", String(isActive));
+        control.setAttribute("aria-expanded", String(isActive));
+      });
+      if (isActive) {
+        window.requestAnimationFrame(() => root.scrollIntoView({ behavior: "smooth", block: "start" }));
+      }
+    });
+  });
+</script>

@@ -177,6 +177,8 @@ website/public/images/lightesb-robotics-integration.png
 website/public/robots.txt
 website/public/sitemap.xml
 website/src/components/HeroVisual.astro
+website/src/components/ProductIntroHero.astro
+website/src/components/ProductIntroHero.css
 website/src/components/SectionHead.astro
 website/src/layouts/BaseLayout.astro
 website/src/pages/architecture.astro

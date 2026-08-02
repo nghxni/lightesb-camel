@@ -1,32 +1,21 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import HeroVisual from "../components/HeroVisual.astro";
+import ProductIntroHero from "../components/ProductIntroHero.astro";
 import SectionHead from "../components/SectionHead.astro";
 ---
 
-<BaseLayout current="/" title="LightESB-Camel | Lightweight Integration Runtime">
-  <HeroVisual
-    image="/images/lightesb-camel-hero.png"
-    alt="Technical integration hub connecting legacy systems, industrial protocols, robotics workflows, and AI orchestration."
-    eyebrow="Runnable integration delivery package"
-    title="LightESB-Camel"
-    lead="A lightweight Apache Camel delivery runtime for legacy systems, industrial protocols, robotics workflows, and AI-assisted orchestration."
-    primaryHref="/capabilities"
-    primaryLabel="Explore capabilities"
-    secondaryHref="/docs"
-    secondaryLabel="Read the docs"
-    eyebrowKey="home.eyebrow"
-    titleKey="home.title"
-    leadKey="home.lead"
-    primaryKey="home.primary"
-    secondaryKey="home.secondary"
-  />
+<BaseLayout
+  current="/"
+  title="LightESB-Camel | Connect existing systems without rewriting"
+  description="LightESB connects existing applications, industrial devices, robots, and AI tools through a lightweight, governed integration runtime."
+>
+  <ProductIntroHero />
 
   <div class="metric-strip">
-    <div class="metric"><strong data-i18n="home.metric.hot.title">Hot-loadable</strong><span data-i18n="home.metric.hot.text">Route services packaged by service name and version.</span></div>
-    <div class="metric"><strong data-i18n="home.metric.field.title">Field-ready</strong><span data-i18n="home.metric.field.text">Examples for HTTP, databases, robotics, SAP, AVEVA, OPC UA, MQTT, and Modbus.</span></div>
-    <div class="metric"><strong data-i18n="home.metric.gov.title">Governed</strong><span data-i18n="home.metric.gov.text">CLI, diagnostics, logs, validation, permission checks, and deployment APIs.</span></div>
-    <div class="metric"><strong data-i18n="home.metric.agent.title">Agent-readable</strong><span data-i18n="home.metric.agent.text">Docs and skills designed for route authoring and operational automation.</span></div>
+    <div class="metric"><strong data-i18n="home.metric.hot.title">Keep what works</strong><span data-i18n="home.metric.hot.text">Connect existing software instead of forcing a full rewrite.</span></div>
+    <div class="metric"><strong data-i18n="home.metric.field.title">Bridge the field</strong><span data-i18n="home.metric.field.text">Bring APIs, databases, industrial protocols, and robot workflows together.</span></div>
+    <div class="metric"><strong data-i18n="home.metric.gov.title">Stay in control</strong><span data-i18n="home.metric.gov.text">Validate access, trace activity, diagnose issues, and manage delivery.</span></div>
+    <div class="metric"><strong data-i18n="home.metric.agent.title">Start small</strong><span data-i18n="home.metric.agent.text">Use a working example for one integration, then reuse the pattern.</span></div>
   </div>
 
   <section>
