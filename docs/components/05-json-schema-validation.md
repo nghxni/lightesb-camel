@@ -69,6 +69,8 @@ OUTPUT 和 CALLBACK 使用同一完整校验块，只替换为 `response-schema.
 - `LENIENT` 下流程继续，响应或日志包含告警信息。
 - Draft 2020-12 关键字如 `prefixItems`、`unevaluatedProperties`、`additionalProperties` 需要纳入单元测试或路由回归。
 
+`example/routes/security-validation/DemoSecuritySrv/v1.0.0/` 还声明了 `demo-security-check` Action：`order-schema.json` 是 entry 输入契约，`response-schema.json` 是同步成功响应契约。二者由 route metadata 显式引用；Action 离线派生方法见 [服务 Action 声明与离线索引](17-action-catalog.md)。
+
 ## 消息体 Schema 预览
 
 消息管理模块可从 `msgStructure` 生成 Draft 2020-12 JSON Schema：

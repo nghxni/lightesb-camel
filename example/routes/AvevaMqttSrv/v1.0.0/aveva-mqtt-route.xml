@@ -2,6 +2,10 @@
 <routes xmlns="http://camel.apache.org/schema/spring">
 
     <route id="aveva-mqtt-telemetry-consumer" routeConfigurationId="globalError">
+        <routeProperty key="lightesb.action.input.schema" value="telemetry-schema.json"/>
+        <routeProperty key="lightesb.action.input.media-type" value="application/schema+json"/>
+        <routeProperty key="lightesb.action.input.contract-stage" value="normalized"/>
+        <routeProperty key="lightesb.action.input.contract-processor-ref" value="mqttTelemetryNormalizeProcessor"/>
         <from uri="paho-mqtt5:{{industrial.mqtt.telemetry.topic}}?brokerUrl={{industrial.mqtt.broker.url}}&amp;clientId={{industrial.mqtt.client.id}}-telemetry&amp;qos={{industrial.mqtt.qos}}&amp;userName={{industrial.mqtt.username}}&amp;password={{industrial.mqtt.password}}"/>
         <doTry>
             <process ref="mqttTelemetryNormalizeProcessor"/>

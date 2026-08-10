@@ -51,6 +51,8 @@ industrial.opcua.security=PLACEHOLDER_CONFIGURE_IN_SITE
 </route>
 ```
 
+该 read telemetry route 声明 `aveva-opcua-telemetry` Action。输入 schema 描述 `opcUaTelemetryNormalizeProcessor` 解包 Milo `DataValue` 后的 JSON，metadata 必须为 `contract-stage=normalized` 并绑定 processor ref；它是不可主动调用的 `oneWayConsumer`，无同步 output schema。
+
 写控制 API：
 
 - `POST /api/aveva/opcua/write`
@@ -87,6 +89,8 @@ industrial.mqtt.tls=PLACEHOLDER_CONFIGURE_IN_SITE
   <toD uri="{{industrial.target.http.uri}}?httpMethod=POST&amp;bridgeEndpoint=true&amp;connectTimeout={{industrial.target.http.connectTimeout}}&amp;socketTimeout={{industrial.target.http.socketTimeout}}"/>
 </route>
 ```
+
+该 telemetry route 声明 `aveva-mqtt-telemetry` Action。输入 schema 描述 `mqttTelemetryNormalizeProcessor` 后的 JSON，不代表 broker 原始 payload；它是不可主动调用的 `oneWayConsumer`，无同步 output schema。两个遥测 Action 都会 POST 配置化下游，因此副作用标记为 `write`。离线派生和安全约束见 [服务 Action 声明与离线索引](17-action-catalog.md)。
 
 命令发布 API：
 

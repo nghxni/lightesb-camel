@@ -1,5 +1,10 @@
 <routes xmlns="http://camel.apache.org/schema/spring">
   <route id="demo-security-route">
+    <routeProperty key="lightesb.action.input.schema" value="order-schema.json"/>
+    <routeProperty key="lightesb.action.input.media-type" value="application/schema+json"/>
+    <routeProperty key="lightesb.action.input.contract-stage" value="entry"/>
+    <routeProperty key="lightesb.action.output.schema" value="response-schema.json"/>
+    <routeProperty key="lightesb.action.output.media-type" value="application/schema+json"/>
     <from uri="undertow:http://0.0.0.0:{{server.port}}/api/demo/security?httpMethodRestrict=POST"/>
     <process ref="requestCharsetProcessor"/>
     <doTry>

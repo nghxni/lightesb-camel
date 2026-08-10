@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["source", "protocol", "serviceName", "serviceVersion", "timestamp", "exchangeId", "topic", "payload"],
+  "properties": {
+    "source": {"type": "string"},
+    "protocol": {"const": "mqtt5"},
+    "serviceName": {"type": "string"},
+    "serviceVersion": {"type": "string"},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "exchangeId": {"type": "string"},
+    "topic": {"type": "string"},
+    "payload": {}
+  },
+  "additionalProperties": false
+}

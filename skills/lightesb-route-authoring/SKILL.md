@@ -12,6 +12,7 @@ description: 交付包内编写 HTTP 接口、Camel XML 路由、服务目录、
 | HTTP、内部 HTTP | `docs/components/01-http-route-basics.md`、`docs/components/02-service-log.md`、`docs/components/03-charset-processing.md`、`example/routes/http-undertow/` |
 | Timer | `docs/components/14-timer-routes.md`、`example/routes/timer/v1.0.1/` |
 | JSON Schema | `docs/components/05-json-schema-validation.md`；仅在用户授权 CLI/远程操作时再读 `docs/cli/01-cli-command-reference.md` |
+| 服务 Action/离线目录 | `docs/components/17-action-catalog.md` |
 | ExternalDB | `docs/components/11-externaldb.md`、`example/routes/MysqlRouteSrv/v1.0.0/` |
 | 转换 | `skills/lightesb-transform-components/SKILL.md` |
 | AI、SAP、工业协议 | 对应专项 skill 和组件文档 |
@@ -29,6 +30,8 @@ description: 交付包内编写 HTTP 接口、Camel XML 路由、服务目录、
 - 无 HTTP 入口的定时任务使用 `timer:`，配置 `HTTP.Listener=false`。默认仅检查 XML、配置和 route id；只有用户明确授权运行态验证时才查看周期日志。
 - 自然语言要求输入、输出或回调 JSON 校验时，不自行生成 Schema。按服务关系调用 `message schema generate`，检查 warnings，再把返回路径写入对应位置的完整校验块。
 - route XML 是校验唯一开关，不生成额外配置开关。普通本地编辑直接完成候选并自行修正明显静态问题；`ai route apply --save-remote --yes` 仅在用户明确授权远程写入后调用。apply 失败时保留候选并读取恢复诊断，不自动重试。
+- Action 的唯一事实源是服务目录中的 `service.config.properties`、唯一 route XML 和 metadata 引用的 schema；metadata 放在目标 `<route>` 内、唯一 `<from>` 之前。HTTP JSON 入口用 `entry`，经 processor 标准化的 MQTT/OPC UA envelope 用 `normalized` 并声明准确 processor ref。consumer/scheduled 不可 agent-callable，写入/破坏性 Action 必须显式声明幂等、重试和审批语义。
+- 修改 Action 后运行 `python3 skills/lightesb-route-authoring/scripts/action-catalog.py --service-dir lightesb-camel-app/{serviceName}/{serviceVersion}`。批量索引只能输出到服务版本目录外；它是可删除重建的派生产物，不手工编辑、不放入正式服务目录。
 - 按 `docs/components/16-route-static-preflight.md` 完成通用和场景配置闭包检查：服务目录只有一个 XML；route id 唯一；XML 可解析；两个 properties 含服务名/版本和所需组件开关；所有 `{{...}}` 占位符有同目录配置来源；`.ds`、固定 Schema 等引用资源存在；没有用户未要求的外部 endpoint、凭据或能力。
 - 提交前运行交付包内的离线预检：`python3 skills/lightesb-route-authoring/scripts/route-static-preflight.py --service-dir lightesb-camel-app/{serviceName}/{serviceVersion} --profile {http|timer|transform|schema|externaldb|ai-agent|mqtt|opcua|modbus|sap-mock} --route-file {route.xml}`。按实际场景选 profile；它只检查静态配置闭包，不启动服务或访问外部系统。
 

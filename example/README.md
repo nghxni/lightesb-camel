@@ -12,14 +12,14 @@
 | `routes/PlatformHttp/v1.0.0/` | DataSonnet import、conditionaltransform、DTS/commonFunctions 转换演示，默认端口 `18081` | `../docs/components/04-transform-components.md` |
 | `routes/PlatformHttp/v2.0.0/` | DTS/commonFunctions 独立 HTTP 演示，入口带服务版本路径，默认端口 `18081` | `../docs/components/04-transform-components.md` |
 | `routes/PlatformHttp/v3.0.0/` | HTTP 订单转换、JSONPath 提取、servicelog 响应处理演示，默认端口 `18080` | `../docs/components/04-transform-components.md` |
-| `routes/security-validation/DemoSecuritySrv/v1.0.0/` | JSON Schema 和权限校验编排 | `../docs/components/05-json-schema-validation.md` |
+| `routes/security-validation/DemoSecuritySrv/v1.0.0/` | JSON Schema 校验与 HTTP requestReply Action | `../docs/components/05-json-schema-validation.md`、`../docs/components/17-action-catalog.md` |
 | `routes/logging-cache/DemoLogCacheSrv/v1.0.0/` | H2 缓存、JsonKeyword、StreamCache | `../docs/components/10-h2-jsonkeyword-chain.md` |
 | `routes/timer/v1.0.0/` | Timer XML 片段样例，10 秒/15 秒日志触发 | `../docs/components/14-timer-routes.md` |
 | `routes/timer/v1.0.1/` | Timer 服务级日志样例，包含配置文件，`HTTP.Listener=false` | `../docs/components/14-timer-routes.md` |
 | `routes/MysqlRouteSrv/v1.0.0/` | ExternalDB MySQL 定时健康检查和 SQL 增删查删演示 | `../docs/components/11-externaldb.md` |
 | `routes/AiAgentDemoSrv/v1.0.0/` | AI Agent + Tools 工具编排演示 | `../docs/components/12-ai-chat.md` |
-| `routes/AvevaOpcUaSrv/v1.0.0/` | AVEVA Plant SCADA OPC UA 遥测读取和固定点位写控制样例，默认 `server.running=false` | `../docs/components/15-aveva-plant-scada-opcua-mqtt.md` |
-| `routes/AvevaMqttSrv/v1.0.0/` | AVEVA Plant SCADA MQTT 5 遥测订阅和固定命令 topic 发布样例，默认 `server.running=false` | `../docs/components/15-aveva-plant-scada-opcua-mqtt.md` |
+| `routes/AvevaOpcUaSrv/v1.0.0/` | AVEVA OPC UA 遥测 Action（normalized、不可调用）和固定点位写控制样例，默认 `server.running=false` | `../docs/components/15-aveva-plant-scada-opcua-mqtt.md`、`../docs/components/17-action-catalog.md` |
+| `routes/AvevaMqttSrv/v1.0.0/` | AVEVA MQTT 5 遥测 Action（normalized、不可调用）和固定命令 topic 发布样例，默认 `server.running=false` | `../docs/components/15-aveva-plant-scada-opcua-mqtt.md`、`../docs/components/17-action-catalog.md` |
 | `routes/RobotMqttTelemetrySrv/v1.0.0/` | 机器人 MQTT telemetry 标准化 mock 样例，默认 `server.running=false` | `../docs/experience/01-robotics-protocol-precheck.md` |
 | `routes/RobotMqttCommandSrv/v1.0.0/` | 机器人 HTTP/外部命令到 MQTT command envelope 的 mock 样例，默认 `server.running=false` | `../docs/experience/01-robotics-protocol-precheck.md` |
 | `routes/RobotRosBridgeSrv/v1.0.0/` | rosbridge JSON 和机器人动作映射 mock 样例，默认 `server.running=false` | `../docs/experience/01-robotics-protocol-precheck.md` |
@@ -163,4 +163,5 @@ rm -rf lightesb-camel-app/RobotMqttTelemetrySrv lightesb-camel-app/RobotMqttComm
 ```
 
 不要把索引文件复制到 `lightesb-camel-app/`。
+需要发现上述样例中的 Action 时，复制完整服务目录后运行 `skills/lightesb-route-authoring/scripts/action-catalog.py --service-dir lightesb-camel-app/{serviceName}/v1.0.0`；派生输出写到服务目录外，完整规则见 `docs/components/17-action-catalog.md`。
 `example/routes/**/log4j2.properties` 不需要随样例提供，运行时会自动生成。

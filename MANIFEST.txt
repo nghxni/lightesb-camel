@@ -25,6 +25,7 @@ docs/components/13-sap-netweaver.md
 docs/components/14-timer-routes.md
 docs/components/15-aveva-plant-scada-opcua-mqtt.md
 docs/components/16-route-static-preflight.md
+docs/components/17-action-catalog.md
 docs/deployment-management-api.md
 docs/experience/01-robotics-protocol-precheck.md
 docs/experience/02-robotics-protocol-correct-practices.md
@@ -46,9 +47,11 @@ example/routes/AiAgentDemoSrv/v1.0.0/service.config.properties
 example/routes/AvevaMqttSrv/v1.0.0/aveva-mqtt-route.xml
 example/routes/AvevaMqttSrv/v1.0.0/common.config.properties
 example/routes/AvevaMqttSrv/v1.0.0/service.config.properties
+example/routes/AvevaMqttSrv/v1.0.0/telemetry-schema.json
 example/routes/AvevaOpcUaSrv/v1.0.0/aveva-opcua-route.xml
 example/routes/AvevaOpcUaSrv/v1.0.0/common.config.properties
 example/routes/AvevaOpcUaSrv/v1.0.0/service.config.properties
+example/routes/AvevaOpcUaSrv/v1.0.0/telemetry-schema.json
 example/routes/HttpRequestSrv/v1.0.0/common.config.properties
 example/routes/HttpRequestSrv/v1.0.0/http-request-route.xml
 example/routes/HttpRequestSrv/v1.0.0/service.config.properties
@@ -139,6 +142,7 @@ example/routes/logging-cache/DemoLogCacheSrv/v1.0.0/service.config.properties
 example/routes/security-validation/DemoSecuritySrv/v1.0.0/common.config.properties
 example/routes/security-validation/DemoSecuritySrv/v1.0.0/demo-security-route.xml
 example/routes/security-validation/DemoSecuritySrv/v1.0.0/order-schema.json
+example/routes/security-validation/DemoSecuritySrv/v1.0.0/response-schema.json
 example/routes/security-validation/DemoSecuritySrv/v1.0.0/service.config.properties
 example/routes/timer/v1.0.0/README.md
 example/routes/timer/v1.0.0/timer-test-routes.xml
@@ -164,6 +168,8 @@ skills/lightesb-dts-extension/SKILL.md
 skills/lightesb-logging-observability/SKILL.md
 skills/lightesb-robot-integration/SKILL.md
 skills/lightesb-route-authoring/SKILL.md
+skills/lightesb-route-authoring/scripts/action-catalog.py
+skills/lightesb-route-authoring/scripts/action-index.schema.json
 skills/lightesb-route-authoring/scripts/route-static-preflight.py
 skills/lightesb-security-validation/SKILL.md
 skills/lightesb-temp-form/SKILL.md

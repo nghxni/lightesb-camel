@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lightesb.example/schemas/action-index.schema.json",
+  "title": "LightESB Action Catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["actions", "schemaVersion"],
+  "properties": {
+    "schemaVersion": {
+      "const": "lightesb.action-catalog/v1alpha1"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/action"
+      }
+    }
+  },
+  "$defs": {
+    "contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mediaType", "schema", "sha256"],
+      "properties": {
+        "mediaType": {"type": "string", "minLength": 1},
+        "schema": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "contractStage": {"type": ["string", "null"], "enum": ["entry", "normalized", null]},
+        "processorRef": {"type": ["string", "null"]}
+      }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["httpMethods", "httpPath", "uriTemplate"],
+      "properties": {
+        "httpMethods": {"type": "array", "items": {"type": "string"}},
+        "httpPath": {"type": ["string", "null"]},
+        "uriTemplate": {"type": "string", "minLength": 1}
+      }
+    },
+    "errorHandling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sources", "status"],
+      "properties": {
+        "sources": {"type": "array", "items": {"type": "string"}},
+        "status": {"enum": ["declared", "noneDeclared"]}
+      }
+    },
+    "outboundStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["component", "configKeys"],
+      "properties": {
+        "component": {"type": "string", "minLength": 1},
+        "configKeys": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "actionId",
+        "agentCallable",
+        "approvalRequired",
+        "credentialAliases",
+        "description",
+        "entry",
+        "errorContract",
+        "errorHandling",
+        "exposure",
+        "idempotency",
+        "inputContract",
+        "interactionPattern",
+        "name",
+        "outboundSteps",
+        "outputContract",
+        "protocol",
+        "requiredConfigKeys",
+        "requiredScopes",
+        "retryPolicy",
+        "routeId",
+        "serviceDescription",
+        "serviceImpl",
+        "serviceName",
+        "serviceProvider",
+        "serviceTags",
+        "serviceType",
+        "serviceVersion",
+        "sideEffect",
+        "sourceDigest",
+        "sourceLocations",
+        "validationStatus"
+      ],
+      "properties": {
+        "actionId": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"},
+        "agentCallable": {"type": "boolean"},
+        "approvalRequired": {"type": "boolean"},
+        "credentialAliases": {"type": "array", "items": {"type": "string"}},
+        "description": {"type": "string", "minLength": 1},
+        "entry": {"$ref": "#/$defs/entry"},
+        "errorContract": {"anyOf": [{"$ref": "#/$defs/contract"}, {"type": "null"}]},
+        "errorHandling": {"$ref": "#/$defs/errorHandling"},
+        "exposure": {"type": "array", "minItems": 1, "items": {"enum": ["agent", "api", "internal"]}},
+        "idempotency": {"enum": ["none", "supported", "required"]},
+        "inputContract": {"anyOf": [{"$ref": "#/$defs/contract"}, {"type": "null"}]},
+        "interactionPattern": {"enum": ["requestReply", "oneWayProducer", "oneWayConsumer", "scheduled"]},
+        "name": {"type": "string", "minLength": 1},
+        "outboundSteps": {"type": "array", "items": {"$ref": "#/$defs/outboundStep"}},
+        "outputContract": {"anyOf": [{"$ref": "#/$defs/contract"}, {"type": "null"}]},
+        "protocol": {"type": "string", "minLength": 1},
+        "requiredConfigKeys": {"type": "array", "items": {"type": "string"}},
+        "requiredScopes": {"type": "array", "items": {"type": "string"}},
+        "retryPolicy": {"enum": ["none", "safe", "idempotent"]},
+        "routeId": {"type": "string", "minLength": 1},
+        "serviceDescription": {"type": "string"},
+        "serviceImpl": {"type": "string", "minLength": 1},
+        "serviceName": {"type": "string", "minLength": 1},
+        "serviceProvider": {"type": "string"},
+        "serviceTags": {"type": "array", "items": {"type": "string"}},
+        "serviceType": {"type": "string", "minLength": 1},
+        "serviceVersion": {"type": "string", "minLength": 1},
+        "sideEffect": {"enum": ["read", "write", "destructive"]},
+        "sourceDigest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "sourceLocations": {"type": "array", "items": {"type": "string"}},
+        "validationStatus": {"const": "valid"}
+      }
+    }
+  }
+}

@@ -2,6 +2,10 @@
 <routes xmlns="http://camel.apache.org/schema/spring">
 
     <route id="aveva-opcua-read-telemetry" routeConfigurationId="globalError">
+        <routeProperty key="lightesb.action.input.schema" value="telemetry-schema.json"/>
+        <routeProperty key="lightesb.action.input.media-type" value="application/schema+json"/>
+        <routeProperty key="lightesb.action.input.contract-stage" value="normalized"/>
+        <routeProperty key="lightesb.action.input.contract-processor-ref" value="opcUaTelemetryNormalizeProcessor"/>
         <from uri="milo-client:{{industrial.opcua.endpoint.uri}}?node={{industrial.opcua.read.node}}&amp;clientId={{industrial.opcua.client.id}}-reader"/>
         <doTry>
             <process ref="opcUaTelemetryNormalizeProcessor"/>

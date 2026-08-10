@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["source", "protocol", "serviceName", "serviceVersion", "timestamp", "exchangeId", "node", "value"],
+  "properties": {
+    "source": {"type": "string"},
+    "protocol": {"const": "opcua"},
+    "serviceName": {"type": "string"},
+    "serviceVersion": {"type": "string"},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "exchangeId": {"type": "string"},
+    "node": {"type": "string"},
+    "value": {}
+  },
+  "additionalProperties": false
+}
