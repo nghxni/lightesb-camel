@@ -25,6 +25,7 @@
 | `components/15-aveva-plant-scada-opcua-mqtt.md` | `docs/27-aveva-plant-scada-opcua-mqtt-usage.md`，按交付场景重写 |
 | `components/16-route-static-preflight.md` | 交付包路由文件闭包、组件配置、占位符和资源自检要求，结合现有组件文档和样例整理 |
 | `components/17-action-catalog.md` | 服务 Action 目录架构、只读查询 API 与 CLI 契约，按交付配置、离线/在线命令、样例和验证步骤重写 |
+| `action-allowlist-api.md` | `docs/api/09-action-allowlist.md`、Action 目录架构和精确 allowlist 经验，按交付配置、权限、CLI、事务审计和安全边界重写 |
 | `action-audit-api.md` | `docs/api/08-action-audit.md`、Action 目录架构和追加式审计经验，按交付配置、权限、查询与安全字段边界重写 |
 | `experience/01-robotics-protocol-precheck.md` | `docs/experience/01-robotics-protocol-precheck.md`，按机器人协议接入交付场景重写 |
 | `experience/02-robotics-protocol-correct-practices.md` | `docs/experience/02-robotics-protocol-correct-practices.md`，按机器人协议接入交付场景重写 |
@@ -40,7 +41,7 @@
 | `robot-edge-inference-mock.md` | 机器人边缘 AI 推理设计与 Build B mock baseline，按可交付配置、输入输出、验收和限制重写 |
 | `robot-ai-approval-api.md` | `docs/api/04-robot-ai-approval-callback.md`、`docs/api/05-robot-ai-decision-submit.md` 和机器人 AI 可信审批架构结论，按交付配置、HMAC 回调、查询、提交与 MySQL 部署场景重写 |
 | `../skills/lightesb-robot-integration/SKILL.md` | 机器人协议接入经验、边缘 AI 推理 mock/可信审批门禁、dispatcher API、交付样例和 gRPC IDL 契约，按交付任务路由整理 |
-| `../skills/lightesb-security-validation/SKILL.md` | 权限校验、消息 Schema 与 Action 控制面角色/追加式审计安全边界，按交付任务路由整理 |
+| `../skills/lightesb-security-validation/SKILL.md` | 权限校验、消息 Schema 与 Action 控制面角色/追加式审计/精确 allowlist 安全边界，按交付任务路由整理 |
 | `../skills/lightesb-temp-form/SKILL.md` | `skills/lightesb-temp-form/SKILL.md` 与 `skills/lightesb-route-development/SKILL.md` 最小创建集及 simple 常见坑，按交付场景重写 |
 | `cli/README.md` | `docs/cli/README.md`，外发压缩版 |
 | `cli/01-cli-command-reference.md` | `docs/cli/*` 与 `lightesb-cli/src/main/java/.../cli/command/*`，按命令域压缩整理 |

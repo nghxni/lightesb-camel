@@ -17,6 +17,8 @@ lightesb.action-security.credentials[0].token-sha256=${LIGHTESB_ACTION_AUDIT_TOK
 
 若同时开启 `lightesb.action-catalog.enabled=true`，catalog status/list/search/get 的成功读取会 best-effort 追加安全事件。审计存储故障不会改变原目录查询响应。
 
+精确 allowlist 的实际 add/enable/disable 状态变化使用 `POLICY_CREATED/POLICY_ENABLED/POLICY_DISABLED` required audit，并与策略写入同事务；审计失败时策略变化回滚。`POLICY_CHANGED` 保留为兼容事件值。
+
 ## 查询
 
 ```bash
@@ -69,4 +71,4 @@ curl -H 'Authorization: Bearer <original-token>' \
 | 403 | `ACTION_AUTH_FORBIDDEN` | 使用具有精确 `action-admin` 的 credential。 |
 | 503 | `ACTION_AUDIT_UNAVAILABLE` | 稍后重试并检查控制面数据库。 |
 
-当前没有公开写入、清理、修改、删除、retention 或归档 API。该审计主干不提供 Action 执行、审批或运行时 token。
+当前没有公开审计写入、清理、修改、删除、retention 或归档 API。该审计主干不提供 Action 执行、审批或运行时 token。

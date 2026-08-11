@@ -78,6 +78,12 @@ catalog status/list/search/get 成功读取会 best-effort 追加固定安全事
 
 审计表只允许追加和查询，不提供清理、修改或删除 API。事件不含请求/响应 body、header、原 token、任意 details 或异常正文；完整参数、响应和错误码见 [Action 追加式审计查询 API](../action-audit-api.md)。该能力不代表 Action 执行、审批或运行时 token 已交付。
 
+## 精确 allowlist
+
+需要为后续受控调用维护精确资格时，显式开启 `lightesb.action-allowlist.enabled=true`，并同时开启 catalog、security、audit。策略只允许精确 caller+actionId+serviceVersion；caller 由服务端 credential name 映射，客户端不能自报。add/enable 会重验当前 descriptor 的 Agent exposure、callable、VALID 和 AVAILABLE；disable 在目录故障时仍可安全收窄。
+
+策略变化与 required audit 同事务。该能力只管理资格，不执行 Action、不签发 token、不创建审批，也不提供 wildcard/block/delete。API、CLI 与错误码见 [Action 精确 Allowlist 管理 API](../action-allowlist-api.md)。
+
 ## Properties 声明
 
 Action 声明集中写入 `service.config.properties`，使用 UTF-8 单行 `key=value`：

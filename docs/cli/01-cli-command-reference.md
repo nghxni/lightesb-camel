@@ -42,6 +42,17 @@ lightesb action get --action-id demo-security-check --service-version v1.0.0
 
 在线四个命令使用 profile 的普通 token 作为 `Authorization: Bearer`，要求服务端双开关和 `catalog-read`。list/search 第二页起必须使用第一页输出的 `--expected-revision`；revision 变化时从第一页重试。`pageSize` 最大 100。在线命令只读内存快照，不读取远端文件、不提交 caller、不执行 Action；`--output json` 保留服务端标准响应。
 
+精确 allowlist 管理使用 `action-admin` profile：
+
+```bash
+lightesb action allowlist list --limit 50 --output json
+lightesb action allowlist add --credential-name agent-executor --action-id payment.lookup --service-version v1 --yes --output json
+lightesb action allowlist disable --policy-id <policyId> --yes --output json
+lightesb action allowlist enable --policy-id <policyId> --yes --output json
+```
+
+服务端必须同时开启 catalog、security、audit、allowlist。add 只选择服务端 credential name，不接受 caller；写操作要求 `--yes`。CLI 不提供 wildcard/block/delete 或数据库直连，也不执行 Action。list 默认 50、最大 200，下一页使用 `--cursor <nextCursor>`。
+
 ## Profile 与 Doctor
 
 ```bash

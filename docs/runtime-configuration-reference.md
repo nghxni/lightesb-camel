@@ -55,6 +55,7 @@ java -Dlightesb.config.file=/opt/lightesb/lightesb-config.properties -jar lighte
 | `lightesb.action-security.enabled` | `false` | 显式开启后注册 `/api/actions/**` 专用 bearer 身份边界；与 Action Catalog 同时开启时注册要求 `catalog-read` 的 status/list/search/get，任一开关关闭均不注册查询端点。 |
 | `lightesb.action-security.credentials[n].name/caller/roles/token-sha256` | 空 | 命名控制面 credential；role 仅允许 `catalog-read`、`action-admin`、`action-execute`。只注入原 token 的 SHA-256 digest，不在仓库保存原 token 或 digest 实值。 |
 | `lightesb.action-audit.enabled` | `false` | 显式开启后注册追加式 Action 审计存储；与 Action security 同时开启时提供仅 `action-admin` 可用的只读查询。固定事件不保存业务报文、header、原 token 或任意 details。 |
+| `lightesb.action-allowlist.enabled` | `false` | 显式开启精确 Action allowlist；还要求 catalog、security、audit 三个开关同时开启。只提供 list/add/enable/disable，目标 caller 由服务端 credential name 映射，策略变化与 required audit 同事务；不提供执行 API。 |
 
 常用排障配置：
 

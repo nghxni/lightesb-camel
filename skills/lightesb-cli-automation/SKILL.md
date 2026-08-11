@@ -13,12 +13,14 @@ description: Generate, review, or troubleshoot delivered LightESB CLI action/pro
 - 诊断任务读 `docs/runtime-diagnostics-api.md`
 - 机器人命令提交、dispatcher 或审计任务读 `docs/robot-command-dispatcher-api.md`
 - 机器人 AI decision 查询/提交读 `docs/robot-ai-approval-api.md`
+- Action 精确资格管理读 `docs/action-allowlist-api.md`
 
 规则：
 
 - CLI 的远程命令是控制面客户端；`action validate/build` 是不使用服务端和 profile 的离线命令，`action status/list/search/get` 使用 profile bearer 查询受保护的在线快照。受控本地写还包括 `action build` 把派生索引原子写到所有服务版本目录之外；它与 `message schema generate`、显式 `ai route generate/optimize/apply --save-local` 一样必须加 `--yes`，不会自行部署或重载服务。
 - `action validate --service-dir|--app-root` 输出 canonical JSON；`action build` 额外使用 `--out`。目录契约失败按退出码 `65` 和稳定 `ACTION_*` 错误码处理，不回退到其他解析器。
 - Action 在线命令要求服务端双开关和 `catalog-read`；list/search 第二页起回传第一页 revision，revision 冲突时从第一页重试。命令不发送 caller，不执行 Action。
+- `action allowlist list/add/enable/disable` 要求服务端四开关和 `action-admin`。add 只使用 `--credential-name --action-id --service-version --yes`，enable/disable 使用 `--policy-id --yes`；不生成 caller、wildcard、block、delete 或数据库直连。
 - 输入、输出或回调 JSON 校验工作流只生成 CLI 命令，不生成 Schema preview 或 AI route apply 的直接 API 调用。
 - 写操作加 `--yes`，CI 中优先加 `--output json`。
 - 任意命令层级都可用 `--help`；profile JSON 只使用 `tokenConfigured`、`aiTokenConfigured` 状态，不读取或记录 token 值。
@@ -64,6 +66,8 @@ lightesb action status
 lightesb action list --page-num 1 --page-size 20
 lightesb action search --query security --page-num 1 --page-size 20
 lightesb action get --action-id demo-security-check --service-version v1.0.0 --output json
+lightesb action allowlist list --limit 50 --output json
+lightesb action allowlist add --credential-name agent-executor --action-id payment.lookup --service-version v1 --yes --output json
 lightesb profile add --name dev --server http://localhost:8080
 lightesb profile use dev
 lightesb doctor

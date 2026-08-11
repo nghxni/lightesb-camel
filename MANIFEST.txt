@@ -4,6 +4,7 @@ MANIFEST.txt
 README.md
 docs/README.md
 docs/SOURCE_MAP.md
+docs/action-allowlist-api.md
 docs/action-audit-api.md
 docs/ai-route-cache-api.md
 docs/api-response-contract.md
