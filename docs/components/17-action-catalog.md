@@ -66,6 +66,18 @@ list/search 的 `pageSize` 默认 20、最大 100。第一页返回 `revision`�
 
 `--output json` 保留标准响应与 `requestId`。返回内容只包含安全 descriptor、状态、generation、digest 和相对 source location，不包含配置实值、原 token、credential digest 或服务器绝对路径。status/list/search/get 只要求 `catalog-read`，不接受自报 caller，也不执行 Action。
 
+## 追加式审计
+
+需要留存 Action 控制面发现事件时，显式开启：
+
+```properties
+lightesb.action-audit.enabled=true
+```
+
+catalog status/list/search/get 成功读取会 best-effort 追加固定安全事件；审计存储故障不改变原查询结果。查询审计还要求 `lightesb.action-security.enabled=true` 和精确 `action-admin` credential，通过 `GET /api/actions/audit-events` 读取。
+
+审计表只允许追加和查询，不提供清理、修改或删除 API。事件不含请求/响应 body、header、原 token、任意 details 或异常正文；完整参数、响应和错误码见 [Action 追加式审计查询 API](../action-audit-api.md)。该能力不代表 Action 执行、审批或运行时 token 已交付。
+
 ## Properties 声明
 
 Action 声明集中写入 `service.config.properties`，使用 UTF-8 单行 `key=value`：
