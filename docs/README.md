@@ -21,6 +21,7 @@
 - [路由静态自检与配置闭包](components/16-route-static-preflight.md)
 - [服务 Action 声明与离线索引](components/17-action-catalog.md)
 - [Action 精确 Allowlist 管理 API](action-allowlist-api.md)
+- [Action 短期 Token API](action-token-api.md)
 - [Action 追加式审计查询 API](action-audit-api.md)
 
 ## Camel 官方语法参考

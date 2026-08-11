@@ -53,6 +53,16 @@ lightesb action allowlist enable --policy-id <policyId> --yes --output json
 
 服务端必须同时开启 catalog、security、audit、allowlist。add 只选择服务端 credential name，不接受 caller；写操作要求 `--yes`。CLI 不提供 wildcard/block/delete 或数据库直连，也不执行 Action。list 默认 50、最大 200，下一页使用 `--cursor <nextCursor>`。
 
+短期 token 要求五开关与 `action-execute` self / `action-admin` any 权限：
+
+```bash
+lightesb action token issue --action payment.lookup@v1 --ttl-seconds 300 --yes
+lightesb action token introspect --token-id <tokenId>
+lightesb action token revoke --token-id <tokenId> --yes
+```
+
+`--action` 可重复。issue 原 token 只显示一次；introspect/revoke 不输出 token/hash/digest。命令不接受 `--caller`、`--credential-name` 或 raw token。
+
 ## Profile 与 Doctor
 
 ```bash

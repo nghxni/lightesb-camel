@@ -76,13 +76,17 @@ lightesb.action-audit.enabled=true
 
 catalog status/list/search/get 成功读取会 best-effort 追加固定安全事件；审计存储故障不改变原查询结果。查询审计还要求 `lightesb.action-security.enabled=true` 和精确 `action-admin` credential，通过 `GET /api/actions/audit-events` 读取。
 
-审计表只允许追加和查询，不提供清理、修改或删除 API。事件不含请求/响应 body、header、原 token、任意 details 或异常正文；完整参数、响应和错误码见 [Action 追加式审计查询 API](../action-audit-api.md)。该能力不代表 Action 执行、审批或运行时 token 已交付。
+审计表只允许追加和查询，不提供清理、修改或删除 API。事件不含请求/响应 body、header、原 token、任意 details 或异常正文；完整参数、响应和错误码见 [Action 追加式审计查询 API](../action-audit-api.md)。该能力本身不代表 Action 执行或审批已交付。
 
 ## 精确 allowlist
 
 需要为后续受控调用维护精确资格时，显式开启 `lightesb.action-allowlist.enabled=true`，并同时开启 catalog、security、audit。策略只允许精确 caller+actionId+serviceVersion；caller 由服务端 credential name 映射，客户端不能自报。add/enable 会重验当前 descriptor 的 Agent exposure、callable、VALID 和 AVAILABLE；disable 在目录故障时仍可安全收窄。
 
-策略变化与 required audit 同事务。该能力只管理资格，不执行 Action、不签发 token、不创建审批，也不提供 wildcard/block/delete。API、CLI 与错误码见 [Action 精确 Allowlist 管理 API](../action-allowlist-api.md)。
+策略变化与 required audit 同事务。allowlist 本身只管理资格，不执行 Action，也不提供 wildcard/block/delete。API、CLI 与错误码见 [Action 精确 Allowlist 管理 API](../action-allowlist-api.md)。
+
+## 短期 Action token
+
+五开关显式开启后，可用 `action token issue/introspect/revoke` 管理短期不透明 token。原 token 只在 issue 成功响应出现一次，服务端只保存 SHA-256；scope 必须位于当前目录与精确 allowlist 交集。运行 token 与控制面 bearer 隔离，当前仍不提供 Action 执行、审批、OAuth2 或 MCP。详见 [Action 短期 Token API](../action-token-api.md)。
 
 ## Properties 声明
 

@@ -19,6 +19,8 @@ lightesb.action-security.credentials[0].token-sha256=${LIGHTESB_ACTION_AUDIT_TOK
 
 精确 allowlist 的实际 add/enable/disable 状态变化使用 `POLICY_CREATED/POLICY_ENABLED/POLICY_DISABLED` required audit，并与策略写入同事务；审计失败时策略变化回滚。`POLICY_CHANGED` 保留为兼容事件值。
 
+短期 token 的 issue/revoke 使用 `TOKEN_ISSUED/TOKEN_REVOKED` required audit 并与状态写入同事务；introspect 使用 `TOKEN_INTROSPECTED` best-effort audit。事件只保存 `sha256(tokenId)`，不保存 bearer token/hash。
+
 ## 查询
 
 ```bash
@@ -71,4 +73,4 @@ curl -H 'Authorization: Bearer <original-token>' \
 | 403 | `ACTION_AUTH_FORBIDDEN` | 使用具有精确 `action-admin` 的 credential。 |
 | 503 | `ACTION_AUDIT_UNAVAILABLE` | 稍后重试并检查控制面数据库。 |
 
-当前没有公开审计写入、清理、修改、删除、retention 或归档 API。该审计主干不提供 Action 执行、审批或运行时 token。
+当前没有公开审计写入、清理、修改、删除、retention 或归档 API。该审计主干和 token 生命周期都不提供 Action 执行或审批。

@@ -10,7 +10,7 @@ LightESB CLI 是面向接入建模、交付运维、路由治理、日志检索�
 核心命令域：
 
 ```text
-action validate/build -> profile -> action status/list/search/get -> action allowlist list/add/enable/disable -> doctor -> app -> message -> message schema generate -> service -> service export/import/sync-remote -> deploy -> route -> log -> keyword -> ai -> diagnostics -> robot doctor --offline/--runtime -> robot list/get/capabilities/state/audit -> robot command validate/status/submit/ingest-receipt -> robot inference decision-status/submit
+action validate/build -> profile -> action status/list/search/get -> action allowlist list/add/enable/disable -> action token issue/introspect/revoke -> doctor -> app -> message -> message schema generate -> service -> service export/import/sync-remote -> deploy -> route -> log -> keyword -> ai -> diagnostics -> robot doctor --offline/--runtime -> robot list/get/capabilities/state/audit -> robot command validate/status/submit/ingest-receipt -> robot inference decision-status/submit
 ```
 
 基本调用：
@@ -28,6 +28,7 @@ lightesb --file payload.json <command>
 - CLI 的远程命令是控制面客户端；`action validate/build` 是纯离线命令，`action status/list/search/get` 使用 profile bearer 读取在线快照。受控本地写还包括 `action build` 把派生索引原子写到所有服务版本目录之外；它与 `message schema generate`、显式 `ai route generate/optimize/apply --save-local` 一样必须加 `--yes`，不会自行部署或重载服务。
 - `action validate --service-dir|--app-root` 输出 canonical JSON；`action build` 额外使用 `--out`。在线分页第二页起回传第一页 revision，冲突时从第一页重试。全部 Action 命令均不执行 Action；离线契约失败返回退出码 `65` 和稳定 `ACTION_*` 错误码。
 - `action allowlist list/add/enable/disable` 管理精确资格；add 只使用服务端 credential name，写操作要求 `--yes`。不得提供 caller、wildcard、block、delete 或数据库直连。
+- `action token issue/introspect/revoke` 管理短期授权材料；issue/revoke 要求 `--yes`，原 token 只在 issue 输出一次，不提供 caller、credential 或 raw token 参数。
 - 写操作默认传 `--yes`。
 - CI 中优先用 `--output json`。
 - 任意命令层级都支持 `--help`；profile JSON 只返回 `tokenConfigured`、`aiTokenConfigured` 状态，不输出 token 值。

@@ -26,6 +26,7 @@
 | `components/16-route-static-preflight.md` | 交付包路由文件闭包、组件配置、占位符和资源自检要求，结合现有组件文档和样例整理 |
 | `components/17-action-catalog.md` | 服务 Action 目录架构、只读查询 API 与 CLI 契约，按交付配置、离线/在线命令、样例和验证步骤重写 |
 | `action-allowlist-api.md` | `docs/api/09-action-allowlist.md`、Action 目录架构和精确 allowlist 经验，按交付配置、权限、CLI、事务审计和安全边界重写 |
+| `action-token-api.md` | `docs/api/10-action-token.md`、Action 目录架构和不透明 token 经验，按交付启用、权限、API/CLI、一次回显、事务审计和非执行边界重写 |
 | `action-audit-api.md` | `docs/api/08-action-audit.md`、Action 目录架构和追加式审计经验，按交付配置、权限、查询与安全字段边界重写 |
 | `experience/01-robotics-protocol-precheck.md` | `docs/experience/01-robotics-protocol-precheck.md`，按机器人协议接入交付场景重写 |
 | `experience/02-robotics-protocol-correct-practices.md` | `docs/experience/02-robotics-protocol-correct-practices.md`，按机器人协议接入交付场景重写 |

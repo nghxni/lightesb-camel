@@ -56,6 +56,9 @@ java -Dlightesb.config.file=/opt/lightesb/lightesb-config.properties -jar lighte
 | `lightesb.action-security.credentials[n].name/caller/roles/token-sha256` | 空 | 命名控制面 credential；role 仅允许 `catalog-read`、`action-admin`、`action-execute`。只注入原 token 的 SHA-256 digest，不在仓库保存原 token 或 digest 实值。 |
 | `lightesb.action-audit.enabled` | `false` | 显式开启后注册追加式 Action 审计存储；与 Action security 同时开启时提供仅 `action-admin` 可用的只读查询。固定事件不保存业务报文、header、原 token 或任意 details。 |
 | `lightesb.action-allowlist.enabled` | `false` | 显式开启精确 Action allowlist；还要求 catalog、security、audit 三个开关同时开启。只提供 list/add/enable/disable，目标 caller 由服务端 credential name 映射，策略变化与 required audit 同事务；不提供执行 API。 |
+| `lightesb.action-token.enabled` | `false` | 显式开启短期不透明 Action token；还要求 catalog、security、audit、allowlist 同时开启。运行 token 不进入控制面身份，也不提供 Action 执行入口。 |
+| `lightesb.action-token.default-ttl-seconds` | `300` | 未指定 TTL 时的默认秒数，必须在 30 到配置最大值之间。 |
+| `lightesb.action-token.max-ttl-seconds` | `3600` | 最大 TTL，范围 30–3600 秒；只能收窄。 |
 
 常用排障配置：
 
