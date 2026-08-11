@@ -41,6 +41,8 @@ GET /api/diagnostics/runtime-snapshot
 
 当服务端以 `lightesb.route.enabled=false` 启动时，`route-runtime` 组件不注册；按该组件过滤会返回空组件列表。机器人命令 dispatcher 排查应使用 `robot-command` 组件。
 
+route、instance-log 和 robot-command 的错误摘要始终脱敏，不随服务版本 `log.redaction.enabled` 或调用者权限返回原文。该 API 不是特权日志读取通道；服务级开关只决定服务日志和实例日志持久化内容。
+
 ## 响应
 
 响应使用管理 API 标准 envelope：

@@ -7,8 +7,8 @@
 | `product-overview.md` | `README.md`、内部产品能力边界、英文站实施方案、系统架构和机器人集成架构结论，按外发英文站和公开交付包口径重写 |
 | `components/01-http-route-basics.md` | `docs/07-undertow-component-usage.md`，按交付场景重写 |
 | `runtime-route-loading.md` | 运行时生命周期设计结论、路由热加载经验和 jar 快速重启经验，按交付场景重写 |
-| `runtime-configuration-reference.md` | 服务端运行配置参数参考，按交付配置、安全占位和脱敏边界压缩整理 |
-| `components/02-service-log.md` | `docs/12-camel-servicelog-component-usage.md`，按交付场景重写 |
+| `runtime-configuration-reference.md` | 服务端运行配置参数参考与日志脱敏/访问控制经验，按交付配置、安全占位和脱敏边界压缩整理 |
+| `components/02-service-log.md` | `docs/12-camel-servicelog-component-usage.md` 与日志脱敏/访问控制经验，按交付场景重写 |
 | `components/03-charset-processing.md` | `docs/13-charset-processor-usage.md`，按交付场景重写 |
 | `components/04-transform-components.md` | `docs/09-conditional-jsontransform-component-usage.md`、`docs/10-conditionaltransform-dts-sample.md` |
 | `transform-logging-operations-api.md` | `docs/api/06-transform-and-logging-operations.md`，按交付调用、响应和错误处理场景重写 |
@@ -24,7 +24,7 @@
 | `components/14-timer-routes.md` | 交付样例 `example/routes/timer/` 与 `example/routes/MysqlRouteSrv/` 整理 |
 | `components/15-aveva-plant-scada-opcua-mqtt.md` | `docs/27-aveva-plant-scada-opcua-mqtt-usage.md`，按交付场景重写 |
 | `components/16-route-static-preflight.md` | 交付包路由文件闭包、组件配置、占位符和资源自检要求，结合现有组件文档和样例整理 |
-| `components/17-action-catalog.md` | 服务 Action 目录架构的字段与安全结论，按交付配置、离线命令、样例和验证步骤重写 |
+| `components/17-action-catalog.md` | 服务 Action 目录架构、只读查询 API 与 CLI 契约，按交付配置、离线/在线命令、样例和验证步骤重写 |
 | `experience/01-robotics-protocol-precheck.md` | `docs/experience/01-robotics-protocol-precheck.md`，按机器人协议接入交付场景重写 |
 | `experience/02-robotics-protocol-correct-practices.md` | `docs/experience/02-robotics-protocol-correct-practices.md`，按机器人协议接入交付场景重写 |
 | `../proto/robot/robot_command.proto` | `proto/robot/robot_command.proto`，机器人 gRPC IDL 契约草案 |
@@ -34,7 +34,7 @@
 | `service-runtime-management-api.md` | `docs/api/03-service-runtime-management.md` 与运行时生命周期结论，按交付启停场景重写 |
 | `deployment-management-api.md` | 管理 API 契约、部署服务安全边界与回退行为，按外发调用场景整理 |
 | `ai-route-cache-api.md` | `docs/api/01-ai-route-cache.md`，按交付场景压缩整理 |
-| `runtime-diagnostics-api.md` | 运行时诊断 API 与 H2 fallback POC 设计结论，按交付场景压缩整理 |
+| `runtime-diagnostics-api.md` | 运行时诊断 API、H2 fallback POC 设计结论与控制面始终安全摘要边界，按交付场景压缩整理 |
 | `robot-command-dispatcher-api.md` | 机器人 dispatcher API、MQTT 回执接入基线与 H2 fallback POC 设计结论，按交付场景压缩整理 |
 | `robot-edge-inference-mock.md` | 机器人边缘 AI 推理设计与 Build B mock baseline，按可交付配置、输入输出、验收和限制重写 |
 | `robot-ai-approval-api.md` | `docs/api/04-robot-ai-approval-callback.md`、`docs/api/05-robot-ai-decision-submit.md` 和机器人 AI 可信审批架构结论，按交付配置、HMAC 回调、查询、提交与 MySQL 部署场景重写 |

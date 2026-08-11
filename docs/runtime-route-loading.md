@@ -9,6 +9,7 @@
 - `server.running=false` 的服务包会保留在磁盘上，但不会加载 XML 路由，也不会占用运行态 route、endpoint 或连接资源。
 - `server.running` 控制整个服务版本是否加载；XML route 可以使用 Camel 原生 `autoStartup=false` 做单路由启停，服务进入 `RUNNING` 前所有允许自动启动的 route 必须启动成功。
 - XML 路由和服务配置文件支持动态热加载；Java 代码、依赖、Spring Bean、启动参数和全局运行参数变化仍需要重新打包或重启。
+- 显式启用 `lightesb.action-catalog.enabled=true` 时，Action descriptor 只在对应服务版本进入 `RUNNING` 后发布；被 descriptor 引用或待补回的 schema 变化会强制重载该服务版本。
 - Camel component、dataformat、language 的 Spring Boot 自动装配关闭后，只影响启动期自动扫描，不移除交付包内的 Camel 组件能力；XML 路由中引用的 `timer:`、`undertow:`、`http:`、`sql:`、`mqtt:` 等组件会在对应服务加载时按需解析和使用。
 - 服务只有在配置、必需组件、异常处理、XML 解析、端口绑定以及全部 route 启动成功后才进入 `RUNNING`；任一必需阶段失败均公开为 `STOPPED`，不影响其他服务和应用整体健康状态。
 - 服务启停 API 会等待 Camel 上下文真实启动或卸载；同方向请求共享转换，相反方向请求返回 HTTP `409`，超时不会回滚 `server.running`。
@@ -64,6 +65,7 @@ server.running=false
 
 - 修改服务目录内的 Camel XML 路由。
 - 修改服务目录内的 `service.config.properties` 或 `common.config.properties`。
+- 修改 Action route metadata 明确引用的 schema；启用 Action Catalog 时，缺失 schema 补回也会触发自愈重载。
 - 通过 CLI 或管理 API 启停服务、重载服务、重载指定路由文件。
 - 将服务配置从 `server.running=false` 改为 `true`，或从 `true` 改回 `false`。
 

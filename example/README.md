@@ -163,5 +163,5 @@ rm -rf lightesb-camel-app/RobotMqttTelemetrySrv lightesb-camel-app/RobotMqttComm
 ```
 
 不要把索引文件复制到 `lightesb-camel-app/`。
-需要发现上述样例中的 Action 时，复制完整服务目录后运行 `skills/lightesb-route-authoring/scripts/action-catalog.py --service-dir lightesb-camel-app/{serviceName}/v1.0.0`；派生输出写到服务目录外，完整规则见 `docs/components/17-action-catalog.md`。
+需要发现上述样例中的 Action 时，复制完整服务目录后运行 `java -jar lightesb-cli.jar action validate --service-dir lightesb-camel-app/{serviceName}/v1.0.0`；批量派生输出写到服务目录外，完整规则见 `docs/components/17-action-catalog.md`。
 `example/routes/**/log4j2.properties` 不需要随样例提供，运行时会自动生成。

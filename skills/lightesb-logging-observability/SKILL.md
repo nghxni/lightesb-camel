@@ -1,6 +1,6 @@
 ---
 name: lightesb-logging-observability
-description: 配置 servicelog、异常处理、H2 缓存、JsonKeyword 和 StreamCache 时使用。
+description: Configure and troubleshoot servicelog, service/instance log redaction, exception logging, H2 cache, JsonKeyword, and StreamCache for delivered LightESB services.
 ---
 
 # LightESB 日志与观测
@@ -18,6 +18,8 @@ description: 配置 servicelog、异常处理、H2 缓存、JsonKeyword 和 Stre
 
 - 路由入口、出口、异常分支都应有 `servicelog:`。
 - 大报文日志控制 `showBody` 和 `maxBodyLength`。
+- 生产服务在 common/service properties 中显式设置 `log.redaction.enabled=true`；开启后 `servicelog`、DEBUG 和 H2/MySQL 实例日志统一脱敏。需要原文只在受控本地服务临时关闭总开关，且历史日志不会自动回填。
+- 脱敏决定持久化内容，读取权限决定谁能访问；两者必须同时治理。diagnostics 始终输出安全摘要，不是按权限查看原文的入口。
 - H2 缓存先写 `h2LogCacheProcessor`，再按需写 `jsonKeywordCaptureProcessor`。
 - H2/StreamCache mock 要显式准备上下文：Request 至少有 `SenderID`，Response 至少有 `ReceiverID`、`<ReceiverID>.ReceiverID`、`<ReceiverID>.ResultCode` 和 `invokeProviderStartTime`。
 - H2 fallback 验证 JsonKeyword 前，先用 `/api/lightesb/json-keyword` 注册 keyName，再发业务请求；反查优先用 `/api/lightesb/json-keyword/instance-uuids`。

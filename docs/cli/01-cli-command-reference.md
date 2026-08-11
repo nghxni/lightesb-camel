@@ -2,7 +2,7 @@
 
 ## 定位
 
-CLI 只调用 LightESB 控制面 API 和本地配置，不承载 Camel 运行时，不绕过服务端状态机。受控本地写例外只有 `message schema generate` 和显式 `ai route generate/optimize/apply --save-local`；两者都必须加 `--yes`、校验真实服务目录边界并原子替换目标文件。
+CLI 的远程命令调用 LightESB 控制面 API 和本地配置，不承载 Camel 运行时，不绕过服务端状态机。`action validate/build` 是纯离线命令，`action status/list/search/get` 是受 bearer 保护的在线只读命令；受控本地写还包括 `action build` 把派生索引写到服务目录外。所有写操作必须加 `--yes`、校验真实路径边界并原子替换目标文件。
 
 ## 安装与入口
 
@@ -25,6 +25,22 @@ alias lightesb='java -jar /path/to/lightesb-cli.jar'
 | `--yes` | 写操作确认 |
 | `--file payload.json` | 从 JSON 文件读取输入 |
 | `--ai-token <token>` | 用于服务端 AI 日志问答等 AI 管控接口的 `X-AI-Token` |
+
+## Action 目录
+
+```bash
+lightesb action validate --service-dir lightesb-camel-app/DemoSrv/v1.0.0
+lightesb action validate --app-root lightesb-camel-app
+lightesb action build --app-root lightesb-camel-app --out build/action-index.json --yes
+lightesb action status
+lightesb action list --page-num 1 --page-size 20
+lightesb action search --query security --page-num 1 --page-size 20
+lightesb action get --action-id demo-security-check --service-version v1.0.0
+```
+
+`--service-dir` 与 `--app-root` 二选一。`validate` 只读并向标准输出写 canonical JSON；`build` 在全部目录通过校验后原子替换 `--out`，且拒绝把输出写入任一服务版本目录。这两个命令不连接服务端、不启动 Camel、不触发热加载或执行 Action。成功退出码为 `0`，参数/确认错误为 `64`，目录契约失败为 `65` 并带稳定 `ACTION_*` 错误码。
+
+在线四个命令使用 profile 的普通 token 作为 `Authorization: Bearer`，要求服务端双开关和 `catalog-read`。list/search 第二页起必须使用第一页输出的 `--expected-revision`；revision 变化时从第一页重试。`pageSize` 最大 100。在线命令只读内存快照，不读取远端文件、不提交 caller、不执行 Action；`--output json` 保留服务端标准响应。
 
 ## Profile 与 Doctor
 

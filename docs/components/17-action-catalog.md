@@ -1,30 +1,70 @@
 # 服务 Action 声明与离线索引
 
-## 验收动作
+## 使用与校验
 
 1. 只修改服务事实源：`service.config.properties`、唯一 route XML 和 route metadata 明确引用的 schema。
 2. 对单个服务执行离线校验并查看 descriptor：
 
 ```bash
-python3 skills/lightesb-route-authoring/scripts/action-catalog.py \
+java -jar lightesb-cli.jar action validate \
   --service-dir lightesb-camel-app/{serviceName}/{serviceVersion}
 ```
 
 3. 对严格两层 app 根目录生成确定性索引；输出必须位于任一服务版本目录之外：
 
 ```bash
-python3 skills/lightesb-route-authoring/scripts/action-catalog.py \
+java -jar lightesb-cli.jar action build \
   --app-root lightesb-camel-app \
-  --output build/action-index.json
+  --out build/action-index.json \
+  --yes
 ```
 
 索引是可删除重建的派生产物，不是第二份业务事实源。不要手工编辑或复制到 `lightesb-camel-app/{serviceName}/{serviceVersion}`。
 
-## P0 边界
+## 功能边界
 
-Action catalog 只做离线发现和静态校验，不创建运行时执行入口、授权、Token、数据库表、管理 API 或 Agent 自动调用能力。`agentCallable=true` 只表示未来执行通道的候选资格；实际调用仍需独立的认证、授权、审批和审计机制。
+随包 `lightesb-cli.jar` 的 `action validate/build` 提供离线发现、静态校验和索引生成；`action status/list/search/get` 通过受保护管理 API 查询已发布的内存快照。两类命令都不创建运行时执行入口，也不提供 Agent 自动调用能力。`validate` 只向标准输出写规范 JSON，`build` 必须显式使用 `--yes`，并以原子替换写入服务目录外。`agentCallable=true` 表示该 Action 的目录声明允许进入调用候选集合，但不会授予任何实际调用权限；执行系统仍须独立实施认证、allowlist、审批和审计。
 
-未声明 `actions.ids` 的历史服务在 app-root 批量模式中跳过；显式校验该服务时会按缺少声明失败。工具不会推断 action、schema、副作用、暴露范围或凭据。
+服务端另提供默认关闭的启动快照基础。现场确需为后续运行时目录能力准备内存视图时，可在平台运行配置中显式设置：
+
+```properties
+lightesb.action-catalog.enabled=true
+```
+
+启用后，只有已成功进入 `RUNNING` 的服务版本才能发布 Action。XML/properties 变化跟随路由加载结果成对刷新；descriptor 明确引用的 schema，以及编译失败登记的缺失/无效 schema，创建、修改或删除后会强制重载当前服务版本。新代校验失败时该服务 Action 不可见；缺失 schema 补回后可由目录监听自愈。
+
+只读查询接口只消费该内存快照，不读取远端服务目录。热加载验证时应同时检查服务仍为 `RUNNING` 且日志出现新的 Action generation/revision；失败时检查 quarantine 错误码，不继续使用旧 descriptor。
+
+服务端的 Action 控制面身份边界和只读 Controller 都默认关闭。启用在线查询时必须同时开启两个开关，并只保存高熵原 token 的 SHA-256 digest：
+
+```properties
+lightesb.action-security.enabled=true
+lightesb.action-security.credentials[0].name=ops-read
+lightesb.action-security.credentials[0].caller=ops-cli
+lightesb.action-security.credentials[0].roles=catalog-read
+lightesb.action-security.credentials[0].token-sha256=${LIGHTESB_ACTION_CREDENTIAL_0_SHA256:}
+```
+
+原 token 只保存在调用方 secret store，并通过 `Authorization: Bearer <token>` 发送。name/digest 必须唯一；同 caller 的旧、新轮换 credential 只能使用完全相同的 role 集。显式开启但 credential 为空时所有 Action 路径都返回 401；配置格式、重复或角色映射冲突时应用启动失败。`catalog-read`、`action-admin`、`action-execute` 不做隐式继承。
+
+未声明 `actions.ids` 的服务在 app-root 批量模式中跳过；显式校验该服务时会按缺少声明失败。工具不会推断 action、schema、副作用、暴露范围或凭据。
+
+## 在线只读查询
+
+把原 token 保存到 CLI profile，服务端只配置其 digest：
+
+```bash
+lightesb profile add --name action-read --server http://localhost:8080 --token '<original-token>'
+lightesb profile use action-read
+lightesb action status
+lightesb action list --page-num 1 --page-size 20
+lightesb action search --query security --page-num 1 --page-size 20
+lightesb action get --action-id demo-security-check --service-version v1.0.0
+```
+
+list/search 的 `pageSize` 默认 20、最大 100。第一页返回 `revision`，第二页及后续页必须用 `--expected-revision` 回传；若热加载已产生新 revision，CLI 返回 HTTP 失败，自动化必须丢弃旧页并从第一页重新读取。同一 actionId 存在多版本时，get 必须指定 `--service-version`。
+
+`--output json` 保留标准响应与 `requestId`。返回内容只包含安全 descriptor、状态、generation、digest 和相对 source location，不包含配置实值、原 token、credential digest 或服务器绝对路径。status/list/search/get 只要求 `catalog-read`，不接受自报 caller，也不执行 Action。
 
 ## Properties 声明
 
@@ -95,7 +135,7 @@ schema 必须位于当前服务版本目录内、由 metadata 显式引用且是
 
 | 样例 | Action | 契约 |
 | --- | --- | --- |
-| `example/routes/security-validation/DemoSecuritySrv/v1.0.0/` | `demo-security-check` | HTTP `requestReply`，entry request/response schema，Agent 候选 |
+| `example/routes/security-validation/DemoSecuritySrv/v1.0.0/` | `demo-security-check` | HTTP `requestReply`，entry request/response schema，声明为 agent 调用候选但不授予权限 |
 | `example/routes/AvevaMqttSrv/v1.0.0/` | `aveva-mqtt-telemetry` | MQTT `oneWayConsumer`，normalizer 后 schema，不可调用 |
 | `example/routes/AvevaOpcUaSrv/v1.0.0/` | `aveva-opcua-telemetry` | OPC UA `oneWayConsumer`，DataValue 解包后 schema，不可调用 |
 

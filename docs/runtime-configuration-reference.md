@@ -51,6 +51,9 @@ java -Dlightesb.config.file=/opt/lightesb/lightesb-config.properties -jar lighte
 | `lightesb.route.startup.virtual-thread.enabled` | `true` | 启动初始加载路由时使用 JDK21 虚拟线程并发加载；设为 `false` 可回退串行加载。 |
 | `lightesb.route.startup.max-concurrency` | `16` | 虚拟线程模式下最大同时加载路由数。 |
 | `lightesb.route.transition-timeout-seconds` | `30` | 服务启停 API 等待真实 Camel 上下文状态的超时，允许 1 到 120 秒；超时不回滚 `server.running`。 |
+| `lightesb.action-catalog.enabled` | `false` | 显式开启后，从已运行服务版本构建只读 Action Catalog 内存快照；XML/properties 重载成功后与 route generation 成对刷新，明确引用或待补回的 schema 变化会触发强制重载。与 Action security 同时开启时提供只读查询，不提供执行 API。 |
+| `lightesb.action-security.enabled` | `false` | 显式开启后注册 `/api/actions/**` 专用 bearer 身份边界；与 Action Catalog 同时开启时注册要求 `catalog-read` 的 status/list/search/get，任一开关关闭均不注册查询端点。 |
+| `lightesb.action-security.credentials[n].name/caller/roles/token-sha256` | 空 | 命名控制面 credential；role 仅允许 `catalog-read`、`action-admin`、`action-execute`。只注入原 token 的 SHA-256 digest，不在仓库保存原 token 或 digest 实值。 |
 
 常用排障配置：
 
@@ -133,6 +136,16 @@ lightesb.mysql.password=${LIGHTESB_MYSQL_PASSWORD:}
 | `lightesb.logging.max-log-file-size-mb` | `100` | 健康检查中单文件大小阈值。 |
 
 完整模型 prompt、响应正文、业务 payload 和配置正文不应进入默认日志。排障时可以临时提高局部包日志级别，完成后恢复 `INFO`。
+
+以下键写入目标服务版本的 `common.config.properties` 或 `service.config.properties`，不是平台全局配置：
+
+| 配置键 | 默认值 | 用法 |
+| --- | --- | --- |
+| `log.redaction.enabled` | `false` | 服务日志和 H2/MySQL 实例日志写入前脱敏总开关。关闭保留原文；开启后 DEBUG 也脱敏。 |
+| `log.redaction.additional-fields` | 空 | 最多 64 个逗号分隔的额外敏感字段精确名称，不接受正则。 |
+| `log.redaction.max-input-chars` | `1048576` | 单次输入字符上限，允许 1–1048576；超限或结构解析失败时整段安全替换。 |
+
+生产服务应显式开启脱敏并配合日志读取权限。该开关控制持久化内容，不按读取者角色返回不同版本；开启不会清理历史原文，也不覆盖任意普通 Camel `log:` 或第三方日志。
 
 ## StreamCache
 

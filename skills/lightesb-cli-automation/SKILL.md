@@ -1,6 +1,6 @@
 ---
 name: lightesb-cli-automation
-description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、app/message/service/deploy/route/log/keyword/ai/diagnostics/robot 自动化流程时使用。
+description: Generate, review, or troubleshoot delivered LightESB CLI action/profile/doctor/app/message/service/deploy/route/log/keyword/ai/diagnostics/robot workflows, including sanitized errors and diagnostics.
 ---
 
 # LightESB CLI 自动化
@@ -16,7 +16,9 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 
 规则：
 
-- CLI 是控制面客户端；受控本地写例外只有 `message schema generate` 和显式 `ai route generate/optimize/apply --save-local`。两类操作都必须加 `--yes`，限制在真实服务目录边界内并原子替换目标文件，不会自行部署或重载服务。
+- CLI 的远程命令是控制面客户端；`action validate/build` 是不使用服务端和 profile 的离线命令，`action status/list/search/get` 使用 profile bearer 查询受保护的在线快照。受控本地写还包括 `action build` 把派生索引原子写到所有服务版本目录之外；它与 `message schema generate`、显式 `ai route generate/optimize/apply --save-local` 一样必须加 `--yes`，不会自行部署或重载服务。
+- `action validate --service-dir|--app-root` 输出 canonical JSON；`action build` 额外使用 `--out`。目录契约失败按退出码 `65` 和稳定 `ACTION_*` 错误码处理，不回退到其他解析器。
+- Action 在线命令要求服务端双开关和 `catalog-read`；list/search 第二页起回传第一页 revision，revision 冲突时从第一页重试。命令不发送 caller，不执行 Action。
 - 输入、输出或回调 JSON 校验工作流只生成 CLI 命令，不生成 Schema preview 或 AI route apply 的直接 API 调用。
 - 写操作加 `--yes`，CI 中优先加 `--output json`。
 - 任意命令层级都可用 `--help`；profile JSON 只使用 `tokenConfigured`、`aiTokenConfigured` 状态，不读取或记录 token 值。
@@ -32,6 +34,7 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 - `deploy upload` 不接受 `--target-directory`；部署目标由服务端运行配置统一决定。
 - `route reload-file/unload --file-path` 必须指向服务端受管路由根内真实 XML 文件；
   `route config` 只返回相对服务目录和脱敏配置，不得期待服务器绝对路径或敏感值。
+- CLI HTTP 错误和 diagnostics 摘要始终脱敏，不随服务日志开关或用户角色返回原文；服务级开关关闭只意味着服务/实例持久化可能包含原文。
 - 服务同步默认跳过远端已有同名服务版本的服务文件部署；覆盖部署需显式 `--overwrite-service-files`。
 - 服务同步默认自动启动部署路由；需要关闭时使用 `--no-start`。`sync-remote --keep-package` 可保留中间导出包。
 - `service start/stop` 会等待真实 Camel 上下文状态；HTTP 409 时先查询服务状态或运行时诊断，超时不会回滚 `server.running`，不要立即发送反向请求覆盖目标。
@@ -55,6 +58,12 @@ description: 生成、审查或排查 LightESB CLI 命令、profile、doctor、a
 常用链路：
 
 ```bash
+lightesb action validate --service-dir lightesb-camel-app/DemoSrv/v1.0.0
+lightesb action build --app-root lightesb-camel-app --out build/action-index.json --yes
+lightesb action status
+lightesb action list --page-num 1 --page-size 20
+lightesb action search --query security --page-num 1 --page-size 20
+lightesb action get --action-id demo-security-check --service-version v1.0.0 --output json
 lightesb profile add --name dev --server http://localhost:8080
 lightesb profile use dev
 lightesb doctor

@@ -107,3 +107,5 @@ Do not share:
 - full prompts, model responses, payloads, XML, properties, connection strings, usernames, customer data, or local absolute paths.
 
 You may share service names, versions, routeIds, fileKeys, requestId, traceId, exchangeId, HTTP status, error codes, warning summaries, and sanitized configuration key names.
+
+Service-level `log.redaction.enabled` controls what service and instance logs persist; when it is off, raw values may already be stored. CLI HTTP error summaries and server diagnostics summaries are always sanitized and never become a privileged raw-data channel. Access control limits who can read stored logs, but it does not replace write-time redaction or restore sanitized values.

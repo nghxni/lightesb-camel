@@ -38,6 +38,20 @@ servicelog:level?message=...&showBody=false&showHeaders=false&maxBodyLength=1000
 <to uri="servicelog:debug?message=排障输出&amp;showBody=true"/>
 ```
 
+## 写入前脱敏
+
+在服务版本配置中显式开启：
+
+```properties
+log.redaction.enabled=true
+log.redaction.additional-fields=customerPin,partnerCredential
+log.redaction.max-input-chars=1048576
+```
+
+开启后，`servicelog` message/body/header/异常、DEBUG 输出和 H2/MySQL 实例日志在写入前使用同一字段策略；password、secret、token、authorization、cookie、apiKey 和 credential 等默认字段会被替换。默认关闭以保留既有行为。
+
+需要查看原文时，只能在受控本地测试服务临时关闭总开关并等待配置热加载。不要把读取权限理解为脱敏开关：关闭后任何有日志读取权限的人都可能看到原文；开启后读取者只能看到已脱敏值。历史日志不会自动回填，普通 Camel `log:` 和第三方日志也不在此服务级门禁范围内。
+
 ## 建议
 
 - `info` 记录入口、出口和关键业务节点。

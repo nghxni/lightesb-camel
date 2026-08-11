@@ -31,7 +31,8 @@ description: 交付包内编写 HTTP 接口、Camel XML 路由、服务目录、
 - 自然语言要求输入、输出或回调 JSON 校验时，不自行生成 Schema。按服务关系调用 `message schema generate`，检查 warnings，再把返回路径写入对应位置的完整校验块。
 - route XML 是校验唯一开关，不生成额外配置开关。普通本地编辑直接完成候选并自行修正明显静态问题；`ai route apply --save-remote --yes` 仅在用户明确授权远程写入后调用。apply 失败时保留候选并读取恢复诊断，不自动重试。
 - Action 的唯一事实源是服务目录中的 `service.config.properties`、唯一 route XML 和 metadata 引用的 schema；metadata 放在目标 `<route>` 内、唯一 `<from>` 之前。HTTP JSON 入口用 `entry`，经 processor 标准化的 MQTT/OPC UA envelope 用 `normalized` 并声明准确 processor ref。consumer/scheduled 不可 agent-callable，写入/破坏性 Action 必须显式声明幂等、重试和审批语义。
-- 修改 Action 后运行 `python3 skills/lightesb-route-authoring/scripts/action-catalog.py --service-dir lightesb-camel-app/{serviceName}/{serviceVersion}`。批量索引只能输出到服务版本目录外；它是可删除重建的派生产物，不手工编辑、不放入正式服务目录。
+- 修改 Action 后运行 `java -jar lightesb-cli.jar action validate --service-dir lightesb-camel-app/{serviceName}/{serviceVersion}`。批量索引使用 `action build --app-root lightesb-camel-app --out <服务目录外路径> --yes`；它是可删除重建的派生产物，不手工编辑、不放入正式服务目录。
+- 现场运行配置已显式开启 `lightesb.action-catalog.enabled=true` 时，受管 schema 修改/删除/补回依赖服务目录热加载，不因该文件变更重启 LightESB。等待监听完成后，检查 route 仍为 `RUNNING` 且日志出现新 Action `generation/revision`；同时开启 Action security 时，可用 `action status/list/get` 验证受保护的只读快照。失败时确认 quarantine，恢复 schema 后确认自愈到新 generation。只读查询不提供 Action 执行授权。
 - 按 `docs/components/16-route-static-preflight.md` 完成通用和场景配置闭包检查：服务目录只有一个 XML；route id 唯一；XML 可解析；两个 properties 含服务名/版本和所需组件开关；所有 `{{...}}` 占位符有同目录配置来源；`.ds`、固定 Schema 等引用资源存在；没有用户未要求的外部 endpoint、凭据或能力。
 - 提交前运行交付包内的离线预检：`python3 skills/lightesb-route-authoring/scripts/route-static-preflight.py --service-dir lightesb-camel-app/{serviceName}/{serviceVersion} --profile {http|timer|transform|schema|externaldb|ai-agent|mqtt|opcua|modbus|sap-mock} --route-file {route.xml}`。按实际场景选 profile；它只检查静态配置闭包，不启动服务或访问外部系统。
 
@@ -42,3 +43,4 @@ description: 交付包内编写 HTTP 接口、Camel XML 路由、服务目录、
 - 已完成 XML、properties、资源和占位符静态自检；未把该结果表述为真实加载或业务验证。
 - curl 或 Timer 周期日志仅在用户明确授权运行态验证时执行，`routeId` 不冲突。
 - 校验方向、消息 ID、固定 Schema 文件和 route 中的位置一致。
+- 显式启用运行时 Action Catalog 且修改受管 schema 时，已用 route 状态和 Action generation/revision 日志证明同代发布；做失败恢复测试时已证明 quarantine 和补回自愈。
