@@ -7,6 +7,9 @@
     background:
       linear-gradient(115deg, rgba(110, 224, 139, 0.08), transparent 38%),
       radial-gradient(circle at 82% 34%, rgba(119, 216, 232, 0.11), transparent 32%),
+      linear-gradient(90deg, rgba(13, 17, 16, 0.94), rgba(13, 17, 16, 0.72) 45%, rgba(13, 17, 16, 0.42)),
+      linear-gradient(180deg, rgba(13, 17, 16, 0.2), rgba(13, 17, 16, 0.88)),
+      url("/images/lightesb-camel-hero.png") center / cover no-repeat,
       var(--bg);
   }
   .intro-glow {
