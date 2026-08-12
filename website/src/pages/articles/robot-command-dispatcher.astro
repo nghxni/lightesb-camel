@@ -1,0 +1,157 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+const doc = `${repo}/blob/main/docs/robot-command-dispatcher-api.md`;
+const sample = `${repo}/tree/main/example/routes/RobotMqttCommandSrv`;
+---
+
+<BaseLayout
+  current="/articles"
+  title="Robot command dispatcher: outbox, receipts, compensation, and audit archive | LightESB-Camel"
+  description="How a robot command moves from the LightESB management API to MQTT — outbox dispatch, ack/result receipt ingest, state snapshots, compensation marking, and automatic audit archiving — and what status=accepted really means."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="dispatcher.eyebrow">Technical article</p>
+      <h1 data-i18n="dispatcher.title">The robot command dispatcher: what happens between accepted and succeeded</h1>
+      <p class="lead" data-i18n="dispatcher.lead">
+        Submitting a robot command never touches the broker directly. The management API writes the command ledger, audit, and an MQTT outbox record first — then the dispatcher, receipt ingest, state snapshots, and compensation markers carry the command to a terminal state.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="dispatcher.meta.sample">Sample:</span> <a href={sample}>example/routes/RobotMqttCommandSrv</a></span>
+        <span><span data-i18n="dispatcher.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="dispatcher.problem.title">accepted means queued, not executed</h2>
+        <p data-i18n="dispatcher.problem.p1">
+          POST /service-management/v1/robots/&#123;robotId&#125;/commands passes schema, capability, denylist, and shared safety-policy checks, then writes the command ledger, audit, and MQTT outbox. The status=accepted and protocolReceipt.outboxStatus=pending in the response only prove the command entered a reliable dispatch queue — not that the robot received or ran anything.
+        </p>
+        <p data-i18n="dispatcher.problem.p2">
+          Two fast failure modes sit in front of that queue. Policy rejections return 422 ROBOT_POLICY_REJECTED with nothing persisted. And if the same robotId + commandId is already reserved by an AI validation decision, the normal entry returns 422 ROBOT_AI_APPROVAL_REQUIRED — that command can only be submitted through the opaque decision ID, never by copying the candidate body.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="dispatcher.flow.title">Four pieces carry the command forward</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="dispatcher.flow.outbox.title">Outbox dispatch</h3>
+            <p class="copy" data-i18n="dispatcher.flow.outbox.text">POST /robots/commands:dispatch-next claims one due pending outbox record and publishes it to MQTT. On success the outbox flips to dispatched, the command advances to dispatched, and a robot.command.dispatched audit entry is appended. It is a manual operations and compensation entry — not proof that an automatic scheduling loop is enabled.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="dispatcher.flow.receipt.title">Ack/result receipt ingest</h3>
+            <p class="copy" data-i18n="dispatcher.flow.receipt.text">POST /robots/mqtt-receipts:ingest takes ack and result receipts on robot/&#123;siteId&#125;/&#123;robotId&#125;/command/&#123;commandId&#125;/ack|result topics. An ack with accepted moves dispatched -&gt; acknowledged; a result moves the command to succeeded, failed, or timeout. Results may arrive before acks; late acks after a terminal state are ignored, duplicates never double-write audit, and a failed audit write rolls the state transition back in the same transaction.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="dispatcher.flow.snapshot.title">State snapshots</h3>
+            <p class="copy" data-i18n="dispatcher.flow.snapshot.text">Every successful dispatch, ack, and result derives a fresh persisted snapshot. GET /robots/&#123;robotId&#125;/state prefers it; without one it returns a management sample marked sourceType=management_snapshot. GET /robots/state-snapshots pages read-only over persisted snapshots with fixed ordering updatedAt desc, robotId asc and pageSize 1..100.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="dispatcher.flow.compensation.title">Compensation marking</h3>
+            <p class="copy" data-i18n="dispatcher.flow.compensation.text">No new queue table: when writing ROBOT_STATE_SNAPSHOT fails, the command is marked STATUS=compensation_required and a robot.command.compensation_required audit event is written. GET /robots/compensations lists the backlog, and robot-command diagnostics surface compensationRequired plus a warning while one exists. It keeps ledger, audit, and state consistent — it does not retry the protocol or re-send MQTT.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2 data-i18n="dispatcher.run.title">Real commands, real responses</h2>
+        <p data-i18n="dispatcher.run.p1">
+          Submit a move_to command. The receipt names the mqtt5 protocol and the exact command topic built from the configured pattern:
+        </p>
+        <pre><code>curl -sS -X POST http://127.0.0.1:8080/service-management/v1/robots/quad-001/commands \
+  -H "Content-Type: application/json" \
+  -d '&#123;"commandId":"cmd-001","robotId":"quad-001","siteId":"site-a","commandType":"move_to","mode":"submit","timeoutMs":30000,"target":&#123;"frame":"map","x":1.2,"y":3.4&#125;&#125;'
+
+&#123;
+  "success": true,
+  "data": &#123;
+    "commandId": "cmd-001",
+    "robotId": "quad-001",
+    "status": "accepted",
+    "protocolReceipt": &#123;
+      "protocol": "mqtt5",
+      "dispatched": false,
+      "outboxStatus": "pending",
+      "topic": "robot/site-a/quad-001/command/cmd-001"
+    &#125;
+  &#125;,
+  "error": null,
+  "timestamp": 1782817800000,
+  "requestId": "REQ-..."
+&#125;</code></pre>
+        <p data-i18n="dispatcher.run.p2">
+          Queries stay read-only: GET /commands/&#123;commandId&#125; never creates a command or triggers dispatch, the audit query filters by commandId or eventType, and dispatch-next is the manual trigger for one dispatcher pass:
+        </p>
+        <pre><code>curl -sS http://127.0.0.1:8080/service-management/v1/robots/quad-001/commands/cmd-001
+curl -sS http://127.0.0.1:8080/service-management/v1/robots/quad-001/audit?commandId=cmd-001
+curl -sS -X POST http://127.0.0.1:8080/service-management/v1/robots/commands:dispatch-next</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="dispatcher.archive.title">Archive and dispatcher configuration</h2>
+        <p data-i18n="dispatcher.archive.p1">
+          ROBOT_AUDIT_LOG archiving is automatic — no CLI trigger. It runs daily at 01:00, keeps database audit rows for 1 month and SQL backups for 24 months by default, writes ROBOT_AUDIT_LOG-yyyyMMddHHmmss.sql files under $&#123;lightesb.deployment.backup-dir&#125;/audit via a .tmp-then-rename protocol, and deletes only the audit records it actually exported — never the command ledger or outbox. lightesb.robot.audit.archive.enabled defaults to true; a single field beyond lightesb.robot.audit.archive.max-field-chars=65536 fails the task without deleting anything.
+        </p>
+        <p data-i18n="dispatcher.archive.p2">
+          The dispatcher itself is off by default: lightesb.robot.dispatcher.enabled=false, with broker-uri, qos=1, retained=false (keep it false in production), clean-start=true, and a single global command topic pattern robot/&#123;siteId&#125;/&#123;robotId&#125;/command/&#123;commandId&#125;. With a local EMQX or strong simulator, the bundled precheck script verifies the full dispatcher-to-receipt loop — the pass criterion is accepted -&gt; dispatched -&gt; acknowledged -&gt; succeeded with submitted, dispatched, ack, and result audits queryable:
+        </p>
+        <pre><code>export LIGHTESB_BASE=http://127.0.0.1:8080
+export ROBOT_MQTT_BROKER_URI=tcp://127.0.0.1:1883
+tools/robot-mqtt-firmware-precheck/test_robot_mqtt_firmware_precheck.sh --dispatcher-ingest</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="dispatcher.boundary.title">Boundaries worth repeating</h2>
+        <p data-i18n="dispatcher.boundary.p1">
+          The CLI only calls the management API and never connects to the broker. outboxStatus=pending does not mean the robot received or executed anything, and snapshot sourceType=command_status|ack|result|management_snapshot values are not real device-presence acceptance. Without MySQL, lightesb.poc.h2-fallback.enabled=true runs ledger, audit, outbox, and snapshots on H2 — a small-volume demo mode with no production archive, retention, backup, or migration promises.
+        </p>
+        <p data-i18n="dispatcher.boundary.p2">
+          The bundled RobotMqttCommandSrv sample proves the route layer offline: system.components=robotics, robot.mqtt.broker.enabled=false, server.running=false, and robotCommandValidateProcessor plus robotCommandEnvelopeProcessor emitting command, ack, result, and audit JSON to mock: sinks. It validates routing, policy, and envelope semantics — it does not prove a broker received the command or a robot executed it.
+        </p>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href={doc} data-i18n="dispatcher.doc">Dispatcher API guide</a>
+        <a class="button" href={sample} data-i18n="dispatcher.sample">RobotMqttCommandSrv sample</a>
+      </div>
+    </div>
+  </article>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "dispatcher.eyebrow": "技术文章",
+        "dispatcher.title": "机器人命令 Dispatcher：accepted 与 succeeded 之间发生了什么",
+        "dispatcher.lead": "提交机器人命令从不直连 broker。管理 API 先写入命令账本、审计和 MQTT outbox，再由 dispatcher、回执入账、状态快照和补偿标记把命令推进到终态。",
+        "dispatcher.meta.sample": "样例：",
+        "dispatcher.meta.repo": "仓库：",
+        "dispatcher.problem.title": "accepted 只代表已入队，不代表已执行",
+        "dispatcher.problem.p1": "POST /service-management/v1/robots/{robotId}/commands 通过 schema、能力、denylist 和共享安全策略校验后，写入命令账本、审计和 MQTT outbox。响应中的 status=accepted 与 protocolReceipt.outboxStatus=pending 只证明命令已进入可靠派发队列，不代表机器人已收到或已执行。",
+        "dispatcher.problem.p2": "入队之前有两类快速失败。策略拒绝返回 422 ROBOT_POLICY_REJECTED，不落任何数据。同一 robotId + commandId 已被 AI validation decision 保留时，普通入口返回 422 ROBOT_AI_APPROVAL_REQUIRED——该命令只能凭 opaque decision ID 提交，复制候选正文无法绕过审批。",
+        "dispatcher.flow.title": "四个部件把命令推进到终态",
+        "dispatcher.flow.outbox.title": "Outbox 派发",
+        "dispatcher.flow.outbox.text": "POST /robots/commands:dispatch-next 从 outbox claim 一条到期 pending 记录并发布到 MQTT。成功后 outbox 变为 dispatched、命令状态推进到 dispatched，并追加 robot.command.dispatched 审计。它是运维验证与手动补偿入口，不代表自动调度循环已经启用。",
+        "dispatcher.flow.receipt.title": "Ack/result 回执入账",
+        "dispatcher.flow.receipt.text": "POST /robots/mqtt-receipts:ingest 接收 ack 与 result 回执，topic 为 robot/{siteId}/{robotId}/command/{commandId}/ack|result。ack accepted 把状态从 dispatched 推进到 acknowledged；result 把命令推进到 succeeded、failed 或 timeout。result 可以早于 ack 到达，终态后迟到的 ack 被忽略，重复回执不重复写审计，审计写入失败时状态推进在同一事务内回滚。",
+        "dispatcher.flow.snapshot.title": "状态快照",
+        "dispatcher.flow.snapshot.text": "每次成功的 dispatch、ack、result 都会派生最新持久化快照。GET /robots/{robotId}/state 优先读取快照；无快照时返回管理面样例并标记 sourceType=management_snapshot。GET /robots/state-snapshots 只读分页查询已持久化快照，固定排序 updatedAt desc, robotId asc，pageSize 范围 1..100。",
+        "dispatcher.flow.compensation.title": "补偿标记",
+        "dispatcher.flow.compensation.text": "第一版不新增补偿队列表：写入 ROBOT_STATE_SNAPSHOT 失败时，命令被标记 STATUS=compensation_required 并写入 robot.command.compensation_required 审计事件。GET /robots/compensations 只读查询积压，robot-command diagnostics 输出 compensationRequired 并在存在积压时给出 warning。它只保证账本、审计和状态一致，不自动重试协议，也不重新下发 MQTT。",
+        "dispatcher.run.title": "真实命令与真实响应",
+        "dispatcher.run.p1": "提交一条 move_to 命令。回执给出 mqtt5 协议和由配置模板生成的精确 command topic：",
+        "dispatcher.run.p2": "查询保持只读：GET /commands/{commandId} 不创建命令也不触发派发，audit 查询支持按 commandId 或 eventType 过滤，dispatch-next 是手动触发一次 dispatcher 的入口：",
+        "dispatcher.archive.title": "归档与 dispatcher 配置",
+        "dispatcher.archive.p1": "ROBOT_AUDIT_LOG 由服务端自动归档，无需 CLI 触发：每天凌晨 1 点执行，数据库审计默认保留 1 个月、SQL 备份默认保留 24 个月，备份文件以 ROBOT_AUDIT_LOG-yyyyMMddHHmmss.sql 命名写入 ${lightesb.deployment.backup-dir}/audit，先写 .tmp 校验成功后改名，导出成功后只删除本次已导出的审计记录，不动命令账本和 outbox。lightesb.robot.audit.archive.enabled 默认 true；单字段超过 lightesb.robot.audit.archive.max-field-chars=65536 时任务失败且不删除数据库记录。",
+        "dispatcher.archive.p2": "dispatcher 默认关闭：lightesb.robot.dispatcher.enabled=false，配套 broker-uri、qos=1、retained=false（生产建议保持 false）、clean-start=true，以及单一全局 command topic 模板 robot/{siteId}/{robotId}/command/{commandId}。本机有 EMQX 或强模拟器时，用交付脚本验证 dispatcher 到回执入账的完整闭环——通过标准是 accepted -> dispatched -> acknowledged -> succeeded，且能查到 submitted、dispatched、ack、result 审计：",
+        "dispatcher.boundary.title": "值得反复强调的边界",
+        "dispatcher.boundary.p1": "CLI 只调用管理 API，从不直连 broker。outboxStatus=pending 不代表机器人已收到或已执行，快照的 sourceType=command_status|ack|result|management_snapshot 也不等同真实设备在线验收。没有 MySQL 时可配置 lightesb.poc.h2-fallback.enabled=true 让账本、审计、outbox 和快照跑在 H2 上——这只是小数据量演示模式，不承诺生产级归档、保留、备份恢复或迁移。",
+        "dispatcher.boundary.p2": "交付包内置的 RobotMqttCommandSrv 样例离线验证路由层：system.components=robotics、robot.mqtt.broker.enabled=false、server.running=false，robotCommandValidateProcessor 加 robotCommandEnvelopeProcessor 把 command、ack、result、audit JSON 发到 mock: sink。它验证路由、策略和消息封装，不证明 broker 收到命令，也不证明机器人已执行。",
+        "dispatcher.doc": "Dispatcher API 文档",
+        "dispatcher.sample": "RobotMqttCommandSrv 样例"
+      }
+    };
+  </script>
+</BaseLayout>

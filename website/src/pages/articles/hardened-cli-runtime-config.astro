@@ -1,0 +1,136 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+const doc = `${repo}/blob/main/docs/runtime-configuration-reference.md`;
+const cliDoc = `${repo}/blob/main/docs/cli/01-cli-command-reference.md`;
+---
+
+<BaseLayout
+  current="/articles"
+  title="Hardened runtime configuration and CLI boundaries | LightESB-Camel"
+  description="The LightESB runtime configuration landscape in one read: a single platform config file with strict ownership, optional capabilities that stay off until explicitly enabled, secrets injected through environment placeholders, and a CLI where every write needs --yes and diagnostics stay read-only."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="cliconf.eyebrow">Technical article</p>
+      <h1 data-i18n="cliconf.title">Hardened by default: runtime configuration keys and CLI confirmation semantics</h1>
+      <p class="lead" data-i18n="cliconf.lead">
+        LightESB keeps one platform-level runtime configuration file, ships every optional capability switched off, and makes the CLI ask for --yes on every write. This article condenses the configuration reference and the CLI command reference into the keys, switches, and boundaries that matter for a hardened deployment.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="cliconf.meta.doc">Doc:</span> <a href={doc}>docs/runtime-configuration-reference.md</a></span>
+        <span><span data-i18n="cliconf.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="cliconf.problem.title">One platform file, strict ownership</h2>
+        <p data-i18n="cliconf.problem.p1">
+          Runtime configuration lives in lightesb-camel-app/lightesb-config.properties and can be overridden at startup with java -Dlightesb.config.file=/opt/lightesb/lightesb-config.properties -jar lightesb-camel.jar. It starts the server, loads service packages, connects databases, and enables AI capabilities — and it must never leak into a service package: common.config.properties and service.config.properties describe only that service's own routes, ports, components, and business parameters.
+        </p>
+        <p data-i18n="cliconf.problem.p2">
+          Secrets follow one rule: real API keys, tokens, passwords, certificate paths, and intranet addresses are injected through environment variables or site-controlled secure configuration, never committed to the delivery repository. Service XML reads environment values only through the explicit &#123;&#123;env:ENV_NAME&#125;&#125; form; a plain &#123;&#123;key&#125;&#125; placeholder resolves only against the same service version's common/service configuration — never the platform file, never the environment.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="cliconf.keys.title">The key landscape: capabilities stay off until enabled</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="cliconf.keys.core.title">Core runtime</h3>
+            <p class="copy" data-i18n="cliconf.keys.core.text">lightesb.route.enabled=true turns on the dynamic route loader and route management API; lightesb.route.directory points at the service-package root. Startup loads routes concurrently on JDK 21 virtual threads (startup.virtual-thread.enabled=true, startup.max-concurrency=16), and hot reload checks file stability first (file-stable-wait-ms=100, file-stable-max-attempts=10).</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="cliconf.keys.off.title">Off until explicitly enabled</h3>
+            <p class="copy" data-i18n="cliconf.keys.off.text">Action catalog, action security, action audit, allowlist, and short-lived action tokens all default to false and gate each other. So do transformds.enabled, robot.dispatcher.enabled, robot.ai.approval.enabled, ai.logging.enabled, ai.agents.chat.memory.enabled, and poc.h2-fallback.enabled.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="cliconf.keys.hardened.title">Hardened production posture</h3>
+            <p class="copy" data-i18n="cliconf.keys.hardened.text">Turn the H2 console and web-allow-others off. Deployment uploads stay inside quotas: 2000 archive entries, 50 MB per entry, 200 MB extracted total, depth 16. ai.route.model.log-payload stays false outside temporary troubleshooting; per-service log.redaction.enabled scrubs logs before they are persisted.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="cliconf.keys.env.title">Environment placeholders only</h3>
+            <p class="copy" data-i18n="cliconf.keys.env.text">The bundled template binds secrets to environment variables — dashscope.api-key=$&#123;DASHSCOPE_API_KEY:&#125;, mysql.url=$&#123;LIGHTESB_MYSQL_URL:&#125;, dispatcher.broker-uri=$&#123;ROBOT_MQTT_BROKER_URI:&#125;. Real values never enter the repository.</p>
+          </article>
+        </div>
+        <p data-i18n="cliconf.keys.p1">A hardened excerpt from the reference template:</p>
+        <pre><code>spring.h2.console.enabled=false
+spring.h2.console.settings.web-allow-others=false
+lightesb.poc.h2-fallback.enabled=false
+lightesb.robot.dispatcher.enabled=false
+lightesb.robot.dispatcher.broker-uri=$&#123;ROBOT_MQTT_BROKER_URI:&#125;
+lightesb.ai.models.default.dashscope.api-key=$&#123;DASHSCOPE_API_KEY:&#125;</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="cliconf.cli.title">CLI semantics: every write is confirmed</h2>
+        <p data-i18n="cliconf.cli.p1">
+          Remote CLI commands call the control-plane API — they never host a Camel runtime and never bypass the server-side state machine. Every write operation requires --yes, validates real path boundaries, and replaces target files atomically.
+        </p>
+        <pre><code>lightesb action build --app-root lightesb-camel-app --out build/action-index.json --yes
+lightesb deploy upload ./DemoSrv.zip --yes
+lightesb route reload-service --service-name DemoSrv --service-version 1.0.0 --yes</code></pre>
+        <p data-i18n="cliconf.cli.p2">
+          The exit-code contract is stable enough for automation gates: 0 success, 64 missing argument or confirmation, 65 input-file or business-field error (action validate/build add stable ACTION_* codes here), 69 HTTP or server error, 74 IO or network failure, 78 configuration error or failed doctor check.
+        </p>
+        <p data-i18n="cliconf.cli.p3">
+          service start/stop waits for the real Camel context state. The CLI grants it a 130-second HTTP timeout to cover the server's 120-second maximum transition wait; an opposite-direction, failed, or timed-out transition returns HTTP 409 and never rolls back server.running. Automation should query service state or runtime diagnostics before deciding the next step — idempotent=true and transitionReused=true in the result say exactly what the server reused.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="cliconf.boundary.title">Automation boundaries and troubleshooting</h2>
+        <p data-i18n="cliconf.boundary.p1">
+          action validate/build are fully offline: no server connection, no Camel startup, no hot reload, and build refuses to write its index into any service version directory. doctor runs environment and read-only API checks only. diagnostics snapshot/warnings calls exactly one endpoint — GET /api/diagnostics/runtime-snapshot — and never reads the remote filesystem, triggers reloads or cleanups, or changes log levels.
+        </p>
+        <p data-i18n="cliconf.boundary.p2">
+          For scoped troubleshooting, lightesb.route.temp-only-service=PlatformHttp,RobotMqttCommandSrv loads only the named service directories, and startup fails if any of them is missing — no silent fallback to a full load. In a no-MySQL POC, lightesb.poc.h2-fallback.enabled=true moves instance logs, JsonKeyword queries, and the robot command ledger to H2 fallback; confirm it with lightesb diagnostics snapshot --component instance-log --output json and expect pocH2FallbackEnabled=true.
+        </p>
+        <p data-i18n="cliconf.boundary.p3">
+          Failure hygiene is part of the contract: HTTP error summaries keep status, error code, and actionable details while redacting token, password, secret, authorization, and apiKey; route config shows sensitive values and absolute paths as &lt;redacted&gt;. When a remote ai route apply ends FAILED, FAILED_ROLLED_BACK, or ROLLBACK_FAILED, the CLI prints the operationId, deleted files, restored state, and logs, then exits 69 — it keeps the local candidate and never retries on its own.
+        </p>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href={doc} data-i18n="cliconf.actions.doc">Runtime configuration reference</a>
+        <a class="button" href={cliDoc} data-i18n="cliconf.actions.cli">CLI command reference</a>
+      </div>
+    </div>
+  </article>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "cliconf.eyebrow": "技术文章",
+        "cliconf.title": "默认加固：运行时配置键全景与 CLI 确认语义",
+        "cliconf.lead": "LightESB 只保留一份平台级运行时配置文件，所有可选能力默认关闭，CLI 的每一次写操作都要求 --yes。本文把运行时配置参考与 CLI 命令参考浓缩为加固部署真正需要的配置键、开关与边界。",
+        "cliconf.meta.doc": "文档：",
+        "cliconf.meta.repo": "仓库：",
+        "cliconf.problem.title": "一份平台文件，严格归属",
+        "cliconf.problem.p1": "运行时配置位于 lightesb-camel-app/lightesb-config.properties，启动时可用 java -Dlightesb.config.file=/opt/lightesb/lightesb-config.properties -jar lightesb-camel.jar 覆盖。它负责启动服务端、加载服务包、连接数据库、启用 AI 能力——绝不写入服务包：common.config.properties 与 service.config.properties 只描述本服务自己的路由、端口、组件和业务参数。",
+        "cliconf.problem.p2": "密钥只有一条规则：真实 API key、token、密码、证书路径和内网地址通过环境变量或现场安全配置注入，不写入交付仓库。服务 XML 只能通过显式 {{env:ENV_NAME}} 读取环境变量；普通 {{key}} 占位符只解析同服务版本的 common/service 配置——不读平台文件，也不隐式读取环境变量。",
+        "cliconf.keys.title": "配置键全景：能力默认关闭",
+        "cliconf.keys.core.title": "核心运行时",
+        "cliconf.keys.core.text": "lightesb.route.enabled=true 启用动态路由加载器和路由管理 API；lightesb.route.directory 指向服务包根目录。启动时用 JDK 21 虚拟线程并发加载路由（startup.virtual-thread.enabled=true、startup.max-concurrency=16），热加载前先做文件稳定性检查（file-stable-wait-ms=100、file-stable-max-attempts=10）。",
+        "cliconf.keys.off.title": "显式开启才生效",
+        "cliconf.keys.off.text": "Action catalog、action security、action audit、allowlist 和短期 action token 全部默认 false 且互为前置条件。transformds.enabled、robot.dispatcher.enabled、robot.ai.approval.enabled、ai.logging.enabled、ai.agents.chat.memory.enabled、poc.h2-fallback.enabled 同样默认关闭。",
+        "cliconf.keys.hardened.title": "生产加固姿势",
+        "cliconf.keys.hardened.text": "关闭 H2 console 与 web-allow-others。部署上传受配额约束：单包 2000 个归档条目、单条目 50 MB、解压总量 200 MB、目录深度 16。ai.route.model.log-payload 只在临时排障时开启；服务级 log.redaction.enabled 在日志持久化前完成脱敏。",
+        "cliconf.keys.env.title": "只用环境变量占位",
+        "cliconf.keys.env.text": "随包模板把密钥绑定到环境变量——dashscope.api-key=${DASHSCOPE_API_KEY:}、mysql.url=${LIGHTESB_MYSQL_URL:}、dispatcher.broker-uri=${ROBOT_MQTT_BROKER_URI:}。真实值不进入仓库。",
+        "cliconf.keys.p1": "摘自参考模板的加固片段：",
+        "cliconf.cli.title": "CLI 语义：每次写入都要确认",
+        "cliconf.cli.p1": "CLI 远程命令调用控制面 API——不承载 Camel 运行时，也不绕过服务端状态机。所有写操作必须加 --yes，校验真实路径边界，并原子替换目标文件。",
+        "cliconf.cli.p2": "退出码契约稳定到可以接入门禁：0 成功，64 参数或确认缺失，65 输入文件或业务字段错误（action validate/build 在此叠加稳定 ACTION_* 错误码），69 HTTP 或服务端错误，74 IO 或网络失败，78 配置错误或 doctor 检查失败。",
+        "cliconf.cli.p3": "service start/stop 等待真实 Camel 上下文状态。CLI 给它 130 秒 HTTP 超时，覆盖服务端 120 秒最大转换等待；相反方向、加载失败或超时的转换返回 HTTP 409，且不回滚 server.running。自动化应先查询服务状态或运行时诊断再决定下一步——结果中的 idempotent=true 与 transitionReused=true 会明确说明服务端复用了什么。",
+        "cliconf.boundary.title": "自动化边界与排障",
+        "cliconf.boundary.p1": "action validate/build 完全离线：不连接服务端、不启动 Camel、不触发热加载，build 还拒绝把索引写入任何服务版本目录。doctor 只做环境和只读 API 检查。diagnostics snapshot/warnings 只调用一个端点——GET /api/diagnostics/runtime-snapshot——不读远程文件系统，不触发重载或清理，也不调整日志级别。",
+        "cliconf.boundary.p2": "局部排障用 lightesb.route.temp-only-service=PlatformHttp,RobotMqttCommandSrv，只加载指定服务目录；任一目录缺失启动即失败，不会静默回退到全量加载。无 MySQL POC 用 lightesb.poc.h2-fallback.enabled=true 把实例日志、JsonKeyword 查询和机器人命令账本切到 H2 fallback；用 lightesb diagnostics snapshot --component instance-log --output json 确认 pocH2FallbackEnabled=true。",
+        "cliconf.boundary.p3": "失败处理也是契约的一部分：HTTP 错误摘要保留状态码、错误码和可行动信息，同时脱敏 token、password、secret、authorization、apiKey；route config 把敏感配置值和绝对路径显示为 <redacted>。远程 ai route apply 返回 FAILED、FAILED_ROLLED_BACK 或 ROLLBACK_FAILED 时，CLI 先输出 operationId、删除文件、恢复状态和日志，再以退出码 69 结束——保留本地候选，绝不自动重试。",
+        "cliconf.actions.doc": "运行时配置参考",
+        "cliconf.actions.cli": "CLI 命令参考"
+      }
+    };
+  </script>
+</BaseLayout>

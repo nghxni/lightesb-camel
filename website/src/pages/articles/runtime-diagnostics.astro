@@ -1,0 +1,165 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+const doc = `${repo}/blob/main/docs/runtime-diagnostics-api.md`;
+const runbook = `${repo}/blob/main/docs/cli/support-diagnostics.md`;
+---
+
+<BaseLayout
+  current="/articles"
+  title="Runtime Diagnostics and Read-Only Troubleshooting | LightESB-Camel"
+  description="How the LightESB-Camel runtime diagnostics snapshot and warnings API, together with the read-only CLI, let support collect production evidence remotely — sanitized summaries, server-generated warnings, and no route reloads, data changes, or business traffic."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="diag.eyebrow">Technical article</p>
+      <h1 data-i18n="diag.title">Runtime diagnostics: remote troubleshooting that never touches the business</h1>
+      <p class="lead" data-i18n="diag.lead">
+        LightESB-Camel exposes its live runtime state through one read-only management API and a matching set of CLI commands. The diagnostics snapshot never reloads routes, cleans data, closes connections, or changes log levels — it collects evidence and nothing else.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="diag.meta.docs">Docs:</span> <a href={doc}>docs/runtime-diagnostics-api.md</a></span>
+        <span><span data-i18n="diag.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="diag.problem.title">Evidence collection without side effects</h2>
+        <p data-i18n="diag.problem.p1">
+          When a production ESB route misbehaves, the classic playbook — SSH in, grep logs, restart something — is slow and risky: every evidence-gathering step can itself change the system under observation. The diagnostics API takes the opposite posture — GET /api/diagnostics/runtime-snapshot is a formal remote management API that reports what the runtime already knows, and the CLI mirrors it one-to-one so Codex and automation collect the same evidence with --output json.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="diag.components.title">One snapshot, seven components</h2>
+        <p data-i18n="diag.components.p1">
+          The snapshot accepts serviceName, serviceVersion, and component filters. Each component reports a status, a summary, and warnings — all computed on the server; the CLI only displays them, never infers locally. When the server starts with lightesb.route.enabled=false, the route-runtime component is not registered and filtering by it returns an empty component list.
+        </p>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="diag.components.route.title">route-runtime</h3>
+            <p class="copy" data-i18n="diag.components.route.text">Internal and public service-version status, route files, routeId, CamelContext status, failure stage, diagnostic id, sanitized error summary, and dynamic watcher state — the first stop when a route is not running.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="diag.components.logs.title">service-log and instance-log</h3>
+            <p class="copy" data-i18n="diag.components.logs.text">Logger/config/path consistency, plus writer storage mode, H2 fallback state, query stores, queue and batch state, rejected tasks, and the last flush and errors of the instance log pipeline.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="diag.components.ai.title">ai-route-cache and ai-model-session</h3>
+            <p class="copy" data-i18n="diag.components.ai.text">AI route cache entry counts, TTL, hit and cleanup statistics, and local model session counts, TTL, and limits — AI route issues are observable without reading prompts or payloads.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="diag.components.integration.title">external-datasource and robot-command</h3>
+            <p class="copy" data-i18n="diag.components.integration.text">DataSource cache size, beanName, type, and signature hash; plus the robot command ledger, audit, outbox, dispatcher, state snapshots, compensation, denylist, recent error-code distribution, and a read-only doctor.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2 data-i18n="diag.run.title">Real commands, real output</h2>
+        <p data-i18n="diag.run.p1">
+          Three commands cover most remote evidence collection. A profile carries the server address and token, so the CLI sends Authorization: Bearer automatically:
+        </p>
+        <pre><code>lightesb diagnostics snapshot --server http://localhost:8080 --output json
+lightesb diagnostics warnings --server http://localhost:8080 --output json
+lightesb diagnostics snapshot --server http://localhost:8080 --component route-runtime --output json</code></pre>
+        <p data-i18n="diag.run.p2">
+          The response uses the standard management API envelope. A failed route service shows up with its failure stage and a sanitized error summary — enough to act on without seeing any configuration values:
+        </p>
+        <pre><code>&#123;
+  "success": true,
+  "data": &#123;
+    "runtime": &#123; "generatedAt": "2026-06-30T08:00:00Z", "uptimeMs": 1000, "javaVersion": "21" &#125;,
+    "filters": &#123; "serviceName": "DemoSrv", "serviceVersion": "v1.0.0", "component": "route-runtime" &#125;,
+    "components": [
+      &#123;
+        "component": "route-runtime",
+        "status": "WARN",
+        "summary": &#123;
+          "totalServices": 1,
+          "failedServices": 1,
+          "files": [
+            &#123; "fileKey": "DemoSrv@v1.0.0@route.xml", "internalStatus": "FAILED", "serviceStatus": "STOPPED",
+              "contextStatus": "NOT_CREATED", "failureStage": "CONFIGURATION", "errorSummary": "missing required configuration" &#125;
+          ]
+        &#125;,
+        "warnings": [ "one or more route services are in FAILED state" ]
+      &#125;
+    ]
+  &#125;
+&#125;</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="diag.paths.title">Start from the symptom, end with a controlled recovery</h2>
+        <p data-i18n="diag.paths.p1">
+          The support runbook turns symptoms into short read-only command paths before anyone touches a route file:
+        </p>
+        <ol class="article-steps">
+          <li data-i18n="diag.paths.1">Route not running: route status, route detail, then diagnostics snapshot --component route-runtime for fileKey, routeId, CamelContext status, and warnings.</li>
+          <li data-i18n="diag.paths.2">Missing configuration: route config and route detail return only the missing key name — never the values.</li>
+          <li data-i18n="diag.paths.3">No instance logs: log health plus diagnostics snapshot --component instance-log shows writer and query storage state and the H2 fallback flags.</li>
+          <li data-i18n="diag.paths.4">CLI cannot connect or 401/403: profile current and doctor report the server, exit code, and requestId — profile JSON only reports tokenConfigured flags, never token values.</li>
+        </ol>
+        <p data-i18n="diag.paths.recovery">
+          Recovery is equally narrow: reload the affected route file or service config, then re-check diagnostics warnings. Restart the backend only when Java code, dependencies, Spring beans, global configuration, or startup parameters changed — or when hot reload fails and state is inconsistent.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="diag.boundary.title">Sanitized by design, not by discipline</h2>
+        <p data-i18n="diag.boundary.p1">
+          Diagnostics output contains summaries only: no passwords, tokens, full prompts, payloads, XML, properties, connection strings, or business message bodies. Error summaries from route, instance-log, and robot-command are always redacted — regardless of the service-level log.redaction.enabled switch or caller permissions. This API is not a privileged log-reading channel.
+        </p>
+        <p data-i18n="diag.boundary.p2">
+          It is still a formal management API: put it behind your deployment's authentication, gateway audit, and access-logging policies. On the wire, 401/403 means authorization refused, 5xx means a diagnostics component failed server-side, and the CLI maps failures to exit code 69 (HTTP or success:false) and 78 (no --server or profile configured). Redact secrets and customer payloads before sharing any collected evidence.
+        </p>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href={doc} data-i18n="diag.actions.doc">Diagnostics API guide</a>
+        <a class="button" href={runbook} data-i18n="diag.actions.runbook">Support diagnostics runbook</a>
+      </div>
+    </div>
+  </article>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "diag.eyebrow": "技术文章",
+        "diag.title": "运行时诊断：不触业务的远程排障",
+        "diag.lead": "LightESB-Camel 通过一个只读管理 API 和一组对应的 CLI 命令暴露当前运行态。诊断 snapshot 不会重载路由、清理数据、关闭连接或修改日志级别——它只收集证据，不做任何变更。",
+        "diag.meta.docs": "文档：",
+        "diag.meta.repo": "仓库：",
+        "diag.problem.title": "无副作用的证据收集",
+        "diag.problem.p1": "生产 ESB 路由出问题时，经典做法——SSH 上机、翻日志、重启点什么——既慢又有风险：每一步取证操作本身都可能改变被观察的系统。诊断 API 采取相反姿态——GET /api/diagnostics/runtime-snapshot 是正式远程管理 API，只报告运行时已经知道的信息；CLI 与之一一对应，Codex 和自动化可以用 --output json 收集同样的证据。",
+        "diag.components.title": "一个 snapshot，七个组件",
+        "diag.components.p1": "snapshot 支持 serviceName、serviceVersion 和 component 过滤。每个组件返回 status、summary 和 warnings——全部由服务端计算，CLI 只展示，不在本地推理。服务端以 lightesb.route.enabled=false 启动时，route-runtime 组件不注册，按它过滤会返回空组件列表。",
+        "diag.components.route.title": "route-runtime",
+        "diag.components.route.text": "服务版本内部/公开状态、路由文件、routeId、CamelContext 状态、失败阶段、诊断编号、脱敏错误摘要和动态 watcher 状态——路由没跑起来时的第一站。",
+        "diag.components.logs.title": "service-log 与 instance-log",
+        "diag.components.logs.text": "logger/config/path 一致性，外加 writer 存储模式、H2 fallback 状态、查询存储、队列与批次状态、拒绝任务以及实例日志链路最近 flush 和最近错误。",
+        "diag.components.ai.title": "ai-route-cache 与 ai-model-session",
+        "diag.components.ai.text": "AI 路由缓存条目数、TTL、命中与清理统计，以及模型本地 session 数量、TTL 和上限——不读 prompt 和 payload 也能观察 AI 路由问题。",
+        "diag.components.integration.title": "external-datasource 与 robot-command",
+        "diag.components.integration.text": "DataSource 缓存数量、beanName、类型和签名 hash；外加机器人命令账本、审计、outbox、dispatcher、状态快照、补偿、denylist、最近错误码分布和只读 doctor。",
+        "diag.run.title": "真实命令，真实输出",
+        "diag.run.p1": "三条命令覆盖大多数远程取证。profile 携带服务地址和 token，CLI 自动发送 Authorization: Bearer：",
+        "diag.run.p2": "响应使用管理 API 标准 envelope。失败的路由服务会带失败阶段和脱敏错误摘要出现——看不到任何配置值也足够行动：",
+        "diag.paths.title": "从症状出发，以受控恢复收尾",
+        "diag.paths.p1": "支持手册把症状映射为简短的只读命令路径，之后人才会碰路由文件：",
+        "diag.paths.1": "路由未运行：route status、route detail，再 diagnostics snapshot --component route-runtime 看 fileKey、routeId、CamelContext 状态和 warnings。",
+        "diag.paths.2": "配置缺失：route config 和 route detail 只返回缺失的键名——永远不含配置值。",
+        "diag.paths.3": "没有实例日志：log health 加 diagnostics snapshot --component instance-log，查看 writer 与查询存储状态及 H2 fallback 标志。",
+        "diag.paths.4": "CLI 连不上或 401/403：profile current 和 doctor 报告 server、退出码和 requestId——profile JSON 只报告 tokenConfigured 标志，绝不输出 token 值。",
+        "diag.paths.recovery": "恢复动作同样收敛：重载受影响的路由文件或服务配置，然后复查 diagnostics warnings。只有在 Java 代码、依赖、Spring Bean、全局配置或启动参数变化——或热加载失败、状态不一致——时才重启后端。",
+        "diag.boundary.title": "靠设计脱敏，不靠自觉",
+        "diag.boundary.p1": "诊断输出只有摘要：不含密码、token、完整 prompt、payload、XML、properties、连接串或业务报文正文。route、instance-log 和 robot-command 的错误摘要始终脱敏——不随服务级 log.redaction.enabled 开关或调用者权限变化。这个 API 不是特权日志读取通道。",
+        "diag.boundary.p2": "它仍是正式管理 API：应纳入部署环境的鉴权、网关审计和访问日志策略。链路上 401/403 表示鉴权拒绝，5xx 表示服务端诊断组件执行失败，CLI 把失败映射为退出码 69（HTTP 或 success:false）和 78（未配置 --server 或 profile）。分享收集到的证据前，先脱敏密钥和客户 payload。",
+        "diag.actions.doc": "诊断 API 指南",
+        "diag.actions.runbook": "支持排障手册"
+      }
+    };
+  </script>
+</BaseLayout>

@@ -1,0 +1,129 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+const doc = `${repo}/blob/main/docs/robot-command-dispatcher-api.md`;
+const sample = `${repo}/tree/main/example/routes/RobotEdgeInferenceSrv`;
+---
+
+<BaseLayout
+  current="/articles"
+  title="Robot Shared Safety Policy | LightESB-Camel"
+  description="How LightESB-Camel enforces one shared robot command safety policy across validate and submit — denylist policies scoped by site, robot, or protocol profile, allowlisted commands and approvers, and fail-closed rejection that writes no command and no outbox."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="robsec.eyebrow">Technical article</p>
+      <h1 data-i18n="robsec.title">Robot shared safety policy: denylist, allowlists, and fail-closed semantics</h1>
+      <p class="lead" data-i18n="robsec.lead">
+        LightESB-Camel enforces robot command safety at the management API, not in each route: validate and submit share the same policy snapshot, denylist policies isolate by site, robot, or protocol profile, and every rejection path fails closed — no command, no outbox, no protocol call.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="robsec.meta.sample">Sample:</span> <a href={sample}>example/routes/RobotEdgeInferenceSrv</a></span>
+        <span><span data-i18n="robsec.meta.doc">Doc:</span> <a href={doc}>docs/robot-command-dispatcher-api.md</a></span>
+        <span><span data-i18n="robsec.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="robsec.problem.title">Safety rules belong to the control plane, not to each route</h2>
+        <p data-i18n="robsec.problem.p1">
+          The preflight endpoint POST /service-management/v1/robots/&#123;robotId&#125;/commands:validate and the formal POST .../commands run the same high-level safety rules: move_to checks the target area and requested speed, and configured pick/place checks the station allowlist, server-side interlock, and payload. Area, speed, station, interlock, or payload rejection returns 422 ROBOT_POLICY_REJECTED; an illegal numeric type returns 400 ROBOT_COMMAND_SCHEMA_INVALID.
+        </p>
+        <p data-i18n="robsec.problem.p2">
+          A passed validate only means the current server-side policy snapshot accepts the command — the field map, the PLC/controller safety loop, and actual execution are not verified. Formal submission re-runs the same policy; on rejection no command and no outbox is created.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="robsec.layers.title">One gate, three configuration layers</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="robsec.layers.shared.title">Shared safety rules</h3>
+            <p class="copy" data-i18n="robsec.layers.shared.text">move_to validates target area and speed; pick/place validates the station allowlist, server-side interlock, and payload. Validate and submit both evaluate the same server-side policy snapshot, so the preflight answer is the answer submission would give.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="robsec.layers.denylist.title">Denylist policies</h3>
+            <p class="copy" data-i18n="robsec.layers.denylist.text">ROBOT_POLICY_DENYLIST is maintained through the management API, never in route XML. scopeType supports site, robot, and protocolProfile, with one record per scopeType + scopeValue. A hit on an enabled policy returns 422, triggers no protocol call, and the rejection detail carries policyId and disabledSource.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="robsec.layers.allowlist.title">Allowlist boundaries</h3>
+            <p class="copy" data-i18n="robsec.layers.allowlist.text">AI inference allowedCommands must be a subset of robot.command.allowedActions; approvers are restricted by allowed-approver-ids; and request bodies may not carry dynamic protocol target fields such as topic, mqttTopic, node, register, service, broker, endpoint, unitId, or functionCode.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="robsec.layers.failclosed.title">Fail closed by default</h3>
+            <p class="copy" data-i18n="robsec.layers.failclosed.text">Rejection creates no command and writes no outbox. The AI one-shot submit re-verifies the candidate digest, denylist, capability, and the current safety policy in a single transaction — any failure rolls everything back. Missing inference configuration fails closed too.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2 data-i18n="robsec.admin.title">Policy administration is an audited API</h2>
+        <p data-i18n="robsec.admin.p1">
+          Denylist query, add, enable, and disable all go through the management API. Operations should prefer disable; delete exists only to clean up mistakenly created policies. Every add/enable/disable/delete writes a control-plane audit event with robotId=robot-policy and commandId=policy:&lt;policyId&gt;, readable through the robot audit query entry.
+        </p>
+        <pre><code>POST /service-management/v1/robots/&#123;robotId&#125;/commands:validate
+GET  /service-management/v1/robots/policies/denylist
+POST /service-management/v1/robots/policies/denylist
+POST /service-management/v1/robots/policies/denylist/&#123;id&#125;:enable
+POST /service-management/v1/robots/policies/denylist/&#123;id&#125;:disable</code></pre>
+        <p data-i18n="robsec.admin.p2">
+          Policy and schema failures are separated by error code, which keeps gate decisions and troubleshooting deterministic:
+        </p>
+        <pre><code>400 ROBOT_COMMAND_SCHEMA_INVALID   schema missing, bad pattern, or illegal numeric type
+404 ROBOT_NOT_FOUND                  unknown robot
+422 ROBOT_POLICY_REJECTED            denylist hit, or area/speed/station/interlock/payload rejected
+422 ROBOT_CAPABILITY_NOT_SUPPORTED   capability unsupported
+422 ROBOT_AI_APPROVAL_REQUIRED       AI-reserved commandId submitted through /commands</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="robsec.boundary.title">What the policy gate does not prove</h2>
+        <p data-i18n="robsec.boundary.p1">
+          A passed validate does not verify the field map, PLC/controller safety loop, or execution outcome. Route-level mock validation with robotCommandValidateProcessor and robotCommandEnvelopeProcessor — wrapped in a local doTry/doCatch that maps failures to 400/422 — proves the route, configuration, policy, and message envelope only; it does not prove the broker received anything or that the robot moved.
+        </p>
+        <p data-i18n="robsec.boundary.p2">
+          While a denylist policy is active, read-only robot/state queries stay available and return the disabled status, disabledPolicyId, and source. And outboxStatus=pending after an accepted submit only means the command entered the reliable dispatch queue — nothing more.
+        </p>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href={doc} data-i18n="robsec.actions.doc">Command dispatcher API</a>
+        <a class="button" href={`${repo}/blob/main/docs/robot-edge-inference-mock.md`} data-i18n="robsec.actions.mockdoc">Edge inference mock guide</a>
+      </div>
+    </div>
+  </article>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "robsec.eyebrow": "技术文章",
+        "robsec.title": "机器人共享安全策略：denylist、allowlist 与 fail-closed 语义",
+        "robsec.lead": "LightESB-Camel 在管理面 API 上统一执行机器人命令安全策略，而不是分散在每条路由里：validate 与正式提交共用同一份 policy snapshot，denylist 策略按站点、机器人或协议 profile 隔离生效，所有拒绝路径都 fail closed——不建命令、不写 outbox、不触发协议调用。",
+        "robsec.meta.sample": "样例：",
+        "robsec.meta.doc": "文档：",
+        "robsec.meta.repo": "仓库：",
+        "robsec.problem.title": "安全规则属于控制面，而不是每条路由",
+        "robsec.problem.p1": "预检接口 POST /service-management/v1/robots/{robotId}/commands:validate 与正式 POST .../commands 使用相同的高层命令安全规则：move_to 检查目标区域与请求速度，已配置的 pick/place 检查工位白名单、服务端互锁和载荷。区域、速度、工位、互锁或载荷拒绝返回 422 ROBOT_POLICY_REJECTED，数值类型非法返回 400 ROBOT_COMMAND_SCHEMA_INVALID。",
+        "robsec.problem.p2": "预检通过只说明当前服务端 policy snapshot 接受该命令——现场地图、PLC/控制器安全回路和机器人执行都未因此验证。正式提交会再次执行同一套策略，拒绝时不创建命令或 outbox。",
+        "robsec.layers.title": "一道闸门，三层配置",
+        "robsec.layers.shared.title": "共享安全规则",
+        "robsec.layers.shared.text": "move_to 校验目标区域与速度；pick/place 校验工位白名单、服务端互锁与载荷。validate 与 submit 评估同一份服务端 policy snapshot，预检结论就是提交会得到的结论。",
+        "robsec.layers.denylist.title": "Denylist 策略",
+        "robsec.layers.denylist.text": "ROBOT_POLICY_DENYLIST 通过管理 API 维护，不写在路由 XML 中；scopeType 支持 site、robot、protocolProfile，同一 scopeType + scopeValue 只有一条记录。命中启用策略返回 422，不触发协议调用，拒绝详情带 policyId 与 disabledSource。",
+        "robsec.layers.allowlist.title": "Allowlist 边界",
+        "robsec.layers.allowlist.text": "AI 推理的 allowedCommands 必须是 robot.command.allowedActions 的子集；审批人受 allowed-approver-ids 限制；请求体禁止携带 topic、mqttTopic、node、register、service、broker、endpoint、unitId、functionCode 等动态协议目标字段。",
+        "robsec.layers.failclosed.title": "默认 fail closed",
+        "robsec.layers.failclosed.text": "拒绝时不创建命令、不写 outbox。AI 一次性 submit 在同一事务内重验 candidate digest、denylist、capability 与当前安全策略——任何一步失败全部回滚。推理能力缺失配置同样 fail closed。",
+        "robsec.admin.title": "策略管理是可审计的 API",
+        "robsec.admin.p1": "denylist 的查询、新增、启用、停用全部走管理 API；运维优先 disable，delete 只用于清理误建策略。每次 add/enable/disable/delete 都会写控制面审计（robotId=robot-policy、commandId=policy:<policyId>），可从 robot audit 查询入口读取。",
+        "robsec.admin.p2": "策略失败与 schema 失败按错误码区分，门禁判定与排障都是确定性的：",
+        "robsec.boundary.title": "策略闸门不能证明什么",
+        "robsec.boundary.p1": "validate 通过不代表现场地图、PLC/控制器安全回路或执行结果已验证。路由级 mock 验证（robotCommandValidateProcessor 加 robotCommandEnvelopeProcessor，用局部 doTry/doCatch 把失败映射为 400/422）只证明路由、配置、策略与消息封装，不证明 broker 已收到命令或机器人已执行。",
+        "robsec.boundary.p2": "denylist 生效期间，只读 robot/state 查询继续可用，并返回禁用状态、disabledPolicyId 与来源；提交返回的 outboxStatus=pending 也只表示命令进入可靠派发队列，别无他义。",
+        "robsec.actions.doc": "命令 dispatcher API",
+        "robsec.actions.mockdoc": "边缘推理 mock 指南"
+      }
+    };
+  </script>
+</BaseLayout>

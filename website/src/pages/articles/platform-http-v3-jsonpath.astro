@@ -1,0 +1,147 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+const doc = `${repo}/blob/main/docs/components/04-transform-components.md`;
+---
+
+<BaseLayout
+  current="/articles"
+  title="PlatformHttp v3 JSONPath Order Transform | LightESB-Camel"
+  description="PlatformHttp v3.0.0 builds a strict, observable HTTP order-transform entry: JSONPath extraction of orderId at the edge, servicelog request tracing, and stable UTF-8 JSON response write-back — validated with two curl calls."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="phv3.eyebrow">Technical article</p>
+      <h1 data-i18n="phv3.title">PlatformHttp v3.0.0: JSONPath extraction at the entry, stable UTF-8 responses</h1>
+      <p class="lead" data-i18n="phv3.lead">
+        PlatformHttp v3.0.0 packs an order-transform baseline into one route package: an Undertow HTTP Listener receives order JSON, JSONPath extracts orderId at the entry, servicelog keeps the request observable, and jsonResponseProcessor writes back stable UTF-8 JSON. Here is the design, plus two curls to validate it.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="phv3.meta.sample">Sample:</span> PlatformHttp@v3.0.0 platform-http-route.xml</span>
+        <span><span data-i18n="phv3.meta.doc">Documentation:</span> <a href={doc}>docs/components/04-transform-components.md</a></span>
+        <span><span data-i18n="phv3.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="phv3.problem.title">The entry must be strict and observable</h2>
+        <p data-i18n="phv3.problem.p1">
+          Integration services facing upstream systems share four goals: a clear HTTP Listener entry, key fields such as orderId extracted as early as possible, service-level logs for troubleshooting, and stable JSON responses without Chinese encoding issues. PlatformHttp@v3.0.0 covers all four in a single route.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="phv3.config.title">Listener switch, port, and a versioned URL</h2>
+        <p data-i18n="phv3.config.p1">
+          common.config.properties controls runtime listening: HTTP.Listener=true enables Undertow registration, server.port=18080 fixes the external port, and route endpoints resolve against it at runtime.
+        </p>
+        <pre><code>server.port=18080
+HTTP.Listener=true
+system.components=undertowhttp</code></pre>
+        <p data-i18n="phv3.config.p2">
+          service.config.properties carries the service identity (service.name=PlatformHttp, service.version=3.0.0). The main entry injects &#123;&#123;service.version&#125;&#125; into the URL and restricts the method, so the final request path is POST /3.0.0/transform/order — API versioning stays explicit in the path.
+        </p>
+        <pre><code>&lt;from uri="undertow:http://0.0.0.0:&#123;&#123;server.port&#125;&#125;/&#123;&#123;service.version&#125;&#125;/transform/order?httpMethodRestrict=POST" /&gt;</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="phv3.route.title">Extract once at the entry, reuse downstream</h2>
+        <p data-i18n="phv3.route.p1">
+          The route extracts orderId three ways — log, exchange property, header — then writes the JSON response:
+        </p>
+        <pre><code>&lt;log message="orderId (JSONPath): $&#123;jsonpath($.orderId)&#125;"/&gt;
+&lt;setProperty name="extractedOrderId"&gt;&lt;jsonpath&gt;$.orderId&lt;/jsonpath&gt;&lt;/setProperty&gt;
+&lt;setHeader name="OrderId"&gt;&lt;jsonpath&gt;$.orderId&lt;/jsonpath&gt;&lt;/setHeader&gt;
+&lt;transform&gt;&lt;simple&gt;&#123;"status": "success", "message": "请求处理完成"&#125;&lt;/simple&gt;&lt;/transform&gt;
+&lt;process ref="jsonResponseProcessor"/&gt;
+&lt;setHeader name="Content-Type"&gt;&lt;constant&gt;application/json&lt;/constant&gt;&lt;/setHeader&gt;</code></pre>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="phv3.route.log.title">servicelog tracing</h3>
+            <p class="copy" data-i18n="phv3.route.log.text">servicelog captures request headers and body, so the entry is observable and link-level troubleshooting does not wait for downstream systems.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="phv3.route.reuse.title">Downstream-ready</h3>
+            <p class="copy" data-i18n="phv3.route.reuse.text">orderId lands in both the extractedOrderId property and the OrderId header, ready for later routing decisions and downstream forwarding.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="phv3.route.utf8.title">Stable UTF-8 write-back</h3>
+            <p class="copy" data-i18n="phv3.route.utf8.text">jsonResponseProcessor plus the Content-Type: application/json response header keep Chinese JSON output consistent — no garbled text.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2 data-i18n="phv3.run.title">Two curls, real responses</h2>
+        <p data-i18n="phv3.run.p1">
+          The main transform interface takes an order JSON POST and returns the fixed success response:
+        </p>
+        <pre><code>curl -X POST "http://localhost:18080/3.0.0/transform/order" \
+  -H "Content-Type: application/json" \
+  -d "&#123;\"orderId\":\"ORD-20260409-001\",\"amount\":299.50&#125;"
+
+&#123;"status":"success","message":"请求处理完成"&#125;</code></pre>
+        <p data-i18n="phv3.run.p2">
+          The second entry, /3.0.0/transform/order1, inlines the extracted orderId into the status field — a direct check that JSONPath extraction works:
+        </p>
+        <pre><code>curl -X POST "http://localhost:18080/3.0.0/transform/order1" \
+  -H "Content-Type: application/json" \
+  -d "&#123;\"orderId\":\"ORD-20260409-002\"&#125;"
+
+&#123;"status":"ORD-20260409-002","message":"请求处理完成"&#125;</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="phv3.trouble.title">When the call fails, check in order</h2>
+        <ol class="article-steps">
+          <li data-i18n="phv3.trouble.1">Port not reachable: confirm HTTP.Listener=true and server.port=18080, and that no other process occupies 18080.</li>
+          <li data-i18n="phv3.trouble.2">405 method rejected: the endpoint sets httpMethodRestrict=POST, so the call must use POST.</li>
+          <li data-i18n="phv3.trouble.3">Path mismatch: the version segment comes from &#123;&#123;service.version&#125;&#125; — the URL must be /3.0.0/transform/order or /3.0.0/transform/order1.</li>
+          <li data-i18n="phv3.trouble.4">Garbled Chinese: keep jsonResponseProcessor in the response path and the Content-Type: application/json header.</li>
+        </ol>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href={doc} data-i18n="phv3.doc">Transform components guide</a>
+        <a class="button" href={repo} data-i18n="phv3.repo">LightESB-Camel repository</a>
+      </div>
+    </div>
+  </article>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "phv3.eyebrow": "技术文章",
+        "phv3.title": "PlatformHttp v3.0.0：入口 JSONPath 提取与稳定 UTF-8 响应",
+        "phv3.lead": "PlatformHttp v3.0.0 用一个路由包给出订单转换基线：Undertow HTTP Listener 接收订单 JSON，入口用 JSONPath 尽早提取 orderId，servicelog 保持请求可观测，jsonResponseProcessor 稳定回写 UTF-8 JSON。下面拆解设计，并用两条 curl 直接验证。",
+        "phv3.meta.sample": "样例：",
+        "phv3.meta.doc": "文档：",
+        "phv3.meta.repo": "仓库：",
+        "phv3.problem.title": "请求入口既要严格，也要可观测",
+        "phv3.problem.p1": "对接上游系统的集成服务通常有四个共同目标：清晰的 HTTP Listener 请求入口、尽早提取 orderId 等关键字段、保留服务级日志便于排障、返回无中文编码问题的稳定 JSON。PlatformHttp@v3.0.0 用一条路由覆盖了这四点。",
+        "phv3.config.title": "监听开关、端口与带版本的 URL",
+        "phv3.config.p1": "common.config.properties 控制运行时监听：HTTP.Listener=true 启用 Undertow 注册，server.port=18080 固定对外端口，路由端点在运行时按此端口解析。",
+        "phv3.config.p2": "service.config.properties 承载服务标识（service.name=PlatformHttp，service.version=3.0.0）。主入口把 {{service.version}} 注入 URL 并限定方法，最终请求路径为 POST /3.0.0/transform/order——API 版本语义显式保留在路径里。",
+        "phv3.route.title": "入口提取一次，下游复用",
+        "phv3.route.p1": "路由以三种方式提取 orderId——日志、Exchange Property、Header——随后写出 JSON 响应：",
+        "phv3.route.log.title": "servicelog 链路日志",
+        "phv3.route.log.text": "servicelog 捕获请求头和请求体，入口即可观测，链路排查不用等下游系统。",
+        "phv3.route.reuse.title": "下游转发预留",
+        "phv3.route.reuse.text": "orderId 同时写入 extractedOrderId Property 和 OrderId Header，后续路由决策与下游转发可直接复用。",
+        "phv3.route.utf8.title": "UTF-8 稳定回写",
+        "phv3.route.utf8.text": "jsonResponseProcessor 配合 Content-Type: application/json 响应头，保证中文 JSON 输出一致、不乱码。",
+        "phv3.run.title": "两条 curl，真实响应",
+        "phv3.run.p1": "主转换接口接收订单 JSON 的 POST 请求，返回固定成功响应：",
+        "phv3.run.p2": "第二个入口 /3.0.0/transform/order1 把提取到的 orderId 内联进 status 字段——直接验证 JSONPath 提取是否生效：",
+        "phv3.trouble.title": "调用失败时按顺序排查",
+        "phv3.trouble.1": "端口不通：确认 HTTP.Listener=true、server.port=18080，且 18080 未被其他进程占用。",
+        "phv3.trouble.2": "返回 405：入口配置了 httpMethodRestrict=POST，调用必须使用 POST。",
+        "phv3.trouble.3": "路径不匹配：版本段来自 {{service.version}}，请求 URL 必须是 /3.0.0/transform/order 或 /3.0.0/transform/order1。",
+        "phv3.trouble.4": "中文乱码：保留响应链路上的 jsonResponseProcessor 和 Content-Type: application/json 响应头。",
+        "phv3.doc": "转换组件文档",
+        "phv3.repo": "LightESB-Camel 仓库"
+      }
+    };
+  </script>
+</BaseLayout>

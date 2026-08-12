@@ -1,0 +1,162 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+const doc = `${repo}/blob/main/docs/components/17-action-catalog.md`;
+const allowlistDoc = `${repo}/blob/main/docs/action-allowlist-api.md`;
+const sample = `${repo}/tree/main/example/routes/security-validation/DemoSecuritySrv/v1.0.0`;
+---
+
+<BaseLayout
+  current="/articles"
+  title="Action Catalog and Operation Audit | LightESB-Camel"
+  description="How LightESB-Camel derives a service Action catalog offline, gates agent eligibility with an exact allowlist, and records append-only audit events — tokens stored as digests, payloads never logged."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="catalog.eyebrow">Technical article</p>
+      <h1 data-i18n="catalog.title">Action catalog and operation audit: derived offline, gated precisely, logged without secrets</h1>
+      <p class="lead" data-i18n="catalog.lead">
+        A LightESB service declares what it can do — Actions with contracts, side effects, and exposure — and the bundled CLI derives a deterministic catalog from those facts without starting anything. At runtime the catalog is served from a protected in-memory snapshot, eligibility comes from an exact allowlist, and every control-plane read leaves a redacted, append-only audit trail.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="catalog.meta.sample">Sample:</span> <a href={sample}>example/routes/security-validation/DemoSecuritySrv/v1.0.0</a></span>
+        <span><span data-i18n="catalog.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="catalog.problem.title">A catalog entry is not a permission</h2>
+        <p data-i18n="catalog.problem.p1">
+          Each service declares its Actions in service.config.properties: ids, interaction pattern, side effects, idempotency, retry and approval semantics, exposure. The declaration travels with the service directory, so the catalog can be derived and validated without starting anything — a service without actions.ids is simply skipped in batch mode.
+        </p>
+        <p data-i18n="catalog.problem.p2">
+          The crucial boundary: agentCallable=true only admits an Action into the candidate set. It grants no invocation permission — authentication, allowlist, approval, and audit remain independent layers that the execution side must enforce.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="catalog.derive.title">Derive offline, serve from memory</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="catalog.derive.validate.title">Offline validation</h3>
+            <p class="copy" data-i18n="catalog.derive.validate.text">action validate checks one service version directory — declarations, schemas, enum values, safe placeholders — and writes canonical JSON to stdout only.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="catalog.derive.build.title">Deterministic index</h3>
+            <p class="copy" data-i18n="catalog.derive.build.text">action build scans the two-level app root and atomically writes the index outside any service directory. It is a deletable, rebuildable artifact — never hand-edit it or copy it back.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="catalog.derive.snapshot.title">RUNNING-only snapshot</h3>
+            <p class="copy" data-i18n="catalog.derive.snapshot.text">With lightesb.action-catalog.enabled=true, only service versions that reached RUNNING publish Actions. A failed new generation hides the Action; restoring a missing schema lets the catalog self-heal.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="catalog.derive.security.title">Digest-only credentials</h3>
+            <p class="copy" data-i18n="catalog.derive.security.text">lightesb.action-security stores only the SHA-256 digest of each bearer token; the raw token stays in the caller's secret store. catalog-read, action-admin, and action-execute never inherit from one another.</p>
+          </article>
+        </div>
+        <p data-i18n="catalog.derive.run.p1">
+          Two commands cover the offline loop — validate one service, then build the deterministic index:
+        </p>
+        <pre><code>java -jar lightesb-cli.jar action validate \
+  --service-dir lightesb-camel-app/&#123;serviceName&#125;/&#123;serviceVersion&#125;
+
+java -jar lightesb-cli.jar action build \
+  --app-root lightesb-camel-app \
+  --out build/action-index.json \
+  --yes</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="catalog.allowlist.title">The allowlist narrows, never widens</h2>
+        <p data-i18n="catalog.allowlist.p1">
+          Qualifying an Action for controlled invocation takes all four switches, and every policy endpoint demands an exact action-admin bearer. A policy pins one caller + actionId + serviceVersion; the caller is derived server-side from the submitted credentialName, never self-reported by the client. add/enable re-validate that the descriptor is agent-exposed, callable, VALID, and AVAILABLE — disable still works when the catalog is down, so you can always tighten.
+        </p>
+        <pre><code>lightesb.action-catalog.enabled=true
+lightesb.action-security.enabled=true
+lightesb.action-audit.enabled=true
+lightesb.action-allowlist.enabled=true</code></pre>
+        <p data-i18n="catalog.allowlist.p2">
+          Creating a policy submits only the server-side credentialName — never a caller, token, or digest — and each change commits in the same transaction as its required audit event:
+        </p>
+        <pre><code>curl -H 'Authorization: Bearer &lt;action-admin-token&gt;' \
+  -H 'Content-Type: application/json' \
+  -d '&#123;"credentialName":"agent-executor","actionId":"payment.lookup","serviceVersion":"v1"&#125;' \
+  http://localhost:8080/api/actions/policies/allowlist</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="catalog.audit.title">Append-only audit, redacted by design</h2>
+        <p data-i18n="catalog.audit.p1">
+          With lightesb.action-audit.enabled=true, successful catalog reads append fixed security events on a best-effort basis — an audit storage failure never changes the query result. Policy changes use required audit in the same transaction, so an audit failure rolls the policy change back. The table is append-and-query only: no cleanup, update, delete, retention, or archive API.
+        </p>
+        <pre><code>curl -H 'Authorization: Bearer &lt;original-token&gt;' \
+  'http://localhost:8080/api/actions/audit-events?caller=ops-reader&amp;eventType=catalog_get&amp;result=success&amp;limit=50'</code></pre>
+        <p data-i18n="catalog.audit.p2">
+          Events carry fixed columns — caller, actionId, digests, eventType, result — and never request/response bodies, headers, raw tokens, or free-form details:
+        </p>
+        <pre><code>&#123;
+  "items": [
+    &#123;
+      "auditId": "75f24a91e2394f87b82040f19642ad93",
+      "caller": "ops-reader",
+      "actionId": "payment.lookup",
+      "serviceVersion": "v1",
+      "sourceDigest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "eventType": "CATALOG_GET",
+      "result": "SUCCESS",
+      "createdAt": "2026-08-11T08:00:00Z"
+    &#125;
+  ]
+&#125;</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="catalog.boundary.title">Boundaries and troubleshooting</h2>
+        <p data-i18n="catalog.boundary.p1">
+          Security enabled with an empty credential list fails closed: every Action path returns 401. Reading audit requires the exact action-admin role — 403 otherwise; a duplicate add returns 409 ACTION_ALLOWLIST_CONFLICT, an ineligible target 422 ACTION_ALLOWLIST_ACTION_INELIGIBLE. Paging is bound to filters and revision: when hasMore=true, pass nextCursor back unchanged (or --expected-revision on the CLI), and restart from page one after filters change or a hot reload produces a new revision.
+        </p>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href={doc} data-i18n="catalog.doc">Action catalog guide</a>
+        <a class="button" href={allowlistDoc} data-i18n="catalog.allowlistdoc">Allowlist API</a>
+      </div>
+    </div>
+  </article>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "catalog.eyebrow": "技术文章",
+        "catalog.title": "Action 目录与操作审计：离线派生、精确管控、脱敏留痕",
+        "catalog.lead": "LightESB-Camel 的服务声明自己能做什么——带契约、副作用和暴露范围的 Action——随包 CLI 无需启动任何组件就能从这些事实派生出确定性目录。运行时目录通过受保护的内存快照提供查询，调用资格来自精确 allowlist，每一次控制面读取都会留下脱敏的追加式审计痕迹。",
+        "catalog.meta.sample": "样例：",
+        "catalog.meta.repo": "仓库：",
+        "catalog.problem.title": "目录条目不等于权限",
+        "catalog.problem.p1": "每个服务在 service.config.properties 中声明自己的 Action：id、交互模式、副作用、幂等、重试与审批语义、暴露范围。声明随服务目录一起交付，因此无需启动任何组件即可完成派生与校验；批量模式下未声明 actions.ids 的服务直接跳过。",
+        "catalog.problem.p2": "关键边界在于：agentCallable=true 只是把 Action 放进候选集合，不授予任何实际调用权限——认证、allowlist、审批和审计仍是执行侧必须独立实施的层次。",
+        "catalog.derive.title": "离线派生，内存快照服务",
+        "catalog.derive.validate.title": "离线校验",
+        "catalog.derive.validate.text": "action validate 校验单个服务版本目录——声明、schema、枚举取值与安全占位符——只向标准输出写规范 JSON。",
+        "catalog.derive.build.title": "确定性索引",
+        "catalog.derive.build.text": "action build 扫描两层 app 根目录，以原子替换把索引写到服务目录之外。索引是可删除重建的派生产物——不要手工编辑，也不要复制回服务目录。",
+        "catalog.derive.snapshot.title": "仅 RUNNING 快照",
+        "catalog.derive.snapshot.text": "开启 lightesb.action-catalog.enabled=true 后，只有进入 RUNNING 的服务版本才能发布 Action。新代校验失败时 Action 不可见；补回缺失 schema 后目录可自愈。",
+        "catalog.derive.security.title": "只存 digest 的凭据",
+        "catalog.derive.security.text": "lightesb.action-security 只保存每个 bearer token 的 SHA-256 digest；原 token 留在调用方 secret store。catalog-read、action-admin、action-execute 之间不做隐式继承。",
+        "catalog.derive.run.p1": "两条命令覆盖离线闭环——先校验单个服务，再构建确定性索引：",
+        "catalog.allowlist.title": "allowlist 只收窄，不放宽",
+        "catalog.allowlist.p1": "为受控调用授予资格需要四个开关全部开启，且所有策略端点都要求精确 action-admin bearer。策略只钉住一个 caller + actionId + serviceVersion；caller 由服务端根据提交的 credentialName 派生，客户端不能自报。add/enable 会重验 descriptor 的 Agent 暴露、可调用、VALID 与 AVAILABLE；disable 在目录故障时仍可执行，随时可以安全收紧。",
+        "catalog.allowlist.p2": "新增策略只提交服务端配置的 credentialName——不提交 caller、token 或 digest——每次变化都与 required 审计事件同事务提交：",
+        "catalog.audit.title": "追加式审计，天生脱敏",
+        "catalog.audit.p1": "开启 lightesb.action-audit.enabled=true 后，目录成功读取会 best-effort 追加固定安全事件——审计存储故障不改变原查询结果。策略变化使用 required audit 并与写入同事务，审计失败则策略回滚。审计表只允许追加和查询：没有清理、修改、删除、retention 或归档 API。",
+        "catalog.audit.p2": "事件只含固定列——caller、actionId、digest、eventType、result——绝不包含请求/响应 body、header、原 token 或任意 details：",
+        "catalog.boundary.title": "边界与排障",
+        "catalog.boundary.p1": "显式开启 security 但 credential 为空时失败关闭：所有 Action 路径返回 401。查询审计要求精确 action-admin，否则 403；重复 add 返回 409 ACTION_ALLOWLIST_CONFLICT，资格不达标返回 422 ACTION_ALLOWLIST_ACTION_INELIGIBLE。分页与过滤条件、revision 绑定：hasMore=true 时原样回传 nextCursor（CLI 用 --expected-revision），过滤条件变化或热加载产生新 revision 后必须从第一页重读。",
+        "catalog.doc": "Action 目录指南",
+        "catalog.allowlistdoc": "Allowlist API"
+      }
+    };
+  </script>
+</BaseLayout>

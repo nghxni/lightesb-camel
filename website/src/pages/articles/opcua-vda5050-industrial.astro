@@ -1,0 +1,149 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+const doc = `${repo}/blob/main/docs/components/15-aveva-plant-scada-opcua-mqtt.md`;
+const opcuaSample = `${repo}/tree/main/example/routes/AvevaOpcUaSrv`;
+const vdaSample = `${repo}/tree/main/example/routes/RobotVda5050Srv`;
+---
+
+<BaseLayout
+  current="/articles"
+  title="OPC UA and VDA 5050 Industrial Ingress | LightESB-Camel"
+  description="Native Camel milo-client, paho-mqtt5 and plc4x endpoints wrapped by the industrial processor set — OPC UA DataValue normalized to standard JSON, VDA 5050 orders dispatched on fixed topic patterns, server.running=false by default."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="industrial.eyebrow">Technical article</p>
+      <h1 data-i18n="industrial.title">Industrial ingress that stays off by default: OPC UA DataValue normalization and VDA 5050 dispatch</h1>
+      <p class="lead" data-i18n="industrial.lead">
+        AvevaOpcUaSrv and RobotVda5050Srv show the delivery pattern for plant-floor integration: native Camel endpoints, an industrial processor set that normalizes and guards, and configuration that refuses to connect until the site says so. OPC UA readings leave the route as standard JSON; VDA 5050 orders leave as compliant envelopes on configured topic patterns.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="industrial.meta.sample">Samples:</span> <a href={opcuaSample}>example/routes/AvevaOpcUaSrv</a> · <a href={vdaSample}>example/routes/RobotVda5050Srv</a></span>
+        <span><span data-i18n="industrial.meta.doc">Documentation:</span> <a href={doc}>docs/components/15-aveva-plant-scada-opcua-mqtt.md</a></span>
+        <span><span data-i18n="industrial.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="industrial.problem.title">Plant protocols differ; the danger is connecting by accident</h2>
+        <p data-i18n="industrial.problem.p1">
+          Every plant floor speaks a different protocol — OPC UA on the SCADA side, VDA 5050 over MQTT on the robot side. LightESB-Camel does not hide that behind a new abstraction: routes still use native Camel milo-client:, paho-mqtt5: and plc4x: endpoints, while the industrial processor set handles validation, masking, standard JSON and error mapping.
+        </p>
+        <p data-i18n="industrial.problem.p2">
+          Routes hot-load on file change, so a sample that dials real equipment on load is a real incident. Both industrial samples therefore ship with server.running=false and PLACEHOLDER_CONFIGURE_IN_SITE credentials — the safe default is part of the template, and you flip it only after site configuration.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="industrial.opcua.title">OPC UA: DataValue in, standard JSON out</h2>
+        <p data-i18n="industrial.opcua.p1">
+          AvevaOpcUaSrv enables the wrapper with system.components=undertowhttp,industrial and points at the server through industrial.* keys:
+        </p>
+        <pre><code>HTTP.Listener=true
+server.running=false
+server.port=19110
+system.components=undertowhttp,industrial
+
+industrial.opcua.endpoint.uri=tcp://127.0.0.1:4840
+industrial.opcua.client.id=lightesb-aveva-opcua
+industrial.opcua.read.node=ns=2;s=Plant.Area.Line1.Pump101.Speed
+industrial.opcua.write.node=ns=2;s=Plant.Area.Line1.Pump101.SetPoint
+industrial.opcua.username=PLACEHOLDER_CONFIGURE_IN_SITE</code></pre>
+        <p data-i18n="industrial.opcua.p2">
+          The telemetry route subscribes through milo-client:, then opcUaTelemetryNormalizeProcessor unwraps the Milo DataValue and rewrites the reading as standard JSON with a value field. The route declares the aveva-opcua-telemetry action with contract-stage=normalized bound to that processor ref — a oneWayConsumer that is not agent-callable and has no synchronous output schema.
+        </p>
+        <pre><code>&lt;from uri="milo-client:&#123;&#123;industrial.opcua.endpoint.uri&#125;&#125;?node=&#123;&#123;industrial.opcua.read.node&#125;&#125;&amp;amp;clientId=&#123;&#123;industrial.opcua.client.id&#125;&#125;-reader"/&gt;
+&lt;process ref="opcUaTelemetryNormalizeProcessor"/&gt;
+&lt;toD uri="&#123;&#123;industrial.target.http.uri&#125;&#125;?httpMethod=POST&amp;amp;bridgeEndpoint=true&amp;amp;connectTimeout=&#123;&#123;industrial.target.http.connectTimeout&#125;&#125;&amp;amp;socketTimeout=&#123;&#123;industrial.target.http.socketTimeout&#125;&#125;"/&gt;</code></pre>
+        <p data-i18n="industrial.opcua.p3">
+          Write control is a fixed-target API: POST /api/aveva/opcua/write with &#123;"value":55.5&#125; writes only industrial.opcua.write.node. A body that carries node or topic is rejected — the protocol target is configuration, not input.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="industrial.vda.title">VDA 5050: envelope, topics and idempotency stay server-side</h2>
+        <p data-i18n="industrial.vda.p1">
+          RobotVda5050Srv takes business commands (vda_order / vda_instant_action) through action and robot allowlists plus capability and online checks, then deduplicates by commandId. robotVdaOrderEnvelopeProcessor builds a compliant VDA 5050 body (baseline 3.0.0, not a LightESB envelope), filling version and manufacturer from robot.vda5050.* keys and serialNumber from the robotId.
+        </p>
+        <p data-i18n="industrial.vda.p2">
+          Topics come only from configured patterns — uagv/&#123;siteId&#125;/&#123;robotId&#125;/order — never from the request body; payload fields like topic, node, register or service are rejected outright. A repeated commandId with identical content returns &#123;"status":"duplicate"&#125; without touching the sink; the same id with different content is refused. The sample is mock-only: server.running=false, mock: sinks, no broker.
+        </p>
+        <pre><code>robot.command.allowedActions=vda_order,vda_instant_action
+robot.command.allowedRobotIds=amr-001
+robot.vda5050.order.topic.pattern=uagv/&#123;siteId&#125;/&#123;robotId&#125;/order
+robot.vda5050.instantAction.topic.pattern=uagv/&#123;siteId&#125;/&#123;robotId&#125;/instantActions
+robot.mock.vda5050.order.sink=mock:robotVda5050OrderSink</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="industrial.verify.title">Verify offline before you ever connect</h2>
+        <p data-i18n="industrial.verify.p1">
+          Without a real server or broker, the doc-mock entry proves the boundary: a write carrying only value returns the fixed industrial.opcua.write.node summary with externalWriteInvoked=false, while adding a dynamic node answers 422 — a dynamic-target rejection:
+        </p>
+        <pre><code>curl -X POST "http://localhost:19189/api/doc-mock/aveva/opcua/write" \
+  -H "Content-Type: application/json" \
+  -d '&#123;"value":55.5&#125;'
+
+curl -X POST "http://localhost:19189/api/doc-mock/aveva/opcua/write" \
+  -H "Content-Type: application/json" \
+  -d '&#123;"value":55.5,"node":"ns=9;s=Override"&#125;'</code></pre>
+        <p data-i18n="industrial.verify.p2">
+          The VDA 5050 package verifies the same way — one Maven command exercises topic patterns, required-field validation, dynamic-topic rejection and commandId idempotency, with no broker and no AMR:
+        </p>
+        <pre><code>mvn -q -pl lightesb-camel-core "-Dtest=RobotVda5050RouteTest,RobotExampleServicePackageTest" test</code></pre>
+        <p data-i18n="industrial.verify.p3">
+          Only then comes real integration: configure the actual OPC UA server or MQTT 5 broker, load site credentials and certificates, flip server.running=true, confirm the route is STARTED, and check that the downstream receives the standard JSON.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="industrial.boundary.title">What the mock proves — and what it does not</h2>
+        <p data-i18n="industrial.boundary.p1">
+          Offline verification proves route structure, the fixed-target boundary and error responses. It says nothing about field interoperability with a real OPC UA server, certificates, node permissions or PLC byte order — the delivery note must state which validations were done and which were not.
+        </p>
+        <p data-i18n="industrial.boundary.p2">
+          When something breaks, check in order: processor not found → system.components must contain industrial; route fails to start → server/broker address and credentials; MQTT wildcard topics → handle # per Camel URI rules; write rejected → the body must not specify node or topic.
+        </p>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href={doc} data-i18n="industrial.doc">OPC UA / MQTT / Modbus guide</a>
+        <a class="button" href={vdaSample} data-i18n="industrial.vdasample">VDA 5050 sample route</a>
+      </div>
+    </div>
+  </article>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "industrial.eyebrow": "技术文章",
+        "industrial.title": "默认不连接的工业接入：OPC UA DataValue 标准化与 VDA 5050 指令分发",
+        "industrial.lead": "AvevaOpcUaSrv 与 RobotVda5050Srv 展示了现场系统接入的交付范式：端点仍是 Camel 原生组件，industrial 处理器负责标准化与边界防护，配置在现场确认前拒绝连接。OPC UA 读数以标准 JSON 离开路由；VDA 5050 订单以合规 envelope 按配置化 topic pattern 分发。",
+        "industrial.meta.sample": "样例：",
+        "industrial.meta.doc": "文档：",
+        "industrial.meta.repo": "仓库：",
+        "industrial.problem.title": "现场协议各不相同，危险在于误连接",
+        "industrial.problem.p1": "每个车间说着不同的协议——SCADA 一侧是 OPC UA，机器人一侧是跑在 MQTT 上的 VDA 5050。LightESB-Camel 不用新抽象掩盖这一点：路由仍使用 Camel 原生 milo-client:、paho-mqtt5: 和 plc4x: 端点，校验、脱敏、标准 JSON 与错误映射由 industrial 处理器完成。",
+        "industrial.problem.p2": "路由文件变更即热加载，一加载就拨号真实设备的样例就是一次真实事故。两个工业样例因此都默认 server.running=false，凭据全部写作 PLACEHOLDER_CONFIGURE_IN_SITE——安全默认是模板的一部分，只有完成现场配置后才改为 true。",
+        "industrial.opcua.title": "OPC UA：DataValue 进，标准 JSON 出",
+        "industrial.opcua.p1": "AvevaOpcUaSrv 通过 system.components=undertowhttp,industrial 启用轻封装，用 industrial.* 键指向服务器：",
+        "industrial.opcua.p2": "遥测路由经 milo-client: 订阅，opcUaTelemetryNormalizeProcessor 解包 Milo DataValue，把读数改写为带 value 字段的标准 JSON。路由声明 aveva-opcua-telemetry Action，metadata 为 contract-stage=normalized 并绑定该 processor ref——它是不可主动调用的 oneWayConsumer，没有同步 output schema。",
+        "industrial.opcua.p3": "写控制是固定目标 API：POST /api/aveva/opcua/write 携带 {\"value\":55.5} 只写 industrial.opcua.write.node。请求体一旦带 node 或 topic 就被拒绝——协议目标是配置，不是输入。",
+        "industrial.vda.title": "VDA 5050：envelope、topic 与幂等都在服务端",
+        "industrial.vda.p1": "RobotVda5050Srv 接收业务命令（vda_order / vda_instant_action），先过动作白名单、机器人白名单以及能力与在线状态校验，再按 commandId 幂等去重。robotVdaOrderEnvelopeProcessor 构造合规 VDA 5050 body（baseline 3.0.0，不是 LightESB envelope），version、manufacturer 缺省时由 robot.vda5050.* 配置补齐，serialNumber 由 robotId 补齐。",
+        "industrial.vda.p2": "topic 只能由配置模板生成——uagv/{siteId}/{robotId}/order——请求体不能动态覆盖；payload 中出现 topic、node、register、service 等字段直接拒绝。commandId 重复且内容相同：幂等返回 {\"status\":\"duplicate\"}，不再写入 sink；内容不同则拒绝。样例是 mock-only：默认 server.running=false，sink 为 mock:，无任何 broker。",
+        "industrial.verify.title": "先离线验证，再谈连接",
+        "industrial.verify.p1": "没有真实 Server/Broker 时，doc-mock 入口证明边界：只传 value 的写请求返回固定 industrial.opcua.write.node 摘要和 externalWriteInvoked=false；加上动态 node 则返回 422——动态目标拒绝：",
+        "industrial.verify.p2": "VDA 5050 包同样离线验证——一条 Maven 命令覆盖 topic pattern、必填字段校验、动态 topic 拒绝和 commandId 幂等，全程不连 broker 或 AMR：",
+        "industrial.verify.p3": "之后才进入真实联调：配置真实 OPC UA Server 或 MQTT 5 Broker，加载现场凭据与证书，改 server.running=true，确认路由为 STARTED，并验证下游收到标准 JSON。",
+        "industrial.boundary.title": "mock 证明了什么，没证明什么",
+        "industrial.boundary.p1": "离线验证只证明路由结构、固定目标边界和错误响应，不证明与真实 OPC UA Server、证书、点位权限或 PLC 字节序的现场互操作——交付说明里必须写清哪些验证已做、哪些未做。",
+        "industrial.boundary.p2": "出问题时按序排查：找不到 processor → system.components 必须包含 industrial；路由启动失败 → 检查 Server/Broker 地址与凭据；MQTT 通配 topic → 按 Camel URI 规则处理 # 等特殊字符；写控制被拒绝 → 请求体不能动态指定 node 或 topic。",
+        "industrial.doc": "OPC UA / MQTT / Modbus 接入指南",
+        "industrial.vdasample": "VDA 5050 样例路由"
+      }
+    };
+  </script>
+</BaseLayout>

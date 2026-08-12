@@ -1,0 +1,142 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+const doc = `${repo}/blob/main/docs/components/12-ai-chat.md`;
+const sample = `${repo}/tree/main/example/routes/AiAgentDemoSrv`;
+---
+
+<BaseLayout
+  current="/articles"
+  title="AI Agent Integration on a Solo Budget | LightESB-Camel"
+  description="How a solo developer or small team ships a complex API integration loop for under $7: one HTTP entrypoint, a LangChain4j agent with tagged tool routes, a stable response contract, and a 7-day delivery plan — the LightESB AiAgentDemoSrv pattern."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="solo.eyebrow">Technical article</p>
+      <h1 data-i18n="solo.title">Complex API integration on a solo budget: one agent, three tools, seven days</h1>
+      <p class="lead" data-i18n="solo.lead">
+        Solo founders and small teams do not need a big budget to wire AI into business systems. With the LightESB AiAgentDemoSrv pattern — a single HTTP entrypoint, a LangChain4j agent, and tagged tool routes — a production-minded integration loop runs on an all-open-source stack plus under $7 of model API credit.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="solo.meta.sample">Sample:</span> <a href={sample}>example/routes/AiAgentDemoSrv</a></span>
+        <span><span data-i18n="solo.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="solo.problem.title">The blocker is fragmentation, not budget</h2>
+        <p data-i18n="solo.problem.p1">
+          Most teams do not fail because APIs are missing — they fail because flows are fragmented: multiple endpoints with inconsistent payloads, business users who cannot call raw APIs, and growing maintenance cost from glue code. The AiAgentDemoSrv pattern standardizes the full loop: the user sends a natural-language intent, the agent selects and executes tools, and the system returns both a human-readable responseText and structured toolData.
+        </p>
+        <p data-i18n="solo.problem.p2">
+          The budget split is deliberately small: $0 for the open-source stack (LightESB, Apache Camel, LangChain4j), $3-$7 for a small LLM API top-up to test real tool calling, and $0 for local debugging and iteration. The goal is not scale on day one — it is a repeatable, demo-ready integration loop.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="solo.arch.title">A minimal architecture you can copy</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="solo.arch.entry.title">Single entrypoint</h3>
+            <p class="copy" data-i18n="solo.arch.entry.text">POST /api/ai/agent/chat — every client (web app, admin panel, internal assistant) calls one endpoint, and the request body is standardized as memoryId + message.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="solo.arch.agent.title">Agent orchestration</h3>
+            <p class="copy" data-i18n="solo.arch.agent.text">The system prompt fixes the agent's role, language, and behavior; a stable memoryId enables multi-turn follow-ups and clarification.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="solo.arch.tools.title">Tagged tool routes</h3>
+            <p class="copy" data-i18n="solo.arch.tools.text">listRecentOrders, queryOrderDetail, cancelOrder — each tool declares a clear description, explicit parameter declarations, and returns deterministic JSON.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="solo.arch.contract.title">Unified response contract</h3>
+            <p class="copy" data-i18n="solo.arch.contract.text">Keep the response schema stable — success, memoryId, responseText, toolData, timestamp — so UI rendering, logs, and audit all read the same shape.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2 data-i18n="solo.run.title">Real calls before you call it done</h2>
+        <p data-i18n="solo.run.p1">
+          Run 10-20 real user prompts through the entrypoint with curl or Postman, and track success rate, clarification rate, and error rate. One real call against the demo service:
+        </p>
+        <pre><code>curl -X POST "http://localhost:19095/api/ai/agent/chat" \
+  -H "Content-Type: application/json" \
+  -d '&#123;"memoryId":"demo-order-session","message":"查询订单 MOCK-1001 的状态"&#125;'</code></pre>
+        <p data-i18n="solo.run.p2">
+          Every client reads the same stable contract — responseText for people, toolData for machines:
+        </p>
+        <pre><code>&#123;
+  "success": true,
+  "memoryId": "demo-order-session",
+  "responseText": "Order MOCK-1001 is shipped.",
+  "toolData": &#123; "orderId": "MOCK-1001", "status": "SHIPPED" &#125;,
+  "timestamp": "2026-08-11T12:00:00Z"
+&#125;</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="solo.plan.title">A 7-day delivery plan</h2>
+        <ol class="article-steps">
+          <li data-i18n="solo.plan.1">Day 1-2: stand up the single listener endpoint and fix the request contract as memoryId + message.</li>
+          <li data-i18n="solo.plan.2">Day 3-4: implement three high-value tools — list, detail, and one action such as cancel — with consistent parameter and error semantics.</li>
+          <li data-i18n="solo.plan.3">Day 5-6: verify multi-turn memory by reusing one memoryId across follow-ups, then normalize responses so the UI and logs share one protocol and failures stay traceable.</li>
+          <li data-i18n="solo.plan.4">Day 7: run the 10-20-prompt acceptance pass and record success rate, clarification rate, and error rate before demoing.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2 data-i18n="solo.boundary.title">When the loop misbehaves</h2>
+        <p data-i18n="solo.boundary.p1">
+          If the agent never calls a tool, check that tags align between the agent and its tools, strengthen tool descriptions so they are distinguishable, and verify the parameter declarations are complete.
+        </p>
+        <p data-i18n="solo.boundary.p2">
+          If multi-turn context is lost, reuse the same memoryId, confirm memory is enabled, and tune the memory turn limit. Scaling past MVP means adding tools route by route from one proven domain — not rewriting the architecture. A low budget is not the blocker; the lack of a standard orchestration pattern is.
+        </p>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href={doc} data-i18n="solo.actions.doc">AI Agent + Tools guide</a>
+        <a class="button" href={sample} data-i18n="solo.actions.sample">AiAgentDemoSrv sample</a>
+      </div>
+    </div>
+  </article>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "solo.eyebrow": "技术文章",
+        "solo.title": "小预算跑通复杂接口集成：一个 Agent、三个工具、七天",
+        "solo.lead": "独立开发者和小团队把 AI 接入业务系统，不需要大预算。基于 LightESB AiAgentDemoSrv 模式——单一 HTTP 入口、LangChain4j Agent 和带 tags 的工具路由——一套面向生产的集成闭环只需全开源技术栈，加上 50 元以内的模型 API 充值。",
+        "solo.meta.sample": "样例：",
+        "solo.meta.repo": "仓库：",
+        "solo.problem.title": "障碍不是预算，是流程碎片化",
+        "solo.problem.p1": "团队失败通常不是因为缺接口，而是流程碎片化：多个端点报文不一致、业务方无法直接调用原始 API、胶水代码维护成本持续上涨。AiAgentDemoSrv 模式把完整闭环标准化：用户用自然语言表达意图，Agent 选择并执行工具，系统同时返回人可读的 responseText 和结构化的 toolData。",
+        "solo.problem.p2": "预算分配刻意压到最低：0 元开源栈（LightESB、Apache Camel、LangChain4j），20~50 元模型 API 小额充值用于真实工具调用验证，0 元本地联调与迭代。目标不是第一天就上规模，而是拿到可重复、可演示的集成闭环。",
+        "solo.arch.title": "可直接复刻的最小架构",
+        "solo.arch.entry.title": "单一入口",
+        "solo.arch.entry.text": "POST /api/ai/agent/chat——所有端（Web 应用、管理后台、内部助手）只接这一个入口，请求体统一为 memoryId + message。",
+        "solo.arch.agent.title": "Agent 编排层",
+        "solo.arch.agent.text": "系统提示词约束 Agent 的角色、语言和行为；稳定的 memoryId 支撑多轮追问与澄清。",
+        "solo.arch.tools.title": "带 tags 的工具路由",
+        "solo.arch.tools.text": "listRecentOrders、queryOrderDetail、cancelOrder——每个工具声明清晰的 description、显式的 parameter 参数声明，并返回确定性 JSON。",
+        "solo.arch.contract.title": "统一响应契约",
+        "solo.arch.contract.text": "固定响应 Schema——success、memoryId、responseText、toolData、timestamp——让 UI 渲染、日志和审计读同一份结构。",
+        "solo.run.title": "宣布完成前，先跑真实调用",
+        "solo.run.p1": "用 curl 或 Postman 对入口跑 10~20 条真实业务语句，记录成功率、补问率和异常率。对演示服务的一次真实调用：",
+        "solo.run.p2": "所有客户端读同一份稳定契约——responseText 给人看，toolData 给机器用：",
+        "solo.plan.title": "七天交付计划",
+        "solo.plan.1": "Day 1-2：搭起单一 Listener 入口，请求契约固定为 memoryId + message。",
+        "solo.plan.2": "Day 3-4：实现三个高价值工具——列表、详情和一个动作（如取消），参数与异常语义保持一致。",
+        "solo.plan.3": "Day 5-6：复用同一 memoryId 验证多轮上下文；统一回写协议，让前端与日志共用同一结构、失败可追溯。",
+        "solo.plan.4": "Day 7：完成 10~20 条真实语句验收，记录成功率、补问率、异常率，再对外演示。",
+        "solo.boundary.title": "闭环失常怎么查",
+        "solo.boundary.p1": "Agent 不调用工具：检查 Agent 与工具之间的 tags 是否对齐、工具 description 是否可区分、参数声明是否完整。",
+        "solo.boundary.p2": "多轮上下文丢失：复用同一个 memoryId、确认记忆已开启、调整记忆轮次上限。MVP 之后的扩展是在已验证的业务域上按路由逐个加工具，而不是推翻整体架构。预算少不是障碍，缺少标准化的编排模式才是。",
+        "solo.actions.doc": "AI Agent + Tools 组件文档",
+        "solo.actions.sample": "AiAgentDemoSrv 样例"
+      }
+    };
+  </script>
+</BaseLayout>

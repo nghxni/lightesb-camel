@@ -1,0 +1,142 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+const doc = `${repo}/blob/main/docs/components/01-http-route-basics.md`;
+---
+
+<BaseLayout
+  current="/articles"
+  title="HTTP Listener and Undertow Request Routing | LightESB-Camel"
+  description="How HTTP.Listener, server.port, and system.components=undertowhttp gate Undertow registration in LightESB, and how HttpRequestSrv closes the request-response loop — undertow: entries, httpMethodRestrict, and curl verification."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="httpl.eyebrow">Technical article</p>
+      <h1 data-i18n="httpl.title">HTTP listener and Undertow request routing: one request-response loop</h1>
+      <p class="lead" data-i18n="httpl.lead">
+        When a LightESB service exposes HTTP APIs, the route XML is only half of the picture — the other half is the runtime listener switch. Using HttpRequestSrv as the example, this article shows how HTTP.Listener, server.port, and system.components=undertowhttp gate Undertow registration, and how a single route closes the request-response loop.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="httpl.meta.sample">Sample:</span> HttpRequestSrv@v1.0.0 · http-request-route.xml</span>
+        <span><span data-i18n="httpl.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="httpl.problem.title">The listener switch lives outside the route XML</h2>
+        <p data-i18n="httpl.problem.p1">
+          In LightESB, Undertow component registration is controlled by configuration, not by the route. HTTP.Listener=true registers Undertow and exposes HTTP routes; HTTP.Listener=false skips registration entirely. Teams decide whether a service is externally reachable without touching a line of route XML.
+        </p>
+        <p data-i18n="httpl.problem.p2">
+          Three keys in common.config.properties carry the whole decision: server.port sets the runtime listening port, HTTP.Listener switches the listener on, and system.components=undertowhttp enables the Undertow component capability.
+        </p>
+        <pre><code>server.port=18083
+HTTP.Listener=true
+system.components=undertowhttp</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="httpl.entries.title">Two undertow: entries, one strict method guard</h2>
+        <p data-i18n="httpl.entries.p1">
+          HttpRequestSrv defines two Undertow entries in http-request-route.xml:
+        </p>
+        <pre><code>&lt;from uri="undertow:http://0.0.0.0:&#123;&#123;server.port&#125;&#125;/api/httprequest/test?httpMethodRestrict=POST" /&gt;
+&lt;from uri="undertow:http://0.0.0.0:&#123;&#123;server.port&#125;&#125;/api/test?httpMethodRestrict=POST"/&gt;</code></pre>
+        <p data-i18n="httpl.entries.p2">
+          0.0.0.0 listens on all NICs, &#123;&#123;server.port&#125;&#125; injects the environment-level port, and httpMethodRestrict=POST rejects non-POST methods right at the endpoint — a clean entry pattern that keeps business processors focused.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="httpl.flow.title">Listener, forwarder, responder: the closed loop</h2>
+        <p data-i18n="httpl.flow.p1">
+          The first route acts as both inbound listener and outbound requester: it receives the external request on /api/httprequest/test, logs the start with servicelog, forwards to the local endpoint /api/test with bridgeEndpoint=true and explicit timeouts, then logs completion and returns the response.
+        </p>
+        <pre><code>&lt;to uri="servicelog:info?message=开始处理HTTP请求&amp;amp;showBody=true&amp;amp;maxBodyLength=500"/&gt;
+&lt;to uri="http://0.0.0.0:18083/api/test?httpMethod=POST&amp;amp;contentType=application/json&amp;amp;bridgeEndpoint=true&amp;amp;connectTimeout=5000&amp;amp;socketTimeout=30000"/&gt;
+&lt;to uri="servicelog:info?message=HTTP请求完成&amp;amp;showBody=true&amp;amp;maxBodyLength=5000"/&gt;</code></pre>
+        <p data-i18n="httpl.flow.p2">
+          The second route handles /api/test and returns a fixed JSON payload — &#123;"message": "HTTP Response Test"&#125; — so the whole loop is verifiable in seconds.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="httpl.run.title">Prove the loop with curl</h2>
+        <p data-i18n="httpl.run.p1">
+          POST to the entry listener; the route forwards to /api/test and the fixed JSON comes back:
+        </p>
+        <pre><code>curl -X POST "http://localhost:18083/api/httprequest/test" \
+  -H "Content-Type: application/json" \
+  -d "\&#123;\"orderId\":\"A1001\",\"amount\":199.9\&#125;"
+
+&#123;"message": "HTTP Response Test"&#125;</code></pre>
+        <p data-i18n="httpl.run.p2">
+          To verify the downstream route in isolation, POST an empty body to /api/test directly — it answers with the same fixed response. Entry and completion logs stay visible through servicelog.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="httpl.boundary.title">Where the loop breaks</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="httpl.boundary.unreachable.title">API not reachable</h3>
+            <p class="copy" data-i18n="httpl.boundary.unreachable.text">Confirm HTTP.Listener=true, that server.port is valid and not occupied, that the route file was loaded, and that startup logs show Undertow registration success.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="httpl.boundary.conflict.title">Port conflict</h3>
+            <p class="copy" data-i18n="httpl.boundary.conflict.text">Another process already binds the same port — or a hot reload did not release the previous context. Free the port and check the release lifecycle.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="httpl.boundary.method.title">405 or route miss</h3>
+            <p class="copy" data-i18n="httpl.boundary.method.text">The routes restrict to POST, so a GET returns 405. Also check that the request path matches the route URI exactly.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="httpl.boundary.timeout.title">Forward timeout, missing body</h3>
+            <p class="copy" data-i18n="httpl.boundary.timeout.text">Check connectTimeout/socketTimeout and that /api/test is reachable. If logs lack the request body, servicelog needs showBody=true and a larger maxBodyLength.</p>
+          </article>
+        </div>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href={doc} data-i18n="httpl.doc">HTTP route basics</a>
+        <a class="button" href={repo} data-i18n="httpl.repo">LightESB-Camel repository</a>
+      </div>
+    </div>
+  </article>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "httpl.eyebrow": "技术文章",
+        "httpl.title": "HTTP Listener 与 Undertow 请求路由：一次请求-响应闭环",
+        "httpl.lead": "LightESB 服务要对外提供 HTTP API，路由 XML 只是一半，另一半是运行时监听开关。本文以 HttpRequestSrv 为例，说明 HTTP.Listener、server.port 与 system.components=undertowhttp 如何控制 Undertow 注册，以及一条路由如何完成请求-响应闭环。",
+        "httpl.meta.sample": "样例：",
+        "httpl.meta.repo": "仓库：",
+        "httpl.problem.title": "监听开关在路由 XML 之外",
+        "httpl.problem.p1": "在 LightESB 中，Undertow 组件注册由配置控制，而不是由路由决定。HTTP.Listener=true 注册 Undertow 并对外暴露 HTTP 路由；HTTP.Listener=false 则完全跳过注册。服务是否对外可达由配置决定，一行路由 XML 都不用改。",
+        "httpl.problem.p2": "common.config.properties 里三个键承载全部决策：server.port 决定运行时监听端口，HTTP.Listener 打开监听开关，system.components=undertowhttp 启用 Undertow 组件能力。",
+        "httpl.entries.title": "两个 undertow: 入口，一道严格的方法闸门",
+        "httpl.entries.p1": "HttpRequestSrv 在 http-request-route.xml 中定义了两个 Undertow 入口：",
+        "httpl.entries.p2": "0.0.0.0 监听所有网卡，{{server.port}} 注入环境级端口，httpMethodRestrict=POST 在端点层直接拒绝非 POST 方法——干净的入口写法，让业务 Processor 保持专注。",
+        "httpl.flow.title": "监听、转发、应答：闭合一环",
+        "httpl.flow.p1": "第一条路由同时承担入口监听与出口转发：在 /api/httprequest/test 接收外部请求，用 servicelog 记录开始日志，以 bridgeEndpoint=true 和显式超时转发到本服务 /api/test，随后记录完成日志并返回响应。",
+        "httpl.flow.p2": "第二条路由处理 /api/test 并返回固定 JSON——{\"message\": \"HTTP Response Test\"}——整个闭环几秒内即可验证。",
+        "httpl.run.title": "用 curl 验证闭环",
+        "httpl.run.p1": "向入口 Listener 发 POST；路由转发到 /api/test，固定 JSON 原路返回：",
+        "httpl.run.p2": "要单独验证下游路由，直接 POST 空 body 到 /api/test——它会返回同样的固定响应。入口与完成日志通过 servicelog 可见。",
+        "httpl.boundary.title": "闭环断在哪里",
+        "httpl.boundary.unreachable.title": "API 不可达",
+        "httpl.boundary.unreachable.text": "确认 HTTP.Listener=true、server.port 有效且未被占用、路由文件已被加载，并检查启动日志中 Undertow 注册成功。",
+        "httpl.boundary.conflict.title": "端口冲突",
+        "httpl.boundary.conflict.text": "另一个进程已绑定同一端口，或热加载时旧上下文未释放。释放端口并检查释放生命周期。",
+        "httpl.boundary.method.title": "405 或路由未命中",
+        "httpl.boundary.method.text": "路由限制为 POST，GET 会返回 405。同时确认请求路径与路由 URI 完全一致。",
+        "httpl.boundary.timeout.title": "转发超时、日志缺正文",
+        "httpl.boundary.timeout.text": "检查 connectTimeout/socketTimeout 以及 /api/test 是否可达；日志看不到请求体时，确认 servicelog 的 showBody=true，必要时调大 maxBodyLength。",
+        "httpl.doc": "HTTP 路由基础",
+        "httpl.repo": "LightESB-Camel 仓库"
+      }
+    };
+  </script>
+</BaseLayout>

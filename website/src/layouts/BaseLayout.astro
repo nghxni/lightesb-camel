@@ -384,6 +384,9 @@ const navItems = [
         }
       };
 
+      // Page-level dictionaries: article pages may define window.pageTranslations before this script runs.
+      Object.assign(translations.zh, (window.pageTranslations && window.pageTranslations.zh) || {});
+
       function setLanguage(lang) {
         const normalized = lang === "zh" ? "zh" : "en";
         const dict = translations[normalized] || {};

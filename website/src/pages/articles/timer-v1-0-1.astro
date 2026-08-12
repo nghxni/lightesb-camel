@@ -1,0 +1,145 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+const doc = `${repo}/blob/main/docs/components/14-timer-routes.md`;
+const sample = `${repo}/tree/main/example/routes/timer`;
+---
+
+<BaseLayout
+  current="/articles"
+  title="Timer v1.0.1: Service-Level Logging for Scheduled Routes | LightESB-Camel"
+  description="LightESB Timer v1.0.1 adds servicelog service-level logging with per-service level control, a structured status payload with an explicit version field, and jsonResponseProcessor for stable UTF-8 Chinese output — moving scheduled routes from 'it runs' to 'diagnosable and publishable'."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="timer.eyebrow">Technical article</p>
+      <h1 data-i18n="timer.title">Timer v1.0.1: scheduled routes that are diagnosable, not just running</h1>
+      <p class="lead" data-i18n="timer.lead">
+        Timer v1.0.1 keeps the lightweight Camel timer trigger and adds three production upgrades: servicelog service-level logging, a structured status payload with an explicit version field, and jsonResponseProcessor for stable UTF-8 output of Chinese text — so a scheduled route becomes diagnosable and publishable, not just alive.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="timer.meta.sample">Sample:</span> <a href={sample}>example/routes/timer</a></span>
+        <span><span data-i18n="timer.meta.doc">Guide:</span> <a href={doc}>docs/components/14-timer-routes.md</a></span>
+        <span><span data-i18n="timer.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="timer.problem.title">v1.0.0 proved liveness; production needs more</h2>
+        <p data-i18n="timer.problem.p1">
+          The v1.0.0 sample established the baseline pattern: one route writes a fixed line every ten seconds via timer:independentTest?period=10000, and a second route emits a JSON status check every fifteen seconds. As long as those lines appear on schedule, the route thread and the CamelContext are alive — a simple liveness proof for inspection, cache refresh, batch, and heartbeat jobs.
+        </p>
+        <p data-i18n="timer.problem.p2">
+          Three gaps remained. Plain log: output mixes every service into one stream with no per-service level control; the status payload carried no version field, so diagnostics could not tell v1.0.0 from v1.0.1; and any route output consumed externally — dashboards, alerts, HTTP or storage chains — exposed UTF-8 encoding risk for Chinese text. v1.0.1 closes exactly these three gaps.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="timer.changes.title">What v1.0.1 changes</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="timer.changes.servicelog.title">Service-level logging</h3>
+            <p class="copy" data-i18n="timer.changes.servicelog.text">Routes log through servicelog:info and servicelog:debug, so each service gets isolated log behavior and independent level control — switch one service key to DEBUG for short-term troubleshooting. showBody=true and maxBodyLength=200 keep body output bounded.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="timer.changes.status.title">Structured status fields</h3>
+            <p class="copy" data-i18n="timer.changes.status.text">independent-status-check now emits a stable JSON payload — file, status, timestamp, plus an explicit version field — so dashboards and alert rules parse fields directly and diagnostics become version-aware.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="timer.changes.processor.title">jsonResponseProcessor</h3>
+            <p class="copy" data-i18n="timer.changes.processor.text">A &lt;process ref="jsonResponseProcessor"/&gt; step joins the route: a LightESB custom processor that improves response encoding behavior, especially for Chinese text output consumed by downstream chains.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="timer.changes.versioning.title">Versioned evolution</h3>
+            <p class="copy" data-i18n="timer.changes.versioning.text">The sample ships as timer/v1.0.0 and timer/v1.0.1 side by side, so scheduled routes iterate independently per service version directory — upgrade one version without touching the other.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2 data-i18n="timer.config.title">Real route configuration and observed output</h2>
+        <p data-i18n="timer.config.p1">
+          The v1.0.1 route replaces route-level log: calls with servicelog endpoints, including bounded body output:
+        </p>
+        <pre><code>&lt;to uri="servicelog:info?message=Timer v1.0.1 status check started"/&gt;
+&lt;to uri="servicelog:info?message=Independent context status check&amp;amp;showBody=true"/&gt;
+&lt;to uri="servicelog:debug?message=Data processing route started"/&gt;</code></pre>
+        <p data-i18n="timer.config.p2">
+          The status check sets a machine-readable body and passes it through the response processor:
+        </p>
+        <pre><code>&lt;setBody&gt;
+  &lt;simple&gt;&#123;"file":"timer-test-routes.xml","status":"ACTIVE","timestamp":"$&#123;date:now:yyyy-MM-dd HH:mm:ss&#125;","version":"v1.0.1"&#125;&lt;/simple&gt;
+&lt;/setBody&gt;
+&lt;process ref="jsonResponseProcessor"/&gt;</code></pre>
+        <p data-i18n="timer.config.p3">
+          At runtime, logs/timer-test-routes.log under the service version directory shows the pattern: independent-status-check first records that the status check started, then emits the file/status/timestamp/version body, while timer-data-processing periodically outputs processId and timestamp — lines a health dashboard, an execution audit, or an incident replay can consume directly.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="timer.migrate.title">Migrating from v1.0.0</h2>
+        <ol class="article-steps">
+          <li data-i18n="timer.migrate.1">Replace plain log: route-level diagnostics with servicelog: where service-level control is needed.</li>
+          <li data-i18n="timer.migrate.2">Add version and the stable fields — status, timestamp, file — to every timer status payload.</li>
+          <li data-i18n="timer.migrate.3">Insert jsonResponseProcessor where route output may be consumed externally and UTF-8 stability matters.</li>
+          <li data-i18n="timer.migrate.4">Keep one standard &lt;log&gt; line during the transition for side-by-side validation.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2 data-i18n="timer.boundary.title">Boundaries and tuning</h2>
+        <p data-i18n="timer.boundary.p1">
+          Derive the period from the minimum latency the business can accept, not from habit: period=5000 suits quick verification, period=30000 fits a business heartbeat or light inspection, and period=1500000 covers low-frequency summaries — the 25-minute case in the sample. For delay, repeatCount and fixedRate, follow the official Camel Timer component reference.
+        </p>
+        <p data-i18n="timer.boundary.p2">
+          Timer routes fit fixed-period jobs — inspection, synchronization, cleanup, aggregation — where second-level precision is acceptable and scheduling lives inside the route configuration. They do not fit strict-consistency timing, complex dependency orchestration with retry matrices, or tasks that must be managed by a unified external scheduler.
+        </p>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href={doc} data-i18n="timer.doc">Timer routes guide</a>
+        <a class="button" href={sample} data-i18n="timer.sample">Timer sample routes</a>
+      </div>
+    </div>
+  </article>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "timer.eyebrow": "技术文章",
+        "timer.title": "Timer v1.0.1：让定时路由可诊断，而不只是能跑",
+        "timer.lead": "Timer v1.0.1 保留轻量的 Camel timer 触发模型，新增三项生产级增强：servicelog 服务级日志、带显式版本字段的结构化状态负载，以及保障中文 UTF-8 输出稳定的 jsonResponseProcessor——让定时路由从“能跑”走向“可诊断、可对外发布”。",
+        "timer.meta.sample": "样例：",
+        "timer.meta.doc": "指南：",
+        "timer.meta.repo": "仓库：",
+        "timer.problem.title": "v1.0.0 证明了活性，生产还需要更多",
+        "timer.problem.p1": "v1.0.0 样例给出了基线模式：一条路由通过 timer:independentTest?period=10000 每十秒输出一条固定日志，另一条路由每十五秒输出一次 JSON 状态检查。只要日志按周期稳定出现，就说明路由线程与 CamelContext 都在正常运行——这是巡检、缓存刷新、批量处理和心跳任务的简单活性证明。",
+        "timer.problem.p2": "但仍有三个缺口：普通 log: 把所有服务混进同一条日志流，无法按服务调级；状态负载缺少版本字段，诊断分不清 v1.0.0 与 v1.0.1；任何被外部消费的路由输出——看板、告警、HTTP 或存储链路——都面临中文 UTF-8 编码风险。v1.0.1 正好补上这三点。",
+        "timer.changes.title": "v1.0.1 的变化",
+        "timer.changes.servicelog.title": "服务级日志",
+        "timer.changes.servicelog.text": "路由改用 servicelog:info 与 servicelog:debug 输出，每个服务拥有独立的日志行为与调级能力——可按 service key 单独打开 DEBUG 做短时排障。showBody=true 与 maxBodyLength=200 让消息体输出有边界。",
+        "timer.changes.status.title": "结构化状态字段",
+        "timer.changes.status.text": "independent-status-check 现在输出稳定的 JSON 负载——file、status、timestamp，外加显式 version 字段——看板与告警规则可直接解析字段，诊断也具备了版本维度。",
+        "timer.changes.processor.title": "jsonResponseProcessor",
+        "timer.changes.processor.text": "路由新增 <process ref=\"jsonResponseProcessor\"/> 步骤：这是 LightESB 自定义处理器，用于改善响应编码行为，特别是面向下游链路消费的中文文本输出。",
+        "timer.changes.versioning.title": "版本化演进",
+        "timer.changes.versioning.text": "样例以 timer/v1.0.0 与 timer/v1.0.1 并存交付，定时路由按服务版本目录独立迭代——升级一个版本不影响另一个。",
+        "timer.config.title": "真实路由配置与运行输出",
+        "timer.config.p1": "v1.0.1 路由把路由级 log: 调用替换为 servicelog 端点，并对消息体输出加上边界：",
+        "timer.config.p2": "状态检查先设置机器可读的消息体，再交给响应处理器：",
+        "timer.config.p3": "运行时，服务版本目录下的 logs/timer-test-routes.log 呈现固定模式：independent-status-check 先记录状态检查开始，随后输出 file/status/timestamp/version 消息体；timer-data-processing 周期性输出 processId 与 timestamp——健康看板、执行审计、故障回放都可以直接消费这些日志行。",
+        "timer.migrate.title": "从 v1.0.0 迁移",
+        "timer.migrate.1": "需要服务级管控的位置，将普通 log: 路由级诊断替换为 servicelog:。",
+        "timer.migrate.2": "为每个 Timer 状态负载补上 version 与稳定字段——status、timestamp、file。",
+        "timer.migrate.3": "在输出可能被外部消费且 UTF-8 稳定性重要的链路插入 jsonResponseProcessor。",
+        "timer.migrate.4": "迁移期保留一条标准 <log> 便于并排对比验证。",
+        "timer.boundary.title": "边界与调优",
+        "timer.boundary.p1": "周期应从业务最小可接受时延倒推，而不是凭习惯：period=5000 适合快速验证，period=30000 适合业务心跳或轻量巡检，period=1500000 覆盖低频汇总——即样例中的 25 分钟场景。delay、repeatCount、fixedRate 等参数以 Camel Timer 官方组件文档为准。",
+        "timer.boundary.p2": "Timer 路由适合固定周期任务——巡检、同步、清理、汇总——且秒级精度可接受、调度直接内嵌在路由配置中的场景；不适合强一致严格对时、带重试矩阵的复杂依赖编排，或必须由统一外部调度平台托管的任务。",
+        "timer.doc": "Timer 路由指南",
+        "timer.sample": "Timer 样例路由"
+      }
+    };
+  </script>
+</BaseLayout>

@@ -1,0 +1,122 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+const doc = `${repo}/blob/main/docs/components/16-route-static-preflight.md`;
+---
+
+<BaseLayout
+  current="/articles"
+  title="Route Static Preflight | LightESB-Camel"
+  description="Validate a LightESB service directory before delivery with the bundled route-static-preflight tool — deterministic offline checks, ten scenario profiles, and gate-friendly PASS/FAIL output, without starting the service."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="preflight.eyebrow">Technical article</p>
+      <h1 data-i18n="preflight.title">Route static preflight: validate route configuration without starting the service</h1>
+      <p class="lead" data-i18n="preflight.lead">
+        route-static-preflight.py ships with the delivery package and turns pre-delivery route review into one deterministic command — no LightESB startup, no external connections — across ten scenario profiles from HTTP to industrial protocols.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="preflight.meta.tool">Tool:</span> skills/lightesb-route-authoring/scripts/route-static-preflight.py</span>
+        <span><span data-i18n="preflight.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="preflight.problem.title">The expensive mistakes are static ones</h2>
+        <p data-i18n="preflight.problem.p1">
+          A LightESB service is exactly what sits in its version directory: route XML plus two properties files, hot-loaded on change. The model is simple, but it makes low-level slips frequent — a `&#123;&#123;server.port&#125;&#125;` placeholder no properties file defines, a referenced request-schema.json that was never delivered, an industrial sample that forgets the safe default server.running=false and dials plant equipment on load.
+        </p>
+        <p data-i18n="preflight.problem.p2">
+          All of these are statically detectable. Manual review is slow; starting the service to read logs is costly in delivery and review environments. The preflight tool collapses that review into a single command with a gate-friendly exit code.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="preflight.checks.title">What the tool checks</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="preflight.checks.closure.title">Generic closure</h3>
+            <p class="copy" data-i18n="preflight.checks.closure.text">Exactly one XML per directory with unique route ids; XML and both properties files parse and carry service identity; every &#123;&#123;key&#125;&#125; placeholder resolves; referenced .ds and schema JSON resources exist on disk.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="preflight.checks.profiles.title">Ten scenario profiles</h3>
+            <p class="copy" data-i18n="preflight.checks.profiles.text">http, timer, transform, schema, externaldb, ai-agent, mqtt, opcua, modbus, sap-mock — each adds its required keys and safe defaults, such as HTTP.Listener=true for HTTP and server.running=false for industrial protocols.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="preflight.checks.offline.title">Fully offline</h3>
+            <p class="copy" data-i18n="preflight.checks.offline.text">No service startup, no environment-variable resolution, no external connections. The verdict comes from the service directory files alone.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="preflight.checks.gate.title">Gate-friendly output</h3>
+            <p class="copy" data-i18n="preflight.checks.gate.text">A single-line PASS on success; itemized findings with the exact key names on failure. Exit codes 0/1 drop directly into CI or pre-delivery scripts.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2 data-i18n="preflight.run.title">One command, real output</h2>
+        <p data-i18n="preflight.run.p1">
+          Run it against the bundled HTTP sample. A pass prints a single-line verdict:
+        </p>
+        <pre><code>python3 skills/lightesb-route-authoring/scripts/route-static-preflight.py \
+  --service-dir example/routes/http-undertow/DemoHttpSrv/v1.0.0 \
+  --profile http
+
+PASS profile=http route=demo-http-route.xml</code></pre>
+        <p data-i18n="preflight.run.p2">
+          When configuration is missing, findings are itemized — each line names the profile and the exact key to fix:
+        </p>
+        <pre><code>FAIL
+- [http] 缺少配置键：system.components
+- [http] 配置值必须为 HTTP.Listener=true
+- [http] system.components 缺少：undertowhttp
+- [http] XML 缺少必要模式：undertow:</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="preflight.boundary.title">Know the boundary</h2>
+        <p data-i18n="preflight.boundary.p1">
+          PASS means "statically loadable with confidence" — not that the service is loaded, and not that the business flow works. The right delivery posture: run static preflight first, follow with runtime verification as needed, and state clearly in the delivery note which validations were done and which were not.
+        </p>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href={doc} data-i18n="preflight.doc">Preflight guide</a>
+        <a class="button" href={`${repo}/tree/main/example/routes/http-undertow`} data-i18n="preflight.sample">HTTP sample route</a>
+      </div>
+    </div>
+  </article>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "preflight.eyebrow": "技术文章",
+        "preflight.title": "路由静态预检：不启动服务也能验证路由配置",
+        "preflight.lead": "route-static-preflight.py 随交付包提供，把路由交付前的核对收敛为一条确定性命令——不启动 LightESB、不连接外部系统——覆盖从 HTTP 到工业协议的十个场景 profile。",
+        "preflight.meta.tool": "工具：",
+        "preflight.meta.repo": "仓库：",
+        "preflight.problem.title": "最贵的错误是静态错误",
+        "preflight.problem.p1": "LightESB 的服务就是版本目录里的内容：路由 XML 加两个 properties，文件变更热加载生效。模型简单，但低级错误高频——properties 没定义 XML 引用的 {{server.port}} 占位符、request-schema.json 没随目录交付、工业样例忘了默认 server.running=false 导致一加载就连接现场设备。",
+        "preflight.problem.p2": "这些问题都能静态发现。人工核对慢，启动服务翻日志在交付与评审环境代价高。预检工具把这组核对收敛为一条命令，退出码可直接接入门禁。",
+        "preflight.checks.title": "工具检查什么",
+        "preflight.checks.closure.title": "通用闭包",
+        "preflight.checks.closure.text": "目录恰有一个 XML 且 route id 唯一；XML 与两个 properties 可解析并含服务标识；每个 {{key}} 占位符可闭包；引用的 .ds 与 Schema JSON 资源在磁盘上存在。",
+        "preflight.checks.profiles.title": "十个场景 profile",
+        "preflight.checks.profiles.text": "http、timer、transform、schema、externaldb、ai-agent、mqtt、opcua、modbus、sap-mock——各自叠加必需配置键与安全默认值，例如 HTTP 要求 HTTP.Listener=true，工业协议要求 server.running=false。",
+        "preflight.checks.offline.title": "完全离线",
+        "preflight.checks.offline.text": "不启动服务、不解析环境变量实际值、不连接外部系统。结论只来自服务目录文件本身。",
+        "preflight.checks.gate.title": "门禁友好输出",
+        "preflight.checks.gate.text": "通过时单行 PASS；失败时逐项列出具体键名。退出码 0/1 可直接接入 CI 或交付前脚本。",
+        "preflight.run.title": "一条命令，真实输出",
+        "preflight.run.p1": "对交付包内置 HTTP 样例执行。通过时输出单行结论：",
+        "preflight.run.p2": "配置缺失时逐项列出失败明细——每行都带 profile 前缀和要修复的具体键名：",
+        "preflight.boundary.title": "边界要说清",
+        "preflight.boundary.p1": "PASS 只代表“静态可加载置信度达标”，不代表服务已加载，也不代表业务已跑通。正确的交付姿势：先静态预检，再按需做运行态验证，并在交付说明里写清哪些验证已做、哪些未做。",
+        "preflight.doc": "预检指南",
+        "preflight.sample": "HTTP 样例路由"
+      }
+    };
+  </script>
+</BaseLayout>

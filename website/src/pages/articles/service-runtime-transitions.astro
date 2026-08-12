@@ -1,0 +1,157 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+const doc = `${repo}/blob/main/docs/service-runtime-management-api.md`;
+const loading = `${repo}/blob/main/docs/runtime-route-loading.md`;
+---
+
+<BaseLayout
+  current="/articles"
+  title="Service runtime transitions: synchronized start/stop and timeout governance | LightESB-Camel"
+  description="LightESB-Camel start/stop APIs wait until the Camel context really starts or unloads — shared transitions, idempotent repeats, 409 conflict semantics, a tunable transition timeout, and the safe way to recover after one."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="transitions.eyebrow">Technical article</p>
+      <h1 data-i18n="transitions.title">Service runtime transitions: synchronized start/stop and timeout governance</h1>
+      <p class="lead" data-i18n="transitions.lead">
+        Starting or stopping a LightESB service is not a flag flip. The runtime API holds the request until the dynamic route loader confirms the Camel context has really started or unloaded — and one response tells you whether you drove that transition, reused one, or arrived too late.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="transitions.meta.doc">Documentation:</span> <a href={doc}>docs/service-runtime-management-api.md</a></span>
+        <span><span data-i18n="transitions.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="transitions.problem.title">A start request is a transition, not a write</h2>
+        <p data-i18n="transitions.problem.p1">
+          server.running=true is only the request. A service version enters RUNNING only after configuration, required components, exception handling, XML parsing, port binding, and every auto-starting route succeed; any failed required phase is published as STOPPED, without affecting other services or overall application health.
+        </p>
+        <p data-i18n="transitions.problem.p2">
+          The start/stop API therefore synchronizes on the real outcome: POST /service-management/v1/runtime/start/&#123;id&#125; (or stop/&#123;id&#125;) blocks until the loader confirms the context, and returns the transition verdict inline — no blind polling loops in automation.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="transitions.semantics.title">One transition, four honest answers</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="transitions.semantics.shared.title">Shared same-direction transitions</h3>
+            <p class="copy" data-i18n="transitions.semantics.shared.text">Concurrent starts of the same service share one transitionId; later requests join the in-flight transition and return transitionReused=true instead of stacking duplicate work.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="transitions.semantics.idem.title">Idempotent repeats</h3>
+            <p class="copy" data-i18n="transitions.semantics.idem.text">A request that already matches the target state returns HTTP 200 with idempotent=true and does not rewrite the configuration — retries are safe.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="transitions.semantics.conflict.title">Opposite direction rejected</h3>
+            <p class="copy" data-i18n="transitions.semantics.conflict.text">A stop arriving while a start is in flight (or vice versa) returns HTTP 409 with RUNTIME_TRANSITION_IN_PROGRESS. No interleaving, no half-states.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="transitions.semantics.failure.title">Failures carry the real state</h3>
+            <p class="copy" data-i18n="transitions.semantics.failure.text">Load failure, stop failure, or a timed-out wait returns HTTP 409 RUNTIME_TRANSITION_FAILED with the actual serviceStatus, internalStatus, diagnosticId, a sanitized errorSummary, and timedOut.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2 data-i18n="transitions.timeout.title">The timeout is a wait budget, not a rollback</h2>
+        <p data-i18n="transitions.timeout.p1">
+          The API waits 30 seconds by default, tunable globally between 1 and 120 seconds:
+        </p>
+        <pre><code>lightesb.route.transition-timeout-seconds=30</code></pre>
+        <p data-i18n="transitions.timeout.p2">
+          A timeout never rolls back server.running — the background transition may still complete. And when a stop fails while the old context is still alive, the API reports the real RUNNING state plus failure diagnostics, not a comfortable lie.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="transitions.run.title">Real commands, real responses</h2>
+        <p data-i18n="transitions.run.p1">
+          Start a service and read the verdict straight from the response:
+        </p>
+        <pre><code>curl -X POST http://localhost:8080/service-management/v1/runtime/start/svc-1
+
+&#123;
+  "success": true,
+  "data": &#123;
+    "serviceStatus": "RUNNING",
+    "transitionId": "52be2ef9-73a7-4d7d-a4bc-bcb3a5681292",
+    "transitionReused": false,
+    "idempotent": false
+  &#125;,
+  "error": null
+&#125;</code></pre>
+        <p data-i18n="transitions.run.p2">
+          When the wait budget runs out, HTTP 409 says exactly what timed out:
+        </p>
+        <pre><code>&#123;
+  "success": false,
+  "error": &#123;
+    "code": "RUNTIME_TRANSITION_FAILED",
+    "message": "等待服务运行状态转换超时",
+    "details": &#123;
+      "targetStatus": "RUNNING",
+      "serviceStatus": "STOPPED",
+      "timedOut": true
+    &#125;
+  &#125;
+&#125;</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="transitions.boundary.title">After a 409: query, don't counter-attack</h2>
+        <p data-i18n="transitions.boundary.p1">
+          The CLI mirrors the API — lightesb service start --id &lt;serviceId&gt; --yes and the matching stop command exit non-zero on HTTP 409 and preserve the server error summary. Automation should query after a failure, never fire a reverse-direction request or blindly overwrite the configuration.
+        </p>
+        <p data-i18n="transitions.boundary.p2">
+          Two read-only endpoints settle the truth: the detail view for public runtime and deployment status, and the route-runtime snapshot for internal status, context state, failure phase, and diagnosticId. If the transition is still in flight, check again later.
+        </p>
+        <pre><code>GET /service-management/v1/detail/&#123;id&#125;
+GET /api/diagnostics/runtime-snapshot?serviceName=DemoSrv&amp;serviceVersion=v1.0.0&amp;component=route-runtime</code></pre>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href={doc} data-i18n="transitions.doc">Runtime start/stop API</a>
+        <a class="button" href={loading} data-i18n="transitions.loadingdoc">Route loading boundaries</a>
+      </div>
+    </div>
+  </article>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "transitions.eyebrow": "技术文章",
+        "transitions.title": "服务运行时状态切换：同步启停与超时治理",
+        "transitions.lead": "启动或停止一个 LightESB 服务不是改标志位。运行时 API 会挂起请求，直到动态路由加载器确认 Camel 上下文真实启动或卸载后才返回——并在同一次响应里告诉你：这次转换是你发起的、复用了进行中的转换，还是来晚了一步。",
+        "transitions.meta.doc": "文档：",
+        "transitions.meta.repo": "仓库：",
+        "transitions.problem.title": "启停请求是一次状态转换，不是一次写入",
+        "transitions.problem.p1": "server.running=true 只是请求本身。服务版本只有在配置、必需组件、异常处理、XML 解析、端口绑定以及所有允许自动启动的 route 全部成功后才进入 RUNNING；任一必需阶段失败都会公开为 STOPPED，且不影响其他服务和应用整体健康状态。",
+        "transitions.problem.p2": "启停 API 因此以真实结果为同步点：POST /service-management/v1/runtime/start/{id}（或 stop/{id}）会阻塞到加载器确认上下文状态为止，并在响应中内联返回转换结论——自动化脚本不再需要盲轮询。",
+        "transitions.semantics.title": "一次转换，四种诚实的应答",
+        "transitions.semantics.shared.title": "同方向请求共享转换",
+        "transitions.semantics.shared.text": "对同一服务的并发启动共享一个 transitionId；后到请求加入进行中的转换并返回 transitionReused=true，不叠加重复工作。",
+        "transitions.semantics.idem.title": "重复请求幂等",
+        "transitions.semantics.idem.text": "已满足目标状态的请求返回 HTTP 200 和 idempotent=true，不重复写配置——重试安全。",
+        "transitions.semantics.conflict.title": "反方向请求被拒",
+        "transitions.semantics.conflict.text": "启动进行中到达停止请求（或相反）返回 HTTP 409 和 RUNTIME_TRANSITION_IN_PROGRESS。不交错、不留半状态。",
+        "transitions.semantics.failure.title": "失败携带真实状态",
+        "transitions.semantics.failure.text": "加载失败、停止失败或等待超时返回 HTTP 409 RUNTIME_TRANSITION_FAILED，并附带实际 serviceStatus、internalStatus、diagnosticId、脱敏 errorSummary 和 timedOut。",
+        "transitions.timeout.title": "超时是等待预算，不是回滚",
+        "transitions.timeout.p1": "API 默认等待 30 秒，可通过全局参数在 1 到 120 秒之间调整：",
+        "transitions.timeout.p2": "超时不会回滚 server.running——后台转换可能继续完成。停止失败且旧上下文仍在运行时，接口返回真实的 RUNNING 状态和失败诊断，而不是一句好听的假话。",
+        "transitions.run.title": "真实命令，真实响应",
+        "transitions.run.p1": "启动一个服务，直接从响应里读出转换结论：",
+        "transitions.run.p2": "等待预算耗尽时，HTTP 409 会精确说明是哪次等待超时：",
+        "transitions.boundary.title": "遇到 409：先查询，不要反向硬改",
+        "transitions.boundary.p1": "CLI 与 API 行为一致——lightesb service start --id <serviceId> --yes 及对应 stop 命令在收到 HTTP 409 时以非零状态退出，并保留服务端错误摘要。自动化脚本失败后应先查询，绝不立即发送反方向请求或盲目覆盖配置。",
+        "transitions.boundary.p2": "两个只读接口可以还原真相：服务详情核对公开运行状态和部署状态，route-runtime 快照读取内部状态、Context 状态、失败阶段和 diagnosticId。转换仍在进行中时，稍后重查即可。",
+        "transitions.doc": "启停 API 文档",
+        "transitions.loadingdoc": "路由加载边界"
+      }
+    };
+  </script>
+</BaseLayout>

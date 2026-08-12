@@ -14,11 +14,100 @@ import SectionHead from "../../components/SectionHead.astro";
         titleKey="articles.title"
         textKey="articles.text"
       />
+
+      <h2 data-i18n="articles.group.core">Core routes and data access</h2>
       <div class="docs-list">
-        <a class="docs-link featured-doc" href="/articles/temp-form-route-sample/"><strong data-i18n="articles.tempform.title">A route that serves a web page</strong><span data-i18n="articles.tempform.text">The temporary approval form sample: route-served page design, mock boundary, and delete-to-destroy lifecycle.</span></a>
-        <a class="docs-link" href="/articles/robot-ai-approval/"><strong data-i18n="articles.approval.title">The robot AI approval gate</strong><span data-i18n="articles.approval.text">From edge inference candidate to one-shot submit: policy validation, HMAC-signed approval, and fail-closed bypass paths.</span></a>
+        <a class="docs-link" href="/articles/http-listener-undertow/"><strong data-i18n="articles.httpl.title">HTTP Listener and Undertow request routing</strong><span data-i18n="articles.httpl.text">HTTP.Listener, server.port and system.components=undertowhttp gate Undertow; HttpRequestSrv closes the request-response loop, verified with curl.</span></a>
+        <a class="docs-link" href="/articles/timer-v1-0-1/"><strong data-i18n="articles.timer.title">Timer v1.0.1: service-level logging for scheduled routes</strong><span data-i18n="articles.timer.text">Timer v1.0.1 adds servicelog per-service logging, structured status fields, and jsonResponseProcessor for stable UTF-8 output.</span></a>
+        <a class="docs-link" href="/articles/externaldb-mysql/"><strong data-i18n="articles.extdb.title">External database routes with externaldb</strong><span data-i18n="articles.extdb.text">Service-level extdb.* datasources, dynamic registry beans, and config-driven target switching for MySQL routes.</span></a>
+        <a class="docs-link" href="/articles/temp-form-route-sample/"><strong data-i18n="articles.tempform.title">A route that serves a web page</strong><span data-i18n="articles.tempform.text">The temporary approval form sample: route-served page design, mock boundary, and delete-to-destroy lifecycle.</span></a>
         <a class="docs-link" href="/articles/legacy-system-integration/"><strong data-i18n="docs.article.title">Modernizing legacy integration</strong><span data-i18n="docs.article.text">English article for integration architects, Camel engineers, automation teams, and robotics workflow implementers.</span></a>
+      </div>
+
+      <h2 data-i18n="articles.group.transform">Data transformation</h2>
+      <div class="docs-list">
+        <a class="docs-link" href="/articles/platform-http-v1-ds/"><strong data-i18n="articles.phv1.title">PlatformHttp v1.0.0: config-driven DS transform</strong><span data-i18n="articles.phv1.text">Config-driven DS transform for complex order JSON: conditionaltransform switch, shared functions, stable write-back.</span></a>
+        <a class="docs-link" href="/articles/platform-http-v2-dts/"><strong data-i18n="articles.phv2.title">PlatformHttp v2.0.0: pluggable DTS via SPI and DataSonnet</strong><span data-i18n="articles.phv2.text">One HTTP Listener entry fans a request out to four named transforms via invokeDtsTransform; providers load from services/TransformDS by Java SPI.</span></a>
+        <a class="docs-link" href="/articles/platform-http-v3-jsonpath/"><strong data-i18n="articles.phv3.title">PlatformHttp v3.0.0: JSONPath order transform</strong><span data-i18n="articles.phv3.text">Extract orderId with JSONPath at the HTTP entry and write back stable UTF-8 JSON responses.</span></a>
+      </div>
+
+      <h2 data-i18n="articles.group.ai">AI integration</h2>
+      <div class="docs-list">
+        <a class="docs-link" href="/articles/ai-agent-order/"><strong data-i18n="articles.aiorder.title">AiAgentDemoSrv: an LLM order assistant built from Camel routes</strong><span data-i18n="articles.aiorder.text">langchain4j-agent discovers three XML-only order tools by tag — one HTTP entry, multi-turn memory, curl-verified.</span></a>
+        <a class="docs-link" href="/articles/ai-agent-solo-budget/"><strong data-i18n="articles.solo.title">AI agent integration on a solo budget</strong><span data-i18n="articles.solo.text">One HTTP entrypoint, a LangChain4j agent, three tagged tools, and a 7-day plan — an API integration loop for under $7.</span></a>
+      </div>
+
+      <h2 data-i18n="articles.group.robotics">Robotics</h2>
+      <div class="docs-list">
+        <a class="docs-link" href="/articles/robot-ai-approval/"><strong data-i18n="articles.approval.title">The robot AI approval gate</strong><span data-i18n="articles.approval.text">From edge inference candidate to one-shot submit: policy validation, HMAC-signed approval, and fail-closed bypass paths.</span></a>
+        <a class="docs-link" href="/articles/robot-command-dispatcher/"><strong data-i18n="articles.dispatcher.title">Robot command dispatcher: outbox, receipts, compensation, audit archive</strong><span data-i18n="articles.dispatcher.text">From status=accepted to a terminal state — MQTT outbox dispatch, ack/result ingest, state snapshots, compensation marking, and automatic audit archiving.</span></a>
+        <a class="docs-link" href="/articles/robot-security-policy/"><strong data-i18n="articles.robsec.title">Robot shared safety policy</strong><span data-i18n="articles.robsec.text">Shared robot command safety at the management API: denylist, allowlists, and fail-closed rejection — no command, no outbox.</span></a>
+      </div>
+
+      <h2 data-i18n="articles.group.industrial">Industrial protocols</h2>
+      <div class="docs-list">
+        <a class="docs-link" href="/articles/opcua-vda5050-industrial/"><strong data-i18n="articles.industrial.title">Industrial ingress: OPC UA DataValue normalization and VDA 5050 dispatch</strong><span data-i18n="articles.industrial.text">OPC UA readings normalized to standard JSON, VDA 5050 orders dispatched on fixed topic patterns — all behind the server.running=false safe default.</span></a>
+      </div>
+
+      <h2 data-i18n="articles.group.ops">Operations and governance</h2>
+      <div class="docs-list">
+        <a class="docs-link featured-doc" href="/articles/route-static-preflight/"><strong data-i18n="articles.preflight.title">Route static preflight</strong><span data-i18n="articles.preflight.text">Validate route configuration without starting the service: generic closure checks, ten scenario profiles, and gate-friendly PASS/FAIL output.</span></a>
+        <a class="docs-link" href="/articles/runtime-diagnostics/"><strong data-i18n="articles.diag.title">Runtime diagnostics: remote troubleshooting that never touches the business</strong><span data-i18n="articles.diag.text">Read-only diagnostics API and CLI: sanitized runtime evidence without touching routes, data, or business traffic.</span></a>
+        <a class="docs-link" href="/articles/service-runtime-transitions/"><strong data-i18n="articles.transitions.title">Service runtime transitions: synchronized start/stop and timeout governance</strong><span data-i18n="articles.transitions.text">Start/stop APIs wait for the Camel context — shared transitions, idempotent retries, 409 semantics, and a tunable transition timeout.</span></a>
+        <a class="docs-link" href="/articles/cli-schema-validation-routes/"><strong data-i18n="articles.schema.title">Orchestrating JSON Schema validation routes with the CLI</strong><span data-i18n="articles.schema.text">Generate Draft 2020-12 schemas from message models, then apply the full validation route — with a 400 failure branch.</span></a>
+        <a class="docs-link" href="/articles/hardened-cli-runtime-config/"><strong data-i18n="articles.cliconf.title">Hardened runtime configuration and CLI boundaries</strong><span data-i18n="articles.cliconf.text">One platform config file, capabilities off by default, secrets via env placeholders, and --yes on every CLI write.</span></a>
+        <a class="docs-link" href="/articles/deployment-security/"><strong data-i18n="articles.deploy.title">Deployment security with the management API</strong><span data-i18n="articles.deploy.text">Guarded service deployment: hardened archive intake, server-owned targets, explicit --yes writes, and backup-based rollback.</span></a>
+        <a class="docs-link" href="/articles/action-catalog-audit/"><strong data-i18n="articles.catalog.title">Action catalog and operation audit</strong><span data-i18n="articles.catalog.text">Derive a service Action catalog offline, gate agent eligibility with an exact allowlist, and query append-only audit events with tokens reduced to digests.</span></a>
       </div>
     </div>
   </section>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "articles.group.core": "核心路由与数据访问",
+        "articles.group.transform": "数据转换",
+        "articles.group.ai": "AI 集成",
+        "articles.group.robotics": "机器人",
+        "articles.group.industrial": "工业协议",
+        "articles.group.ops": "运维与治理",
+        "articles.httpl.title": "HTTP Listener 与 Undertow 请求路由",
+        "articles.httpl.text": "HTTP.Listener、server.port 与 undertowhttp 控制 Undertow 注册；HttpRequestSrv 一条路由完成请求-响应闭环，curl 可验证。",
+        "articles.timer.title": "Timer v1.0.1：定时路由的服务级日志与响应编码增强",
+        "articles.timer.text": "Timer v1.0.1 引入 servicelog 服务级日志、结构化状态字段与 jsonResponseProcessor，输出稳定的 UTF-8 响应。",
+        "articles.extdb.title": "externaldb 外部数据库路由",
+        "articles.extdb.text": "extdb.* 服务级数据源模型、动态 Registry Bean 绑定，配置切换目标库，SQL 路由不改。",
+        "articles.phv1.title": "PlatformHttp v1.0.0：配置驱动的 DS 数据转换",
+        "articles.phv1.text": "HTTP Listener 入口接收复杂订单 JSON，conditionaltransform 按配置执行 DS 转换，公共函数库复用，稳定回写。",
+        "articles.phv2.title": "PlatformHttp v2.0.0：SPI 与 DataSonnet 可插拔 DTS",
+        "articles.phv2.text": "一个 HTTP Listener 入口经 invokeDtsTransform 串联四个具名转换，第三方 Provider 通过 Java SPI 从 services/TransformDS 加载。",
+        "articles.phv3.title": "PlatformHttp v3.0.0：JSONPath 订单转换",
+        "articles.phv3.text": "在 HTTP 入口用 JSONPath 提取 orderId，稳定回写 UTF-8 JSON 响应。",
+        "articles.aiorder.title": "AiAgentDemoSrv：用 Camel 路由搭一个 LLM 订单助手",
+        "articles.aiorder.text": "langchain4j-agent 按 tag 发现三条纯 XML 订单工具——一个 HTTP 入口、多轮记忆、curl 验证。",
+        "articles.solo.title": "小预算跑通 AI 接口集成",
+        "articles.solo.text": "单一 HTTP 入口 + LangChain4j Agent + 三个带 tags 的工具路由，7 天交付计划，50 元以内跑通接口闭环。",
+        "articles.dispatcher.title": "机器人命令 Dispatcher：outbox、回执、补偿与审计归档",
+        "articles.dispatcher.text": "从 status=accepted 到终态——MQTT outbox 派发、ack/result 回执入账、状态快照、补偿标记与自动审计归档。",
+        "articles.robsec.title": "机器人共享安全策略",
+        "articles.robsec.text": "validate 与正式提交共用同一 policy snapshot，denylist 按站点/机器人/协议 profile 隔离，拒绝即 fail closed。",
+        "articles.industrial.title": "工业接入：OPC UA DataValue 标准化与 VDA 5050 指令分发",
+        "articles.industrial.text": "OPC UA 读数标准化为标准 JSON，VDA 5050 订单按固定 topic pattern 分发——全部默认 server.running=false。",
+        "articles.preflight.title": "路由静态预检",
+        "articles.preflight.text": "不启动服务验证路由配置：通用闭包检查、十个场景 profile、门禁友好的 PASS/FAIL 输出。",
+        "articles.diag.title": "运行时诊断：不触业务的远程排障",
+        "articles.diag.text": "只读 diagnostics snapshot/warnings API 与 CLI：远程收集脱敏运行态证据，不重载路由、不改数据、不触业务。",
+        "articles.transitions.title": "服务运行时状态切换：同步启停与超时治理",
+        "articles.transitions.text": "启停 API 等待 Camel 上下文真实生效：同方向共享转换、幂等重试、409 语义与可调的转换超时。",
+        "articles.schema.title": "用 CLI 编排 JSON Schema 校验路由",
+        "articles.schema.text": "message schema generate 从报文模型生成 Draft 2020-12 Schema，ai route apply 一次落地成对校验块与 400 失败分支。",
+        "articles.cliconf.title": "默认加固：运行时配置键全景与 CLI 确认语义",
+        "articles.cliconf.text": "一份平台配置文件、可选能力默认关闭、密钥走环境变量占位、CLI 写操作一律 --yes 确认。",
+        "articles.deploy.title": "部署安全：通过受守护的管理 API 打包、部署与回退",
+        "articles.deploy.text": "归档加固校验、服务端统一目标目录、远程写必须显式确认、基于备份的回退与端口检查。",
+        "articles.catalog.title": "Action 目录与操作审计",
+        "articles.catalog.text": "离线派生服务 Action 目录，用精确 allowlist 管控调用资格，审计追加式留存且天生脱敏——token 只存 digest。"
+      }
+    };
+  </script>
 </BaseLayout>

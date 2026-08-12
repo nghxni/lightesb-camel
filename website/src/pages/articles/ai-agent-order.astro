@@ -1,0 +1,157 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+const doc = `${repo}/blob/main/docs/components/12-ai-chat.md`;
+const sample = `${repo}/tree/main/lightesb-camel-app/AiAgentDemoSrv/v1.0.0`;
+---
+
+<BaseLayout
+  current="/articles"
+  title="AI Agent Order Operations | LightESB-Camel"
+  description="AiAgentDemoSrv v1.0.0 wires langchain4j-agent to three XML-only langchain4j-tools routes through tags=order-demo discovery — one HTTP entry, memory-backed multi-turn chat, and curl-verified order queries and cancellations."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="aiorder.eyebrow">Technical article</p>
+      <h1 data-i18n="aiorder.title">AiAgentDemoSrv v1.0.0: an LLM order assistant built from Camel routes</h1>
+      <p class="lead" data-i18n="aiorder.lead">
+        AiAgentDemoSrv proves a production-friendly pattern: one stable HTTP Listener entry, langchain4j-agent as the decision layer, and business APIs exposed as pure XML langchain4j-tools routes — discovered by tag, with no Java code per tool.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="aiorder.meta.sample">Sample:</span> <a href={sample}>lightesb-camel-app/AiAgentDemoSrv/v1.0.0</a></span>
+        <span><span data-i18n="aiorder.meta.docs">Documentation:</span> <a href={doc}>docs/components/12-ai-chat.md</a></span>
+        <span><span data-i18n="aiorder.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="aiorder.problem.title">Natural language in, deterministic APIs out</h2>
+        <p data-i18n="aiorder.problem.p1">
+          Order-system users do not want to remember API paths or payload fields — they ask: "show all orders for customer Zhang San", "check details of order ord00xa12", "cancel this order with a reason". The service has to turn those sentences into deterministic, auditable API calls.
+        </p>
+        <p data-i18n="aiorder.problem.p2">
+          The demo answers with four pieces: an HTTP Listener entry, an agent orchestration layer, multiple langchain4j-tools business tools, and one structured response contract carrying both a readable answer (responseText) and machine-friendly tool output (toolData).
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="aiorder.wiring.title">One listener, one agent, three XML tools</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="aiorder.wiring.entry.title">HTTP Listener entry</h3>
+            <p class="copy" data-i18n="aiorder.wiring.entry.text">A single undertow endpoint restricts the entry to POST /api/ai/agent/chat on server.port=19095, enabled by HTTP.Listener=true.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="aiorder.wiring.agent.title">Agent and memory wiring</h3>
+            <p class="copy" data-i18n="aiorder.wiring.agent.text">The route sets CamelLangChain4jAgentSystemMessage from ai.system.prompt, takes CamelLangChain4jAgentMemoryId from the request's $.memoryId, and reads the user input from $.message — memory on, with ai.memory.max.turns=10.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="aiorder.wiring.tools.title">Tag-discovered tools</h3>
+            <p class="copy" data-i18n="aiorder.wiring.tools.text">Bound with tags=order-demo, the agent discovers three tools — queryOrderDetail, cancelOrder, listRecentOrders — each a langchain4j-tools route whose URI declares a description and parameter.xxx=type for argument extraction.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="aiorder.wiring.response.title">One response contract</h3>
+            <p class="copy" data-i18n="aiorder.wiring.response.text">After execution, DataSonnet packages success, memoryId, responseText, toolData, and timestamp into one JSON — suited to front-end rendering and downstream auditing alike.</p>
+          </article>
+        </div>
+        <p data-i18n="aiorder.wiring.example.p1">
+          Every tool route is self-describing in its URI — cancelOrder, for example:
+        </p>
+        <pre><code>&lt;from uri="langchain4j-tools:cancelOrder?tags=order-demo&amp;amp;description=Cancel an existing order by order ID. Requires a reason for cancellation.&amp;amp;parameter.orderId=string&amp;amp;parameter.reason=string"/&gt;</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="aiorder.config.title">Route and properties, verbatim</h2>
+        <p data-i18n="aiorder.config.p1">
+          The whole wiring lives in ai-agent-demo-route.xml plus the two properties files — HTTP entry and agent call:
+        </p>
+        <pre><code>&lt;from uri="undertow:http://0.0.0.0:&#123;&#123;server.port&#125;&#125;/api/ai/agent/chat?httpMethodRestrict=POST"/&gt;
+...
+&lt;to uri="langchain4j-agent:&#123;&#123;service.ai.type&#125;&#125;Assistant?agent=#genericAiAgent&amp;amp;tags=&#123;&#123;ai.agent.tags&#125;&#125;"/&gt;</code></pre>
+        <pre><code># common.config.properties
+server.port=19095
+HTTP.Listener=true
+
+# service.config.properties
+service.ai.route=true
+service.ai.type=orderdemo
+service.ai.mode=agent
+ai.agent.tags=order-demo
+ai.system.prompt=You are an order management assistant. You can help users query order status and cancel orders. Please respond in English.
+ai.memory.enabled=true
+ai.memory.max.turns=10</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="aiorder.run.title">Validate with curl</h2>
+        <p data-i18n="aiorder.run.p1">
+          The two-turn cancellation shows memory best: the first turn gives only the order ID, so the agent asks for the cancellation reason (toolData=null); the second turn reuses the same memoryId with a reason, triggers cancelOrder, and the final answer confirms the order ID and reason.
+        </p>
+        <pre><code># turn 1 — agent asks for the reason (toolData=null)
+curl -X POST "http://localhost:19095/api/ai/agent/chat" \
+  -H "Content-Type: application/json" \
+  -d '&#123;"memoryId":"002","message":"Cancel order ord00xa12"&#125;'
+
+# turn 2 — same memoryId, reason supplied, cancelOrder fires
+curl -X POST "http://localhost:19095/api/ai/agent/chat" \
+  -H "Content-Type: application/json" \
+  -d '&#123;"memoryId":"002","message":"Cancel order ord00xa12 due to seven-day no-reason return"&#125;'</code></pre>
+        <p data-i18n="aiorder.run.p2">
+          Query requests behave the same way: "Query all order information for customer Zhang San" triggers listRecentOrders, "Query details for order ord00xa12" triggers queryOrderDetail, and toolData carries the structured order payload.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="aiorder.boundary.title">When behavior is off, check these first</h2>
+        <p data-i18n="aiorder.boundary.p1">
+          Agent never calls tools: confirm ai.agent.tags matches every tool route's tags, the description is clear and action-oriented, and each parameter.xxx=type is declared. Endpoint 404 or no listener: confirm HTTP.Listener=true, server.port=19095, and that the request path is exactly /api/ai/agent/chat.
+        </p>
+        <p data-i18n="aiorder.boundary.p2">
+          Silent tool HTTP failures: the demo calls use throwExceptionOnFailure=false, so locate them via the [AI-TOOL] httpStatus log lines and the servicelog response body. Lost multi-turn context: reuse one memoryId across turns and keep ai.memory.enabled=true. Garbled Chinese responses: keep the UTF-8 headers in tool routes and make sure requestCharsetProcessor and jsonResponseProcessor stay in the chain.
+        </p>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href={doc} data-i18n="aiorder.doc">AI chat component guide</a>
+        <a class="button" href={sample} data-i18n="aiorder.sample">AiAgentDemoSrv routes</a>
+      </div>
+    </div>
+  </article>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "aiorder.eyebrow": "技术文章",
+        "aiorder.title": "AiAgentDemoSrv v1.0.0：用 Camel 路由搭一个 LLM 订单助手",
+        "aiorder.lead": "AiAgentDemoSrv 验证了一套可落地模式：一个稳定的 HTTP Listener 入口、langchain4j-agent 作为决策层、业务 API 以纯 XML langchain4j-tools 路由暴露——按 tag 自动发现，新增工具无需写 Java。",
+        "aiorder.meta.sample": "样例：",
+        "aiorder.meta.docs": "文档：",
+        "aiorder.meta.repo": "仓库：",
+        "aiorder.problem.title": "自然语言进，确定性 API 出",
+        "aiorder.problem.p1": "订单系统用户不想记 API 路径和报文字段——他们直接问：“查询张三的所有订单”、“看一下 ord00xa12 的详情”、“帮我取消这个订单并说明原因”。服务必须把这些句子变成确定性、可审计的 API 调用。",
+        "aiorder.problem.p2": "这个 demo 用四件套作答：一个 HTTP Listener 入口、一层 Agent 编排、多个 langchain4j-tools 业务工具，以及一个统一响应契约，同时承载人可读的答复（responseText）和机器可处理的工具输出（toolData）。",
+        "aiorder.wiring.title": "一个监听器、一个 Agent、三条 XML 工具",
+        "aiorder.wiring.entry.title": "HTTP Listener 入口",
+        "aiorder.wiring.entry.text": "单个 undertow 端点把入口限定为 server.port=19095 上的 POST /api/ai/agent/chat，由 HTTP.Listener=true 打开监听器。",
+        "aiorder.wiring.agent.title": "Agent 与记忆链路",
+        "aiorder.wiring.agent.text": "路由从 ai.system.prompt 注入 CamelLangChain4jAgentSystemMessage，从请求的 $.memoryId 提取 CamelLangChain4jAgentMemoryId，从 $.message 读取用户输入——记忆开启，ai.memory.max.turns=10。",
+        "aiorder.wiring.tools.title": "按 tag 发现工具",
+        "aiorder.wiring.tools.text": "Agent 绑定 tags=order-demo 后可发现三个工具——queryOrderDetail、cancelOrder、listRecentOrders——每个都是 langchain4j-tools 路由，在 URI 中声明 description 和 parameter.xxx=type 用于参数抽取。",
+        "aiorder.wiring.response.title": "统一响应契约",
+        "aiorder.wiring.response.text": "执行结束后，DataSonnet 把 success、memoryId、responseText、toolData、timestamp 打包成一个 JSON——既方便前端渲染，也便于下游审计。",
+        "aiorder.wiring.example.p1": "每条工具路由都在 URI 中自我描述——以 cancelOrder 为例：",
+        "aiorder.config.title": "路由与配置原文",
+        "aiorder.config.p1": "全部接线都在 ai-agent-demo-route.xml 加两个 properties 文件里——HTTP 入口与 Agent 调用：",
+        "aiorder.run.title": "用 curl 验证",
+        "aiorder.run.p1": "两轮取消最能体现记忆机制：第一轮只给订单号，Agent 反问取消原因（toolData=null）；第二轮复用同一个 memoryId 并带上原因，触发 cancelOrder，最终答复确认订单号与取消原因。",
+        "aiorder.run.p2": "查询类请求同理：“查询张三的所有订单”触发 listRecentOrders，“查询订单 ord00xa12 详情”触发 queryOrderDetail，toolData 返回结构化订单数据。",
+        "aiorder.boundary.title": "行为不符合预期时先查这些",
+        "aiorder.boundary.p1": "Agent 不调用工具：确认 ai.agent.tags 与每条 Tool 路由的 tags 一致、description 明确描述动作、parameter.xxx=type 声明完整。接口 404 或监听不生效：确认 HTTP.Listener=true、server.port=19095，且请求路径精确为 /api/ai/agent/chat。",
+        "aiorder.boundary.p2": "工具 HTTP 调用静默失败：demo 调用配置了 throwExceptionOnFailure=false，需通过日志中的 [AI-TOOL] httpStatus 和 servicelog 响应体定位。多轮上下文丢失：确认各轮复用同一个 memoryId 且 ai.memory.enabled=true。中文乱码：保留 Tool 路由的 UTF-8 Header，并确保 requestCharsetProcessor 与 jsonResponseProcessor 在链路中生效。",
+        "aiorder.doc": "AI 对话组件文档",
+        "aiorder.sample": "AiAgentDemoSrv 路由样例"
+      }
+    };
+  </script>
+</BaseLayout>

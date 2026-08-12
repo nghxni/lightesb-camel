@@ -1,0 +1,165 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+const doc = `${repo}/blob/main/docs/components/04-transform-components.md`;
+const sample = `${repo}/tree/main/lightesb-camel-app/PlatformHttp/v2.0.0`;
+---
+
+<BaseLayout
+  current="/articles"
+  title="PlatformHttp v2.0.0 DTS Transform with SPI and DataSonnet | LightESB-Camel"
+  description="The PlatformHttp v2.0.0 sample fans one HTTP request out to four named transforms through invokeDtsTransform, loads third-party providers via Java SPI from services/TransformDS, and keeps DataSonnet mapping rules modular with import."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="phv2.eyebrow">Technical article</p>
+      <h1 data-i18n="phv2.title">PlatformHttp v2.0.0: one HTTP entry, pluggable DTS transforms via SPI and DataSonnet</h1>
+      <p class="lead" data-i18n="phv2.lead">
+        The PlatformHttp v2.0.0 sample shows how a stable HTTP Listener entry fans one request out to multiple named transforms: a unified invokeDtsTransform call, third-party providers loaded at runtime from services/TransformDS via Java SPI, and DataSonnet import keeping mapping rules modular.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="phv2.meta.sample">Sample:</span> <a href={sample}>lightesb-camel-app/PlatformHttp/v2.0.0</a></span>
+        <span><span data-i18n="phv2.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="phv2.problem.title">Orchestrate many transforms without patching the core</h2>
+        <p data-i18n="phv2.problem.p1">
+          Integration routes often need several business transforms inside one request, plus extension points that ship separately from the runtime. PlatformHttp v2.0.0 answers with four pieces: a stable HTTP Listener entry, a unified invokeDtsTransform invocation, SPI loading from services/TransformDS, and shared DataSonnet function imports. The result: one request produces multiple transform outputs, route XML never names a provider class, and rolling out a new extension is a jar drop — not a core patch.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="phv2.route.title">A stable entry and a unified invocation</h2>
+        <p data-i18n="phv2.route.p1">
+          The endpoint is assembled from the two properties files every LightESB service carries — server.port and HTTP.Listener from common.config.properties, service.version from service.config.properties — yielding POST http://localhost:18081/2.0.0/api/demo:
+        </p>
+        <pre><code>&lt;from uri="undertow:http://0.0.0.0:&#123;&#123;server.port&#125;&#125;/&#123;&#123;service.version&#125;&#125;/api/demo" /&gt;
+
+# common.config.properties
+server.port=18081
+HTTP.Listener=true
+
+# service.config.properties
+service.version=2.0.0</code></pre>
+        <p data-i18n="phv2.route.p2">
+          Inside the route, four method calls on the commonFunctions bean run four named transforms against the same body. The route stays decoupled from provider class names — only the transform name matters:
+        </p>
+        <pre><code>&lt;method ref="commonFunctions" method="invokeDtsTransform('transformComplexOrder', $&#123;body&#125;)" /&gt;
+&lt;method ref="commonFunctions" method="invokeDtsTransform('transformOrderSummary', $&#123;body&#125;)" /&gt;
+&lt;method ref="commonFunctions" method="invokeDtsTransform('transformCustomerSnapshot', $&#123;body&#125;)" /&gt;
+&lt;method ref="commonFunctions" method="invokeDtsTransform('transformRiskTags', $&#123;body&#125;)" /&gt;</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="phv2.spi.title">SPI loading from services/TransformDS</h2>
+        <p data-i18n="phv2.spi.p1">
+          Third-party transform implementations arrive as jars dropped into services/TransformDS. The runtime chain is deterministic:
+        </p>
+        <ol class="article-steps">
+          <li data-i18n="phv2.spi.1">Scan the services/TransformDS directory.</li>
+          <li data-i18n="phv2.spi.2">Load every *.jar found there.</li>
+          <li data-i18n="phv2.spi.3">Discover providers through ServiceLoader&lt;LightesbDtsExtension&gt;.</li>
+          <li data-i18n="phv2.spi.4">Build the transformName -&gt; provider mapping from each provider's supportedTransforms().</li>
+          <li data-i18n="phv2.spi.5">Resolve same-name conflicts by priority() — the higher priority wins.</li>
+        </ol>
+        <p data-i18n="phv2.spi.p2">
+          Input mapping scripts stay modular too: a DataSonnet script can import a shared function library, so formatting logic lives in one place while the main script keeps only mapping intent:
+        </p>
+        <pre><code>local lib = import 'lightesb-camel-app/TransformDS/common-functions.ds';
+
+# common.config.properties
+input-transform=true
+input-transform.file=input-transform-with-import.ds</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="phv2.run.title">Real request, real response shape</h2>
+        <p data-i18n="phv2.run.p1">
+          From the repository root, post the bundled test.json to the endpoint:
+        </p>
+        <pre><code>curl -X POST "http://localhost:18081/2.0.0/api/demo" \
+  -H "Content-Type: application/json" \
+  --data-binary "@lightesb-camel-app/PlatformHttp/v2.0.0/test.json"</code></pre>
+        <p data-i18n="phv2.run.p2">
+          The route assembles all four transform outputs plus two shared-function results into one body. A jq one-liner verifies the four transform keys:
+        </p>
+        <pre><code>&#123; "complexOrder": "&#123;...&#125;", "orderSummary": "&#123;...&#125;",
+  "customerSnapshot": "&#123;...&#125;", "riskTags": "&#123;...&#125;",
+  "formattedAmount": "", "validatedField": "" &#125;
+
+curl -s -X POST "http://localhost:18081/2.0.0/api/demo" \
+  -H "Content-Type: application/json" \
+  --data-binary "@lightesb-camel-app/PlatformHttp/v2.0.0/test.json" | jq '&#123;complexOrder, orderSummary, customerSnapshot, riskTags&#125;'</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="phv2.trouble.title">When something does not resolve</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="phv2.trouble.notfound.title">No DTS extension found</h3>
+            <p class="copy" data-i18n="phv2.trouble.notfound.text">Check that the transform name matches supportedTransforms() exactly, that the extension jar sits under services/TransformDS, and that the SPI descriptor path and class names are correct.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="phv2.trouble.conflict.title">Same transform name twice</h3>
+            <p class="copy" data-i18n="phv2.trouble.conflict.text">If multiple providers claim one transformName, the runtime picks the implementation with the higher priority().</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="phv2.trouble.endpoint.title">Endpoint unreachable</h3>
+            <p class="copy" data-i18n="phv2.trouble.endpoint.text">Verify HTTP.Listener=true, server.port=18081, and that the request path includes the version segment /2.0.0/api/demo.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="phv2.trouble.import.title">DataSonnet import fails</h3>
+            <p class="copy" data-i18n="phv2.trouble.import.text">Verify input-transform.file=input-transform-with-import.ds and that the imported library path is valid for the runtime resolution model.</p>
+          </article>
+        </div>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href={doc} data-i18n="phv2.doc">Transform components guide</a>
+        <a class="button" href={sample} data-i18n="phv2.sample">PlatformHttp v2.0.0 service</a>
+      </div>
+    </div>
+  </article>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "phv2.eyebrow": "技术文章",
+        "phv2.title": "PlatformHttp v2.0.0：一个 HTTP 入口，SPI 与 DataSonnet 驱动的可插拔 DTS 转换",
+        "phv2.lead": "PlatformHttp v2.0.0 样例展示了如何用稳定的 HTTP Listener 入口把一次请求分发给多个具名转换：invokeDtsTransform 统一调用、第三方 Provider 经 Java SPI 从 services/TransformDS 运行时加载、DataSonnet import 让映射规则保持模块化。",
+        "phv2.meta.sample": "样例：",
+        "phv2.meta.repo": "仓库：",
+        "phv2.problem.title": "编排多个转换，但不改核心代码",
+        "phv2.problem.p1": "集成路由经常需要在一次请求内完成多个业务转换，同时要求扩展能力独立于运行时交付。PlatformHttp v2.0.0 用四件事回答：稳定的 HTTP Listener 入口、统一的 invokeDtsTransform 调用、从 services/TransformDS 进行的 SPI 装载、可复用的 DataSonnet 公共函数 import。效果是：一次请求产出多个转换结果；路由 XML 从不出现 Provider 类名；上线一个新扩展只是投放一个 Jar，而不是给核心打补丁。",
+        "phv2.route.title": "稳定入口 + 统一调用",
+        "phv2.route.p1": "端点由每个 LightESB 服务都有的两个 properties 组装：common.config.properties 里的 server.port 与 HTTP.Listener，加上 service.config.properties 里的 service.version，最终得到 POST http://localhost:18081/2.0.0/api/demo：",
+        "phv2.route.p2": "路由内部，commonFunctions Bean 上的四次 method 调用对同一份 body 执行四个具名转换。路由与 Provider 类名解耦——只有转换名重要：",
+        "phv2.spi.title": "从 services/TransformDS 进行 SPI 装载",
+        "phv2.spi.p1": "第三方转换实现以 Jar 形式投放到 services/TransformDS。运行时链路是确定的：",
+        "phv2.spi.1": "扫描 services/TransformDS 目录。",
+        "phv2.spi.2": "加载其中每个 *.jar。",
+        "phv2.spi.3": "通过 ServiceLoader<LightesbDtsExtension> 发现 Provider。",
+        "phv2.spi.4": "按各 Provider 的 supportedTransforms() 建立 transformName -> provider 映射。",
+        "phv2.spi.5": "同名冲突按 priority() 解决——高优先级胜出。",
+        "phv2.spi.p2": "输入映射脚本同样保持模块化：DataSonnet 脚本可以 import 公共函数库，格式化逻辑集中一处，主脚本只保留映射意图：",
+        "phv2.run.title": "真实请求，真实响应结构",
+        "phv2.run.p1": "在仓库根目录执行，把随服务附带的 test.json POST 到该端点：",
+        "phv2.run.p2": "路由把四个转换结果与两个公共函数结果组装为一个响应体。一条 jq 命令即可核验四个转换键：",
+        "phv2.trouble.title": "解析失败时查什么",
+        "phv2.trouble.notfound.title": "No DTS extension found",
+        "phv2.trouble.notfound.text": "检查转换名是否与 supportedTransforms() 完全一致、扩展 Jar 是否在 services/TransformDS 下、SPI 描述文件路径与实现类名是否正确。",
+        "phv2.trouble.conflict.title": "同名转换冲突",
+        "phv2.trouble.conflict.text": "多个 Provider 声明同一个 transformName 时，运行时选择 priority() 更高的实现。",
+        "phv2.trouble.endpoint.title": "端点无法访问",
+        "phv2.trouble.endpoint.text": "确认 HTTP.Listener=true、server.port=18081，且请求路径包含版本段 /2.0.0/api/demo。",
+        "phv2.trouble.import.title": "DataSonnet import 失败",
+        "phv2.trouble.import.text": "确认 input-transform.file=input-transform-with-import.ds，且被导入库路径符合当前运行时解析规则。",
+        "phv2.doc": "转换组件指南",
+        "phv2.sample": "PlatformHttp v2.0.0 服务目录"
+      }
+    };
+  </script>
+</BaseLayout>

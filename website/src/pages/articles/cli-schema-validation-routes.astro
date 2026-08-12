@@ -1,0 +1,151 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+const doc = `${repo}/blob/main/docs/components/05-json-schema-validation.md`;
+const sample = `${repo}/tree/main/example/routes/security-validation/DemoSecuritySrv/v1.0.0`;
+---
+
+<BaseLayout
+  current="/articles"
+  title="Orchestrating JSON Schema Validation Routes with the CLI | LightESB-Camel"
+  description="Generate request, response, and callback JSON Schemas from registered message models with lightesb message schema generate, wire them into Camel routes with the paired JsonSchemaPath/JsonSchemaValidationMode block and jsonSchemaValidationProcessor, and commit everything in one ai route apply — with a 400 failure branch and a hard stop on schema warnings."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="schema.eyebrow">Technical article</p>
+      <h1 data-i18n="schema.title">JSON Schema validation routes, orchestrated by the CLI</h1>
+      <p class="lead" data-i18n="schema.lead">
+        LightESB-Camel validates inbound, outbound, and callback JSON against Draft 2020-12 schemas through jsonSchemaValidationProcessor. The CLI turns schema management into two deterministic commands: message schema generate derives the schema from the registered message model and writes the fixed file, then ai route apply commits the route together with exactly the schemas it references.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="schema.meta.sample">Sample:</span> <a href={sample}>example/routes/security-validation/DemoSecuritySrv/v1.0.0</a></span>
+        <span><span data-i18n="schema.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="schema.problem.title">Hand-written schemas drift from the message model</h2>
+        <p data-i18n="schema.problem.p1">
+          Services already register their contracts: the current service's serviceInId and serviceOutId, plus a serviceCallbackId for callbacks. Deriving a schema by hand from msgStructure invites drift, and the callback direction adds a lookup trap — serviceCallbackId is a service ID, not a message ID; you must query the callback service first and take its serviceInId.
+        </p>
+        <p data-i18n="schema.problem.p2">
+          The CLI closes that gap. message schema generate wraps the server's JSON Schema preview API and writes only the returned data.schema into the service version directory; ai route apply then lands the reviewed route and the managed fixed schemas in one authorized call.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="schema.flow.title">Three directions, one paired block</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="schema.flow.dirs.title">Three fixed directions</h3>
+            <p class="copy" data-i18n="schema.flow.dirs.text">INPUT uses serviceInId with request-schema.json, after inbound and before business processing. OUTPUT uses serviceOutId with response-schema.json, before the response returns. CALLBACK uses the callback service's serviceInId with callback-schema.json, before invoking the callback. All three schemas live in the current service version directory.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="schema.flow.block.title">Paired configuration</h3>
+            <p class="copy" data-i18n="schema.flow.block.text">Every validation point is the same full block: set JsonSchemaPath, set JsonSchemaValidationMode, then process ref jsonSchemaValidationProcessor — only the file name and placement change. JsonSchemaContent, when present, takes highest priority; JsonSchemaId only aids identification and caching.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="schema.flow.modes.title">STRICT, LENIENT, SKIP</h3>
+            <p class="copy" data-i18n="schema.flow.modes.text">STRICT is the default and throws on failure; LENIENT continues and records X-Validation-Warnings; SKIP bypasses validation for temporary joint debugging, never as a business switch. Validation runs on com.networknt:json-schema-validator and defaults to JSON Schema Draft 2020-12.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="schema.flow.truth.title">Route XML is the only switch</h3>
+            <p class="copy" data-i18n="schema.flow.truth.text">Validation is enabled by adding the full block and disabled by deleting it — no global, service-config, or database toggle. Deleting a direction's block and re-applying removes that managed fixed schema; custom schemas are untouched.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2 data-i18n="schema.cli.title">Two commands, from message model to applied route</h2>
+        <p data-i18n="schema.cli.p1">
+          Generate the fixed schema file. --id and --file are mutually exclusive; --app-dir defaults to lightesb-camel-app and the target serviceName/serviceVersion directory must already exist. The command writes data.schema to --schema-file and never deploys or reloads the service:
+        </p>
+        <pre><code>lightesb message schema generate \
+  --id &lt;messageId&gt; \
+  --service-name DemoSrv \
+  --service-version v1.0.0 \
+  --schema-file request-schema.json \
+  --yes --output json</code></pre>
+        <p data-i18n="schema.cli.p2">
+          --output json returns data.file, data.schema, data.warnings, and data.jsonSchemaPath — write the latter verbatim into the route. After review, one apply call commits the route with its referenced schemas; remote apply must carry both properties files, accepts only the three fixed schema names, and requires them to match route references one-to-one:
+        </p>
+        <pre><code>lightesb ai route apply --file DemoAiSrv-route.xml --save-remote \
+  --service-name DemoAiSrv --service-version v1.0.0 \
+  --route-file-name DemoAiSrv-route.xml \
+  --resource-file common.config.properties \
+  --resource-file service.config.properties \
+  --resource-file request-schema.json \
+  --return-logs --log-lines 80 --timeout 30 --yes --output json</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="schema.failure.title">Fail the request, not the route</h2>
+        <p data-i18n="schema.failure.p1">
+          Under STRICT a failed validation throws; wrap the processor so the caller gets a stable 400 body instead of a broken flow:
+        </p>
+        <pre><code>&lt;doTry&gt;
+  &lt;process ref="jsonSchemaValidationProcessor"/&gt;
+  &lt;doCatch&gt;
+    &lt;exception&gt;java.lang.Exception&lt;/exception&gt;
+    &lt;setHeader name="CamelHttpResponseCode"&gt;&lt;constant&gt;400&lt;/constant&gt;&lt;/setHeader&gt;
+    &lt;setBody&gt;&lt;simple&gt;&#123;"error":"VALIDATION_ERROR","message":"$&#123;exception.message&#125;"&#125;&lt;/simple&gt;&lt;/setBody&gt;
+  &lt;/doCatch&gt;
+&lt;/doTry&gt;</code></pre>
+        <p data-i18n="schema.failure.p2">
+          Expected posture: valid JSON passes under STRICT; invalid JSON returns 400 or enters the global exception response; under LENIENT the flow continues with the warning visible in the response or logs.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="schema.boundary.title">Boundaries the CLI keeps</h2>
+        <p data-i18n="schema.boundary.p1">
+          Schema content may only come from the API's data.schema — never generated, completed, or edited from msgStructure by a model. A non-empty data.warnings stops automatic apply and must be shown in full; only an explicit user confirmation continues.
+        </p>
+        <p data-i18n="schema.boundary.p2">
+          With --save-remote the server backs up, writes, and waits for hot reload (bounded by --timeout). A FAILED, FAILED_ROLLED_BACK, or ROLLBACK_FAILED result prints operationId, deleted files, restore state, and logs, then exits with code 69 — the local candidate is kept and never retried automatically.
+        </p>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href={doc} data-i18n="schema.doc">Schema validation guide</a>
+        <a class="button" href={sample} data-i18n="schema.sample">Security validation sample</a>
+      </div>
+    </div>
+  </article>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "schema.eyebrow": "技术文章",
+        "schema.title": "用 CLI 编排 JSON Schema 校验路由",
+        "schema.lead": "LightESB-Camel 通过 jsonSchemaValidationProcessor 按 Draft 2020-12 Schema 校验入站、出站与回调 JSON。CLI 把 Schema 管理收敛为两条确定性命令：message schema generate 从已注册报文模型派生 Schema 并写入固定文件，随后 ai route apply 把路由与它实际引用的 Schema 一次性提交落地。",
+        "schema.meta.sample": "样例：",
+        "schema.meta.repo": "仓库：",
+        "schema.problem.title": "手写 Schema 会与报文模型漂移",
+        "schema.problem.p1": "服务早已注册自己的契约：当前服务的 serviceInId、serviceOutId，以及回调用的 serviceCallbackId。照着 msgStructure 手写 Schema 注定漂移，而 CALLBACK 方向还多一个查询陷阱——serviceCallbackId 是服务 ID 不是消息 ID，必须先查出回调服务，再取其 serviceInId。",
+        "schema.problem.p2": "CLI 弥合了这个缺口。message schema generate 封装服务端 JSON Schema 预览接口，只把返回的 data.schema 写入服务版本目录；ai route apply 再把审核过的路由与受管固定 Schema 在一次授权调用中落地。",
+        "schema.flow.title": "三个方向，同一组成对配置",
+        "schema.flow.dirs.title": "三个固定方向",
+        "schema.flow.dirs.text": "INPUT 取 serviceInId 配 request-schema.json，位于入站后、业务处理前；OUTPUT 取 serviceOutId 配 response-schema.json，位于响应返回前；CALLBACK 取回调服务的 serviceInId 配 callback-schema.json，位于调用回调前。三个 Schema 都写入当前服务版本目录。",
+        "schema.flow.block.title": "成对配置",
+        "schema.flow.block.text": "每个校验点都是同一个完整块：先设 JsonSchemaPath，再设 JsonSchemaValidationMode，最后 process ref 指向 jsonSchemaValidationProcessor——只有文件名和位置变化。JsonSchemaContent 存在时优先级最高；JsonSchemaId 只辅助标识与缓存。",
+        "schema.flow.modes.title": "STRICT、LENIENT、SKIP",
+        "schema.flow.modes.text": "STRICT 为默认模式，失败即抛错；LENIENT 不中断流程，写入 X-Validation-Warnings；SKIP 跳过校验，仅供临时联调，不可充当业务开关。校验基于 com.networknt:json-schema-validator，默认按 JSON Schema Draft 2020-12 执行。",
+        "schema.flow.truth.title": "Route XML 是唯一开关",
+        "schema.flow.truth.text": "需要校验就加入完整块，不需要就删除完整块——没有全局、服务配置或数据库开关。删除某方向校验块后重新 apply 会删除对应受管固定 Schema，自定义 Schema 不受影响。",
+        "schema.cli.title": "两条命令：从报文模型到落地路由",
+        "schema.cli.p1": "生成固定 Schema 文件。--id 与 --file 二选一；--app-dir 默认 lightesb-camel-app，目标 serviceName/serviceVersion 目录必须已存在。命令把 data.schema 写为 --schema-file，不会部署或重载服务：",
+        "schema.cli.p2": "--output json 返回 data.file、data.schema、data.warnings 和 data.jsonSchemaPath——后者原样写入路由。审核后一次 apply 提交路由及其引用的 Schema；远程 apply 必须携带两个 properties 文件，JSON 资源只接受三个固定 Schema 文件名，且必须与路由引用一一对应：",
+        "schema.failure.title": "让请求失败，而不是让路由失败",
+        "schema.failure.p1": "STRICT 模式下校验失败会抛错；用 doTry/doCatch 包住 processor，让调用方拿到稳定的 400 响应体，而不是一条断掉的流程：",
+        "schema.failure.p2": "预期姿态：合法 JSON 在 STRICT 下通过；非法 JSON 返回 400 或进入全局异常响应；LENIENT 下流程继续，响应或日志中可见告警。",
+        "schema.boundary.title": "CLI 守住的边界",
+        "schema.boundary.p1": "Schema 内容只能来自接口返回的 data.schema——不得由模型根据 msgStructure 自行生成、补写或修改。data.warnings 非空时停止自动 apply 并完整展示，只有用户明确确认后才能继续。",
+        "schema.boundary.p2": "--save-remote 由服务端备份、写入并等待热加载（上限 --timeout）。返回 FAILED、FAILED_ROLLED_BACK 或 ROLLBACK_FAILED 时，先输出 operationId、删除文件、恢复状态与日志，再以退出码 69 结束——本地候选保留，不自动重试。",
+        "schema.doc": "Schema 校验指南",
+        "schema.sample": "安全校验样例"
+      }
+    };
+  </script>
+</BaseLayout>

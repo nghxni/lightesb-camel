@@ -1,0 +1,132 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+const doc = `${repo}/blob/main/docs/components/11-externaldb.md`;
+const sample = `${repo}/tree/main/lightesb-camel-app/MysqlRouteSrv/v1.0.0`;
+---
+
+<BaseLayout
+  current="/articles"
+  title="External Database Routes with externaldb | LightESB-Camel"
+  description="How MysqlRouteSrv v1.0.0 wires MySQL through the externaldb component — system.components enablement, the service-level extdb.* datasource model, dynamic per-id registry beans, and config-driven target switching verified by a timer route."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="extdb.eyebrow">Technical article</p>
+      <h1 data-i18n="extdb.title">External database support: switch a route's target database from configuration, not XML</h1>
+      <p class="lead" data-i18n="extdb.lead">
+        MysqlRouteSrv v1.0.0 shows how the LightESB externaldb component moves database target selection out of Camel route XML and into service configuration. Datasources register dynamically as extdb-&lt;id&gt;-datasource beans, routes reference them through one placeholder, and switching the target database becomes a properties edit plus a reload — the SQL route never changes.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="extdb.meta.sample">Sample:</span> <a href={sample}>lightesb-camel-app/MysqlRouteSrv/v1.0.0</a></span>
+        <span><span data-i18n="extdb.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="extdb.problem.title">Hardcoded datasources do not survive environments</h2>
+        <p data-i18n="extdb.problem.p1">
+          Database endpoints and credentials vary by environment and by route. Hardcoding datasource names in XML routes turns every environment move into a route edit — high change cost, high regression risk.
+        </p>
+        <p data-i18n="extdb.problem.p2">
+          externaldb moves target selection to the config layer: route SQL stays stable, datasources are registered dynamically in the Camel Registry, and the target database is switched by properties instead of route rewrites. MysqlRouteSrv v1.0.0 uses this mechanism to verify MySQL connectivity and a basic CRUD flow on a fixed schedule.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="extdb.mech.title">The mechanism in four parts</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="extdb.mech.enable.title">Enablement and priority</h3>
+            <p class="copy" data-i18n="extdb.mech.enable.text">system.components=externaldb turns the component on in common.config.properties. The extdb.* datasource model lives in service.config.properties, and service-level settings override common defaults.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="extdb.mech.beans.title">Dynamic registry beans</h3>
+            <p class="copy" data-i18n="extdb.mech.beans.text">Once externaldb is loaded, the Camel Registry holds extdb-&lt;id&gt;-datasource (for example extdb-primary-datasource) plus extdb-default-datasource, extdb.config, and extdb.route.targets.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="extdb.mech.route.title">One placeholder, stable SQL</h3>
+            <p class="copy" data-i18n="extdb.mech.route.text">SQL endpoints point at #bean:extdb-&#123;&#123;mysqlroute.target.datasource&#125;&#125;-datasource. The same reference pattern is reused for select, insert, query, and delete against testexdb, so redirection is pure configuration.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="extdb.mech.timer.title">Timer-driven verification</h3>
+            <p class="copy" data-i18n="extdb.mech.timer.text">The service runs with HTTP.Listener=false. A timer route fires every 60 seconds and runs the health check against the selected datasource, so the validation evidence lives in the route log.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2 data-i18n="extdb.run.title">Real configuration, real route</h2>
+        <p data-i18n="extdb.run.p1">The service-level datasource model, from service.config.properties:</p>
+        <pre><code>extdb.enabled=true
+extdb.default=primary
+extdb.ids=primary
+extdb.primary.type=mysql
+extdb.primary.url=jdbc:mysql://localhost:3306/test?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false&amp;serverTimezone=Asia/Shanghai
+extdb.primary.driver=com.mysql.cj.jdbc.Driver
+extdb.primary.username=root
+extdb.primary.password=nghxni
+extdb.primary.maxPoolSize=10
+mysqlroute.target.datasource=primary</code></pre>
+        <p data-i18n="extdb.run.p2">The timer route wires the SQL component through the placeholder, from mysql-healthcheck-route.xml:</p>
+        <pre><code>&lt;from uri="timer://mysql-healthcheck?fixedRate=true&amp;amp;period=60000"/&gt;
+&lt;setHeader name="db.target"&gt;
+    &lt;simple&gt;&#123;&#123;mysqlroute.target.datasource&#125;&#125;&lt;/simple&gt;
+&lt;/setHeader&gt;
+&lt;to uri="sql:select 1 as db_ok?dataSource=#bean:extdb-&#123;&#123;mysqlroute.target.datasource&#125;&#125;-datasource&amp;amp;outputType=SelectOne"/&gt;</code></pre>
+        <p data-i18n="extdb.run.p3">
+          Verification is log-based: logs/mysql-healthcheck-route.log should show the health check starting with target=primary, select 1 returning result=1, and the insert/query/delete chain against testexdb completing. To switch targets, add the extdb.archive.* set, change mysqlroute.target.datasource from primary to archive, reload, and the target= field in the log follows the new id.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="extdb.boundary.title">When the bean is not there</h2>
+        <p data-i18n="extdb.boundary.p1">
+          "No bean could be found in the registry" means the naming contract broke somewhere: check that system.components includes externaldb, extdb.enabled=true, the target id is listed in extdb.ids, and the SQL URI really spells extdb-&lt;id&gt;-datasource. If the health check runs but SQL fails, check the URL, driver, and credentials, that the testexdb table exists in the selected schema, and that the account has insert/select/delete permissions.
+        </p>
+        <p data-i18n="extdb.boundary.p2">
+          If a datasource switch does not take effect, confirm the new id's extdb.&lt;id&gt;.* set is fully configured, the service reload has completed, and the db.target header prints the expected id. And if the default surprises you, remember the order: the route-level mysqlroute.target.datasource overrides extdb.default — without that override, the default id wins.
+        </p>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href={doc} data-i18n="extdb.doc">externaldb component guide</a>
+        <a class="button" href={sample} data-i18n="extdb.sample">MySQL sample service</a>
+      </div>
+    </div>
+  </article>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "extdb.eyebrow": "技术文章",
+        "extdb.title": "ExternalDB 外部数据库支持：用配置切换路由目标库，不改 XML",
+        "extdb.lead": "MysqlRouteSrv v1.0.0 展示了 LightESB externaldb 组件如何把目标库选择从 Camel 路由 XML 移到服务配置层。数据源动态注册为 extdb-<id>-datasource Bean，路由通过一个占位符引用它们；切换目标库只是改 properties 再重载——SQL 路由本身不变。",
+        "extdb.meta.sample": "样例：",
+        "extdb.meta.repo": "仓库：",
+        "extdb.problem.title": "写死的数据源扛不住环境变化",
+        "extdb.problem.p1": "数据库地址、账号和目标库随环境、随路由变化。把数据源名写死在 XML 路由里，意味着每次换环境都要改路由——变更成本高、回归风险大。",
+        "extdb.problem.p2": "externaldb 把目标库选择下沉到配置层：路由 SQL 保持稳定，数据源动态注册进 Camel Registry，目标库通过属性切换而不是改路由。MysqlRouteSrv v1.0.0 用这套机制按固定周期验证 MySQL 连通性和基础 CRUD 链路。",
+        "extdb.mech.title": "机制的四个部分",
+        "extdb.mech.enable.title": "启用与优先级",
+        "extdb.mech.enable.text": "common.config.properties 中 system.components=externaldb 打开组件；extdb.* 数据源模型放在 service.config.properties，服务级配置覆盖通用默认值。",
+        "extdb.mech.beans.title": "动态 Registry Bean",
+        "extdb.mech.beans.text": "externaldb 加载成功后，Camel Registry 中可用 extdb-<id>-datasource（例如 extdb-primary-datasource），以及 extdb-default-datasource、extdb.config 和 extdb.route.targets。",
+        "extdb.mech.route.title": "一个占位符，SQL 稳定",
+        "extdb.mech.route.text": "SQL 端点指向 #bean:extdb-{{mysqlroute.target.datasource}}-datasource。对 testexdb 的 select、insert、query、delete 复用同一引用模式，切换目标库纯粹是配置动作。",
+        "extdb.mech.timer.title": "定时验证",
+        "extdb.mech.timer.text": "服务以 HTTP.Listener=false 运行。timer 路由每 60 秒触发一次，对当前选中的数据源执行健康检查，验证证据都在路由日志里。",
+        "extdb.run.title": "真实配置，真实路由",
+        "extdb.run.p1": "服务级数据源模型，来自 service.config.properties：",
+        "extdb.run.p2": "timer 路由通过占位符接入 SQL 组件，来自 mysql-healthcheck-route.xml：",
+        "extdb.run.p3": "验证基于日志：logs/mysql-healthcheck-route.log 应看到健康检查以 target=primary 开始、select 1 返回 result=1、对 testexdb 的 insert/query/delete 链路全部成功。要切换目标库，补全 extdb.archive.* 配置，把 mysqlroute.target.datasource 从 primary 改为 archive，重载后日志中的 target= 会跟随新 id。",
+        "extdb.boundary.title": "当 Bean 找不到时",
+        "extdb.boundary.p1": "“No bean could be found in the registry” 说明命名契约某处断了：检查 system.components 是否包含 externaldb、extdb.enabled 是否为 true、目标 id 是否列入 extdb.ids、SQL URI 是否确实拼成 extdb-<id>-datasource。如果健康检查在跑但 SQL 失败，检查 URL、driver、账号密码、目标 schema 里是否存在 testexdb 表，以及账号是否具备 insert/select/delete 权限。",
+        "extdb.boundary.p2": "如果切换数据源没生效，确认新 id 的 extdb.<id>.* 配置完整、服务重载已完成、日志中 db.target 头打印的是预期 id。如果默认库与预期不一致，记住顺序：路由级 mysqlroute.target.datasource 覆盖 extdb.default——缺了路由级覆盖就回退到默认 id。",
+        "extdb.doc": "externaldb 组件指南",
+        "extdb.sample": "MySQL 样例服务"
+      }
+    };
+  </script>
+</BaseLayout>

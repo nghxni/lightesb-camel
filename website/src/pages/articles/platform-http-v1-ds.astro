@@ -1,0 +1,140 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repo = "https://github.com/nghxni/lightesb-camel";
+const doc = `${repo}/blob/main/docs/components/04-transform-components.md`;
+const sample = `${repo}/tree/main/example/routes/PlatformHttp/v1.0.0`;
+---
+
+<BaseLayout
+  current="/articles"
+  title="PlatformHttp v1.0.0 DS Data Transform | LightESB-Camel"
+  description="How PlatformHttp v1.0.0 flattens complex order JSON with a config-driven conditionaltransform switch, a reusable DataSonnet function library, and stable JSON response write-back — verified with curl and jq."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="phv1.eyebrow">Technical article</p>
+      <h1 data-i18n="phv1.title">PlatformHttp v1.0.0: config-driven DS transform for complex order JSON</h1>
+      <p class="lead" data-i18n="phv1.lead">
+        PlatformHttp v1.0.0 ships a practical DS data transform route for complex order payloads. An HTTP Listener accepts the nested order JSON, conditionaltransform runs the conversion only when configuration enables it, and the converted JSON is written straight back to the caller.
+      </p>
+
+      <div class="article-meta">
+        <span><span data-i18n="phv1.meta.sample">Sample:</span> <a href={sample}>example/routes/PlatformHttp/v1.0.0</a></span>
+        <span><span data-i18n="phv1.meta.docs">Docs:</span> <a href={doc}>docs/components/04-transform-components.md</a></span>
+        <span><span data-i18n="phv1.meta.repo">Repository:</span> <a href={repo}>github.com/nghxni/lightesb-camel</a></span>
+      </div>
+
+      <section>
+        <h2 data-i18n="phv1.problem.title">Deeply nested order JSON is expensive to consume</h2>
+        <p data-i18n="phv1.problem.p1">
+          In integration scenarios, upstream payloads arrive with many levels and fields that downstream systems cannot use directly. The route targets a stable pattern: keep a clear HTTP Listener as the request entry, flatten multi-level order JSON into business-friendly fields, prepare the transformed data for downstream forwarding, and keep response write-back stable with JSON encoding handling.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="phv1.mech.title">Route breakdown: entry, switch, script, write-back</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="phv1.mech.entry.title">HTTP Listener entry</h3>
+            <p class="copy" data-i18n="phv1.mech.entry.text">complex-json-transform-route.xml listens on undertow:http://0.0.0.0:&#123;&#123;server.port&#125;&#125;/api/transform/complex-order?httpMethodRestrict=POST. With server.port=18081 and HTTP.Listener=true in common.config.properties, the endpoint is POST http://localhost:18081/api/transform/complex-order; system.components loads undertowhttp, streamcache, jsontransform, and conditionaltransform.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="phv1.mech.switch.title">Conditional transform switch</h3>
+            <p class="copy" data-i18n="phv1.mech.switch.text">The route invokes conditionaltransform:input?skipOnError=true. When input-transform=true the DS transform executes; input-transform.file=input-transform-with-import.ds selects the script. If the transform fails and skipOnError=true, the route continues without a hard stop.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="phv1.mech.ds.title">DS script with shared functions</h3>
+            <p class="copy" data-i18n="phv1.mech.ds.text">input-transform-with-import.ds imports lightesb-camel-app/TransformDS/common-functions.ds to keep rules modular: lib.formatFullName(...) builds the customer name, lib.formatAddress(...) the shipping address, lib.calculateLineTotal(...) line totals, and lib.formatAmount(...) normalized financial values.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="phv1.mech.resp.title">Stable response write-back</h3>
+            <p class="copy" data-i18n="phv1.mech.resp.text">The route finishes with a jsonResponseProcessor reference, which keeps JSON response output stable for UTF-8 and content formatting during write-back — the caller receives the converted JSON directly.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2 data-i18n="phv1.run.title">Verify with curl</h2>
+        <p data-i18n="phv1.run.p1">
+          Post the bundled test payload from the repository root:
+        </p>
+        <pre><code>curl -X POST "http://localhost:18081/api/transform/complex-order" \
+  -H "Content-Type: application/json" \
+  --data-binary "@lightesb-camel-app/PlatformHttp/v1.0.0/test.json"</code></pre>
+        <p data-i18n="phv1.run.p2">
+          A successful response returns the flattened business fields:
+        </p>
+        <pre><code>&#123;
+  "orderId": "ORD-2024-003",
+  "customerName": "张明华",
+  "items": [
+    &#123;
+      "productId": "PROD-001",
+      "lineTotal": 16198.2
+    &#125;
+  ],
+  "financial": &#123;
+    "currency": "CNY"
+  &#125;
+&#125;</code></pre>
+        <p data-i18n="phv1.run.p3">
+          Check the key fields in one line with jq:
+        </p>
+        <pre><code>curl -s -X POST "http://localhost:18081/api/transform/complex-order" \
+  -H "Content-Type: application/json" \
+  --data-binary "@lightesb-camel-app/PlatformHttp/v1.0.0/test.json" | jq '&#123;orderId, customerName, itemCount: (.items|length), currency: .financial.currency&#125;'</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="phv1.trouble.title">When it does not transform</h2>
+        <ol class="article-steps">
+          <li data-i18n="phv1.trouble.1">Port not reachable: confirm HTTP.Listener=true, server.port=18081, and that no other process holds port 18081.</li>
+          <li data-i18n="phv1.trouble.2">Method rejected: the entry sets httpMethodRestrict=POST, so the call must be POST.</li>
+          <li data-i18n="phv1.trouble.3">No transform applied: check input-transform=true, input-transform.file=input-transform-with-import.ds, and that the DS file path and syntax are valid.</li>
+          <li data-i18n="phv1.trouble.4">Import file not found: input-transform-with-import.ds depends on lightesb-camel-app/TransformDS/common-functions.ds — the file must exist and resolve correctly at runtime.</li>
+        </ol>
+      </section>
+
+      <div class="article-actions">
+        <a class="button primary" href={doc} data-i18n="phv1.doc">Transform components guide</a>
+        <a class="button" href={sample} data-i18n="phv1.sample">PlatformHttp v1.0.0 sample</a>
+      </div>
+    </div>
+  </article>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "phv1.eyebrow": "技术文章",
+        "phv1.title": "PlatformHttp v1.0.0：配置驱动的复杂订单 JSON DS 数据转换",
+        "phv1.lead": "PlatformHttp v1.0.0 提供了一条可直接复用的 DS 数据转换路由，面向复杂订单报文。HTTP Listener 接收层级深的订单 JSON，conditionaltransform 只在配置启用时执行转换，转换后的 JSON 直接响应回写给调用方。",
+        "phv1.meta.sample": "样例：",
+        "phv1.meta.docs": "文档：",
+        "phv1.meta.repo": "仓库：",
+        "phv1.problem.title": "层级深的订单 JSON 消费成本高",
+        "phv1.problem.p1": "在集成场景里，上游报文层级深、字段多，下游系统无法直接消费。这条路由聚焦一个稳定模式：以清晰的 HTTP Listener 作为请求入口，将多层订单 JSON 扁平化为业务字段，为下游转发准备好转换后的数据，并通过 JSON 编码处理保持响应回写稳定。",
+        "phv1.mech.title": "路由拆解：入口、开关、脚本、回写",
+        "phv1.mech.entry.title": "HTTP Listener 请求入口",
+        "phv1.mech.entry.text": "complex-json-transform-route.xml 监听 undertow:http://0.0.0.0:{{server.port}}/api/transform/complex-order?httpMethodRestrict=POST。common.config.properties 中 server.port=18081 且 HTTP.Listener=true 时，请求地址为 POST http://localhost:18081/api/transform/complex-order；system.components 加载 undertowhttp、streamcache、jsontransform 与 conditionaltransform。",
+        "phv1.mech.switch.title": "条件化转换开关",
+        "phv1.mech.switch.text": "路由调用 conditionaltransform:input?skipOnError=true。input-transform=true 时执行 DS 转换；input-transform.file=input-transform-with-import.ds 指定转换脚本。转换异常且 skipOnError=true 时，流程不中断继续执行。",
+        "phv1.mech.ds.title": "导入公共函数的 DS 脚本",
+        "phv1.mech.ds.text": "input-transform-with-import.ds 导入 lightesb-camel-app/TransformDS/common-functions.ds 保持规则模块化：lib.formatFullName(...) 组装客户姓名，lib.formatAddress(...) 组装收货地址，lib.calculateLineTotal(...) 计算商品行总价，lib.formatAmount(...) 统一金额格式。",
+        "phv1.mech.resp.title": "稳定的响应回写",
+        "phv1.mech.resp.text": "路由末尾引用 jsonResponseProcessor，保证 JSON 响应回写时的 UTF-8 与格式稳定性——调用方直接收到转换后的 JSON。",
+        "phv1.run.title": "用 curl 验证",
+        "phv1.run.p1": "在仓库根目录提交随服务提供的测试报文：",
+        "phv1.run.p2": "成功响应返回扁平化后的业务字段：",
+        "phv1.run.p3": "用 jq 一行校验关键字段：",
+        "phv1.trouble.title": "转换不生效时怎么查",
+        "phv1.trouble.1": "端口不可访问：确认 HTTP.Listener=true、server.port=18081，且端口 18081 未被其他进程占用。",
+        "phv1.trouble.2": "请求方法被拒绝：入口设置了 httpMethodRestrict=POST，调用必须使用 POST。",
+        "phv1.trouble.3": "未发生转换：检查 input-transform=true、input-transform.file=input-transform-with-import.ds，以及 DS 脚本路径和语法是否有效。",
+        "phv1.trouble.4": "import 文件找不到：input-transform-with-import.ds 依赖 lightesb-camel-app/TransformDS/common-functions.ds——需确认文件存在且运行时路径解析正确。",
+        "phv1.doc": "转换组件指南",
+        "phv1.sample": "PlatformHttp v1.0.0 样例"
+      }
+    };
+  </script>
+</BaseLayout>
