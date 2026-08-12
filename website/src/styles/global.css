@@ -779,3 +779,17 @@ section {
     flex-direction: column;
   }
 }
+
+.brand-video {
+  margin-top: 28px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  background: #000;
+}
+
+.brand-video video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}

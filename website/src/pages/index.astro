@@ -11,6 +11,33 @@ import SectionHead from "../components/SectionHead.astro";
 >
   <ProductIntroHero />
 
+  <section class="band">
+    <div class="container">
+      <SectionHead
+        eyebrow="Brand film"
+        title="Tuoling in three minutes"
+        text="Five real pain points, one platform. See how Tuoling connects legacy systems, industrial devices, robots, and AI tools into one governed flow."
+        eyebrowKey="home.video.eyebrow"
+        titleKey="home.video.title"
+        textKey="home.video.text"
+      />
+      <div class="brand-video">
+        <video
+          controls
+          preload="none"
+          playsinline
+          src="/videos/tuoling-brand-intro-en.mp4"
+          poster="/videos/tuoling-brand-intro-en.jpg"
+          data-brand-video
+          data-video-zh="/videos/tuoling-brand-intro-zh.mp4"
+          data-video-en="/videos/tuoling-brand-intro-en.mp4"
+          data-poster-zh="/videos/tuoling-brand-intro-zh.jpg"
+          data-poster-en="/videos/tuoling-brand-intro-en.jpg"
+        ></video>
+      </div>
+    </div>
+  </section>
+
   <div class="metric-strip">
     <div class="metric"><strong data-i18n="home.metric.hot.title">Keep what works</strong><span data-i18n="home.metric.hot.text">Connect existing software instead of forcing a full rewrite.</span></div>
     <div class="metric"><strong data-i18n="home.metric.field.title">Bridge the field</strong><span data-i18n="home.metric.field.text">Bring APIs, databases, industrial protocols, and robot workflows together.</span></div>

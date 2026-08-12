@@ -91,6 +91,9 @@ const navItems = [
           "home.primary": "查看它能做什么",
           "home.secondary": "阅读文档",
           "home.brand.badge": "驼铃（Tuoling）· 基于 LightESB 引擎",
+          "home.video.eyebrow": "品牌介绍",
+          "home.video.title": "三分钟，看懂驼铃",
+          "home.video.text": "从五个真实痛点，看驼铃如何把存量系统、工业设备、机器人和 AI 工具连成一条受控的数据流。",
           "home.intro.eyebrow": "可运行的集成交付包",
           "home.intro.play": "介绍",
           "home.intro.close": "结束介绍",
@@ -409,6 +412,17 @@ const navItems = [
           button.textContent = normalized === "zh" ? "EN" : "中文";
           button.setAttribute("aria-label", normalized === "zh" ? "Switch to English" : "切换到中文");
         });
+        const brandVideo = document.querySelector("[data-brand-video]");
+        if (brandVideo) {
+          const nextSrc = normalized === "zh" ? brandVideo.dataset.videoZh : brandVideo.dataset.videoEn;
+          const nextPoster = normalized === "zh" ? brandVideo.dataset.posterZh : brandVideo.dataset.posterEn;
+          if (brandVideo.getAttribute("src") !== nextSrc) {
+            brandVideo.pause();
+            brandVideo.setAttribute("src", nextSrc);
+            brandVideo.setAttribute("poster", nextPoster);
+            brandVideo.load();
+          }
+        }
         const referralEmail = normalized === "zh" ? "179556428@qq.com" : "nghxni@gmail.com";
         document.querySelectorAll("[data-referral-email]").forEach((link) => {
           link.setAttribute("href", `mailto:${referralEmail}`);

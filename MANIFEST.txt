@@ -5,8 +5,8 @@ README.md
 docs/README.md
 docs/SOURCE_MAP.md
 docs/action-allowlist-api.md
-docs/action-token-api.md
 docs/action-audit-api.md
+docs/action-token-api.md
 docs/ai-route-cache-api.md
 docs/api-response-contract.md
 docs/cli/01-cli-command-reference.md
@@ -184,6 +184,10 @@ website/public/images/lightesb-camel-hero.png
 website/public/images/lightesb-robotics-integration.png
 website/public/robots.txt
 website/public/sitemap.xml
+website/public/videos/tuoling-brand-intro-en.jpg
+website/public/videos/tuoling-brand-intro-en.mp4
+website/public/videos/tuoling-brand-intro-zh.jpg
+website/public/videos/tuoling-brand-intro-zh.mp4
 website/src/components/HeroVisual.astro
 website/src/components/ProductIntroHero.astro
 website/src/components/ProductIntroHero.css
