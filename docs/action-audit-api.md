@@ -73,4 +73,4 @@ curl -H 'Authorization: Bearer <original-token>' \
 | 403 | `ACTION_AUTH_FORBIDDEN` | 使用具有精确 `action-admin` 的 credential。 |
 | 503 | `ACTION_AUDIT_UNAVAILABLE` | 稍后重试并检查控制面数据库。 |
 
-当前没有公开审计写入、清理、修改、删除、retention 或归档 API。该审计主干和 token 生命周期都不提供 Action 执行或审批。
+当前没有公开审计写入、清理、修改、删除、retention 或归档 API。审批和执行服务只通过内部 required append 写固定安全事件；审计查询本身不授予审批或执行权限。

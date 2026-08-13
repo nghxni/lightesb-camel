@@ -23,7 +23,7 @@ java -jar lightesb-cli.jar action build \
 
 ## 功能边界
 
-随包 `lightesb-cli.jar` 的 `action validate/build` 提供离线发现、静态校验和索引生成；`action status/list/search/get` 通过受保护管理 API 查询已发布的内存快照。两类命令都不创建运行时执行入口，也不提供 Agent 自动调用能力。`validate` 只向标准输出写规范 JSON，`build` 必须显式使用 `--yes`，并以原子替换写入服务目录外。`agentCallable=true` 表示该 Action 的目录声明允许进入调用候选集合，但不会授予任何实际调用权限；执行系统仍须独立实施认证、allowlist、审批和审计。
+随包 `lightesb-cli.jar` 的 `action validate/build` 提供离线发现、静态校验和索引生成；`action status/list/search/get` 通过受保护管理 API 查询已发布的内存快照。这些命令不执行 Action。`validate` 只向标准输出写规范 JSON，`build` 必须显式使用 `--yes`，并以原子替换写入服务目录外。`agentCallable=true` 只表示该 Action 允许进入调用候选集合，不授予实际调用权限；真实执行仍必须通过独立认证、allowlist、审批、精确授权和审计。
 
 服务端另提供默认关闭的启动快照基础。现场确需为后续运行时目录能力准备内存视图时，可在平台运行配置中显式设置：
 
@@ -86,7 +86,7 @@ catalog status/list/search/get 成功读取会 best-effort 追加固定安全事
 
 ## 短期 Action token
 
-五开关显式开启后，可用 `action token issue/introspect/revoke` 管理短期不透明 token。原 token 只在 issue 成功响应出现一次，服务端只保存 SHA-256；scope 必须位于当前目录与精确 allowlist 交集。运行 token 与控制面 bearer 隔离，当前仍不提供 Action 执行、OAuth2 或 MCP。详见 [Action 短期 Token API](../action-token-api.md)。
+五开关显式开启后，可用 `action token issue/introspect/revoke` 管理短期不透明 token。原 token 只在 issue 成功响应出现一次，服务端只保存 SHA-256；scope 必须位于当前目录与精确 allowlist 交集。运行 token 与控制面 bearer 隔离，不能调用控制面 API。详见 [Action 短期 Token API](../action-token-api.md)。
 
 ## 有界任务会话审批
 
@@ -94,14 +94,25 @@ catalog status/list/search/get 成功读取会 best-effort 追加固定安全事
 
 多 Action 会话逐项保存真实 source digest，并用聚合 scope digest 做整组 CAS。只有带 session/scope digest 的 Action 专用受管 route apply，经过备份、热加载和 Catalog 结果证明后才延续 lineage；普通 apply 或直接文件变化会使旧会话 `STALE`。会话不执行 Action，也不是 bearer；详见 [Action 有界任务会话审批](../action-approval-api.md)。
 
+## 统一授权 Dry-run
+
+七开关显式开启后，可用精确 `POST /api/actions/authorization:dry-run` 对运行 token、当前目录/allowlist、审批会话、输入策略、Action entry Schema、幂等声明和 generation 做闭合诊断。该端点使用 `lat_` token，不使用控制面 bearer；dry-run 写 required audit，但不执行 route、不消费会话或幂等状态，也不返回执行许可。策略是有大小/深度/节点门禁且禁止引用、组合器、条件和正则的 JSON Schema 子集。详见 [Action 统一授权 Dry-run](../action-authorization-api.md)。
+
+## Action 安全执行
+
+八开关显式开启后，可用精确 `POST /api/actions/execute` 或 `action execute --yes` 执行声明版本 2 的 `read + requestReply` HTTP Action。必须使用独立 `lat_` 运行 token，profile 控制面 bearer 不能替代它。服务端在同一请求内重验 token、allowlist、审批范围、输入 Schema、source digest 和 route generation，再原子消费一次性许可并调用由 descriptor 派生的静态 `direct:` endpoint。
+
+执行范围不包含 `write`、`destructive`、one-way、MQTT、OPC UA、动态 endpoint 或 MCP。输出要通过字节、深度、节点和 output Schema 校验；completed/failed 审计为 required，不保存输入/输出正文、raw token 或内部异常。详见 [Action 安全执行 API](../action-execution-api.md)。
+
 ## Properties 声明
 
 Action 声明集中写入 `service.config.properties`，使用 UTF-8 单行 `key=value`：
 
 ```properties
-actions.schema-version=1
+actions.schema-version=2
 actions.ids=order-check
 action.order-check.route-id=order-check-route
+action.order-check.invocation-route-id=order-check-invocation-route
 action.order-check.name=Order validation
 action.order-check.description=Validate an order and return the result
 action.order-check.interaction-pattern=requestReply
@@ -124,6 +135,8 @@ action.order-check.required-scopes=
 - `idempotency`：`none`、`supported`、`required`；`retry-policy`：`none`、`safe`、`idempotent`。
 - `exposure`：`internal`、`api`、`agent` 或规范顺序 `api,agent`。
 - `oneWayConsumer` 与 `scheduled` 必须 `agent-callable=false`；`agent-callable=true` 只允许 `requestReply`/`oneWayProducer` 且 exposure 含 `agent`。
+- 声明版本 1 只提供目录描述；当前可执行绑定使用版本 2，并且只开放 `read + requestReply`。这类 Action 必须填写 `invocation-route-id`，指向同一 XML 内入口为静态 `direct:` 的独立 route。
+- `invocation-route-id` 只填写 route ID，不填写 URI。目录编译器从该 route 派生 `direct:` ref；HTTP、`seda:`、占位符、参数和动态 endpoint 一律拒绝，不能用外部 HTTP 回环代替。
 - `write`/`destructive` 必须显式声明幂等、重试和审批语义；`destructive` 必须审批、禁止重试且不可 agent-callable。
 - 列表只写配置键名、凭据别名或 scope，不写密码、Token、Cookie、客户地址或配置实值。
 
@@ -139,6 +152,11 @@ metadata 位于目标 `<route>` 内、唯一 `<from>` 之前。HTTP 同步 Actio
   <routeProperty key="lightesb.action.output.schema" value="response-schema.json"/>
   <routeProperty key="lightesb.action.output.media-type" value="application/schema+json"/>
   <from uri="undertow:http://0.0.0.0:{{server.port}}/api/orders/check?httpMethodRestrict=POST"/>
+  <to uri="direct:orderCheckInvocation"/>
+</route>
+<route id="order-check-invocation-route">
+  <from uri="direct:orderCheckInvocation"/>
+  <!-- 真实业务处理链放在这里，HTTP 入口和 Action 执行复用同一逻辑。 -->
 </route>
 ```
 

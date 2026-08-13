@@ -18,7 +18,7 @@ lightesb.action-approval.hmac.secret=${LIGHTESB_APPROVAL_HMAC_SECRET:}
 lightesb.action-approval.hmac.allowed-approver-ids[0]=${LIGHTESB_APPROVER_ID:}
 ```
 
-HMAC secret 至少 32 字符，只通过 secret manager 或环境变量注入。会话不是 bearer 或 Action 执行许可；它只记录人工批准的有界任务范围和受管 route 变更来源。
+HMAC secret 至少 32 字符，只通过 secret manager 或环境变量注入。会话不是 bearer 或 Action 执行许可；它只记录人工批准的有界任务范围和受管 route 变更来源。真实执行仍由服务端重新终检并消费一次性许可，见 `action-execution-api.md`。
 
 ## CLI 流程
 

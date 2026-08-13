@@ -23,6 +23,8 @@
 - [Action 精确 Allowlist 管理 API](action-allowlist-api.md)
 - [Action 短期 Token API](action-token-api.md)
 - [Action 有界任务会话审批](action-approval-api.md)
+- [Action 统一授权 Dry-run](action-authorization-api.md)
+- [Action 安全执行 API](action-execution-api.md)
 - [Action 追加式审计查询 API](action-audit-api.md)
 
 ## Camel 官方语法参考

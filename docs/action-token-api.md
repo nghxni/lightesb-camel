@@ -14,7 +14,7 @@ lightesb.action-token.default-ttl-seconds=300
 lightesb.action-token.max-ttl-seconds=3600
 ```
 
-签发 credential 要有 `action-execute`，只能为自身服务端 caller 签发。`action-execute` 可查看/撤销自身 token，`action-admin` 可查看/撤销任意 token。运行 token 不能调用控制面 API。
+签发 credential 要有 `action-execute`，只能为自身服务端 caller 签发。`action-execute` 可查看/撤销自身 token，`action-admin` 可查看/撤销任意 token。运行 token 不能调用控制面 API；只有执行八开关齐备时才能调用精确 execute API。
 
 ## API 与 CLI
 

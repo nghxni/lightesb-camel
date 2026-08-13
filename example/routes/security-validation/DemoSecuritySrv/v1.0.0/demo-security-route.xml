@@ -6,6 +6,10 @@
     <routeProperty key="lightesb.action.output.schema" value="response-schema.json"/>
     <routeProperty key="lightesb.action.output.media-type" value="application/schema+json"/>
     <from uri="undertow:http://0.0.0.0:{{server.port}}/api/demo/security?httpMethodRestrict=POST"/>
+    <to uri="direct:demoSecurityInvocation"/>
+  </route>
+  <route id="demo-security-invocation-route">
+    <from uri="direct:demoSecurityInvocation"/>
     <process ref="requestCharsetProcessor"/>
     <doTry>
       <setProperty name="JsonSchemaPath"><constant>order-schema.json</constant></setProperty>

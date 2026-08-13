@@ -51,12 +51,12 @@ java -Dlightesb.config.file=/opt/lightesb/lightesb-config.properties -jar lighte
 | `lightesb.route.startup.virtual-thread.enabled` | `true` | 启动初始加载路由时使用 JDK21 虚拟线程并发加载；设为 `false` 可回退串行加载。 |
 | `lightesb.route.startup.max-concurrency` | `16` | 虚拟线程模式下最大同时加载路由数。 |
 | `lightesb.route.transition-timeout-seconds` | `30` | 服务启停 API 等待真实 Camel 上下文状态的超时，允许 1 到 120 秒；超时不回滚 `server.running`。 |
-| `lightesb.action-catalog.enabled` | `false` | 显式开启后，从已运行服务版本构建只读 Action Catalog 内存快照；XML/properties 重载成功后与 route generation 成对刷新，明确引用或待补回的 schema 变化会触发强制重载。与 Action security 同时开启时提供只读查询，不提供执行 API。 |
+| `lightesb.action-catalog.enabled` | `false` | 显式开启后，从已运行服务版本构建只读 Action Catalog 内存快照；XML/properties 重载成功后与 route generation 成对刷新，明确引用或待补回的 schema 变化会触发强制重载。与 Action security 同时开启时提供只读查询；真实执行还要求全部安全开关。 |
 | `lightesb.action-security.enabled` | `false` | 显式开启后注册 `/api/actions/**` 专用 bearer 身份边界；与 Action Catalog 同时开启时注册要求 `catalog-read` 的 status/list/search/get，任一开关关闭均不注册查询端点。 |
 | `lightesb.action-security.credentials[n].name/caller/roles/token-sha256` | 空 | 命名控制面 credential；role 仅允许 `catalog-read`、`action-admin`、`action-execute`。只注入原 token 的 SHA-256 digest，不在仓库保存原 token 或 digest 实值。 |
 | `lightesb.action-audit.enabled` | `false` | 显式开启后注册追加式 Action 审计存储；与 Action security 同时开启时提供仅 `action-admin` 可用的只读查询。固定事件不保存业务报文、header、原 token 或任意 details。 |
-| `lightesb.action-allowlist.enabled` | `false` | 显式开启精确 Action allowlist；还要求 catalog、security、audit 三个开关同时开启。只提供 list/add/enable/disable，目标 caller 由服务端 credential name 映射，策略变化与 required audit 同事务；不提供执行 API。 |
-| `lightesb.action-token.enabled` | `false` | 显式开启短期不透明 Action token；还要求 catalog、security、audit、allowlist 同时开启。运行 token 不进入控制面身份，也不提供 Action 执行入口。 |
+| `lightesb.action-allowlist.enabled` | `false` | 显式开启精确 Action allowlist；还要求 catalog、security、audit 三个开关同时开启。只提供 list/add/enable/disable，目标 caller 由服务端 credential name 映射，策略变化与 required audit 同事务；执行层只读取精确资格。 |
+| `lightesb.action-token.enabled` | `false` | 显式开启短期不透明 Action token；还要求 catalog、security、audit、allowlist 同时开启。运行 token 不进入控制面身份；只有 execution 八开关齐备时才可调用执行入口。 |
 | `lightesb.action-token.default-ttl-seconds` | `300` | 未指定 TTL 时的默认秒数，必须在 30 到配置最大值之间。 |
 | `lightesb.action-token.max-ttl-seconds` | `3600` | 最大 TTL，范围 30–3600 秒；只能收窄。 |
 | `lightesb.action-approval.enabled` | `false` | 显式开启有界任务会话、HMAC callback 和会话受管 route apply；还要求 token、allowlist、audit、security、catalog 同时开启。会话不提供 Action 执行入口。 |
@@ -67,6 +67,16 @@ java -Dlightesb.config.file=/opt/lightesb/lightesb-config.properties -jar lighte
 | `lightesb.action-approval.hmac.allowed-approver-ids[n]` | 空 | provider approver allowlist，至少一项、最多 50 项。 |
 | `lightesb.action-approval.hmac.max-clock-skew-seconds` | `300` | callback 最大时钟偏差，范围 1–900 秒。 |
 | `lightesb.action-approval.hmac.max-body-bytes` | `16384` | callback raw JSON 最大字节数，范围 256–65536。 |
+| `lightesb.action-authorization.enabled` | `false` | 显式开启统一授权和精确 dry-run；还要求 approval、token、allowlist、audit、security、catalog 同时开启。dry-run 不执行 Action。 |
+| `lightesb.action-authorization.max-input-bytes` | `1048576` | canonical input 最大 UTF-8 字节数，范围 1024–2097152。 |
+| `lightesb.action-authorization.permit-ttl-seconds` | `5` | 服务端内部 one-shot permit 有效秒数，范围 1–30；不提供给客户端。 |
+| `lightesb.action-authorization.max-idempotency-key-bytes` | `256` | 幂等 key 最大 UTF-8 字节数，范围 16–512；只保存 SHA-256。 |
+| `lightesb.action-authorization.idempotency-retention-seconds` | `86400` | 授权幂等摘要保留秒数，范围 60–604800。 |
+| `lightesb.action-execution.enabled` | `false` | 显式开启 transport-neutral 执行服务和 `POST /api/actions/execute`；还要求 authorization、approval、token、allowlist、audit、security、catalog 全部开启。当前只支持声明版本 2 的 read/requestReply HTTP Action。 |
+| `lightesb.action-execution.timeout-ms` | `5000` | Camel request/reply 等待时间，范围 100–30000 毫秒；超时结果不确定。 |
+| `lightesb.action-execution.max-output-bytes` | `1048576` | canonical JSON 输出最大字节数，范围 1024–2097152。 |
+| `lightesb.action-execution.max-output-depth` | `64` | JSON 输出最大深度，范围 1–128。 |
+| `lightesb.action-execution.max-output-nodes` | `10000` | JSON 输出最大节点数，范围 1–100000。 |
 
 常用排障配置：
 

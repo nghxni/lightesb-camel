@@ -16,15 +16,19 @@ description: Generate, review, or troubleshoot delivered LightESB CLI action/pro
 - Action 精确资格管理读 `docs/action-allowlist-api.md`
 - Action 短期 token 管理读 `docs/action-token-api.md`
 - Action 有界任务会话读 `docs/action-approval-api.md`
+- Action 统一授权 dry-run 读 `docs/action-authorization-api.md`
+- Action 安全执行读 `docs/action-execution-api.md`
 
 规则：
 
 - CLI 的远程命令是控制面客户端；`action validate/build` 是不使用服务端和 profile 的离线命令，`action status/list/search/get` 使用 profile bearer 查询受保护的在线快照。受控本地写还包括 `action build` 把派生索引原子写到所有服务版本目录之外；它与 `message schema generate`、显式 `ai route generate/optimize/apply --save-local` 一样必须加 `--yes`，不会自行部署或重载服务。
 - `action validate --service-dir|--app-root` 输出 canonical JSON；`action build` 额外使用 `--out`。目录契约失败按退出码 `65` 和稳定 `ACTION_*` 错误码处理，不回退到其他解析器。
-- Action 在线命令要求服务端双开关和 `catalog-read`；list/search 第二页起回传第一页 revision，revision 冲突时从第一页重试。命令不发送 caller，不执行 Action。
+- Action 在线查询要求服务端双开关和 `catalog-read`；list/search 第二页起回传第一页 revision，revision 冲突时从第一页重试。查询命令不发送 caller，不执行 Action。
 - `action allowlist list/add/enable/disable` 要求服务端四开关和 `action-admin`。add 只使用 `--credential-name --action-id --service-version --yes`，enable/disable 使用 `--policy-id --yes`；不生成 caller、wildcard、block、delete 或数据库直连。
 - `action token issue/introspect/revoke` 要求服务端五开关；issue 使用重复 `--action actionId@serviceVersion`、可选 TTL 和 `--yes`，revoke 使用 `--token-id --yes`。不生成 caller、credential 或 raw token 参数，原 token 只在 issue 输出一次。
 - `action approval session request/get/revoke/complete` 要求六开关；request 只提交单服务版本、精确 Action/文件、输入策略摘要、副作用和有界计数。request/revoke/complete 必须 `--yes`；不生成 caller、approver、digest override、callback secret 或 approve/reject。
+- 统一授权 dry-run 只提供 HTTP 诊断；不要生成虚构的 `action authorize` 命令，也不要把 dry-run decision、token 或 sessionId 当作客户端执行许可。
+- `action execute` 只适配首批 `read + requestReply` Action；要求八开关、`--yes`、精确 Action/版本、二选一的输入/策略来源和独立 `lat_` 运行 token。优先从 `LIGHTESB_ACTION_TOKEN` 或 `--runtime-token-env` 指定的环境变量取 token；不发送 profile bearer，不回显 token，不生成 URI、generation、digest 或 caller 覆盖参数。
 - 输入、输出或回调 JSON 校验工作流只生成 CLI 命令，不生成 Schema preview 或 AI route apply 的直接 API 调用。
 - 写操作加 `--yes`，CI 中优先加 `--output json`。
 - 任意命令层级都可用 `--help`；profile JSON 只使用 `tokenConfigured`、`aiTokenConfigured` 状态，不读取或记录 token 值。

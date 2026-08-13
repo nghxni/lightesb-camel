@@ -28,6 +28,8 @@
 | `action-allowlist-api.md` | `docs/api/09-action-allowlist.md`、Action 目录架构和精确 allowlist 经验，按交付配置、权限、CLI、事务审计和安全边界重写 |
 | `action-token-api.md` | `docs/api/10-action-token.md`、Action 目录架构和不透明 token 经验，按交付启用、权限、API/CLI、一次回显、事务审计和非执行边界重写 |
 | `action-approval-api.md` | `docs/api/11-action-approval-session.md`、Action 目录架构和有界审批 lineage 经验，按交付启用、CLI、HMAC callback、受管 apply 和失败处理重写 |
+| `action-authorization-api.md` | `docs/api/12-action-authorization-dry-run.md`、Action 目录架构和精确授权经验，按交付启用、运行 token、受限输入策略、闭合诊断和非执行边界重写 |
+| `action-execution-api.md` | `docs/api/13-action-execution.md`、Action 目录架构和精确授权经验，按交付启用、运行 token、静态 direct invocation、输出校验、CLI 和审计边界重写 |
 | `action-audit-api.md` | `docs/api/08-action-audit.md`、Action 目录架构和追加式审计经验，按交付配置、权限、查询与安全字段边界重写 |
 | `experience/01-robotics-protocol-precheck.md` | `docs/experience/01-robotics-protocol-precheck.md`，按机器人协议接入交付场景重写 |
 | `experience/02-robotics-protocol-correct-practices.md` | `docs/experience/02-robotics-protocol-correct-practices.md`，按机器人协议接入交付场景重写 |

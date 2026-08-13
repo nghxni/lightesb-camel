@@ -36,6 +36,7 @@ lightesb action status
 lightesb action list --page-num 1 --page-size 20
 lightesb action search --query security --page-num 1 --page-size 20
 lightesb action get --action-id demo-security-check --service-version v1.0.0
+LIGHTESB_ACTION_TOKEN='lat_<运行token>' lightesb action execute --action-id demo-security-check --service-version v1.0.0 --input-file request.json --input-policy-file input-policy.json --yes --output json
 ```
 
 `--service-dir` 与 `--app-root` 二选一。`validate` 只读并向标准输出写 canonical JSON；`build` 在全部目录通过校验后原子替换 `--out`，且拒绝把输出写入任一服务版本目录。这两个命令不连接服务端、不启动 Camel、不触发热加载或执行 Action。成功退出码为 `0`，参数/确认错误为 `64`，目录契约失败为 `65` 并带稳定 `ACTION_*` 错误码。
@@ -73,6 +74,8 @@ lightesb action approval session complete --session-id <sessionId> --yes
 request/revoke/complete 要求 `--yes`，get 只读。CLI 不接受 caller、approver、状态、source/scope digest override 或 callback secret，也不签 approve/reject。会话只表达任务范围，不执行 Action。
 
 `--action` 可重复。issue 原 token 只显示一次；introspect/revoke 不输出 token/hash/digest。命令不接受 `--caller`、`--credential-name` 或 raw token。
+
+安全执行要求八个 Action 开关全部显式开启，仅支持声明版本 2 的 `read + requestReply` HTTP Action。`--input|--input-file` 和 `--input-policy|--input-policy-file` 各自二选一；必要时增加 `--session-id` 或 `--idempotency-key`。`execute` 必须带 `--yes`，只使用 `LIGHTESB_ACTION_TOKEN`、`--runtime-token-env` 指定的环境变量或显式 `--runtime-token`，不发送 profile 的控制面 bearer。CLI 不保存或回显 token，也不接受 URI、generation、digest 或 caller 覆盖。
 
 ## Profile 与 Doctor
 
