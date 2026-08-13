@@ -105,14 +105,14 @@ LightESB 的机器人技能和协议适配能力可以以独立路由服务包�
 - 不需要使用时，可停止服务或保持 `server.running=false`，让平台保留技能资产但控制运行时占用。
 - 适合沉淀大量机器人技能、协议适配模板、客户专用流程和现场调试能力，按任务需要启用。
 
-路由按需加载、热更新和重启边界见 `docs/runtime-route-loading.md`。常用 CLI 入口见 `docs/cli/README.md` 和 `docs/cli/01-cli-command-reference.md`，包括离线 `action validate/build`、受 bearer 保护的 `action status/list/search/get`、精确 `action allowlist` 管理、`service start/stop`、`service package deploy`、`route reload-service`、`route reload-file`、`deploy upload`、`diagnostics snapshot/warnings`、`robot command validate/status/submit` 和 `robot inference decision-status/submit`。
+路由按需加载、热更新和重启边界见 `docs/runtime-route-loading.md`。常用 CLI 入口见 `docs/cli/README.md` 和 `docs/cli/01-cli-command-reference.md`，包括离线 `action validate/build`、受 bearer 保护的 `action status/list/search/get`、精确 `action allowlist`、短期 token、有界 `action approval session`、`service start/stop`、`service package deploy`、`route reload-service`、`route reload-file`、`deploy upload`、`diagnostics snapshot/warnings`、`robot command validate/status/submit` 和 `robot inference decision-status/submit`。
 
 ## 目录结构
 
 | 路径 | 说明 |
 | --- | --- |
 | `lightesb-camel-1.0.0.jar` | LightESB-Camel 运行件 |
-| `lightesb-cli.jar` | CLI 自动化、Action 目录离线派生/在线查询/精确 allowlist 工具；由完整外发包生成流程统一产出 |
+| `lightesb-cli.jar` | CLI 自动化、Action 目录离线派生/在线查询/allowlist/token/有界审批会话工具；由完整外发包生成流程统一产出 |
 | `lightesb-cli.jar.sha256` | 完整外发包生成时与 JAR 同批生成的完整性摘要；不在外发 Git 仓库单独跟踪，Action 评测缺失或不匹配时直接失败 |
 | `lightesb-camel-app/` | 正式服务运行目录，结构为 `{serviceName}/{serviceVersion}` |
 | `example/routes/` | 可复制到运行目录的演示路由 |

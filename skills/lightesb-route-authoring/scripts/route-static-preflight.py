@@ -60,11 +60,7 @@ def resource_exists(service_dir: Path, resource: str) -> bool:
     resource_path = Path(resource)
     if resource_path.is_absolute() or ".." in resource_path.parts:
         return False
-
-    candidates = [service_dir / resource_path]
-    if resource_path.parts and resource_path.parts[0] == "lightesb-camel-app":
-        candidates.append(service_dir.parent.parent.parent / resource_path)
-    return any(candidate.is_file() for candidate in candidates)
+    return (service_dir / resource_path).is_file()
 
 
 def main() -> int:

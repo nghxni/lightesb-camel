@@ -13,13 +13,14 @@ description: 配置权限校验、Token/IP/CIDR/正则规则、Action 控制面�
 - `docs/action-audit-api.md`
 - `docs/action-allowlist-api.md`
 - `docs/action-token-api.md`
+- `docs/action-approval-api.md`
 
 规则：
 
 - 权限校验使用 `<process ref="permissionCheckProcessor"/>`。
 - JSON Schema 校验使用 `<process ref="jsonSchemaValidationProcessor"/>`。
 - 已有消息模型且需要 JSON 校验时，先查询服务关系。INPUT 使用当前 `serviceInId` 和 `request-schema.json`，OUTPUT 使用当前 `serviceOutId` 和 `response-schema.json`；CALLBACK 先用 `serviceCallbackId` 查询回调服务，再使用其 `serviceInId` 和 `callback-schema.json`。
-- 执行 `lightesb message schema generate --id <messageId>|--file <message.json> --service-name <serviceName> --service-version <vX.Y.Z> --schema-file <fixed-name.json> --yes --output json`。只使用返回的 `schema` 和 `jsonSchemaPath`，禁止模型自行生成或修补 Schema。
+- 执行 `lightesb message schema generate --id <messageId>|--file <message.json> --service-name <serviceName> --service-version <vX.Y.Z> --schema-file <fixed-name.json> --yes --output json`。只使用返回的 `schema` 和服务版本目录相对 `jsonSchemaPath`，禁止模型自行生成或修补 Schema。
 - `warnings` 非空时停止自动 apply 并展示完整 warnings，只有用户明确确认后继续。
 - route XML 是校验唯一开关；按方向加入或删除完整校验块，不增加配置或数据库开关。普通本地编辑直接完成候选和静态自检；只有用户明确授权远程写入时，才用 `ai route apply --save-remote --yes` 一次提交 route、两个 properties 和 route 实际引用的固定 Schema。
 - 权限失败建议局部捕获并返回 403。
@@ -29,6 +30,7 @@ description: 配置权限校验、Token/IP/CIDR/正则规则、Action 控制面�
 - Action 审计只允许固定安全字段和 append/query，不保存 body/header/raw token/details，也不提供 cleanup/update/delete。目录读取写审计失败保持原查询结果；未来高风险执行审计失败必须终止动作。
 - Action allowlist 只允许服务端 credential 映射出的精确 caller+actionId+serviceVersion；管理 actor 要 `action-admin`，目标要 `action-execute`。add/enable 重验当前目录，disable 可独立收窄，策略变化与 required audit 同事务；不提供 caller 自报、wildcard/block/delete 或执行能力。
 - Action token 与控制面 bearer 隔离；issue 仅允许 execute-self，introspect/revoke 允许 execute-self/admin-any。原 token 只回显一次且服务端只存 SHA-256；每次实际使用仍要重验 allowlist/目录，当前不提供执行入口。
+- Action 审批会话与 bearer/token 隔离；caller 从 bearer 派生，approver 只来自 allowlist HMAC provider。多 Action 逐项保存 source digest、聚合 scope digest CAS；只有受管 route apply 可延续 lineage，普通/直接变化进入 STALE。会话不提供执行入口。
 - 离线 mock 不预置权限规则时，只能验证 403 失败分支；要验证通过分支，先通过 `/api/lightesb/permission/{applicationCode}` 或现场数据预置规则，并设置 `exchangeProperty.SenderID`。
 
 验收：
@@ -40,3 +42,4 @@ description: 配置权限校验、Token/IP/CIDR/正则规则、Action 控制面�
 - Action 审计默认关闭；开启后查询有界、角色精确，响应与存储均无业务报文或原凭据。
 - Action allowlist 默认关闭；四开关齐备后仍只收窄目录资格，写失败不得留下无审计策略。
 - Action token 默认关闭；五开关齐备后 issue/revoke required audit 失败必须回滚，introspect/revoke 响应不得含原 token/hash/digest。
+- Action approval 默认关闭；六开关齐备后状态/transition 与 required audit 同事务。callback 重放、digest 冲突、范围扩大、no-op 和无法证明的恢复必须 fail closed；日志/响应不得含 HMAC secret、raw callback、route/input 正文。

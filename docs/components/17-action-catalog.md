@@ -76,7 +76,7 @@ lightesb.action-audit.enabled=true
 
 catalog status/list/search/get 成功读取会 best-effort 追加固定安全事件；审计存储故障不改变原查询结果。查询审计还要求 `lightesb.action-security.enabled=true` 和精确 `action-admin` credential，通过 `GET /api/actions/audit-events` 读取。
 
-审计表只允许追加和查询，不提供清理、修改或删除 API。事件不含请求/响应 body、header、原 token、任意 details 或异常正文；完整参数、响应和错误码见 [Action 追加式审计查询 API](../action-audit-api.md)。该能力本身不代表 Action 执行或审批已交付。
+审计表只允许追加和查询，不提供清理、修改或删除 API。事件不含请求/响应 body、header、原 token、任意 details 或异常正文；完整参数、响应和错误码见 [Action 追加式审计查询 API](../action-audit-api.md)。审计能力本身不执行 Action；审批会话是独立、默认关闭的控制面能力。
 
 ## 精确 allowlist
 
@@ -86,7 +86,13 @@ catalog status/list/search/get 成功读取会 best-effort 追加固定安全事
 
 ## 短期 Action token
 
-五开关显式开启后，可用 `action token issue/introspect/revoke` 管理短期不透明 token。原 token 只在 issue 成功响应出现一次，服务端只保存 SHA-256；scope 必须位于当前目录与精确 allowlist 交集。运行 token 与控制面 bearer 隔离，当前仍不提供 Action 执行、审批、OAuth2 或 MCP。详见 [Action 短期 Token API](../action-token-api.md)。
+五开关显式开启后，可用 `action token issue/introspect/revoke` 管理短期不透明 token。原 token 只在 issue 成功响应出现一次，服务端只保存 SHA-256；scope 必须位于当前目录与精确 allowlist 交集。运行 token 与控制面 bearer 隔离，当前仍不提供 Action 执行、OAuth2 或 MCP。详见 [Action 短期 Token API](../action-token-api.md)。
+
+## 有界任务会话审批
+
+六开关显式开启后，可用 `action approval session request/get/revoke/complete` 管理人工批准的有界任务范围。会话绑定单一服务版本、精确 Action/文件、输入策略摘要、副作用上限、TTL 和次数预算；批准/拒绝只接受 allowlist approver 的 HMAC callback。
+
+多 Action 会话逐项保存真实 source digest，并用聚合 scope digest 做整组 CAS。只有带 session/scope digest 的 Action 专用受管 route apply，经过备份、热加载和 Catalog 结果证明后才延续 lineage；普通 apply 或直接文件变化会使旧会话 `STALE`。会话不执行 Action，也不是 bearer；详见 [Action 有界任务会话审批](../action-approval-api.md)。
 
 ## Properties 声明
 

@@ -27,19 +27,21 @@
 ## 使用方式
 
 ```xml
-<setProperty name="JsonSchemaPath"><constant>lightesb-camel-app/DemoSrv/v1.0.0/request-schema.json</constant></setProperty>
+<setProperty name="JsonSchemaPath"><constant>request-schema.json</constant></setProperty>
 <setProperty name="JsonSchemaValidationMode"><constant>STRICT</constant></setProperty>
 <process ref="jsonSchemaValidationProcessor"/>
 ```
 
 OUTPUT 和 CALLBACK 使用同一完整校验块，只替换为 `response-schema.json` 或 `callback-schema.json`，并放到上表指定位置。route XML 是校验是否启用的唯一事实：需要就加入完整块，不需要就删除完整块；不要新增全局、服务配置或数据库开关，也不要用 `SKIP` 充当业务开关。
 
+相对路径统一以当前 `serviceName/serviceVersion` 目录为基准，同目录资源只写文件名，子目录资源写 `schemas/name.json`。绝对路径保持原含义；不要再把 `lightesb-camel-app/{serviceName}/{serviceVersion}/...` 作为工作目录相对前缀写入路由。
+
 ## Exchange 属性
 
 | 属性 | 说明 |
 | --- | --- |
 | `JsonSchemaContent` | Schema 字符串，优先级最高 |
-| `JsonSchemaPath` | Schema 文件路径或 classpath 路径 |
+| `JsonSchemaPath` | 相对当前服务版本目录的 Schema 路径、绝对文件路径或显式 `classpath:` 路径 |
 | `JsonSchemaId` | 标识和缓存辅助，不能单独完成校验 |
 | `JsonSchemaValidationMode` | `STRICT`、`LENIENT`、`SKIP` |
 

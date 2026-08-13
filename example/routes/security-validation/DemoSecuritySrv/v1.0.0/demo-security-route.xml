@@ -8,7 +8,7 @@
     <from uri="undertow:http://0.0.0.0:{{server.port}}/api/demo/security?httpMethodRestrict=POST"/>
     <process ref="requestCharsetProcessor"/>
     <doTry>
-      <setProperty name="JsonSchemaPath"><constant>lightesb-camel-app/DemoSecuritySrv/v1.0.0/order-schema.json</constant></setProperty>
+      <setProperty name="JsonSchemaPath"><constant>order-schema.json</constant></setProperty>
       <setProperty name="JsonSchemaValidationMode"><constant>STRICT</constant></setProperty>
       <process ref="jsonSchemaValidationProcessor"/>
       <setBody><simple>{"code":"OK","message":"validated"}</simple></setBody>

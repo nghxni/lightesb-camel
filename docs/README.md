@@ -22,6 +22,7 @@
 - [服务 Action 声明与离线索引](components/17-action-catalog.md)
 - [Action 精确 Allowlist 管理 API](action-allowlist-api.md)
 - [Action 短期 Token API](action-token-api.md)
+- [Action 有界任务会话审批](action-approval-api.md)
 - [Action 追加式审计查询 API](action-audit-api.md)
 
 ## Camel 官方语法参考

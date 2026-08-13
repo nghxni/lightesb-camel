@@ -59,6 +59,14 @@ java -Dlightesb.config.file=/opt/lightesb/lightesb-config.properties -jar lighte
 | `lightesb.action-token.enabled` | `false` | 显式开启短期不透明 Action token；还要求 catalog、security、audit、allowlist 同时开启。运行 token 不进入控制面身份，也不提供 Action 执行入口。 |
 | `lightesb.action-token.default-ttl-seconds` | `300` | 未指定 TTL 时的默认秒数，必须在 30 到配置最大值之间。 |
 | `lightesb.action-token.max-ttl-seconds` | `3600` | 最大 TTL，范围 30–3600 秒；只能收窄。 |
+| `lightesb.action-approval.enabled` | `false` | 显式开启有界任务会话、HMAC callback 和会话受管 route apply；还要求 token、allowlist、audit、security、catalog 同时开启。会话不提供 Action 执行入口。 |
+| `lightesb.action-approval.default-ttl-seconds` / `max-ttl-seconds` | `900` / `3600` | 默认/最大会话 TTL；允许范围 60–3600 秒，只能收窄上限。 |
+| `lightesb.action-approval.default-max-transitions` / `max-transitions` | `5` / `20` | 默认/最大受管 Action digest 迁移次数。 |
+| `lightesb.action-approval.default-max-executions` / `max-executions` | `10` / `100` | 默认/最大成功 dispatch 预算；当前会话层不执行 Action。 |
+| `lightesb.action-approval.hmac.provider-name/key-id/secret` | 空 | callback provider、key ID 与至少 32 字符的 HMAC secret；secret 只从安全配置注入。 |
+| `lightesb.action-approval.hmac.allowed-approver-ids[n]` | 空 | provider approver allowlist，至少一项、最多 50 项。 |
+| `lightesb.action-approval.hmac.max-clock-skew-seconds` | `300` | callback 最大时钟偏差，范围 1–900 秒。 |
+| `lightesb.action-approval.hmac.max-body-bytes` | `16384` | callback raw JSON 最大字节数，范围 256–65536。 |
 
 常用排障配置：
 

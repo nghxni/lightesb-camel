@@ -15,6 +15,7 @@ description: Generate, review, or troubleshoot delivered LightESB CLI action/pro
 - 机器人 AI decision 查询/提交读 `docs/robot-ai-approval-api.md`
 - Action 精确资格管理读 `docs/action-allowlist-api.md`
 - Action 短期 token 管理读 `docs/action-token-api.md`
+- Action 有界任务会话读 `docs/action-approval-api.md`
 
 规则：
 
@@ -23,6 +24,7 @@ description: Generate, review, or troubleshoot delivered LightESB CLI action/pro
 - Action 在线命令要求服务端双开关和 `catalog-read`；list/search 第二页起回传第一页 revision，revision 冲突时从第一页重试。命令不发送 caller，不执行 Action。
 - `action allowlist list/add/enable/disable` 要求服务端四开关和 `action-admin`。add 只使用 `--credential-name --action-id --service-version --yes`，enable/disable 使用 `--policy-id --yes`；不生成 caller、wildcard、block、delete 或数据库直连。
 - `action token issue/introspect/revoke` 要求服务端五开关；issue 使用重复 `--action actionId@serviceVersion`、可选 TTL 和 `--yes`，revoke 使用 `--token-id --yes`。不生成 caller、credential 或 raw token 参数，原 token 只在 issue 输出一次。
+- `action approval session request/get/revoke/complete` 要求六开关；request 只提交单服务版本、精确 Action/文件、输入策略摘要、副作用和有界计数。request/revoke/complete 必须 `--yes`；不生成 caller、approver、digest override、callback secret 或 approve/reject。
 - 输入、输出或回调 JSON 校验工作流只生成 CLI 命令，不生成 Schema preview 或 AI route apply 的直接 API 调用。
 - 写操作加 `--yes`，CI 中优先加 `--output json`。
 - 任意命令层级都可用 `--help`；profile JSON 只使用 `tokenConfigured`、`aiTokenConfigured` 状态，不读取或记录 token 值。
@@ -31,9 +33,10 @@ description: Generate, review, or troubleshoot delivered LightESB CLI action/pro
 - `ai tool list/save/plan/run` 已删除；AI 路由生成统一走自然语言入口。
 - `keyword list/query-instances` 只读；`keyword add/delete` 修改 JsonKeyword keyName 配置，必须加 `--yes`。
 - JSON 校验路由已有消息模型时，先用 `service list/get --output json` 解析服务关系：INPUT 取当前 `serviceInId`，OUTPUT 取当前 `serviceOutId`，CALLBACK 先用 `serviceCallbackId` 查询回调服务再取其 `serviceInId`。
-- 按方向执行 `message schema generate --id|--file --service-name --service-version --schema-file request-schema.json|response-schema.json|callback-schema.json --yes --output json`，只使用返回的 `schema` 和 `jsonSchemaPath`；不要手写或由模型补齐 Schema。
+- 按方向执行 `message schema generate --id|--file --service-name --service-version --schema-file request-schema.json|response-schema.json|callback-schema.json --yes --output json`，只使用返回的 `schema` 和服务版本目录相对 `jsonSchemaPath`；`file` 仅表示实际写盘位置，不要手写或由模型补齐 Schema。
 - `warnings` 非空时停止自动 apply 并展示完整 warnings，只有用户明确确认后继续。用户明确授权远程写入时，才用 `ai route apply --save-remote --yes` 一次提交实际 route 文件名、两个 properties 和 route 引用的固定 Schema；普通本地直接编辑服务文件不以 CLI apply 为前置。
 - `ai route apply --resource-file` 只接受三个固定 Schema `.json`；删除校验块时不提交对应 Schema，服务端会删除受管文件。`FAILED`、`FAILED_ROLLED_BACK`、`ROLLBACK_FAILED` 都按失败处理，先读取 operationId 和恢复诊断，不自动重试。
+- 会话受管 route apply 使用成对 `--action-session-id --expected-scope-digest`，只允许远程保存、不允许日志选项。digest 取最新 session JSON；STALE/冲突/恢复失败停止，不回退普通 apply。sessionId 不是执行许可。
 - `service import-plan` 只读远端状态；`service package build`、`service export/import/sync-remote` 和 `deploy upload` 必须加 `--yes`。
 - `deploy upload` 不接受 `--target-directory`；部署目标由服务端运行配置统一决定。
 - `route reload-file/unload --file-path` 必须指向服务端受管路由根内真实 XML 文件；
@@ -73,6 +76,8 @@ lightesb action allowlist add --credential-name agent-executor --action-id payme
 lightesb action token issue --action payment.lookup@v1 --ttl-seconds 300 --yes --output json
 lightesb action token introspect --token-id <tokenId> --output json
 lightesb action token revoke --token-id <tokenId> --yes --output json
+lightesb action approval session get --session-id <sessionId> --output json
+lightesb ai route apply --server http://localhost:8080 --file DemoSrv-route.xml --service-name DemoSrv --service-version v1.0.0 --route-file-name DemoSrv-route.xml --resource-file common.config.properties --resource-file service.config.properties --save-remote --action-session-id <sessionId> --expected-scope-digest <currentScopeDigest> --yes --output json
 lightesb profile add --name dev --server http://localhost:8080
 lightesb profile use dev
 lightesb doctor
