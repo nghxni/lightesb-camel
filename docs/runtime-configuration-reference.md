@@ -54,7 +54,7 @@ java -Dlightesb.config.file=/opt/lightesb/lightesb-config.properties -jar lighte
 | `lightesb.action-catalog.enabled` | `false` | 显式开启后，从已运行服务版本构建只读 Action Catalog 内存快照；XML/properties 重载成功后与 route generation 成对刷新，明确引用或待补回的 schema 变化会触发强制重载。与 Action security 同时开启时提供只读查询；真实执行还要求全部安全开关。 |
 | `lightesb.action-security.enabled` | `false` | 显式开启后注册 `/api/actions/**` 专用 bearer 身份边界；与 Action Catalog 同时开启时注册要求 `catalog-read` 的 status/list/search/get，任一开关关闭均不注册查询端点。 |
 | `lightesb.action-security.credentials[n].name/caller/roles/token-sha256` | 空 | 命名控制面 credential；role 仅允许 `catalog-read`、`action-admin`、`action-execute`。只注入原 token 的 SHA-256 digest，不在仓库保存原 token 或 digest 实值。 |
-| `lightesb.action-audit.enabled` | `false` | 显式开启后注册追加式 Action 审计存储；与 Action security 同时开启时提供仅 `action-admin` 可用的只读查询。固定事件不保存业务报文、header、原 token 或任意 details。 |
+| `lightesb.action-audit.enabled` | `false` | 显式开启后注册追加式 Action 审计存储；与 Action security 同时开启时提供仅 `action-admin` 可用的只读查询；与日志自动清理同时显式开启时注册 Action H2 历史清理任务。固定事件不保存业务报文、header、原 token 或任意 details。 |
 | `lightesb.action-allowlist.enabled` | `false` | 显式开启精确 Action allowlist；还要求 catalog、security、audit 三个开关同时开启。只提供 list/add/enable/disable，目标 caller 由服务端 credential name 映射，策略变化与 required audit 同事务；执行层只读取精确资格。 |
 | `lightesb.action-token.enabled` | `false` | 显式开启短期不透明 Action token；还要求 catalog、security、audit、allowlist 同时开启。运行 token 不进入控制面身份；只有 execution 八开关齐备时才可调用执行入口。 |
 | `lightesb.action-token.default-ttl-seconds` | `300` | 未指定 TTL 时的默认秒数，必须在 30 到配置最大值之间。 |
@@ -151,12 +151,14 @@ lightesb.mysql.password=${LIGHTESB_MYSQL_PASSWORD:}
 | `lightesb.logging.console-enabled` | `true` | 服务日志是否同时输出控制台。 |
 | `lightesb.logging.file-max-size` | `10MB` | 单个服务日志文件滚动大小。 |
 | `lightesb.logging.file-max-backup` | `10` | 滚动备份数量。 |
-| `lightesb.logging.log-retention-days` | `30` | 服务日志保留天数。 |
-| `lightesb.logging.auto-cleanup-enabled` | `true` | 是否自动清理过期服务日志。 |
-| `lightesb.logging.cleanup-schedule-hours` | `24` | 自动清理间隔。 |
+| `lightesb.logging.log-retention-days` | `30` | 服务日志保留天数；Action 审计开启时也作为审计、已过期 token 和已过期 approval 会话的历史截止天数，必须大于 0。 |
+| `lightesb.logging.auto-cleanup-enabled` | `true` | 是否自动清理过期服务日志；只有该键与 `lightesb.action-audit.enabled` 都显式为 `true` 时才装配 Action H2 历史清理。 |
+| `lightesb.logging.cleanup-schedule-hours` | `24` | 服务日志与 Action H2 历史数据自动清理间隔小时数，必须大于 0；Action 清理首次延迟 1 小时。 |
 | `lightesb.logging.debug-file-ttl-minutes` | `30` | 动态 DEBUG 文件保留时间。 |
 | `lightesb.logging.health-check-enabled` | `true` | 服务日志健康检查开关。 |
 | `lightesb.logging.max-log-file-size-mb` | `100` | 健康检查中单文件大小阈值。 |
+
+Action 清理不会删除有效 allowlist。token 和 approval 会话只有在超过保留期且已经过期时才删除；授权幂等记录按自身到期时间清理。H2 在线删除会释放可复用空间，但不保证 `.mv.db` 文件立即缩小。
 
 完整模型 prompt、响应正文、业务 payload 和配置正文不应进入默认日志。排障时可以临时提高局部包日志级别，完成后恢复 `INFO`。
 

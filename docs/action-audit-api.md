@@ -13,6 +13,14 @@ lightesb.action-security.credentials[0].roles=action-admin
 lightesb.action-security.credentials[0].token-sha256=${LIGHTESB_ACTION_AUDIT_TOKEN_SHA256:}
 ```
 
+如需自动清理主 H2 数据源中的 Action 历史数据，同时显式配置：
+
+```properties
+lightesb.logging.auto-cleanup-enabled=true
+lightesb.logging.log-retention-days=30
+lightesb.logging.cleanup-schedule-hours=24
+```
+
 原 token 只保存在调用方 secret store，通过 `Authorization: Bearer <token>` 发送。HTTP 查询要求 audit+security 双开关和精确 `action-admin`；`catalog-read`、`action-execute` 不继承权限。
 
 若同时开启 `lightesb.action-catalog.enabled=true`，catalog status/list/search/get 的成功读取会 best-effort 追加安全事件。审计存储故障不会改变原目录查询响应。
@@ -73,4 +81,4 @@ curl -H 'Authorization: Bearer <original-token>' \
 | 403 | `ACTION_AUTH_FORBIDDEN` | 使用具有精确 `action-admin` 的 credential。 |
 | 503 | `ACTION_AUDIT_UNAVAILABLE` | 稍后重试并检查控制面数据库。 |
 
-当前没有公开审计写入、清理、修改、删除、retention 或归档 API。审批和执行服务只通过内部 required append 写固定安全事件；审计查询本身不授予审批或执行权限。
+当前没有公开审计写入、人工清理、修改、删除或归档 API。内部定时任务仅在 audit 与日志自动清理两个开关均显式开启时运行：审计事件按保留天数清理；token 和 approval 会话还必须已经过期；授权幂等记录按自身到期时间清理；有效 allowlist 不参与清理。H2 在线删除后会复用空间，但 `.mv.db` 文件不保证立即缩小。审批和执行服务只通过内部 required append 写固定安全事件；审计查询本身不授予审批或执行权限。

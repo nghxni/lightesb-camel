@@ -28,7 +28,7 @@ description: 配置权限校验、Token/IP/CIDR/正则规则、Action 控制面�
 - 参数校验失败建议返回 400。
 - Token 默认按 Exchange 属性 `Token` 处理，不假设会自动读取 `Authorization`。
 - Action 控制面 bearer 只保存原 token 的 SHA-256 digest；caller/roles 由服务端映射。审计查询要求 audit+security 双开关和精确 `action-admin`，不能让 `catalog-read` 或 `action-execute` 隐式继承。
-- Action 审计只允许固定安全字段和 append/query，不保存 body/header/raw token/details，也不提供 cleanup/update/delete。目录读取写审计失败保持原查询结果；高风险授权、审批和执行审计失败必须 fail closed。
+- Action 审计只允许固定安全字段和 append/query，不保存 body/header/raw token/details，也不提供公开 cleanup/update/delete。内部 H2 历史清理使用独立边界并要求 audit 与日志自动清理双开关：审计按保留天数，token/approval 还必须已过期，幂等记录按自身到期，有效 allowlist 不清理。目录读取写审计失败保持原查询结果；高风险授权、审批和执行审计失败必须 fail closed。
 - Action allowlist 只允许服务端 credential 映射出的精确 caller+actionId+serviceVersion；管理 actor 要 `action-admin`，目标要 `action-execute`。add/enable 重验当前目录，disable 可独立收窄，策略变化与 required audit 同事务；不提供 caller 自报、wildcard/block/delete 或执行能力。
 - Action token 与控制面 bearer 隔离；issue 仅允许 execute-self，introspect/revoke 允许 execute-self/admin-any。原 token 只回显一次且服务端只存 SHA-256；每次实际使用仍要重验 allowlist/目录，不能反向获得控制面权限。
 - Action 审批会话与 bearer/token 隔离；caller 从 bearer 派生，approver 只来自 allowlist HMAC provider。多 Action 逐项保存 source digest、聚合 scope digest CAS；只有受管 route apply 可延续 lineage，普通/直接变化进入 STALE。会话本身不是 bearer 或执行许可。
