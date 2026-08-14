@@ -547,7 +547,7 @@ OPC UA 和 Modbus 样例提供服务包级 XML 加载验证：
 集群数据样例提供服务包级 XML 加载验证：
 
 - 加载 `RobotClusterDataSrv/v1.0.0/robot-cluster-data-route.xml`。
-- 通过 `direct:robot-cluster-telemetry-mock` 和 `direct:robot-cluster-event-mock` 验证 Kafka 风格 telemetry/event mock sink，包含 `Kafka.KEY` 和 topic header。
+- 通过 `direct:robot-cluster-telemetry-mock` 和 `direct:robot-cluster-event-mock` 验证 Kafka 风格 telemetry/event mock sink，包含 `CamelKafkaKey` 和 topic header。
 - 通过 `direct:robot-external-task-mock` 和 `direct:robot-task-callback-mock` 验证外部任务接入和任务回调 mock sink。
 - 通过 `direct:robot-dashboard-data-mock` 验证 dashboard 数据 mock sink。
 - 验证所需 processor bean、配置占位和 XML route 可启动运行。
@@ -563,8 +563,8 @@ Kafka topic、key 和 header 建议：
 
 | Topic | Key | 消息 | 当前证据 |
 | --- | --- | --- | --- |
-| `robot.telemetry` | `robotId` | `RobotTelemetry` | mock sink 保留 `Kafka.KEY` 和 topic header |
-| `robot.event` | `robotId` | `RobotEvent` | mock sink 保留 `Kafka.KEY` 和 topic header |
+| `robot.telemetry` | `robotId` | `RobotTelemetry` | mock sink 保留 `CamelKafkaKey` 和 topic header |
+| `robot.event` | `robotId` | `RobotEvent` | mock sink 保留 `CamelKafkaKey` 和 topic header |
 | `robot.command.audit` | `robotId` 或 `commandId` | 命令审计摘要 | 真实 Kafka 出流待 broker 联调 |
 | `robot.task.state` | `robotId` 或 `taskId` | `RobotTaskState` | 外部任务和 task callback mock sink 已验证契约 |
 
@@ -573,7 +573,7 @@ Kafka topic、key 和 header 建议：
 | 验证项 | 可复验证据 | 当前结论 | 未覆盖范围 |
 | --- | --- | --- | --- |
 | 默认不连接 Kafka | 集群数据样例配置、`RobotExampleServicePackageTest` | 默认 `robot.kafka.enabled=false` 且 `robot.kafka.bootstrap.servers` 为空，不会误连真实 broker | 真实 broker、认证、TLS、ACL、连接失败重试 |
-| telemetry/event 出流契约 | `RobotClusterDataExampleRouteLoadTest`、`RobotProtocolPrecheckRouteTest` | telemetry/event 可进入 mock sink，并以 `robotId` 作为 `Kafka.KEY` | 真实分区、顺序、压缩、事务、消费者位点 |
+| telemetry/event 出流契约 | `RobotClusterDataExampleRouteLoadTest`、`RobotProtocolPrecheckRouteTest` | telemetry/event 可进入 mock sink，并以 `robotId` 作为 `CamelKafkaKey` | 真实分区、顺序、压缩、事务、消费者位点 |
 | 外部任务接入 | `RobotClusterDataExampleRouteLoadTest`、`RobotProtocolPrecheckRouteTest` | 外部任务通过 `correlationId` 进入 task ingress mock sink | 真实 WMS/MES API、鉴权、幂等、错误码和补偿 |
 | 任务回调 | `RobotClusterDataExampleRouteLoadTest` | task callback 默认走 mock sink，不连接真实外部系统 | 真实回调 endpoint、签名、超时、重试和死信 |
 | dashboard 数据 | `RobotClusterDataExampleRouteLoadTest` | dashboard mock route 可输出站点、在线机器人和任务统计 | 真实查询 API、缓存、分页、权限和状态快照存储 |
@@ -586,7 +586,7 @@ Kafka topic、key 和 header 建议：
 - Kafka bootstrap servers、broker 版本、topic、分区数、副本数、retention、压缩和消息大小限制。
 - Kafka 鉴权方式、TLS/SASL、ACL、生产者 idempotence、acks、重试、超时和死信策略。
 - `robot.telemetry`、`robot.event`、`robot.command.audit`、`robot.task.state` 等 topic 的 key、header、schema 和兼容策略。
-- `Kafka.KEY` 分区策略：遥测和事件默认 `robotId`，任务状态和命令审计需明确使用 `robotId`、`taskId` 还是 `commandId`。
+- Kafka 分区键策略（Camel 4.18.3 起 Header 官方名为 `CamelKafkaKey`，旧值 `kafka.KEY`）：遥测和事件默认 `robotId`，任务状态和命令审计需明确使用 `robotId`、`taskId` 还是 `commandId`。
 - WMS/MES 任务接入 API、鉴权、幂等键、任务字段、错误码、重试和补偿策略。
 - 任务回调 endpoint、签名/验签、超时、重试、重复回调和失败告警策略。
 - dashboard 查询的数据源、刷新周期、状态快照存储、权限、分页和历史数据保留策略。

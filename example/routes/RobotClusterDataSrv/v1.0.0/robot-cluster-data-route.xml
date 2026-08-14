@@ -4,7 +4,7 @@
     <route id="robot-cluster-telemetry-to-kafka-mock" routeConfigurationId="globalError">
         <from uri="direct:robot-cluster-telemetry-mock"/>
         <process ref="robotTelemetryNormalizeProcessor"/>
-        <setHeader name="Kafka.KEY">
+        <setHeader name="CamelKafkaKey">
             <exchangeProperty>robot.robotId</exchangeProperty>
         </setHeader>
         <setHeader name="robot.kafka.topic">
@@ -15,7 +15,7 @@
 
     <route id="robot-cluster-event-to-kafka-mock" routeConfigurationId="globalError">
         <from uri="direct:robot-cluster-event-mock"/>
-        <setHeader name="Kafka.KEY">
+        <setHeader name="CamelKafkaKey">
             <jsonpath>$.robotId</jsonpath>
         </setHeader>
         <setHeader name="robot.kafka.topic">

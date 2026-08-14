@@ -104,7 +104,7 @@ DDS 原生组件即使进入二期，也只允许输出 `RobotTelemetry`、`Robo
 
 - 默认样例不配置 bootstrap servers，不包含真实 `kafka:` endpoint。
 - 先用 mock sink 固化 topic、key、header、schema 和 trace，再接真实 broker。
-- 遥测和事件的 `Kafka.KEY` 默认用 `robotId`，保证同机器人消息局部有序。
+- 遥测和事件的 Kafka 分区键 Header（Camel 4.18.3 起官方名为 `CamelKafkaKey`，旧值 `kafka.KEY`）默认用 `robotId`，保证同机器人消息局部有序。
 - `robot.telemetry`、`robot.event`、`robot.command.audit`、`robot.task.state` 是首批建议 topic。
 - 真实 Kafka 前必须明确分区数、副本数、retention、压缩、acks、重试、生产者幂等、SASL/TLS、ACL、schema 兼容和死信策略。
 
