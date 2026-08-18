@@ -5,10 +5,15 @@ import SectionHead from "../components/SectionHead.astro";
 const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
 ---
 
-<BaseLayout current="/examples" title="Examples | LightESB-Camel">
+<BaseLayout
+  current="/examples"
+  title="Examples | LightESB-Camel"
+  description="Runnable LightESB-Camel examples to copy, configure, and verify: HTTP services, MySQL access, AI agents, robot commands, temp forms, and VDA 5050 contracts."
+>
   <section>
     <div class="container">
       <SectionHead
+        as="h1"
         eyebrow="Runnable starting points"
         title="Copy an example, adapt configuration, verify behavior"
         text="The delivery repository includes route packages that can be copied into the runtime service directory and adjusted for POC or field validation."

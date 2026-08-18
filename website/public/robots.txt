@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://lightesb-camel.pages.dev/sitemap.xml
+Sitemap: https://lightesb-camel.pages.dev/sitemap-index.xml

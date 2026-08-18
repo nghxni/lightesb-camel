@@ -1,0 +1,25 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Page Not Found | LightESB-Camel"
+  description="The requested page does not exist. Browse LightESB-Camel capabilities, architecture, examples, and technical articles from the homepage."
+  showReferral={false}
+>
+  <meta slot="head" name="robots" content="noindex" />
+  <section>
+    <div class="container">
+      <p class="eyebrow">404</p>
+      <h1>Page not found</h1>
+      <p class="lead">
+        The page you are looking for does not exist or has been moved. Start from the homepage or jump straight to the
+        documentation.
+      </p>
+      <div class="hero-actions">
+        <a class="button primary" href="/">Back to homepage</a>
+        <a class="button" href="/docs">Read the docs</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

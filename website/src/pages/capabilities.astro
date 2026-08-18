@@ -3,10 +3,15 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import SectionHead from "../components/SectionHead.astro";
 ---
 
-<BaseLayout current="/capabilities" title="Capabilities | LightESB-Camel">
+<BaseLayout
+  current="/capabilities"
+  title="Capabilities | LightESB-Camel"
+  description="Integration capabilities of the LightESB-Camel delivery package: HTTP services, data transformation, security governance, external systems, and AI workflows."
+>
   <section>
     <div class="container">
       <SectionHead
+        as="h1"
         eyebrow="Capability map"
         title="Integration capabilities packaged for delivery"
         text="LightESB-Camel organizes route runtime, reusable examples, operational APIs, and Agent-readable instructions around practical integration work."

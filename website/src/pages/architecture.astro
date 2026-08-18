@@ -5,10 +5,15 @@ import SectionHead from "../components/SectionHead.astro";
 const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
 ---
 
-<BaseLayout current="/architecture" title="Architecture | LightESB-Camel">
+<BaseLayout
+  current="/architecture"
+  title="Architecture | LightESB-Camel"
+  description="Public architecture view of LightESB-Camel: service packages, Camel routes, processors, adapters, hot-reload boundaries, and operational controls for delivery."
+>
   <section>
     <div class="container">
       <SectionHead
+        as="h1"
         eyebrow="Runtime architecture"
         title="Service packages, Camel routes, and operational controls"
         text="The public architecture view focuses on delivery boundaries: what can be changed as route assets, what is controlled by configuration, and what requires a runtime rebuild or restart."

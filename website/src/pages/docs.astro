@@ -5,10 +5,15 @@ import SectionHead from "../components/SectionHead.astro";
 const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
 ---
 
-<BaseLayout current="/docs" title="Docs | LightESB-Camel">
+<BaseLayout
+  current="/docs"
+  title="Docs | LightESB-Camel"
+  description="Read the LightESB-Camel delivery package in implementation order: repository README, product overview, component docs index, CLI guide, and operations APIs."
+>
   <section>
     <div class="container">
       <SectionHead
+        as="h1"
         eyebrow="Documentation"
         title="Read the delivery package in the same order an implementation team would"
         text="These links point to public delivery context files in the repository. They are written for route authors, operators, and external coding agents."

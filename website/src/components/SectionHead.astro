@@ -1,11 +1,12 @@
 ---
-const { eyebrow, title, text, eyebrowKey, titleKey, textKey } = Astro.props;
+const { eyebrow, title, text, eyebrowKey, titleKey, textKey, as = "h2" } = Astro.props;
+const Heading = as;
 ---
 
 <div class="section-head">
   <div>
     {eyebrow && <p class="eyebrow" data-i18n={eyebrowKey}>{eyebrow}</p>}
-    <h2 data-i18n={titleKey}>{title}</h2>
+    <Heading data-i18n={titleKey}>{title}</Heading>
   </div>
   <p class="copy" data-i18n={textKey}>{text}</p>
 </div>
