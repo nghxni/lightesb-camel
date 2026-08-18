@@ -183,6 +183,7 @@ website/.gitignore
 website/astro.config.mjs
 website/package-lock.json
 website/package.json
+website/public/favicon.svg
 website/public/images/lightesb-camel-hero-og.jpg
 website/public/images/lightesb-camel-hero.webp
 website/public/images/lightesb-robotics-integration.webp
