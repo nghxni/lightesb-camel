@@ -10,7 +10,7 @@ const {
 
 const siteUrl = "https://lightesb-camel.pages.dev";
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString();
-const ogImageUrl = new URL("/images/lightesb-camel-hero.png", siteUrl).toString();
+const ogImageUrl = new URL("/images/lightesb-camel-hero-og.jpg", siteUrl).toString();
 
 const navItems = [
   ["Capabilities", "/capabilities"],
@@ -35,6 +35,7 @@ const navItems = [
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={ogImageUrl} />
     <title>{title}</title>
+    <slot name="head" />
   </head>
   <body>
     <div class="site-shell">
