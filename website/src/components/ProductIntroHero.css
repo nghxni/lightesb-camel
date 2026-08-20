@@ -129,6 +129,18 @@
     max-width: 620px;
   }
 
+  .hero-actions .channel-link-zh {
+    display: none;
+  }
+
+  html[lang="zh-CN"] .hero-actions .channel-link-en {
+    display: none;
+  }
+
+  html[lang="zh-CN"] .hero-actions .channel-link-zh {
+    display: inline-flex;
+  }
+
   .intro-points {
     display: flex;
     flex-wrap: wrap;
@@ -1056,4 +1068,3 @@
       display: none;
     }
   }
-
