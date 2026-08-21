@@ -200,10 +200,12 @@ website/public/videos/tuoling-brand-intro-en.webp
 website/public/videos/tuoling-brand-intro-zh.mp4
 website/public/videos/tuoling-brand-intro-zh.webp
 website/src/components/HeroVisual.astro
+website/src/components/ArticleSeoNav.astro
 website/src/components/ProductIntroHero.astro
 website/src/components/ProductIntroHero.css
 website/src/components/SectionHead.astro
 website/src/layouts/BaseLayout.astro
+website/src/data/seo.ts
 website/src/pages/404.astro
 website/src/pages/architecture.astro
 website/src/pages/articles/action-catalog-audit.astro
@@ -234,3 +236,4 @@ website/src/pages/examples.astro
 website/src/pages/index.astro
 website/src/pages/robotics.astro
 website/src/styles/global.css
+website/scripts/check-seo.mjs

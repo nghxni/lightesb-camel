@@ -1,0 +1,39 @@
+---
+const { seo, title, position = "top" } = Astro.props;
+
+if (!seo) throw new Error("ArticleSeoNav requires article SEO metadata");
+
+const formatDate = (value) => new Intl.DateTimeFormat("en-US", {
+  dateStyle: "medium",
+  timeZone: "UTC"
+}).format(new Date(`${value}T00:00:00Z`));
+---
+
+{position === "top" ? (
+  <div class="article-seo-context container">
+    <nav class="article-breadcrumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="/">Home</a></li>
+        <li><a href="/articles/">Articles</a></li>
+        <li aria-current="page">{title}</li>
+      </ol>
+    </nav>
+    <div class="article-context-meta">
+      <span>By <strong>nghxni</strong></span>
+      <time datetime={seo.published}>Published {formatDate(seo.published)}</time>
+      <time datetime={seo.modified}>Updated {formatDate(seo.modified)}</time>
+    </div>
+  </div>
+) : (
+  <section class="related-articles" aria-labelledby="related-articles-title">
+    <h2 id="related-articles-title">Related articles</h2>
+    <div class="docs-list">
+      {seo.related.map((related) => (
+        <a class="docs-link" href={related.href}>
+          <strong>{related.title}</strong>
+          <span>Explore another LightESB-Camel implementation pattern.</span>
+        </a>
+      ))}
+    </div>
+  </section>
+)}

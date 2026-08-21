@@ -1,16 +1,107 @@
 ---
 import "../styles/global.css";
+import ArticleSeoNav from "../components/ArticleSeoNav.astro";
+import { articleSeoByPath } from "../data/seo";
 
 const {
   title = "LightESB-Camel",
   description = "Lightweight integration runtime for legacy systems, industrial protocols, robotics workflows, and AI-assisted orchestration.",
+  headline = "",
   current = "",
   showReferral = true
 } = Astro.props;
 
 const siteUrl = "https://lightesb-camel.pages.dev";
-const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString();
+const currentPath = Astro.url.pathname === "/" ? "/" : `${Astro.url.pathname.replace(/\/+$/, "")}/`;
+const articleSeo = articleSeoByPath[currentPath];
+const isArticlePage = currentPath.startsWith("/articles/") && currentPath !== "/articles/";
+if (isArticlePage && !articleSeo) {
+  throw new Error(`Missing article SEO metadata for ${currentPath}`);
+}
+const canonicalUrl = new URL(currentPath, siteUrl).toString();
 const ogImageUrl = new URL("/images/lightesb-camel-hero-og.jpg", siteUrl).toString();
+const articleTitle = title.replace(/\s+\|\s+LightESB-Camel$/, "");
+const articleHeadline = headline || articleTitle;
+const ogType = articleSeo ? "article" : "website";
+const organizationId = `${siteUrl}/#organization`;
+const websiteId = `${siteUrl}/#website`;
+const baseSchema = [
+  {
+    "@type": "Organization",
+    "@id": organizationId,
+    name: "LightESB-Camel",
+    url: `${siteUrl}/`,
+    logo: ogImageUrl,
+    sameAs: ["https://github.com/nghxni/lightesb-camel", "https://www.youtube.com/channel/UCNYO1jU6jarh_CU-2XVOiRA"]
+  },
+  {
+    "@type": "WebSite",
+    "@id": websiteId,
+    url: `${siteUrl}/`,
+    name: "LightESB-Camel",
+    inLanguage: "en",
+    publisher: { "@id": organizationId }
+  }
+];
+const pageSchema = articleSeo
+  ? [
+      {
+        "@type": "Article",
+        "@id": `${canonicalUrl}#article`,
+        url: canonicalUrl,
+        headline: articleHeadline,
+        description,
+        image: ogImageUrl,
+        inLanguage: "en",
+        articleSection: articleSeo.section,
+        datePublished: articleSeo.published,
+        dateModified: articleSeo.modified,
+        author: { "@type": "Person", name: "nghxni", url: "https://github.com/nghxni" },
+        publisher: { "@id": organizationId },
+        mainEntityOfPage: { "@type": "WebPage", "@id": canonicalUrl }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${canonicalUrl}#breadcrumb`,
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: `${siteUrl}/` },
+          { "@type": "ListItem", position: 2, name: "Articles", item: `${siteUrl}/articles/` },
+          { "@type": "ListItem", position: 3, name: articleHeadline, item: canonicalUrl }
+        ]
+      }
+    ]
+  : [
+      {
+        "@type": "WebPage",
+        "@id": `${canonicalUrl}#webpage`,
+        url: canonicalUrl,
+        name: title,
+        description,
+        inLanguage: "en",
+        isPartOf: { "@id": websiteId }
+      }
+    ];
+const schema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    ...baseSchema,
+    ...(currentPath === "/"
+      ? [
+          {
+            "@type": "SoftwareApplication",
+            "@id": `${siteUrl}/#software`,
+            name: "LightESB-Camel",
+            url: `${siteUrl}/`,
+            description,
+            applicationCategory: "DeveloperApplication",
+            image: ogImageUrl,
+            publisher: { "@id": organizationId }
+          }
+        ]
+      : []),
+    ...pageSchema
+  ]
+};
 
 const navItems = [
   ["Capabilities", "/capabilities"],
@@ -29,18 +120,26 @@ const navItems = [
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
+    <meta name="author" content={articleSeo ? "nghxni" : "LightESB-Camel"} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:alt" content="LightESB-Camel integration runtime connecting existing systems, industrial devices, robots, and AI tools." />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:site_name" content="LightESB-Camel" />
+    {articleSeo && <meta property="article:author" content="https://github.com/nghxni" />}
+    {articleSeo && <meta property="article:published_time" content={articleSeo.published} />}
+    {articleSeo && <meta property="article:modified_time" content={articleSeo.modified} />}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:image:alt" content="LightESB-Camel integration runtime connecting existing systems, industrial devices, robots, and AI tools." />
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
     <slot name="head" />
@@ -71,7 +170,9 @@ const navItems = [
         </div>
       </header>
       <main>
+        {articleSeo && <ArticleSeoNav seo={articleSeo} title={articleHeadline} />}
         <slot />
+        {articleSeo && <div class="container article-layout"><ArticleSeoNav seo={articleSeo} title={articleHeadline} position="bottom" /></div>}
       </main>
       <footer class="site-footer">
         <div class="container footer-inner">

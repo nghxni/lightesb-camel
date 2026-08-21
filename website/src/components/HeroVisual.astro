@@ -9,6 +9,8 @@ const {
   primaryLabel,
   secondaryHref,
   secondaryLabel,
+  width = 1200,
+  height = 675,
   eyebrowKey,
   titleKey,
   leadKey,
@@ -19,7 +21,7 @@ const {
 
 <section class="hero">
   <div class="hero-media">
-    <img src={image} alt={alt} />
+    <img src={image} alt={alt} width={width} height={height} />
   </div>
   <div class="container hero-content">
     {eyebrow && <p class="eyebrow" data-i18n={eyebrowKey}>{eyebrow}</p>}
