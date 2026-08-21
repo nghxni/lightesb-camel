@@ -6,4 +6,5 @@
 - `lightesb-camel-app/` 是正式接口运行目录，只读参考，不新增代理上下文或索引。
 - `example/` 是纯演示样例目录，可修改、复制到 `lightesb-camel-app/` 运行，演示完成后删除。
 - 任务命中组件领域时，先读对应 `skills/<name>/SKILL.md`，再读 `docs/README.md` 和组件文档。
+- 排查项目问题时先读 `skills/lightesb-project-troubleshooting/SKILL.md` 并检测本机开发/业务现场模式，再按问题领域读取专项 skill；发布基线允许升级覆盖，根目录 `project-experience/` 中的项目经验不得覆盖。
 - 不引用未随包交付的内部架构流程文档，不使用与本交付包无关的外部技能路由。

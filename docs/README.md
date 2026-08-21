@@ -95,6 +95,7 @@
 
 | 任务 | Skill |
 | --- | --- |
+| 项目问题排查与经验沉淀 | `../skills/lightesb-project-troubleshooting/SKILL.md` |
 | 路由和 HTTP 接口 | `../skills/lightesb-route-authoring/SKILL.md` |
 | 转换组件 | `../skills/lightesb-transform-components/SKILL.md` |
 | 权限与校验 | `../skills/lightesb-security-validation/SKILL.md` |
@@ -103,6 +104,8 @@
 | AI、机器人和外部系统扩展 | `../skills/lightesb-ai-components/SKILL.md` |
 | CLI 命令和自动化流程 | `../skills/lightesb-cli-automation/SKILL.md` |
 | 机器人协议样例、命令 dispatcher 和现场验收边界 | `../skills/lightesb-robot-integration/SKILL.md` |
+
+项目问题排查先读取 Skill 内可升级的发布基线；业务现场存在 `../project-experience/lightesb-project-troubleshooting.md` 时再读取项目经验。项目经验不属于发布 MANIFEST，升级不得覆盖。
 
 ## 明确不包含
 

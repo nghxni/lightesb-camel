@@ -47,6 +47,7 @@
 | `../skills/lightesb-robot-integration/SKILL.md` | 机器人协议接入经验、边缘 AI 推理 mock/可信审批门禁、dispatcher API、交付样例和 gRPC IDL 契约，按交付任务路由整理 |
 | `../skills/lightesb-security-validation/SKILL.md` | 权限校验、消息 Schema 与 Action 控制面角色/审计/allowlist/token/有界审批安全边界，按交付任务路由整理 |
 | `../skills/lightesb-temp-form/SKILL.md` | `skills/lightesb-temp-form/SKILL.md` 与 `skills/lightesb-route-development/SKILL.md` 最小创建集及 simple 常见坑，按交付场景重写 |
+| `../skills/lightesb-project-troubleshooting/SKILL.md` | 源码仓库项目问题处理规则的通用排障流程，去除个人画像和内部经验后按本机开发/业务现场场景重写；发布基线可升级，根目录项目经验独立维护 |
 | `cli/README.md` | `docs/cli/README.md`，外发压缩版 |
 | `cli/01-cli-command-reference.md` | `docs/cli/*` 与 `lightesb-cli/src/main/java/.../cli/command/*`，按命令域压缩整理 |
 | `cli/support-diagnostics.md` | `docs/cli/12-support-diagnostics-runbook.md`，按外发支持诊断场景重写，不包含内部演示样例命令 |

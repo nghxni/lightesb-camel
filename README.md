@@ -18,7 +18,7 @@ LightESB 聚焦三件事：
 
 一句话介绍：LightESB-Camel 是面向存量系统和机器人系统的轻量集成交付包，用动态热加载路由技能连接老系统接口、工业协议、机器人任务流程和 AI Agent 工具能力。
 
-本仓库不是完整源码仓库。根目录的 `lightesb-camel-1.0.0.jar`、`lightesb-cli.jar`、`start.sh` / `start.bat`、`lightesb-camel-app/`、`docs/`、`example/`、`skills/`、`AGENTS.md` 共同构成交付上下文。外部 Agent 或大模型只读取本仓库时，应优先从本 README、`AGENTS.md`、`docs/README.md` 和 `example/README.md` 建立上下文。
+本仓库不是完整源码仓库。根目录的 `lightesb-camel-1.0.0.jar`、`lightesb-cli.jar`、`start.sh` / `start.bat`、`lightesb-camel-app/`、`docs/`、`example/`、`skills/`、`AGENTS.md` 共同构成交付上下文。业务现场首次沉淀排障经验后还会出现独立的 `project-experience/`，它不属于发布清单，升级不得覆盖。外部 Agent 或大模型只读取本仓库时，应优先从本 README、`AGENTS.md`、`docs/README.md` 和 `example/README.md` 建立上下文。
 
 相比直接使用原生 Apache Camel，本交付包已经封装了启动脚本、服务目录约定、CLI 管理入口、组件文档和可复制样例。常见 HTTP 接入、字段映射、条件转换、校验、日志和协议适配流程优先通过 Camel XML 路由和配置文件表达，适合先用样例完成 POC，再按服务包方式进入交付验证。
 
@@ -119,6 +119,7 @@ LightESB 的机器人技能和协议适配能力可以以独立路由服务包�
 | `example/transform-dts-java/` | DTS Java SPI 扩展示例 |
 | `docs/` | 外发技术文档 |
 | `skills/` | Agent 面向组件任务的技能说明 |
+| `project-experience/` | 可选的项目独立排障经验；仅业务现场按需初始化，不进入发布 MANIFEST |
 | `start.sh` / `start.bat` | 本地启动脚本 |
 
 ## Agent 阅读路径
@@ -128,8 +129,9 @@ Agent 处理任务时建议按以下顺序读取：
 1. `AGENTS.md`
 2. `docs/README.md`
 3. 命中领域的 `skills/<name>/SKILL.md`
-4. 相关 `docs/components/**`、`docs/cli/**`、`docs/extensions/**`
-5. 对应 `example/routes/**` 样例
+4. 业务现场存在时读取 `project-experience/lightesb-project-troubleshooting.md`
+5. 相关 `docs/components/**`、`docs/cli/**`、`docs/extensions/**`
+6. 对应 `example/routes/**` 样例
 
 默认优先修改 `example/` 中的演示样例。`lightesb-camel-app/` 是正式接口运行目录，除非需要验证运行，不在其中新增索引、说明或 Agent 上下文文件。
 

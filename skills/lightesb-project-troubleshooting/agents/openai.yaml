@@ -1,0 +1,4 @@
+interface:
+  display_name: "LightESB 项目问题排查"
+  short_description: "使用可升级发布基线和独立项目经验排查 LightESB 问题"
+  default_prompt: "使用 $lightesb-project-troubleshooting 根据发布基线和独立项目经验排查这个 LightESB 问题。"

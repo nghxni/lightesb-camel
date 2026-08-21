@@ -10,19 +10,22 @@ LightESB-Camel 交付包内 Agent 协作规则。这里是可运行交付目录�
 - `docs/cli/`：CLI 使用参考，只描述命令、输入、输出、确认规则和自动化边界。
 - `docs/runtime-diagnostics-api.md`、`docs/robot-command-dispatcher-api.md`、`docs/*-api.md`：交付 API 与 CLI 边界说明，只写可调用契约、配置、示例和排障边界。
 - `skills/`：轻量任务路由卡片。任务命中时先读对应 `skills/<name>/SKILL.md`，再读 `docs/README.md` 和组件文档。
+- `project-experience/`：可选的项目独立经验目录，不属于发布 MANIFEST。只在业务现场首次需要沉淀经验时由排障 Skill 初始化；发布升级不得删除、覆盖或隐式创建其中内容。
 - `services/`：第三方扩展交付物和扩展示例。
 
 ## 阅读顺序
 
 1. 先读本文件。
 2. 再读 `docs/README.md`。
-3. 按任务类型读取对应 `skills/<name>/SKILL.md`。
-4. 最后查阅 `docs/components/`、`docs/extensions/` 和 `example/` 中的具体样例。
+3. 排查项目问题时先读 `skills/lightesb-project-troubleshooting/SKILL.md`，并运行其中的模式检测脚本。
+4. 按任务类型读取对应 `skills/<name>/SKILL.md`。
+5. 最后查阅 `docs/components/`、`docs/extensions/` 和 `example/` 中的具体样例。
 
 ## Task -> Skill 路由表
 
 | 任务 | 先读 skill |
 | --- | --- |
+| 排查路由、配置、日志、CLI、管理 API、外部集成或其他项目问题，并按本机开发/业务现场模式沉淀经验 | `skills/lightesb-project-troubleshooting/SKILL.md`，再读对应领域 skill |
 | 新增 HTTP 接口、编写 Camel XML、配置 `undertow`、服务目录结构 | `skills/lightesb-route-authoring/SKILL.md` |
 | 创建临时表单/审批网页服务、mock 数据演示、用完销毁路由 | `skills/lightesb-temp-form/SKILL.md`，再读 `skills/lightesb-route-authoring/SKILL.md` |
 | Action allowlist/token/有界任务会话、统一授权 dry-run、受管 route apply 与 CLI 自动化 | `skills/lightesb-cli-automation/SKILL.md`，安全边界再读 `skills/lightesb-security-validation/SKILL.md`；dry-run 当前无 CLI 命令 |
@@ -61,6 +64,7 @@ LightESB-Camel 交付包内 Agent 协作规则。这里是可运行交付目录�
 - 不写源码级实现路径、内部状态机细节、开发工作流、临时方案、本机路径、真实凭据或不可外发信息。
 - 如需吸收内部结论，必须改写成交付视角，用组件名、配置键、命令、接口契约和示例说明。
 - 外发规则文件不需要、也不应该与源码仓库内部 `AGENTS.md` 完全一致；本文件只描述随包交付目录内可执行的约束。
+- `skills/lightesb-project-troubleshooting/references/baseline-experience.md` 是可升级发布基线；实际项目经验固定为 `project-experience/lightesb-project-troubleshooting.md`。项目经验与新基线冲突时，以正式文档、新基线和安全边界为准，并把旧经验标记为待审核。
 - 输入、输出或回调 Schema 校验路由只通过 `message schema generate` 和 `ai route apply` CLI 完成，不新增或直接调用本能力的管理 API 文档。
 - 文档更新不是只改单一文件。修改组件、CLI、样例、API 或交付说明时，必须检查随包的 `docs/README.md`、对应 `docs/components/` 或 `docs/cli/`、相关 `skills/` 和 `example/` 是否需要同步。
 - 如果对应文档、skill 或样例存在但不需要改，交付说明中写明原因，避免随包文档之间出现不一致。

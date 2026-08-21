@@ -172,6 +172,12 @@ skills/lightesb-ai-components/SKILL.md
 skills/lightesb-cli-automation/SKILL.md
 skills/lightesb-dts-extension/SKILL.md
 skills/lightesb-logging-observability/SKILL.md
+skills/lightesb-project-troubleshooting/SKILL.md
+skills/lightesb-project-troubleshooting/agents/openai.yaml
+skills/lightesb-project-troubleshooting/references/baseline-experience.md
+skills/lightesb-project-troubleshooting/references/project-experience-template.md
+skills/lightesb-project-troubleshooting/scripts/detect-maintenance-mode.sh
+skills/lightesb-project-troubleshooting/scripts/init-project-experience.sh
 skills/lightesb-robot-integration/SKILL.md
 skills/lightesb-route-authoring/SKILL.md
 skills/lightesb-route-authoring/scripts/action-index.schema.json
