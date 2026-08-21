@@ -190,6 +190,7 @@ website/astro.config.mjs
 website/package-lock.json
 website/package.json
 website/public/favicon.svg
+website/public/google19c02e3e4ae1669c.html
 website/public/images/lightesb-camel-hero-og.jpg
 website/public/images/lightesb-camel-hero.webp
 website/public/images/lightesb-robotics-integration.webp
