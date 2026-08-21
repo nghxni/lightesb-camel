@@ -20,6 +20,7 @@ if (isArticlePage && !articleSeo) {
 }
 const canonicalUrl = new URL(currentPath, siteUrl).toString();
 const ogImageUrl = new URL("/images/lightesb-camel-hero-og.jpg", siteUrl).toString();
+const logoUrl = new URL("/favicon.svg", siteUrl).toString();
 const articleTitle = title.replace(/\s+\|\s+LightESB-Camel$/, "");
 const articleHeadline = headline || articleTitle;
 const ogType = articleSeo ? "article" : "website";
@@ -31,7 +32,7 @@ const baseSchema = [
     "@id": organizationId,
     name: "LightESB-Camel",
     url: `${siteUrl}/`,
-    logo: ogImageUrl,
+    logo: logoUrl,
     sameAs: ["https://github.com/nghxni/lightesb-camel", "https://www.youtube.com/channel/UCNYO1jU6jarh_CU-2XVOiRA"]
   },
   {

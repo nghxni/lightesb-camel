@@ -103,9 +103,18 @@ for (const filePath of htmlFiles) {
       if (!types.has(type)) failures.push(`${url} is missing JSON-LD type ${type}`);
     }
     if (requiredMeta(html, "author") !== "nghxni") failures.push(`${url} is missing author nghxni`);
+    if (requiredMeta(html, "og:type", "property") !== "article") failures.push(`${url} must use og:type article`);
+    const published = requiredMeta(html, "article:published_time", "property");
+    const modified = requiredMeta(html, "article:modified_time", "property");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(published)) failures.push(`${url} has an invalid published date`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(modified)) failures.push(`${url} has an invalid modified date`);
+    if (published > modified) failures.push(`${url} has a modified date before its published date`);
     const articleSchema = jsonLdValues(html).find((value) => value["@type"] === "Article");
     const visibleHeadline = html.match(/<h1\b[^>]*>([^<]+)<\/h1>/i)?.[1]?.trim();
     if (articleSchema?.headline !== visibleHeadline) failures.push(`${url} Article headline does not match visible h1`);
+    if (articleSchema?.datePublished !== published || articleSchema?.dateModified !== modified) {
+      failures.push(`${url} Article dates do not match Open Graph metadata`);
+    }
   }
   if (url === "/404/") {
     if (requiredMeta(html, "robots") !== "noindex") failures.push("/404/ must be noindex");
