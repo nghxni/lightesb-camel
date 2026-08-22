@@ -110,7 +110,8 @@ const navItems = [
   ["Robotics", "/robotics"],
   ["Examples", "/examples"],
   ["Articles", "/articles"],
-  ["Docs", "/docs"]
+  ["Docs", "/docs"],
+  ["Pricing", "/pricing"]
 ];
 ---
 
@@ -178,6 +179,11 @@ const navItems = [
       <footer class="site-footer">
         <div class="container footer-inner">
           <span data-i18n="footer.contact">LightESB-Camel delivery context. nghxni@gmail.com</span>
+          <span class="footer-legal">
+            <a href="/terms" data-i18n="footer.terms">Terms</a>
+            <a href="/privacy" data-i18n="footer.privacy">Privacy</a>
+            <a href="/refund" data-i18n="footer.refund">Refund</a>
+          </span>
           <span class="footer-brand" data-i18n="footer.brand">Tuoling (驼铃), the camel bell — data caravans move between systems on Apache Camel; the bell rings when a message arrives.</span>
         </div>
       </footer>
@@ -191,10 +197,14 @@ const navItems = [
           "nav.examples": "样例",
           "nav.articles": "文章",
           "nav.docs": "文档",
-          "footer.contact": "LightESB-Camel 交付上下文。179556428@qq.com",
+          "nav.pricing": "定价",
+          "footer.contact": "LightESB-Camel 交付上下文。nghxni@gmail.com",
+          "footer.terms": "服务条款",
+          "footer.privacy": "隐私政策",
+          "footer.refund": "退款政策",
           "footer.brand": "驼铃（Tuoling）——骆驼驮着数据穿行于系统之间，驼铃一响，消息抵达。",
           "referral.reward": "介绍签单，提供 20% 介绍费。",
-          "referral.contact": "合作介绍：179556428@qq.com",
+          "referral.contact": "合作介绍：nghxni@gmail.com",
           "referral.wechat": "微信：nghxni",
           "home.eyebrow": "可运行的集成交付包",
           "home.title": "LightESB-Camel",
@@ -534,7 +544,7 @@ const navItems = [
             brandVideo.load();
           }
         }
-        const referralEmail = normalized === "zh" ? "179556428@qq.com" : "nghxni@gmail.com";
+        const referralEmail = "nghxni@gmail.com";
         document.querySelectorAll("[data-referral-email]").forEach((link) => {
           link.setAttribute("href", `mailto:${referralEmail}`);
         });
