@@ -15,7 +15,7 @@ description: 交付仓库内基于证据排查 LightESB 项目问题，使用可
 skills/lightesb-project-troubleshooting/scripts/detect-maintenance-mode.sh .
 ```
 
-脚本只按外发仓库的 `origin` 地址判断，不扫描源码目录、不使用人工标记：`origin` 精确等于 `https://github.com/nghxni/lightesb-camel.git` 时是“本机开发模式”；没有 Git、没有 `origin` 或地址不完全相同时都是“业务现场模式”。
+脚本只按当前仓库的 `origin` 地址判断，不扫描源码目录、不使用人工标记：源码仓库 `origin` 精确等于 `https://gitee.com/nghxni/lightesb.git` 时是“本机开发模式”；外发仓库 `origin` 精确等于 `https://github.com/nghxni/lightesb-camel.git` 时是“业务现场模式”；没有 Git、没有 `origin` 或地址不完全相同时也都是“业务现场模式”。
 
 - 本机开发模式：`SKILL.md`、`references/baseline-experience.md` 和 `references/project-experience-template.md` 由源码交付上下文统一维护；外发仓库只读使用并保持与源码一致。
 - 业务现场模式：把 `references/baseline-experience.md` 作为可升级、只读的发布基线；后续新增或修订经验只写根目录 `project-experience/lightesb-project-troubleshooting.md`。
