@@ -15,10 +15,10 @@ description: 交付仓库内基于证据排查 LightESB 项目问题，使用可
 skills/lightesb-project-troubleshooting/scripts/detect-maintenance-mode.sh .
 ```
 
-脚本只按当前仓库的 `origin` 地址判断，不扫描源码目录、不使用人工标记：源码仓库 `origin` 精确等于 `https://gitee.com/nghxni/lightesb.git` 时是“本机开发模式”；外发仓库 `origin` 精确等于 `https://github.com/nghxni/lightesb-camel.git` 时是“业务现场模式”；没有 Git、没有 `origin` 或地址不完全相同时也都是“业务现场模式”。
+脚本只按当前仓库的 `origin` 地址判断，不扫描源码目录、不使用人工标记：源码仓库 `origin` 精确等于 `https://gitee.com/nghxni/lightesb.git` 时是 `local`（本机源码）；外发仓库 `origin` 精确等于 `https://github.com/nghxni/lightesb-camel.git` 时是 `release`（官方发布仓库）；没有 Git、没有 `origin` 或地址不完全相同时才是 `field`（业务现场）。
 
-- 本机开发模式：`SKILL.md`、`references/baseline-experience.md` 和 `references/project-experience-template.md` 由源码交付上下文统一维护；外发仓库只读使用并保持与源码一致。
-- 业务现场模式：把 `references/baseline-experience.md` 作为可升级、只读的发布基线；后续新增或修订经验只写根目录 `project-experience/lightesb-project-troubleshooting.md`。
+- `local`/`release` 模式：`SKILL.md`、`references/baseline-experience.md` 和 `references/project-experience-template.md` 由源码交付上下文统一维护；发布仓库只读使用并保持与源码一致。
+- `field` 模式：把 `references/baseline-experience.md` 作为可升级、只读的发布基线；后续新增或修订经验只写根目录 `project-experience/lightesb-project-troubleshooting.md`。
 
 现场仓库可以没有 Git、没有 `origin`、指向其他仓库，或保留过期 Git 历史。脚本只输出 `mode` 和 `origin_match`，不会输出可能含凭据的其他远端地址。分支是否最新不参与模式判断，只在本机同步前另行检查。
 
@@ -26,7 +26,7 @@ skills/lightesb-project-troubleshooting/scripts/detect-maintenance-mode.sh .
 
 - 发布基线属于版本包，可在升级时覆盖；基线内容实质变化时递增其中的“发布基线版本”。
 - 项目经验属于当前交付项目，位于受管 `skills/` 目录之外，不进入发布 MANIFEST，升级不得删除、覆盖或隐式创建。
-- 项目经验不存在时先按“无项目经验”继续排查。只有准备写入第一条验证经验时，才在业务现场模式运行 `scripts/init-project-experience.sh`；本机开发模式不得初始化或修改。
+- 项目经验不存在时先按“无项目经验”继续排查。只有准备写入第一条验证经验时，才在 `field` 模式运行 `scripts/init-project-experience.sh`；`local`/`release` 模式不得初始化或修改。
 - 项目经验的“已审核发布基线版本”与当前基线不一致时，先检查冲突和过期规则。正式文档、新发布基线和安全边界优先；旧项目经验不能覆盖它们。
 
 ## 开始排查
@@ -36,7 +36,7 @@ skills/lightesb-project-troubleshooting/scripts/detect-maintenance-mode.sh .
 3. 读取 `references/baseline-experience.md`；业务现场模式且项目经验文件存在时，再读取根目录项目经验。只采用状态为“有效”、适用条件匹配且已按当前基线审核的记录。
 4. 用一句话定义期望结果，区分事实、推断、未知项和暂不处理事项。
 
-需要从源码仓库普通同步文件时，仅允许在本机开发模式执行。先运行 `git status --short --branch` 检查当前分支、精确 `origin`、upstream 和已有改动，再执行 `git fetch --prune` 与 `git pull --ff-only`，确认最新基线后增量同步。业务现场只能使用发布方明确提供的升级流程更新发布基线；升级前后都要证明根目录项目经验内容不变。
+需要从源码仓库普通同步文件时，仅允许在源码 `local` 模式执行，并将内容发布到精确 GitHub `release` 仓库。先运行 `git status --short --branch` 检查当前分支、精确 `origin`、upstream 和已有改动，再执行 `git fetch --prune` 与 `git pull --ff-only`，确认最新基线后增量同步。`field` 现场只能使用发布方明确提供的升级流程更新发布基线；升级前后都要证明根目录项目经验内容不变。
 
 ## 收集最小证据
 
