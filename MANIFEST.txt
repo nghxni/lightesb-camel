@@ -234,6 +234,10 @@ website/src/pages/capabilities.astro
 website/src/pages/docs.astro
 website/src/pages/examples.astro
 website/src/pages/index.astro
+website/src/pages/pricing.astro
+website/src/pages/privacy.astro
+website/src/pages/refund.astro
 website/src/pages/robotics.astro
+website/src/pages/terms.astro
 website/src/styles/global.css
 website/scripts/check-seo.mjs

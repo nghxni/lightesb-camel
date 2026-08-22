@@ -1,0 +1,92 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  current="/privacy"
+  title="Privacy Policy | LightESB-Camel"
+  description="Privacy Policy for LightESB-Camel: what data Tuoling collects for customized software delivery, how Paddle payments and private downloads are handled, and how to request deletion."
+>
+  <article class="article-page">
+    <div class="container article-layout">
+      <p class="eyebrow" data-i18n="privacy.eyebrow">Legal</p>
+      <h1 data-i18n="privacy.title">Privacy Policy</h1>
+      <p class="lead" data-i18n="privacy.lead">
+        This Policy explains what personal data Tuoling ("we", "us") collects when you use this website or purchase LightESB-Camel, and how that data is used. Payments are processed by Paddle, our payment processor and Merchant of Record.
+      </p>
+
+      <section>
+        <h2 data-i18n="privacy.s1.title">1. Data we collect</h2>
+        <p data-i18n="privacy.s1.p1">
+          When you contact us or place an order, we collect your email address, company name, contact person name, and phone number. For payment and delivery records, we also keep the Paddle transaction identifiers, payment status, order amount and currency, customer and license identifiers, package version and hash, support period, correspondence, and delivery timestamps. We do not receive your card number or payment credentials.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="privacy.s2.title">2. How we use your data</h2>
+        <p data-i18n="privacy.s2.p1">
+          We use this data to respond to inquiries, confirm and process orders, register and build your customized package, verify licenses, deliver private download links, provide updates and support, handle refunds or disputes, prevent duplicate or unauthorized delivery, and meet legal, accounting, and tax obligations.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="privacy.s3.title">3. Payment data</h2>
+        <p data-i18n="privacy.s3.p1">
+          Payments are processed by Paddle, our payment processor and Merchant of Record. Your card number and payment credentials are entered on Paddle's checkout and handled by Paddle; we never see or store them. Paddle processes your data under its own privacy policy, available at paddle.com.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="privacy.s4.title">4. Cookies and analytics</h2>
+        <p data-i18n="privacy.s4.p1">
+          This website does not use tracking cookies or analytics services. The only browser storage used is a localStorage entry that remembers your language preference; it stays in your browser and is never sent to us. The website is hosted on Cloudflare Pages, which may process standard server logs under Cloudflare's own policies.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="privacy.s5.title">5. Data retention and sharing</h2>
+        <p data-i18n="privacy.s5.p1">
+          Order and customer registration records are retained only as long as needed for license verification, support, refunds or disputes, security, and legal, accounting, or tax obligations, then deleted or anonymized where appropriate. We do not sell your data. We use Paddle for payments, Cloudflare for website hosting, Google Cloud Storage for private package delivery, and our email provider for correspondence and delivery notices. These providers process data under their own policies and may process it across regions.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="privacy.s6.title">6. Your rights</h2>
+        <p data-i18n="privacy.s6.p1">
+          You may request access to, correction of, or deletion of your personal data at any time by emailing us. Note that deleting registration data may limit our ability to verify your license and provide updates or support.
+        </p>
+      </section>
+
+      <section>
+        <h2 data-i18n="privacy.s7.title">7. Contact</h2>
+        <p>
+          <span data-i18n="privacy.s7.p1">For any privacy question or request, contact us at </span><a href="mailto:nghxni@gmail.com">nghxni@gmail.com</a><span>.</span>
+        </p>
+      </section>
+    </div>
+  </article>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "privacy.eyebrow": "法律条款",
+        "privacy.title": "隐私政策",
+        "privacy.lead": "本政策说明当你使用本网站或购买 LightESB-Camel 时，驼铃（Tuoling，下称「我们」）收集哪些个人数据以及如何使用。付款由我们的支付处理方和记录商户 Paddle 处理。",
+        "privacy.s1.title": "1. 我们收集的数据",
+        "privacy.s1.p1": "当你联系我们或下单时，我们收集你的邮箱地址、公司名、联系人姓名和联系电话。为保存付款与交付记录，我们还会记录 Paddle 交易号、付款状态、金额与币种、客户与授权编号、软件包版本与哈希、支持期限、往来邮件和交付时间。我们不会取得你的银行卡号或支付凭据。",
+        "privacy.s2.title": "2. 数据如何使用",
+        "privacy.s2.p1": "我们使用这些数据回复咨询、确认和处理订单、登记并构建定制包、验证授权、交付私密下载地址、提供更新与支持、处理退款或争议、防止重复或未授权交付，以及履行法律、会计和税务义务。",
+        "privacy.s3.title": "3. 支付数据",
+        "privacy.s3.p1": "付款由我们的支付处理方和记录商户 Paddle 处理。你的卡号和支付凭据在 Paddle 收银台输入并由 Paddle 处理；我们从不接触或存储它们。Paddle 依据其自身隐私政策处理你的数据，详见 paddle.com。",
+        "privacy.s4.title": "4. Cookie 与分析",
+        "privacy.s4.p1": "本网站不使用跟踪 Cookie 或分析服务。浏览器端唯一使用的存储是一条记住你语言偏好的 localStorage 记录；它只留在你的浏览器中，从不发送给我们。网站托管于 Cloudflare Pages，Cloudflare 可能依据其自身政策处理标准服务器日志。",
+        "privacy.s5.title": "5. 数据保存与共享",
+        "privacy.s5.p1": "订单和客户登记记录只在授权验证、支持、退款或争议、安全以及法律、会计或税务义务所需期间保留，之后在适当情况下删除或匿名化。我们不出售你的数据。我们使用 Paddle 处理付款、Cloudflare 托管网站、Google Cloud Storage 私密交付软件包，并使用邮件服务商处理往来与交付通知；这些服务商依据各自政策处理数据，并可能跨地区处理。",
+        "privacy.s6.title": "6. 你的权利",
+        "privacy.s6.p1": "你可以随时通过邮件请求访问、更正或删除你的个人数据。请注意，删除登记数据可能限制我们验证你的授权以及提供更新和支持的能力。",
+        "privacy.s7.title": "7. 联系方式",
+        "privacy.s7.p1": "如有任何隐私问题或请求，请联系 "
+      }
+    };
+  </script>
+</BaseLayout>

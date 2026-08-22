@@ -1,0 +1,193 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SectionHead from "../components/SectionHead.astro";
+
+const contact = "nghxni@gmail.com";
+const trialMail = `mailto:${contact}?subject=${encodeURIComponent("LightESB trial request")}`;
+const buyMail = `mailto:${contact}?subject=${encodeURIComponent("LightESB Pro purchase")}`;
+const enterpriseMail = `mailto:${contact}?subject=${encodeURIComponent("LightESB Enterprise inquiry")}`;
+---
+
+<BaseLayout
+  current="/pricing"
+  title="LightESB-Camel Pricing and Licensing"
+  description="LightESB-Camel pricing: 60-day free trial, Pro one-time license paid through Paddle with 12 months of updates and email support, and custom Enterprise delivery."
+>
+  <section>
+    <div class="container">
+      <SectionHead
+        as="h1"
+        eyebrow="Pricing"
+        title="One tool, one license, no subscription"
+        text="LightESB-Camel is an AI-assisted integration development tool delivered as a customized software package. Prices are in USD. Pro is a one-time payment — not a subscription, no auto-renewal."
+        eyebrowKey="pricing.eyebrow"
+        titleKey="pricing.title"
+        textKey="pricing.text"
+      />
+      <div class="grid three">
+        <article class="card plan">
+          <h3 data-i18n="pricing.trial.name">Free Trial</h3>
+          <p class="plan-price">$0</p>
+          <p class="plan-term" data-i18n="pricing.trial.term">60-day evaluation</p>
+          <ul class="list">
+            <li data-i18n="pricing.trial.1">Full-featured delivery package with a generic trial watermark</li>
+            <li data-i18n="pricing.trial.2">Expires automatically 60 days after the build date</li>
+            <li data-i18n="pricing.trial.3">Documentation, examples, and CLI guides included</li>
+            <li data-i18n="pricing.trial.4">Upgrade to Pro anytime — you receive a new customized build</li>
+          </ul>
+          <div class="action-row">
+            <a class="button" href={trialMail} data-i18n="pricing.trial.cta">Request trial</a>
+          </div>
+        </article>
+        <article class="card plan featured-doc">
+          <h3 data-i18n="pricing.pro.name">Pro</h3>
+          <p class="plan-price"><span class="strike">$500</span> $375</p>
+          <p class="plan-term" data-i18n="pricing.pro.term">One-time payment · launch offer until Dec 31, 2026</p>
+          <ul class="list">
+            <li data-i18n="pricing.pro.1">Perpetual commercial license for one organization</li>
+            <li data-i18n="pricing.pro.2">Customized build registered with your company name, contact person, and phone</li>
+            <li data-i18n="pricing.pro.3">12 months of updates and email support from delivery</li>
+            <li data-i18n="pricing.pro.4">Private download link delivered within 1-3 business days after completed payment and receipt of required information</li>
+            <li data-i18n="pricing.pro.5">No auto-renewal — the license does not expire</li>
+          </ul>
+          <div class="action-row">
+            <a class="button primary" href={buyMail} data-i18n="pricing.pro.cta">Contact to buy</a>
+          </div>
+        </article>
+        <article class="card plan">
+          <h3 data-i18n="pricing.enterprise.name">Enterprise</h3>
+          <p class="plan-price" data-i18n="pricing.enterprise.price">Custom</p>
+          <p class="plan-term" data-i18n="pricing.enterprise.term">Quoted per project</p>
+          <ul class="list">
+            <li data-i18n="pricing.enterprise.1">Multi-site or custom deployment support</li>
+            <li data-i18n="pricing.enterprise.2">Custom protocol and system adaptation</li>
+            <li data-i18n="pricing.enterprise.3">Remote delivery assistance and training</li>
+            <li data-i18n="pricing.enterprise.4">Terms set by individual contract</li>
+          </ul>
+          <div class="action-row">
+            <a class="button" href={enterpriseMail} data-i18n="pricing.enterprise.cta">Contact us</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="container">
+      <SectionHead
+        eyebrow="How delivery works"
+        title="Payment, packaging, download"
+        text="Every paid package is built per customer. The flow is deliberately simple and manual for now."
+        eyebrowKey="pricing.flow.eyebrow"
+        titleKey="pricing.flow.title"
+        textKey="pricing.flow.text"
+      />
+      <div class="grid two">
+        <article class="card">
+          <h3 data-i18n="pricing.flow.steps.title">What happens after you pay</h3>
+          <ul class="list">
+            <li data-i18n="pricing.flow.steps.1">You email your company name, contact person, phone number, and billing email.</li>
+            <li data-i18n="pricing.flow.steps.2">After confirming the order details, we send a Paddle Checkout link in USD.</li>
+            <li data-i18n="pricing.flow.steps.3">Once Paddle confirms the transaction as completed, we build and verify your customized package.</li>
+            <li data-i18n="pricing.flow.steps.4">You receive a private download link within 1-3 business days after completed payment and receipt of all required information.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3 data-i18n="pricing.flow.notes.title">Good to know</h3>
+          <ul class="list">
+            <li data-i18n="pricing.flow.notes.1">All prices are in USD. Pro is a one-time payment with no auto-renewal.</li>
+            <li data-i18n="pricing.flow.notes.2">Full refund available any time before the download link is delivered — see the Refund Policy for post-delivery requests and Paddle support.</li>
+            <li data-i18n="pricing.flow.notes.3">Purchases begin by email so we can confirm billing and build information before sending a Paddle Checkout link.</li>
+          </ul>
+          <div class="action-row">
+            <a class="button" href="/terms" data-i18n="pricing.links.terms">Terms &amp; Conditions</a>
+            <a class="button" href="/privacy" data-i18n="pricing.links.privacy">Privacy Policy</a>
+            <a class="button" href="/refund" data-i18n="pricing.links.refund">Refund Policy</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .plan {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .plan .action-row {
+      margin-top: auto;
+      padding-top: 24px;
+    }
+
+    .plan-price {
+      margin: 6px 0 2px;
+      color: var(--text);
+      font-size: 40px;
+      font-weight: 760;
+      line-height: 1.1;
+    }
+
+    .plan-price .strike {
+      margin-right: 10px;
+      color: var(--muted);
+      font-size: 22px;
+      font-weight: 600;
+      text-decoration: line-through;
+    }
+
+    .plan-term {
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+  </style>
+
+  <script is:inline>
+    window.pageTranslations = {
+      zh: {
+        "pricing.eyebrow": "定价",
+        "pricing.title": "一个工具，一次授权，没有订阅",
+        "pricing.text": "LightESB-Camel 是 AI 辅助的集成开发工具，以定制化软件包形式交付。价格以美元计。Pro 为一次性付清——不是订阅，不会自动续费。",
+        "pricing.trial.name": "免费试用",
+        "pricing.trial.term": "60 天评估期",
+        "pricing.trial.1": "完整功能交付包，内置通用试用指纹",
+        "pricing.trial.2": "自构建之日起 60 天后自动到期",
+        "pricing.trial.3": "含文档、样例和 CLI 指南",
+        "pricing.trial.4": "可随时升级 Pro——你将收到新的定制化构建",
+        "pricing.trial.cta": "申请试用",
+        "pricing.pro.name": "Pro",
+        "pricing.pro.term": "一次性付清 · 首发 7.5 折至 2026 年 12 月 31 日",
+        "pricing.pro.1": "单一组织的永久商业授权",
+        "pricing.pro.2": "按你的公司名、联系人、联系电话登记构建定制包",
+        "pricing.pro.3": "自交付之日起含 12 个月更新与邮件支持",
+        "pricing.pro.4": "付款完成且所需资料齐全后 1-3 个工作日内通过私密下载地址交付",
+        "pricing.pro.5": "不自动续费——授权永久有效",
+        "pricing.pro.cta": "邮件购买",
+        "pricing.enterprise.name": "企业定制",
+        "pricing.enterprise.price": "定制报价",
+        "pricing.enterprise.term": "按项目单独报价",
+        "pricing.enterprise.1": "多站点或定制部署支持",
+        "pricing.enterprise.2": "定制协议与系统适配",
+        "pricing.enterprise.3": "远程交付支持与培训",
+        "pricing.enterprise.4": "条款以单独合同为准",
+        "pricing.enterprise.cta": "联系我们",
+        "pricing.flow.eyebrow": "交付流程",
+        "pricing.flow.title": "付款、打包、下载",
+        "pricing.flow.text": "每个付费包都按客户单独构建。当前流程刻意保持简单和人工。",
+        "pricing.flow.steps.title": "付款之后发生什么",
+        "pricing.flow.steps.1": "你通过邮件提供公司名、联系人、联系电话和付款邮箱。",
+        "pricing.flow.steps.2": "确认订单信息后，我们发送美元计价的 Paddle Checkout 链接。",
+        "pricing.flow.steps.3": "Paddle 确认交易完成后，我们构建定制包并完成水印签名验签。",
+        "pricing.flow.steps.4": "付款完成且所需资料齐全后 1-3 个工作日内，你将通过邮件收到私密下载地址。",
+        "pricing.flow.notes.title": "须知",
+        "pricing.flow.notes.1": "所有价格以美元计。Pro 为一次性付清，不自动续费。",
+        "pricing.flow.notes.2": "下载地址交付前可随时全额退款；交付后申请和 Paddle 支持处理详见退款政策。",
+        "pricing.flow.notes.3": "购买从邮件确认开始；账单与构建信息确认后，我们再发送 Paddle Checkout 链接。",
+        "pricing.links.terms": "服务条款",
+        "pricing.links.privacy": "隐私政策",
+        "pricing.links.refund": "退款政策"
+      }
+    };
+  </script>
+</BaseLayout>
