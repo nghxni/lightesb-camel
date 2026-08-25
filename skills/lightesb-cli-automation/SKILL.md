@@ -38,9 +38,9 @@ description: Generate, review, or troubleshoot delivered LightESB CLI action/pro
 - `keyword list/query-instances` 只读；`keyword add/delete` 修改 JsonKeyword keyName 配置，必须加 `--yes`。
 - JSON 校验路由已有消息模型时，先用 `service list/get --output json` 解析服务关系：INPUT 取当前 `serviceInId`，OUTPUT 取当前 `serviceOutId`，CALLBACK 先用 `serviceCallbackId` 查询回调服务再取其 `serviceInId`。
 - 按方向执行 `message schema generate --id|--file --service-name --service-version --schema-file request-schema.json|response-schema.json|callback-schema.json --yes --output json`，只使用返回的 `schema` 和服务版本目录相对 `jsonSchemaPath`；`file` 仅表示实际写盘位置，不要手写或由模型补齐 Schema。
-- `warnings` 非空时停止自动 apply 并展示完整 warnings，只有用户明确确认后继续。用户明确授权远程写入时，才用 `ai route apply --save-remote --yes` 一次提交实际 route 文件名、两个 properties 和 route 引用的固定 Schema；普通本地直接编辑服务文件不以 CLI apply 为前置。
+- `warnings` 非空时停止自动 apply 并展示完整 warnings，只有用户明确确认后继续。用户明确授权远程写入时，才用 `ai route apply --save-remote --yes` 一次提交实际 route 文件名、两个 properties 和 route 引用的固定 Schema；引用包括 JSON Schema 校验块和 Action input/output schema route property。普通本地直接编辑服务文件不以 CLI apply 为前置。
 - `ai route apply --resource-file` 只写不含目录的文件名时，相对 `--file` 指定的 route XML 所在目录解析；绝对路径和包含目录的相对路径保持按原路径解析。JSON 资源只接受三个固定 Schema `.json`；删除校验块时不提交对应 Schema，服务端会删除受管文件。`FAILED`、`FAILED_ROLLED_BACK`、`ROLLBACK_FAILED` 都按失败处理，先读取 operationId 和恢复诊断，不自动重试。
-- 会话受管 route apply 使用成对 `--action-session-id --expected-scope-digest`，只允许远程保存、不允许日志选项。digest 取最新 session JSON；STALE/冲突/恢复失败停止，不回退普通 apply。sessionId 不是执行许可。
+- 会话受管 route apply 使用成对 `--action-session-id --expected-scope-digest`，只允许远程保存、不允许日志选项。会话 allowlist 与 apply resources 都要覆盖 route 实际引用的固定 Schema。digest 取最新 session JSON；STALE/冲突/恢复失败停止，不回退普通 apply。sessionId 不是执行许可。
 - `service import-plan` 只读远端状态；`service package build`、`service export/import/sync-remote` 和 `deploy upload` 必须加 `--yes`。
 - `deploy upload` 不接受 `--target-directory`；部署目标由服务端运行配置统一决定。
 - `route reload-file/unload --file-path` 必须指向服务端受管路由根内真实 XML 文件；

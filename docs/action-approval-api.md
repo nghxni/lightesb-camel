@@ -32,6 +32,7 @@ lightesb action approval session request \
   --allowed-file OrderSrv-route.xml \
   --allowed-file common.config.properties \
   --allowed-file service.config.properties \
+  --allowed-file response-schema.json \
   --input-policy-digest '<sha256>' \
   --side-effect-ceiling write \
   --ttl-seconds 900 \
@@ -58,12 +59,15 @@ lightesb ai route apply --file OrderSrv-route.xml \
   --route-file-name OrderSrv-route.xml \
   --resource-file common.config.properties \
   --resource-file service.config.properties \
+  --resource-file response-schema.json \
   --action-session-id '<sessionId>' \
   --expected-scope-digest '<currentScopeDigest>' \
   --yes --output json
 ```
 
 会话参数必须成对使用，只能远程保存，不能组合 `--return-logs` 或 `--log-lines`。普通 `ai route apply` 仍可使用，但不会获得会话 digest lineage。
+
+route 通过 JSON Schema 校验块或 `lightesb.action.input.schema`、`lightesb.action.output.schema` 引用的固定 Schema 属于受管文件闭包，必须同时出现在会话 `--allowed-file` 和 apply `--resource-file` 中。
 
 5. 任务结束后完成或撤销：
 

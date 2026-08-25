@@ -105,6 +105,106 @@ lightesb profile add --name action-exec  --server http://localhost:8080 --token 
 
 后续命令用 `--profile <name>` 指定身份。
 
+### 3.5 注册服务管理关系
+
+运行目录热加载和 Action Catalog 不会代替服务管理注册。G7 的会话受管 route apply 还会校验 provider、输入/输出消息和目标服务关系，因此在首次测试时创建以下记录；重复测试前先用 `service list/get` 查询并复用已有记录，不要重复创建同名数据。
+
+先准备接入系统和两个非空消息模型：
+
+```bash
+mkdir -p build
+
+cat > build/demo-security-app.json <<'JSON'
+{
+  "clientId": "DemoSecurityTest",
+  "appName": "Demo Security Action Test",
+  "vendor": "LightESB"
+}
+JSON
+
+cat > build/demo-security-request-message.json <<'JSON'
+{
+  "msgName": "DemoSecurityRequest",
+  "msgType": "REQUEST",
+  "msgStandard": "JSON",
+  "msgVersion": "V1.0",
+  "msgStructureJson": "{\"orderId\":\"ORD0000000001\"}",
+  "msgStructure": [{
+    "nodeName": "orderId",
+    "nodeDesc": "Order identifier",
+    "nodeType": "STRING",
+    "nodeLength": "64",
+    "ifRequired": "1",
+    "nodeList": []
+  }]
+}
+JSON
+
+cat > build/demo-security-response-message.json <<'JSON'
+{
+  "msgName": "DemoSecurityResponse",
+  "msgType": "RESPONSE",
+  "msgStandard": "JSON",
+  "msgVersion": "V1.0",
+  "msgStructureJson": "{\"code\":\"OK\",\"message\":\"validated\"}",
+  "msgStructure": [
+    {
+      "nodeName": "code",
+      "nodeDesc": "Result code",
+      "nodeType": "STRING",
+      "nodeLength": "32",
+      "ifRequired": "1",
+      "nodeList": []
+    },
+    {
+      "nodeName": "message",
+      "nodeDesc": "Result message",
+      "nodeType": "STRING",
+      "nodeLength": "128",
+      "ifRequired": "1",
+      "nodeList": []
+    }
+  ]
+}
+JSON
+
+lightesb app create --file build/demo-security-app.json --yes --output json
+lightesb message create --file build/demo-security-request-message.json --yes --output json
+lightesb message create --file build/demo-security-response-message.json --yes --output json
+```
+
+记录三个命令返回的 app ID、请求消息 ID 和响应消息 ID。把消息 ID 填入服务定义后创建服务：
+
+```bash
+REQUEST_MESSAGE_ID='<请求消息创建返回的 ID>'
+RESPONSE_MESSAGE_ID='<响应消息创建返回的 ID>'
+
+cat > build/demo-security-service.json <<JSON
+{
+  "serviceCnname": "Demo Security Action Test Service",
+  "serviceName": "DemoSecuritySrv",
+  "serviceVersion": "v1.0.0",
+  "serviceImpl": "REST",
+  "serviceStatus": "STOPPED",
+  "serviceTypes": [],
+  "serviceTags": [],
+  "serviceDescription": "Local Action approval managed route apply test service",
+  "servicePermissions": "TEST",
+  "serviceCall": "SYNC",
+  "serviceProvider": "DemoSecurityTest",
+  "serviceInId": "$REQUEST_MESSAGE_ID",
+  "serviceOutId": "$RESPONSE_MESSAGE_ID",
+  "serviceDeploymentStatus": "DEPLOYED"
+}
+JSON
+
+lightesb service create --file build/demo-security-service.json --yes --output json
+lightesb service list --service-name DemoSecuritySrv --output json
+lightesb service get --id '<服务创建返回的 ID>' --output json
+```
+
+预期：服务版本为 `v1.0.0`，provider 为 `DemoSecurityTest`，`serviceInId`/`serviceOutId` 分别指向刚创建的消息。记录服务 ID，恢复环境时先删除服务，再删除消息和接入系统。`msgStructure` 不能为空；空数组会被服务端以“消息结构不能为空”拒绝。
+
 ## 4. 阶段 A：离线目录命令（不依赖服务端）
 
 目录和 CLI/API 使用 `v1.0.0`；服务配置属性使用 `service.version=1.0.0`。当前交付目录含根级共享资源目录 `TransformDS`，app-root 命令必须显式排除它。
@@ -152,7 +252,7 @@ lightesb profile add --name action-exec  --server http://localhost:8080 --token 
 | D3 | 越界 scope：`lightesb --profile action-exec action token issue --action demo-security-check@v9.9.9 --yes` | 422 `ACTION_TOKEN_SCOPE_INELIGIBLE`（不在目录与 allowlist 交集） |
 | D4 | 运行 token 调控制面：`curl -s -H "Authorization: Bearer $LAT_TOKEN" http://localhost:8080/api/actions/audit-events` | 401/403，运行 token 与控制面隔离 |
 | D5 | 撤销：`lightesb --profile action-exec action token revoke --token-id <tokenId> --yes`，再 introspect | 200；status=REVOKED、含 revokedAt；重复 revoke 幂等 |
-| D6 | 撤销后执行 E/F 阶段的 dry-run/execute | 401（token 已失效）。随后按 D1 重新签发一个 token 供后续阶段使用 |
+| D6 | 撤销后分别调用 E 阶段的 dry-run 和 F 阶段的 execute | dry-run 返回 HTTP 200、`data.allowed=false`、`data.reason=TOKEN_REVOKED`；execute 返回 HTTP 401、错误码 `ACTION_AUTHORIZATION_TOKEN_REVOKED`。两者均不执行 Action。随后按 D1 重新签发一个 token 供后续阶段使用 |
 
 ## 8. 阶段 E/F：授权 Dry-run 与安全执行
 
@@ -191,6 +291,7 @@ lightesb --profile action-exec action approval session request \
   --allowed-file demo-security-route.xml \
   --allowed-file common.config.properties \
   --allowed-file service.config.properties \
+  --allowed-file response-schema.json \
   --input-policy-digest "$POLICY_DIGEST" \
   --side-effect-ceiling read \
   --ttl-seconds 900 --max-transitions 5 --max-executions 10 \
@@ -242,12 +343,15 @@ lightesb --profile action-exec ai route apply \
   --route-file-name demo-security-route.xml \
   --resource-file common.config.properties \
   --resource-file service.config.properties \
+  --resource-file response-schema.json \
   --action-session-id "$SESSION_ID" \
   --expected-scope-digest '<currentScopeDigest>' \
   --yes --output json
 ```
 
 预期：apply 成功，transition 被记录；再次 `session get` 可见 scope digest 已更新、transition 计数 +1。验证路由仍正常：重复 3.3 节 HTTP 直连 curl，仍返回 validated。
+
+`demo-security-route.xml` 通过 `lightesb.action.output.schema=response-schema.json` 声明输出契约，所以 `response-schema.json` 必须同时出现在 G1 allowlist 和 G7 resources 中。`--resource-file response-schema.json` 只写文件名时，会相对 `--file` 指定的 route XML 所在目录解析，无需重复完整服务目录。
 
 | 编号 | 步骤 | 预期 |
 | --- | --- | --- |
@@ -273,6 +377,12 @@ curl -s -H 'Authorization: Bearer <LT_ADMIN>' \
 ## 11. 恢复环境
 
 ```bash
+# 只删除本轮 3.5 新建的服务管理记录；仍被其他测试复用时不要删除
+lightesb service delete --id '<服务 ID>' --yes
+lightesb message delete --id '<请求消息 ID>' --yes
+lightesb message delete --id '<响应消息 ID>' --yes
+lightesb app delete --id '<接入系统 ID>' --yes
+
 # 停止 LightESB
 pkill -f 'lightesb-camel-1.0.0.jar'
 # 还原配置
