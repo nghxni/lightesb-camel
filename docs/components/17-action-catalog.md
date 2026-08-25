@@ -10,6 +10,8 @@ java -jar lightesb-cli.jar action validate \
   --service-dir lightesb-camel-app/{serviceName}/{serviceVersion}
 ```
 
+版本目录和 CLI/API 参数使用 `vX.Y.Z`，例如 `v1.0.0`；`service.config.properties` 中的 `service.version` 使用不带 `v` 的 `X.Y.Z`，例如 `service.version=1.0.0`。生成的 Action descriptor 仍使用目录版本 `vX.Y.Z`。
+
 3. 对严格两层 app 根目录生成确定性索引；输出必须位于任一服务版本目录之外：
 
 ```bash
@@ -49,7 +51,7 @@ lightesb.action-security.credentials[0].token-sha256=${LIGHTESB_ACTION_CREDENTIA
 
 原 token 只保存在调用方 secret store，并通过 `Authorization: Bearer <token>` 发送。name/digest 必须唯一；同 caller 的旧、新轮换 credential 只能使用完全相同的 role 集。显式开启但 credential 为空时所有 Action 路径都返回 401；配置格式、重复或角色映射冲突时应用启动失败。`catalog-read`、`action-admin`、`action-execute` 不做隐式继承。
 
-未声明 `actions.ids` 的服务在 app-root 批量模式中跳过；显式校验该服务时会按缺少声明失败。工具不会推断 action、schema、副作用、暴露范围或凭据。
+未声明 `actions.ids` 的服务在 app-root 批量模式中跳过；显式校验该服务时返回退出码 `65` 和稳定 `ACTION_DECLARATION_VERSION_INVALID`。工具不会推断 action、schema、副作用、暴露范围或凭据。
 
 ## 在线只读查询
 

@@ -35,7 +35,7 @@ lightesb.route.temp-only-service=PlatformHttp,RobotMqttTelemetrySrv
 
 ```properties
 service.name=DemoHttpSrv
-service.version=v1.0.0
+service.version=1.0.0
 ```
 
 ## 路由模板

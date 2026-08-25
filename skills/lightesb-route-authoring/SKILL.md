@@ -20,7 +20,7 @@ description: 交付包内编写 HTTP 接口、Camel XML 路由、服务目录、
 规则：
 
 - 用户要求实际服务时，直接修改 `lightesb-camel-app/{serviceName}/{serviceVersion}`；演示、模板或 POC 才修改 `example/routes/**`。不在正式服务目录新增索引或说明文件。
-- 新建服务最小集 = 路由 XML + `common.config.properties` + `service.config.properties`；`log4j2.properties` 运行时自动生成，不要手工创建；Schema、samples 等只在路由实际使用时才添加。
+- 新建服务最小集 = 路由 XML + `common.config.properties` + `service.config.properties`；版本目录使用 `vX.Y.Z`，`service.config.properties` 中的 `service.version` 使用不带 `v` 的 `X.Y.Z`；`log4j2.properties` 运行时自动生成，不要手工创建；Schema、samples 等只在路由实际使用时才添加。
 - `<simple>` 体内不混用 `{{占位符}}` 与字面 `}}`（报 `Missing {{ from the text`）；占位符先经 `<constant>` 存入 exchangeProperty 再引用。simple 不支持 `? :` 三元表达式，条件取值用 `<choice>` + `<constant>`。
 - HTTP 入站用 `<from uri="undertow:http://0.0.0.0:{{server.port}}/..."/>`。
 - 入口放 `requestCharsetProcessor`，出口放 `jsonResponseProcessor`。

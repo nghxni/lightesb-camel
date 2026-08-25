@@ -28,7 +28,7 @@ industrial.log.max.body.length=1000
 
 ```properties
 service.name=AvevaOpcUaSrv
-service.version=v1.0.0
+service.version=1.0.0
 service.type=SCADA
 service.impl=OPCUA
 
@@ -65,7 +65,7 @@ industrial.opcua.security=PLACEHOLDER_CONFIGURE_IN_SITE
 
 ```properties
 service.name=AvevaMqttSrv
-service.version=v1.0.0
+service.version=1.0.0
 service.type=SCADA
 service.impl=MQTT5
 

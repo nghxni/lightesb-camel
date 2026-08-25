@@ -25,6 +25,7 @@
 | `components/15-aveva-plant-scada-opcua-mqtt.md` | `docs/27-aveva-plant-scada-opcua-mqtt-usage.md`，按交付场景重写 |
 | `components/16-route-static-preflight.md` | 交付包路由文件闭包、组件配置、占位符和资源自检要求，结合现有组件文档和样例整理 |
 | `components/17-action-catalog.md` | 服务 Action 目录架构、只读查询 API 与 CLI 契约，按交付配置、离线/在线命令、样例和验证步骤重写 |
+| `action-manual-testing.md` | 用户手工验收记录整理为交付包 Action 全链路手动测试指南；保留可复现步骤，收紧授权和恢复边界 |
 | `action-allowlist-api.md` | `docs/api/09-action-allowlist.md`、Action 目录架构和精确 allowlist 经验，按交付配置、权限、CLI、事务审计和安全边界重写 |
 | `action-token-api.md` | `docs/api/10-action-token.md`、Action 目录架构和不透明 token 经验，按交付启用、权限、API/CLI、一次回显、事务审计和非执行边界重写 |
 | `action-approval-api.md` | `docs/api/11-action-approval-session.md`、Action 目录架构和有界审批 lineage 经验，按交付启用、CLI、HMAC callback、受管 apply 和失败处理重写 |
