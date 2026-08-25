@@ -106,6 +106,8 @@ lightesb action approval session complete --session-id '<sessionId>' --yes
 lightesb action approval session revoke --session-id '<sessionId>' --yes
 ```
 
+`STALE` 会话不能 complete、执行 Action 或受管 apply，但 owner `action-execute` 或 `action-admin` 可显式 revoke 为 `REVOKED` 以收口任务，重复 revoke 幂等。该撤销不会恢复批准能力；后续受管变更仍必须创建新会话重审。
+
 ## API
 
 | Method | Endpoint | 说明 |
@@ -152,7 +154,7 @@ POST
 
 - `PENDING/REJECTED/REVOKED/EXPIRED/EXHAUSTED/COMPLETED/STALE` 都不能执行受管 apply。
 - digest conflict 表示读取后发生并发变化，应重新 GET；不要覆盖提交。
-- `STALE` 或 reapproval required 表示出现未归因目录变化，必须创建新会话重新审批。
+- `STALE` 或 reapproval required 表示出现未归因目录变化，必须创建新会话重新审批；原 `STALE` 会话只能显式 revoke 收口。
 - transition unavailable 表示 apply 没有改变任何受批 Action digest；修正候选，不消耗旧批准绕过。
 - rollback failed/unavailable 时停止自动重试，保留 sessionId、operationId 和脱敏错误证据供人工排障。
 

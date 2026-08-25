@@ -72,7 +72,7 @@ lightesb action approval session revoke --session-id <sessionId> --yes
 lightesb action approval session complete --session-id <sessionId> --yes
 ```
 
-request/revoke/complete 要求 `--yes`，get 只读。CLI 不接受 caller、approver、状态、source/scope digest override 或 callback secret，也不签 approve/reject。会话只表达任务范围，不执行 Action。
+request/revoke/complete 要求 `--yes`，get 只读。CLI 不接受 caller、approver、状态、source/scope digest override 或 callback secret，也不签 approve/reject。会话只表达任务范围，不执行 Action。`STALE` 会话不能 complete/apply/执行，只能创建新会话重审或对原会话执行 revoke 收口。
 
 `--action` 可重复。issue 原 token 只显示一次；introspect/revoke 不输出 token/hash/digest。命令不接受 `--caller`、`--credential-name` 或 raw token。
 
