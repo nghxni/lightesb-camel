@@ -29,3 +29,4 @@ lightesb-camel-app/
 backups
 /Articles
 /blog-external
+build/
