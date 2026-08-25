@@ -21,7 +21,7 @@ description: Generate, review, or troubleshoot delivered LightESB CLI action/pro
 
 规则：
 
-- CLI 的远程命令是控制面客户端；`action validate/build` 是不使用服务端和 profile 的离线命令，`action status/list/search/get` 使用 profile bearer 查询受保护的在线快照。受控本地写还包括 `action build` 把派生索引原子写到所有服务版本目录之外；它与 `message schema generate`、显式 `ai route generate/optimize/apply --save-local` 一样必须加 `--yes`，不会自行部署或重载服务。
+- CLI 的远程命令是控制面客户端；`action validate/build` 是不使用服务端和 profile 的离线命令，`action status/list/search/get` 使用 profile bearer 查询受保护的在线快照。受控本地写还包括 `action build` 把派生索引写到服务版本目录之外，以及 `ai route prepare` 把服务端 content 持久化基线写入新候选目录；这些本地写必须加 `--yes`，不会自行部署或重载服务。
 - `action validate --service-dir|--app-root` 输出 canonical JSON；`action build` 额外使用 `--out`。`--app-root` 模式保持严格两层契约，根级共享资源目录（如 `TransformDS`）用 `--exclude-root <目录名>`（可重复或逗号分隔）显式排除。目录契约失败按退出码 `65` 和稳定 `ACTION_*` 错误码处理，不回退到其他解析器。
 - Action 在线查询要求服务端双开关和 `catalog-read`；list/search 第二页起回传第一页 revision，revision 冲突时从第一页重试。查询命令不发送 caller，不执行 Action。
 - `action allowlist list/add/enable/disable` 要求服务端四开关和 `action-admin`。add 只使用 `--credential-name --action-id --service-version --yes`，enable/disable 使用 `--policy-id --yes`；不生成 caller、wildcard、block、delete 或数据库直连。
@@ -40,7 +40,8 @@ description: Generate, review, or troubleshoot delivered LightESB CLI action/pro
 - 按方向执行 `message schema generate --id|--file --service-name --service-version --schema-file request-schema.json|response-schema.json|callback-schema.json --yes --output json`，只使用返回的 `schema` 和服务版本目录相对 `jsonSchemaPath`；`file` 仅表示实际写盘位置，不要手写或由模型补齐 Schema。
 - `warnings` 非空时停止自动 apply 并展示完整 warnings，只有用户明确确认后继续。用户明确授权远程写入时，才用 `ai route apply --save-remote --yes` 一次提交实际 route 文件名、两个 properties 和 route 引用的固定 Schema；引用包括 JSON Schema 校验块和 Action input/output schema route property。普通本地直接编辑服务文件不以 CLI apply 为前置。
 - `ai route apply --resource-file` 只写不含目录的文件名时，相对 `--file` 指定的 route XML 所在目录解析；绝对路径和包含目录的相对路径保持按原路径解析。JSON 资源只接受三个固定 Schema `.json`；删除校验块时不提交对应 Schema，服务端会删除受管文件。`FAILED`、`FAILED_ROLLED_BACK`、`ROLLBACK_FAILED` 都按失败处理，先读取 operationId 和恢复诊断，不自动重试。
-- 会话受管 route apply 使用成对 `--action-session-id --expected-scope-digest`，只允许远程保存、不允许日志选项。会话 allowlist 与 apply resources 都要覆盖 route 实际引用的固定 Schema。digest 取最新 session JSON；STALE/冲突/恢复失败停止，不回退普通 apply。sessionId 不是执行许可。
+- 需要受管 lineage 时，先用 `ai route prepare --out <new-candidate-dir> --yes` 在默认热加载根外创建候选，只编辑候选，再用 `ai route validate` 只读校验。prepare 只 GET content；它要求真实已存在父目录和不存在的目标，拒绝 symlink 与已知默认 app root，但不证明服务注册/运行态/Catalog，也无法自动发现自定义或远程 Watcher 根。validate 不要求 `--yes`、不写盘/热加载/建立 lineage；裸资源名相对 route 所在目录解析。
+- 会话受管 route apply 使用成对 `--action-session-id --expected-scope-digest`，只允许远程保存、不允许日志选项。会话 allowlist 与 apply resources 都要覆盖 validate 证明的文件集和 route 实际引用的固定 Schema。digest 取最新 session JSON；STALE/冲突/恢复失败停止，不回退普通 apply。sessionId 不是执行许可；同一次变更不能先编辑 live 再用旧 session 追认。
 - `service import-plan` 只读远端状态；`service package build`、`service export/import/sync-remote` 和 `deploy upload` 必须加 `--yes`。
 - `deploy upload` 不接受 `--target-directory`；部署目标由服务端运行配置统一决定。
 - `route reload-file/unload --file-path` 必须指向服务端受管路由根内真实 XML 文件；
@@ -81,7 +82,9 @@ lightesb action token issue --action payment.lookup@v1 --ttl-seconds 300 --yes -
 lightesb action token introspect --token-id <tokenId> --output json
 lightesb action token revoke --token-id <tokenId> --yes --output json
 lightesb action approval session get --session-id <sessionId> --output json
-lightesb ai route apply --server http://localhost:8080 --file DemoSrv-route.xml --service-name DemoSrv --service-version v1.0.0 --route-file-name DemoSrv-route.xml --resource-file common.config.properties --resource-file service.config.properties --save-remote --action-session-id <sessionId> --expected-scope-digest <currentScopeDigest> --yes --output json
+lightesb ai route prepare --server http://localhost:8080 --service-name DemoSrv --service-version v1.0.0 --out build/DemoSrv-v1.0.0-candidate --yes --output json
+lightesb ai route validate --server http://localhost:8080 --file build/DemoSrv-v1.0.0-candidate/DemoSrv-route.xml --service-name DemoSrv --service-version v1.0.0 --route-file-name DemoSrv-route.xml --resource-file common.config.properties --resource-file service.config.properties --output json
+lightesb ai route apply --server http://localhost:8080 --file build/DemoSrv-v1.0.0-candidate/DemoSrv-route.xml --service-name DemoSrv --service-version v1.0.0 --route-file-name DemoSrv-route.xml --resource-file common.config.properties --resource-file service.config.properties --save-remote --action-session-id <sessionId> --expected-scope-digest <currentScopeDigest> --yes --output json
 lightesb profile add --name dev --server http://localhost:8080
 lightesb profile use dev
 lightesb doctor

@@ -29,7 +29,7 @@ description: 交付包内编写 HTTP 接口、Camel XML 路由、服务目录、
 - 内部 HTTP 调用后如果继续处理响应正文，按需 `<convertBodyTo type="java.lang.String"/>`；入口和子路由同名 path header 应先存到 Exchange Property 并 `removeHeader`，避免 Header 多值化。
 - 无 HTTP 入口的定时任务使用 `timer:`，配置 `HTTP.Listener=false`。默认仅检查 XML、配置和 route id；只有用户明确授权运行态验证时才查看周期日志。
 - 自然语言要求输入、输出或回调 JSON 校验时，不自行生成 Schema。按服务关系调用 `message schema generate`，检查 warnings，再把返回路径写入对应位置的完整校验块。
-- route XML 是校验唯一开关，不生成额外配置开关。普通本地编辑直接完成候选并自行修正明显静态问题；`ai route apply --save-remote --yes` 仅在用户明确授权远程写入后调用。apply 失败时保留候选并读取恢复诊断，不自动重试。
+- route XML 是校验唯一开关，不生成额外配置开关。普通本地开发直接编辑正式服务目录，自行修正明显静态问题，并在授权后单独验证 Watcher 热加载；这条流程不调用 apply。需要 Action 审批 lineage 时，用 `ai route prepare --out <new-candidate-dir> --yes` 从服务端 content 持久化基线新建非热加载候选，只编辑候选并用 `ai route validate` 做只读校验；`ai route apply --save-remote --yes` 仅在用户明确授权远程写入后调用。同一次变更只选一条流程；已批准会话期间的 live 变化仍会 `STALE`。apply 失败时保留候选并读取恢复诊断，不自动重试。
 - Action 的唯一事实源是服务目录中的 `service.config.properties`、唯一 route XML 和 metadata 引用的 schema；metadata 放在目标 `<route>` 内、唯一 `<from>` 之前。HTTP JSON 入口用 `entry`，经 processor 标准化的 MQTT/OPC UA envelope 用 `normalized` 并声明准确 processor ref。consumer/scheduled 不可 agent-callable，写入/破坏性 Action 必须显式声明幂等、重试和审批语义。
 - 修改 Action 后运行 `java -jar lightesb-cli.jar action validate --service-dir lightesb-camel-app/{serviceName}/{serviceVersion}`。批量索引使用 `action build --app-root lightesb-camel-app --out <服务目录外路径> --yes`；它是可删除重建的派生产物，不手工编辑、不放入正式服务目录。
 - 现场运行配置已显式开启 `lightesb.action-catalog.enabled=true` 时，受管 schema 修改/删除/补回依赖服务目录热加载，不因该文件变更重启 LightESB。等待监听完成后，检查 route 仍为 `RUNNING` 且日志出现新 Action `generation/revision`；同时开启 Action security 时，可用 `action status/list/get` 验证受保护的只读快照。失败时确认 quarantine，恢复 schema 后确认自愈到新 generation。只读查询不提供 Action 执行授权。

@@ -9,7 +9,6 @@ docs/action-approval-api.md
 docs/action-authorization-api.md
 docs/action-audit-api.md
 docs/action-execution-api.md
-docs/action-manual-testing.md
 docs/action-token-api.md
 docs/ai-route-cache-api.md
 docs/api-response-contract.md

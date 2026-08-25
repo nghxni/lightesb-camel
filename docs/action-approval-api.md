@@ -22,7 +22,37 @@ HMAC secret 至少 32 字符，只通过 secret manager 或环境变量注入。
 
 ## CLI 流程
 
-1. 使用 `action-execute` profile 请求会话：
+1. 分别验证服务管理注册、路由运行态和 Action Catalog。content/prepare 只读取服务端当前持久化服务目录，不代替这三项前置。
+
+2. 在默认热加载根之外准备新候选目录，只编辑候选：
+
+```bash
+mkdir -p build
+lightesb ai route prepare \
+  --service-name OrderSrv \
+  --service-version v1.0.0 \
+  --out build/OrderSrv-v1.0.0-candidate \
+  --yes --output json
+```
+
+`--out` 直接是候选版本目录，必须不存在。prepare 保留实际 route、两个 properties、route 实际引用的 `.ds` 和固定 Schema；自定义或远程 Watcher 根无法由 CLI 自动发现，候选路径须由调用方确认不被监听。
+
+3. 编辑完成后做只读校验：
+
+```bash
+lightesb ai route validate \
+  --file build/OrderSrv-v1.0.0-candidate/OrderSrv-route.xml \
+  --service-name OrderSrv \
+  --service-version v1.0.0 \
+  --route-file-name OrderSrv-route.xml \
+  --resource-file common.config.properties \
+  --resource-file service.config.properties,response-schema.json \
+  --output json
+```
+
+裸资源文件名相对 route 所在候选目录解析。validate 不写盘、不热加载、不建立 lineage；使用其 `savedFiles/deletedFiles` 确定会话的精确文件范围。
+
+4. 使用 `action-execute` profile 请求 fresh 会话：
 
 ```bash
 lightesb action approval session request \
@@ -41,18 +71,18 @@ lightesb action approval session request \
   --yes --output json
 ```
 
-2. 外部审批 provider 调用 callback 批准或拒绝。CLI 不提供本地 approve/reject，也不保存 HMAC secret。
+5. 外部审批 provider 调用 callback 批准或拒绝。CLI 不提供本地 approve/reject，也不保存 HMAC secret。
 
-3. 查询最新状态和 `currentScopeDigest`：
+6. 查询最新状态和 `currentScopeDigest`：
 
 ```bash
 lightesb action approval session get --session-id '<sessionId>' --output json
 ```
 
-4. 批准后，用同一会话受管应用 route：
+7. 批准后，用同一会话受管应用候选 route：
 
 ```bash
-lightesb ai route apply --file OrderSrv-route.xml \
+lightesb ai route apply --file build/OrderSrv-v1.0.0-candidate/OrderSrv-route.xml \
   --save-remote \
   --service-name OrderSrv \
   --service-version v1.0.0 \
@@ -65,11 +95,11 @@ lightesb ai route apply --file OrderSrv-route.xml \
   --yes --output json
 ```
 
-会话参数必须成对使用，只能远程保存，不能组合 `--return-logs` 或 `--log-lines`。普通 `ai route apply` 仍可使用，但不会获得会话 digest lineage。
+会话参数必须成对使用，只能远程保存，不能组合 `--return-logs` 或 `--log-lines`。本地直编是另一条完整流程：直接编辑 live 服务目录、等待 Watcher 并验证后即结束，不用普通 apply 或旧 session 追认。已批准会话期间的 live 文件变化仍会导致 `STALE`。
 
 route 通过 JSON Schema 校验块或 `lightesb.action.input.schema`、`lightesb.action.output.schema` 引用的固定 Schema 属于受管文件闭包，必须同时出现在会话 `--allowed-file` 和 apply `--resource-file` 中。
 
-5. 任务结束后完成或撤销：
+8. 任务结束后完成或撤销：
 
 ```bash
 lightesb action approval session complete --session-id '<sessionId>' --yes

@@ -23,7 +23,7 @@ description: 配置权限校验、Token/IP/CIDR/正则规则、Action 控制面�
 - 已有消息模型且需要 JSON 校验时，先查询服务关系。INPUT 使用当前 `serviceInId` 和 `request-schema.json`，OUTPUT 使用当前 `serviceOutId` 和 `response-schema.json`；CALLBACK 先用 `serviceCallbackId` 查询回调服务，再使用其 `serviceInId` 和 `callback-schema.json`。
 - 执行 `lightesb message schema generate --id <messageId>|--file <message.json> --service-name <serviceName> --service-version <vX.Y.Z> --schema-file <fixed-name.json> --yes --output json`。只使用返回的 `schema` 和服务版本目录相对 `jsonSchemaPath`，禁止模型自行生成或修补 Schema。
 - `warnings` 非空时停止自动 apply 并展示完整 warnings，只有用户明确确认后继续。
-- route XML 是校验和 Action Schema 契约的唯一事实；按方向加入或删除完整校验块或 Action input/output schema route property，不增加配置或数据库开关。普通本地编辑直接完成候选和静态自检；只有用户明确授权远程写入时，才用 `ai route apply --save-remote --yes` 一次提交 route、两个 properties 和 route 实际引用的固定 Schema，会话 allowlist 也必须覆盖这些文件。
+- route XML 是校验和 Action Schema 契约的唯一事实；按方向加入或删除完整校验块或 Action input/output schema route property，不增加配置或数据库开关。普通本地开发直接编辑正式服务目录并做静态/热加载验证，不调用 apply。需要审批 lineage 时，先用 `ai route prepare --out <new-candidate-dir> --yes` 创建非热加载候选，只编辑候选并用 `ai route validate` 只读校验；只有用户明确授权远程写入时，才用 `ai route apply --save-remote --yes` 一次提交 route、两个 properties 和 route 实际引用的固定 Schema，会话 allowlist 也必须覆盖 validate 证明的文件闭包。同一次变更不得先编辑 live 再用旧 session 追认；直接变化继续导致 `STALE`。
 - 权限失败建议局部捕获并返回 403。
 - 参数校验失败建议返回 400。
 - Token 默认按 Exchange 属性 `Token` 处理，不假设会自动读取 `Authorization`。

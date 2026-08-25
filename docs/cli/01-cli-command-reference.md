@@ -2,7 +2,7 @@
 
 ## 定位
 
-CLI 的远程命令调用 LightESB 控制面 API 和本地配置，不承载 Camel 运行时，不绕过服务端状态机。`action validate/build` 是纯离线命令，`action status/list/search/get` 是受 bearer 保护的在线只读命令；受控本地写还包括 `action build` 把派生索引写到服务目录外。所有写操作必须加 `--yes`、校验真实路径边界并原子替换目标文件。
+CLI 的远程命令调用 LightESB 控制面 API 和本地配置，不承载 Camel 运行时，不绕过服务端状态机。`action validate/build` 是纯离线命令，`action status/list/search/get` 是受 bearer 保护的在线只读命令；受控本地写还包括 `action build` 把派生索引写到服务目录外，以及 `ai route prepare` 把服务端 content 持久化基线的最小闭包写入新候选目录。本地写操作必须加 `--yes` 并校验真实路径边界；prepare 不覆盖已存在目标。
 
 ## 安装与入口
 
@@ -395,6 +395,8 @@ lightesb ai route generate --file ai-route.json
 lightesb ai route generate --file ai-route.json --save-remote --return-logs --log-lines 80 --yes
 lightesb ai route generate --file ai-route.json --save-local --app-dir lightesb-camel-app --service-name DemoAiSrv --service-version 1.0.0 --route-file-name DemoAiSrv-ai-route.xml --yes
 lightesb ai route read --service-name DemoAiSrv --service-version 1.0.0
+lightesb ai route prepare --service-name DemoAiSrv --service-version v1.0.0 --out build/DemoAiSrv-v1.0.0-candidate --yes --output json
+lightesb ai route validate --file build/DemoAiSrv-v1.0.0-candidate/DemoAiSrv-ai-route.xml --service-name DemoAiSrv --service-version v1.0.0 --route-file-name DemoAiSrv-ai-route.xml --resource-file common.config.properties --resource-file service.config.properties,input-transform.ds,request-schema.json --output json
 lightesb ai route cache status
 lightesb ai route cache clear --yes
 lightesb ai route cache clear --service-name DemoAiSrv --service-version v1.0.0 --yes
@@ -402,7 +404,7 @@ lightesb ai route optimize --file ai-route-chat.json
 lightesb ai route optimize --file ai-route-chat.json --save-remote --return-logs --log-lines 80 --yes
 lightesb ai route optimize --file ai-route-chat.json --save-local --app-dir lightesb-camel-app --service-name DemoAiSrv --service-version 1.0.0 --route-file-name DemoAiSrv-ai-route.xml --yes
 lightesb ai route apply --file DemoAiSrv-route.xml --save-remote --service-name DemoAiSrv --service-version v1.0.0 --route-file-name DemoAiSrv-route.xml --resource-file common.config.properties --resource-file service.config.properties --resource-file request-schema.json --return-logs --log-lines 80 --timeout 30 --yes --output json
-lightesb ai route apply --file DemoAiSrv-route.xml --save-remote --service-name DemoAiSrv --service-version v1.0.0 --route-file-name DemoAiSrv-route.xml --resource-file common.config.properties --resource-file service.config.properties --resource-file response-schema.json --action-session-id <sessionId> --expected-scope-digest <currentScopeDigest> --yes --output json
+lightesb ai route apply --file build/DemoAiSrv-v1.0.0-candidate/DemoAiSrv-route.xml --save-remote --service-name DemoAiSrv --service-version v1.0.0 --route-file-name DemoAiSrv-route.xml --resource-file common.config.properties --resource-file service.config.properties --resource-file response-schema.json --action-session-id <sessionId> --expected-scope-digest <currentScopeDigest> --yes --output json
 lightesb ai route apply --file route.xml --save-local --app-dir lightesb-camel-app --service-name DemoAiSrv --service-version 1.0.0 --route-file-name DemoAiSrv-ai-route.xml --resource-file input-transform.ds --resource-file output-transform.ds --yes
 lightesb ai diagnose
 lightesb ai diagnose --service-name DemoAiSrv --service-version 1.0.0 --output json
@@ -429,13 +431,15 @@ AI 边界：
 - 服务端默认不记录完整大模型输入输出；开发排障需要查看完整 prompt 和模型响应时，在服务端启用 `lightesb.ai.route.model.log-payload=true`，并把 `com.oureman.soa.lightesb.servicemanagement.AiRouteModelClient` 与 `com.oureman.soa.lightesb.config.ai.model.OpenAiResponsesChatModelFactory` 日志级别设为 DEBUG。该开关是服务端运行配置，不应写入 AI 路由生成的服务配置文件。
 - 服务管理前端调用同一生成接口时，如果浏览器、代理或网关先超时但后端随后完成生成，可通过 `/service-management/v1/ai/route/generate/latest` 补取最近候选结果；CLI 生成命令仍以 `/generate` 同步响应为准。
 - `ai route optimize` 默认只返回候选微调结果，不写入、不保存、不自动部署；服务端会生成或复用 baseline，再基于用户提交的当前 route/config/resources 微调。baseline 生成只携带自然语言需求、服务基础事实、必要运行配置摘要和已选文档；当前文件集和最近热部署失败诊断只进入最终微调步骤。微调步骤已得到可解析 Artifact JSON 且 Artifact 校验返回明确可修复诊断时，服务端会追加一次 validation repair；其他微调失败、不可修复策略错误或 repair 失败时返回 warning 和用户原始内容，不用 baseline 覆盖用户提交内容。
+- `ai route prepare --out <new-candidate-dir> --yes` 只调用在线 content GET，把实际 route、两个 properties、route 实际引用的 `.ds` 和固定 Schema 作为整体发布到新本地目录。父目录必须真实存在，`--out` 必须不存在；命令拒绝 symlink 和当前工作目录下默认 `lightesb-camel-app`，但无法自动发现自定义或远程 Watcher 根。content/prepare 不证明服务已注册、路由已加载或 Action Catalog 与持久化目录一致。
+- `ai route validate` 只调用候选校验 API，不需要 `--yes`，不写本地/远程文件、不热加载、不建立审批 lineage。裸 `--resource-file` 文件名相对 `--file` 所在候选目录解析；成功响应的 `savedFiles/deletedFiles` 用于确定随后会话的精确文件 allowlist。
 - `ai route cache status` 查询服务端 AI 路由上下文选择、baseline 和最近生成结果缓存状态。
 - `ai route cache clear --yes` 清理服务端 AI 路由缓存；带 `--service-name` 与 `--service-version` 时只清理指定服务关联缓存。
 - `--save-remote --yes` 会调用服务端 `/service-management/v1/ai/route/apply`，由服务端备份、写入、等待 XML/properties 热加载并返回状态；CLI 不通过 SSH/SCP 或共享磁盘写远程文件。
 - `--return-logs` 控制成功时是否返回远程日志摘要；失败时即使未传 `--return-logs`，也会展示服务端返回的多个日志来源摘要。
 - `--log-lines <n>` 控制每个日志来源最多返回多少行。
 - `--save-local --yes` 会写入本地 `{appDir}/{serviceName}/{serviceVersion}`，必须显式传入 `--service-name`、`--service-version`、`--route-file-name`；它支持 XML、`common.config.properties`、`service.config.properties`、`.ds` 和三个受管固定 Schema，校验真实路径/符号链接边界并通过同目录临时文件原子替换，不主动 deploy/reload。
-- `ai route apply --save-remote --yes` 从本地 XML 和重复 `--resource-file` 调用服务端 apply API，仅在用户明确授权远程写入时使用。`--resource-file` 只写不含目录的文件名时，相对 `--file` 指定的 route XML 所在目录解析；绝对路径和包含目录的相对路径保持按原路径解析。远程 apply 必须提供 `common.config.properties` 与 `service.config.properties`，`.ds` 等资源仅在 route XML 引用时必须提供。JSON 资源只接受 `request-schema.json`、`response-schema.json`、`callback-schema.json`，且必须与 JSON Schema 校验块或 Action input/output schema route property 的引用一一对应；`--timeout <seconds>` 传给服务端等待热加载。普通本地直接编辑服务文件不以 CLI apply 为前置。
+- `ai route apply --save-remote --yes` 从本地 XML 和重复 `--resource-file` 调用服务端 apply API，仅在用户明确授权远程写入时使用。`--resource-file` 只写不含目录的文件名时，相对 `--file` 指定的 route XML 所在目录解析；绝对路径和包含目录的相对路径保持按原路径解析。远程 apply 必须提供 `common.config.properties` 与 `service.config.properties`，`.ds` 等资源仅在 route XML 引用时必须提供。JSON 资源只接受 `request-schema.json`、`response-schema.json`、`callback-schema.json`，且必须与 JSON Schema 校验块或 Action input/output schema route property 的引用一一对应；`--timeout <seconds>` 传给服务端等待热加载。本地直编与受管 apply 是两条独立流程：同一次变更只选一条，live 文件修改后不用旧 session 或普通 apply 追认。
 - `--action-session-id` 与 `--expected-scope-digest` 必须成对且只用于 `--save-remote`，此时调用 Action 会话受管入口，不允许 `--return-logs/--log-lines`。scope digest 从最新 session JSON 读取；冲突、STALE、transition unavailable 或恢复失败不得回退普通 apply。
 - 远程 apply 返回 `FAILED`、`FAILED_ROLLED_BACK` 或 `ROLLBACK_FAILED` 时，CLI 先输出 `operationId`、删除文件、恢复状态和日志，再以退出码 `69` 结束。保留本地候选，不自动重试。
 - `ai route apply --save-local --yes` 从本地 XML 和重复 `--resource-file` 写入服务目录；写入前把已有服务目录备份到 app 目录同级 `{appDirName}-backups`，拒绝备份源符号链接，可选 `--wait-reload --timeout <seconds>` 只读轮询路由详情。
@@ -499,6 +503,7 @@ message create/update/delete/schema generate
 service create/update/delete/export/config save/package build/package deploy/import/sync-remote/start/stop
 deploy upload
 ai route apply
+ai route prepare
 route reload-service/reload-file/unload
 log level set/cleanup
 keyword add/delete
