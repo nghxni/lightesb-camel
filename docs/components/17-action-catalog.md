@@ -19,6 +19,8 @@ java -jar lightesb-cli.jar action build \
   --yes
 ```
 
+app 根目录下不含版本子目录的共享资源目录（例如 `TransformDS` 共享 DataSonnet 函数库）不参与目录生成，用 `--exclude-root <目录名>`（可重复或逗号分隔）显式排除。
+
 索引是可删除重建的派生产物，不是第二份业务事实源。不要手工编辑或复制到 `lightesb-camel-app/{serviceName}/{serviceVersion}`。
 
 ## 功能边界

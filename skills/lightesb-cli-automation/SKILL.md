@@ -22,7 +22,7 @@ description: Generate, review, or troubleshoot delivered LightESB CLI action/pro
 规则：
 
 - CLI 的远程命令是控制面客户端；`action validate/build` 是不使用服务端和 profile 的离线命令，`action status/list/search/get` 使用 profile bearer 查询受保护的在线快照。受控本地写还包括 `action build` 把派生索引原子写到所有服务版本目录之外；它与 `message schema generate`、显式 `ai route generate/optimize/apply --save-local` 一样必须加 `--yes`，不会自行部署或重载服务。
-- `action validate --service-dir|--app-root` 输出 canonical JSON；`action build` 额外使用 `--out`。目录契约失败按退出码 `65` 和稳定 `ACTION_*` 错误码处理，不回退到其他解析器。
+- `action validate --service-dir|--app-root` 输出 canonical JSON；`action build` 额外使用 `--out`。`--app-root` 模式保持严格两层契约，根级共享资源目录（如 `TransformDS`）用 `--exclude-root <目录名>`（可重复或逗号分隔）显式排除。目录契约失败按退出码 `65` 和稳定 `ACTION_*` 错误码处理，不回退到其他解析器。
 - Action 在线查询要求服务端双开关和 `catalog-read`；list/search 第二页起回传第一页 revision，revision 冲突时从第一页重试。查询命令不发送 caller，不执行 Action。
 - `action allowlist list/add/enable/disable` 要求服务端四开关和 `action-admin`。add 只使用 `--credential-name --action-id --service-version --yes`，enable/disable 使用 `--policy-id --yes`；不生成 caller、wildcard、block、delete 或数据库直连。
 - `action token issue/introspect/revoke` 要求服务端五开关；issue 使用重复 `--action actionId@serviceVersion`、可选 TTL 和 `--yes`，revoke 使用 `--token-id --yes`。不生成 caller、credential 或 raw token 参数，原 token 只在 issue 输出一次。

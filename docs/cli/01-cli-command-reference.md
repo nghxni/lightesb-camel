@@ -31,6 +31,7 @@ alias lightesb='java -jar /path/to/lightesb-cli.jar'
 ```bash
 lightesb action validate --service-dir lightesb-camel-app/DemoSrv/v1.0.0
 lightesb action validate --app-root lightesb-camel-app
+lightesb action validate --app-root lightesb-camel-app --exclude-root TransformDS
 lightesb action build --app-root lightesb-camel-app --out build/action-index.json --yes
 lightesb action status
 lightesb action list --page-num 1 --page-size 20
@@ -39,7 +40,7 @@ lightesb action get --action-id demo-security-check --service-version v1.0.0
 LIGHTESB_ACTION_TOKEN='lat_<运行token>' lightesb action execute --action-id demo-security-check --service-version v1.0.0 --input-file request.json --input-policy-file input-policy.json --yes --output json
 ```
 
-`--service-dir` 与 `--app-root` 二选一。`validate` 只读并向标准输出写 canonical JSON；`build` 在全部目录通过校验后原子替换 `--out`，且拒绝把输出写入任一服务版本目录。这两个命令不连接服务端、不启动 Camel、不触发热加载或执行 Action。成功退出码为 `0`，参数/确认错误为 `64`，目录契约失败为 `65` 并带稳定 `ACTION_*` 错误码。
+`--service-dir` 与 `--app-root` 二选一。`validate` 只读并向标准输出写 canonical JSON；`build` 在全部目录通过校验后原子替换 `--out`，且拒绝把输出写入任一服务版本目录。这两个命令不连接服务端、不启动 Camel、不触发热加载或执行 Action。`--app-root` 模式要求严格两层目录；根级共享资源目录（例如 `TransformDS` 共享 DataSonnet 函数库）用 `--exclude-root <目录名>`（可重复或逗号分隔）显式排除，名称只允许单个根级目录名。成功退出码为 `0`，参数/确认错误为 `64`，目录契约失败为 `65` 并带稳定 `ACTION_*` 错误码。
 
 在线四个命令使用 profile 的普通 token 作为 `Authorization: Bearer`，要求服务端双开关和 `catalog-read`。list/search 第二页起必须使用第一页输出的 `--expected-revision`；revision 变化时从第一页重试。`pageSize` 最大 100。在线命令只读内存快照，不读取远端文件、不提交 caller、不执行 Action；`--output json` 保留服务端标准响应。
 
