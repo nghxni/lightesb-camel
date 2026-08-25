@@ -426,7 +426,7 @@ AI 边界：
 - `--return-logs` 控制成功时是否返回远程日志摘要；失败时即使未传 `--return-logs`，也会展示服务端返回的多个日志来源摘要。
 - `--log-lines <n>` 控制每个日志来源最多返回多少行。
 - `--save-local --yes` 会写入本地 `{appDir}/{serviceName}/{serviceVersion}`，必须显式传入 `--service-name`、`--service-version`、`--route-file-name`；它支持 XML、`common.config.properties`、`service.config.properties`、`.ds` 和三个受管固定 Schema，校验真实路径/符号链接边界并通过同目录临时文件原子替换，不主动 deploy/reload。
-- `ai route apply --save-remote --yes` 从本地 XML 和重复 `--resource-file` 调用服务端 apply API，仅在用户明确授权远程写入时使用；远程 apply 必须提供 `common.config.properties` 与 `service.config.properties`，`.ds` 等资源仅在 route XML 引用时必须提供。JSON 资源只接受 `request-schema.json`、`response-schema.json`、`callback-schema.json`，且必须与 route 引用一一对应；`--timeout <seconds>` 传给服务端等待热加载。普通本地直接编辑服务文件不以 CLI apply 为前置。
+- `ai route apply --save-remote --yes` 从本地 XML 和重复 `--resource-file` 调用服务端 apply API，仅在用户明确授权远程写入时使用。`--resource-file` 只写不含目录的文件名时，相对 `--file` 指定的 route XML 所在目录解析；绝对路径和包含目录的相对路径保持按原路径解析。远程 apply 必须提供 `common.config.properties` 与 `service.config.properties`，`.ds` 等资源仅在 route XML 引用时必须提供。JSON 资源只接受 `request-schema.json`、`response-schema.json`、`callback-schema.json`，且必须与 route 引用一一对应；`--timeout <seconds>` 传给服务端等待热加载。普通本地直接编辑服务文件不以 CLI apply 为前置。
 - `--action-session-id` 与 `--expected-scope-digest` 必须成对且只用于 `--save-remote`，此时调用 Action 会话受管入口，不允许 `--return-logs/--log-lines`。scope digest 从最新 session JSON 读取；冲突、STALE、transition unavailable 或恢复失败不得回退普通 apply。
 - 远程 apply 返回 `FAILED`、`FAILED_ROLLED_BACK` 或 `ROLLBACK_FAILED` 时，CLI 先输出 `operationId`、删除文件、恢复状态和日志，再以退出码 `69` 结束。保留本地候选，不自动重试。
 - `ai route apply --save-local --yes` 从本地 XML 和重复 `--resource-file` 写入服务目录；写入前把已有服务目录备份到 app 目录同级 `{appDirName}-backups`，拒绝备份源符号链接，可选 `--wait-reload --timeout <seconds>` 只读轮询路由详情。
