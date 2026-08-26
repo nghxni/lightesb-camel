@@ -278,6 +278,21 @@ lightesb message domains
 
 `msgStructure` 不能为空；最小创建样例也必须至少包含一个结构节点。
 
+消息结构可同时记录内部节点名 `nodeName` 和外部字段别名 `alias`。内部节点名必须以字母开头且只包含字母和数字；外部 JSON 字段包含下划线等合法别名字符时，不要直接把它作为内部节点名。例如需要保留外部字段 `same_as_shipping` 时，可配置：
+
+```json
+{
+  "nodeName": "sameAsShipping",
+  "alias": "same_as_shipping",
+  "nodeType": "VARCHAR2",
+  "nodeList": []
+}
+```
+
+生成 JSON Schema 和样例 JSON 时，有别名则优先使用 `alias`，没有别名才使用 `nodeName`；内部持久化和节点定位仍保留 `nodeName`。别名必须通过服务端校验，并且不能与同级节点名或其他别名冲突。创建后建议执行 `message get --id <messageId> --output json` 做只读回查，不要只检查创建命令是否成功。
+
+别名只负责字段命名映射，不改变消息类型能力。当前模型没有独立布尔类型时，布尔样例会按 `VARCHAR2` 记录；原始值数组无法直接解析时，应显式建模为 `COLLECTION -> item -> value`。
+
 ## Service、Deploy、Route、Log
 
 ```bash
