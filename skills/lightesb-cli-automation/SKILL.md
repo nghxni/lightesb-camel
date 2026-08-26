@@ -32,6 +32,8 @@ description: Generate, review, or troubleshoot delivered LightESB CLI action/pro
 - 输入、输出或回调 JSON 校验工作流只生成 CLI 命令，不生成 Schema preview 或 AI route apply 的直接 API 调用。
 - 写操作加 `--yes`，CI 中优先加 `--output json`。
 - 任意命令层级都可用 `--help`；profile JSON 只使用 `tokenConfigured`、`aiTokenConfigured` 状态，不读取或记录 token 值。
+- JSON 样例转消息结构时，`message parse --msg-type REQUEST|RESPONSE` 只选择默认 ROOT 名；ROOT 的 `nodeName` 是生成 XML 的实际根标签。业务根名使用 `--root-node-name <name>` 显式输入，不能把响应消息根名固定为 `Response`。
+- 新增完整业务服务时按 `doctor -> app create/get -> request/response message parse/create/get/structure -> service create/get -> route validate -> 授权后的 route apply -> deploy/route/diagnostics/log 只读核验` 顺序执行，并把前一步返回的真实 ID 传给后一步。复杂消息依赖随包 CLI/API 的解析与回查，不依赖源码；没有模型 key 时可依据随包 docs/skills/examples 准备可见候选，但不能跳过 validate、warnings 门禁和远程写授权。
 - 需要服务端地址时优先使用 `--server` 或 profile，不在命令中写真实密钥。
 - `--ai-token` 只用于 `X-AI-Token`，不是模型 API key。
 - `ai tool list/save/plan/run` 已删除；AI 路由生成统一走自然语言入口。
@@ -88,6 +90,7 @@ lightesb ai route apply --server http://localhost:8080 --file build/DemoSrv-v1.0
 lightesb profile add --name dev --server http://localhost:8080
 lightesb profile use dev
 lightesb doctor
+lightesb message parse --file response.json --msg-type RESPONSE --root-node-name BusinessResponse
 lightesb app create --file app.json --yes
 lightesb message create --file request-message.json --yes
 lightesb message create --file response-message.json --yes

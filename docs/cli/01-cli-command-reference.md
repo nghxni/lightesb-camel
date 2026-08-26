@@ -230,12 +230,16 @@ lightesb message update --file message.json --yes
 lightesb message delete --id <messageId> --yes
 lightesb message structure xml --msg-name DemoRequest
 lightesb message parse --file sample.json
+lightesb message parse --file response.json --msg-type RESPONSE
+lightesb message parse --file response.json --msg-type RESPONSE --root-node-name BusinessResponse
 lightesb message parse --file sample.xml
 lightesb message schema generate --id <messageId> --service-name DemoSrv --service-version v1.0.0 --schema-file request-schema.json --yes
 lightesb message schema generate --file message.json --service-name DemoSrv --service-version v1.0.0 --schema-file request-schema.json --yes
 lightesb message constraints
 lightesb message domains
 ```
+
+JSON 样例默认生成名为 `Request` 的 ROOT；`--msg-type RESPONSE` 将默认 ROOT 改为 `Response`。ROOT 节点的 `nodeName` 是生成 XML 时使用的实际根标签，可用 `--root-node-name <name>` 显式指定任意业务根名，且该输入优先于消息类型默认值。XML 样例保留自身根标签。
 
 `message schema generate` 封装消息体 JSON Schema 预览接口：
 
@@ -350,7 +354,7 @@ lightesb keyword query-instances --service-name DemoSrv --service-version 1.0.0 
 
 `deploy history` 默认返回最近 50 条部署记录，可用 `--service-name` 和 `--service-version` 过滤单个服务版本。列表输出只包含概要，不拉取完整部署步骤日志。
 
-`service start/stop` 等待服务端确认 Camel 上下文真实启动或卸载。同方向并发请求共享一次转换；相反方向、加载失败或超时会返回 HTTP `409` 并使 CLI 非零退出。超时不回滚 `server.running`，自动化脚本应查询服务状态或运行时诊断后再决定后续动作。成功结果中的 `idempotent=true` 表示没有重复写配置，`transitionReused=true` 表示复用了同方向任务。详见 [服务启停 API](../service-runtime-management-api.md)。
+`service start/stop` 等待服务端确认 Camel 上下文真实启动或卸载。部署状态为 `UNDEPLOYED` 时，`service start` 返回 HTTP `409 SERVICE_NOT_DEPLOYED`，应先生成并保存部署路由。同方向并发请求共享一次转换；相反方向、加载失败或超时会返回 HTTP `409` 并使 CLI 非零退出。超时不回滚 `server.running`，自动化脚本应查询服务状态或运行时诊断后再决定后续动作。成功结果中的 `idempotent=true` 表示没有重复写配置，`transitionReused=true` 表示复用了同方向任务。详见 [服务启停 API](../service-runtime-management-api.md)。
 
 CLI 对 `service start/stop` 使用 130 秒 HTTP 请求超时，以覆盖服务端允许的 120 秒最大转换等待时间并接收结构化失败详情；其他命令仍使用默认 30 秒请求超时。
 
@@ -451,6 +455,7 @@ AI 边界：
 - `ai route cache status` 查询服务端 AI 路由上下文选择、baseline 和最近生成结果缓存状态。
 - `ai route cache clear --yes` 清理服务端 AI 路由缓存；带 `--service-name` 与 `--service-version` 时只清理指定服务关联缓存。
 - `--save-remote --yes` 会调用服务端 `/service-management/v1/ai/route/apply`，由服务端备份、写入、等待 XML/properties 热加载并返回状态；CLI 不通过 SSH/SCP 或共享磁盘写远程文件。
+- 远程 apply 返回 `APPLIED` 或 `APPLIED_DISABLED` 时，服务端同步把服务管理部署状态更新为 `SUCCESS`；失败或恢复路径不写入成功状态。
 - `--return-logs` 控制成功时是否返回远程日志摘要；失败时即使未传 `--return-logs`，也会展示服务端返回的多个日志来源摘要。
 - `--log-lines <n>` 控制每个日志来源最多返回多少行。
 - `--save-local --yes` 会写入本地 `{appDir}/{serviceName}/{serviceVersion}`，必须显式传入 `--service-name`、`--service-version`、`--route-file-name`；它支持 XML、`common.config.properties`、`service.config.properties`、`.ds` 和三个受管固定 Schema，校验真实路径/符号链接边界并通过同目录临时文件原子替换，不主动 deploy/reload。
