@@ -71,7 +71,7 @@ LightESB-Camel 交付包内 Agent 协作规则。这里是可运行交付目录�
 - 默认只做文件和静态自检：不启动 LightESB、不执行 curl、不连接外部系统、不执行远程 apply、不调用业务接口。只有用户明确授权对应运行态、外部连接或远程写入操作时才执行。
 - `ai route apply --save-remote --yes`、Schema warnings 后的继续、服务启停/部署和其他远程写操作都需要用户明确授权；保留 CLI 的 `--yes`、warnings 停止和失败后不自动重试语义。
 - Action 会话 request/revoke/complete 和会话受管 route apply 都是远程写，必须保留 `--yes`。不得生成 caller/approver/HMAC secret/digest override；STALE 或 lineage 错误不得回退普通 apply 绕过审批。
-- 普通本地路由编辑完成后自行修正明显 XML、properties、资源和占位符问题；交付时说明已改文件、静态检查、未验证的运行态/外部事项和最小手工验证入口。未经用户明确要求，不执行 `git commit` 或 `git push`。
+- 普通本地路由编辑完成后自行修正明显 XML、properties、资源和占位符问题；交付时说明已改文件、静态检查、未验证的运行态/外部事项和最小手工验证入口。在允许使用 Git 的业务现场目录中，本次修改验证通过后自动提交本任务文件，提交前逐路径检查 diff，不纳入已有无关改动。官方发布仓库接收源码同步时只暂存本次同步文件；未经用户明确要求不执行 `git commit` 或 `git push`。
 
 ## 可运行命令
 
