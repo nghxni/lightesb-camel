@@ -26,7 +26,7 @@ description: 机器人、工业协议、边缘 AI 推理/可信审批门禁和�
 - `commands:validate` 和 `commands` 执行同一高层命令安全策略：`move_to` 检查区域/速度，已配置的 `pick/place` 检查工位/互锁/载荷；策略通过不代表现场安全回路或设备执行已验证。
 - 边缘推理样例只允许固定可信 ingress、白名单高层候选、时效/置信度/replay/capability/shared safety 验证；推理响应始终 `submittable=false`。未开启审批时不创建持久化 decision；开启时只能先经 HMAC provider 验签审批，再由 decision-only submit 重验当前策略。
 - 机器人 AI 审批默认关闭；只在开启时配置全局 provider 与路由 `robot.ai.inference.approval.enabled=true`。CLI 只允许 decision status 和带 `--yes` 的 submit，不提供 approve/reject、不保存 HMAC secret。
-- 生产 MySQL 8 优先由 DBA 预建 `ROBOT_AI_VALIDATION_DECISION`、`ROBOT_AI_APPROVAL_EVENT` 两张表，应用账号只保留 DML 权限；H2 fallback 只用于小数据量 POC。
+- 机器人管理首次启动按 JDBC 元数据识别 H2/MySQL，自动补齐缺失的 7 张表和 11 个索引，AI 审批关闭时也初始化 AI 两表；已有表升级使用 `docs/sql/robot-management/h2/`、`docs/sql/robot-management/mysql/` 中的版本化 SQL，当前 `V000__baseline.sql` 为空。执行 V001+ 前必须先停止相关写入，生成可恢复的完整逻辑 SQL 备份并记录 SHA-256；升级失败从备份恢复，登记版本保持原值。H2 fallback 只用于小数据量 POC。
 - 本机 EMQX 或强模拟器可用时，使用 `tools/robot-mqtt-firmware-precheck/test_robot_mqtt_firmware_precheck.sh --dispatcher-ingest` 验证 `accepted -> dispatched -> acknowledged -> succeeded`；该结果仍属于 local simulator，不等同于现场机器人验收。
 - 无 MySQL 小数据量 POC 可使用 `lightesb.poc.h2-fallback.enabled=true`，机器人命令账本、审计和 outbox 使用 H2；用 `diagnostics snapshot --component robot-command --output json` 确认 `pocH2FallbackEnabled` 和 `robotManagementStorage`。
 - 路由 `robotCommandStateMachine`/`robotAuditHook` 只保存当前 CamelContext 的

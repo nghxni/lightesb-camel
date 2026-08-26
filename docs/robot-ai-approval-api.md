@@ -219,4 +219,4 @@ CLI 不提供 approve/reject，不读取候选命令文件，不保存 HMAC secr
 
 ## MySQL 与 H2 边界
 
-项目基线已在隔离 H2 与真实 MySQL 8 验证环境中完成同一套 fat jar 全生命周期 E2E，但该结果不替代客户生产数据库验收。生产 MySQL 8 由 DBA 预建 `ROBOT_AI_VALIDATION_DECISION`、`ROBOT_AI_APPROVAL_EVENT` 两张表和索引，应用账号只保留 DML 权限；运行时 `CREATE TABLE IF NOT EXISTS` 仅作空库/测试兜底，不替代 DBA 初始化。H2 fallback 只用于小数据量 POC，不代表生产级并发、备份恢复或迁移能力。交付环境仍应验证 MySQL DDL 权限、唯一键冲突、行锁、事务回滚和索引元数据。
+项目基线已在隔离 H2 与真实 MySQL 8 验证环境中完成同一套 fat jar 全生命周期 E2E，但该结果不替代客户生产数据库验收。机器人管理首次启动会自动创建缺失的 7 张表、8 组唯一约束及 11 个命名查询索引，AI 审批关闭时也初始化 AI 两表；首次初始化账号需要相应 DDL 权限。已有表不会被自动改列，后续升级使用分开的 [H2](sql/robot-management/h2/V000__baseline.sql) / [MySQL](sql/robot-management/mysql/V000__baseline.sql) 版本化 SQL；当前两个 baseline 文件为空。H2 fallback 只用于小数据量 POC，不代表生产级并发、备份恢复或迁移能力。交付环境仍应验证 MySQL DDL 权限、唯一键冲突、行锁、事务回滚和索引元数据。

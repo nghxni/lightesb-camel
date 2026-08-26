@@ -45,6 +45,8 @@ docs/runtime-configuration-reference.md
 docs/runtime-diagnostics-api.md
 docs/runtime-route-loading.md
 docs/service-runtime-management-api.md
+docs/sql/robot-management/h2/V000__baseline.sql
+docs/sql/robot-management/mysql/V000__baseline.sql
 docs/transform-logging-operations-api.md
 example/README.md
 example/routes/AiAgentDemoSrv/v1.0.0/ai-agent-demo-route.xml

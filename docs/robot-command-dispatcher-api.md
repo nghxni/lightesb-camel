@@ -56,6 +56,8 @@ curl -sS -X POST http://127.0.0.1:8080/service-management/v1/robots/commands:dis
 
 `POST /commands:dispatch-next` 手动触发一次 dispatcher，从 outbox claim 一条到期 `pending` 记录并派发到 MQTT。成功后 outbox 变为 `dispatched`，命令状态推进到 `dispatched`，并追加 `robot.command.dispatched` 审计。该接口用于运维验证和手动补偿，不代表自动调度循环已经启用。
 
+机器人管理首次启动时按 JDBC 元数据识别 H2/MySQL，自动创建缺失的命令、审计、outbox、状态快照、禁用策略和 AI 审批共 7 张表及 11 个索引。初始化只补缺失对象，不隐式修改已有列或约束；已有库升级使用分开的 [H2](sql/robot-management/h2/V000__baseline.sql) / [MySQL](sql/robot-management/mysql/V000__baseline.sql) 版本化 SQL。当前未正式上线，两个 baseline 文件为空。
+
 无 MySQL POC 可配置 `lightesb.poc.h2-fallback.enabled=true`，机器人命令账本、审计、outbox 和状态快照使用 H2 同名表。该模式只用于小数据量演示，不承诺生产级归档、保留、备份恢复或切回 MySQL 后的数据迁移。
 
 路由组件中的 `robotCommandStateMachine` 与 `robotAuditHook` 只保留当前
