@@ -248,7 +248,7 @@ JSON 样例默认生成名为 `Request` 的 ROOT；`--msg-type RESPONSE` 将默�
 
 `--id` 与 `--file` 必须且只能选择一个。`--app-dir` 默认是 `lightesb-camel-app`，目标 `{serviceName}/{serviceVersion}` 目录必须已存在。命令把 `data.schema` 写为该目录下的 `--schema-file`，写文件需要 `--yes`；`--output json` 返回实际写盘 `data.file`、服务版本目录相对且可直接用于路由的 `data.jsonSchemaPath`、`data.schema` 和 `data.warnings`。命令不会部署或重载服务。
 
-自动生成校验路由时先用 `service list/get --output json` 查询服务关系。INPUT 取当前 `serviceInId`，OUTPUT 取当前 `serviceOutId`；CALLBACK 先把 `serviceCallbackId` 作为服务 ID 查询回调服务，再取回调服务的 `serviceInId`。固定文件分别为 `request-schema.json`、`response-schema.json`、`callback-schema.json`。只使用服务端返回的 Schema；`warnings` 非空时停止自动 apply 并展示完整内容，只有用户明确确认后继续。
+自动生成校验路由时先用 `service list/get --output json` 查询服务关系。INPUT 取当前 `serviceInId`（同时可读 `serviceInName`），OUTPUT 取当前 `serviceOutId`（同时可读 `serviceOutName`）；CALLBACK 先把 `serviceCallbackId` 作为服务 ID 查询回调服务，再取回调服务的 `serviceInId`。固定文件分别为 `request-schema.json`、`response-schema.json`、`callback-schema.json`。只使用服务端返回的 Schema；`warnings` 非空时停止自动 apply 并展示完整内容，只有用户明确确认后继续。
 
 `app.json` 最小字段：
 
