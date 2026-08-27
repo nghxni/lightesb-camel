@@ -37,6 +37,7 @@ curl -X POST http://localhost:8080/service-management/v1/runtime/start/svc-1
 ```
 
 - 已满足目标状态的重复请求返回 HTTP `200`、`idempotent=true`，不重复写配置。
+- 服务尚未生成或部署路由、部署状态为 `UNDEPLOYED` 时，启动请求返回 HTTP `409`、`SERVICE_NOT_DEPLOYED`；应先生成并保存部署路由。
 - 同方向并发请求共享一个 `transitionId`，后到请求返回 `transitionReused=true`。
 - 相反方向请求返回 HTTP `409`、`RUNTIME_TRANSITION_IN_PROGRESS`。
 - 加载失败、停止失败或等待超时返回 HTTP `409`、`RUNTIME_TRANSITION_FAILED`。
