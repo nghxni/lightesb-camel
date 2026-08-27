@@ -4,21 +4,22 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 const repo = "https://github.com/nghxni/lightesb-camel";
 const doc = `${repo}/blob/main/docs/components/17-action-catalog.md`;
 const allowlistDoc = `${repo}/blob/main/docs/action-allowlist-api.md`;
+const approvalDoc = `${repo}/blob/main/docs/action-approval-api.md`;
 const sample = `${repo}/tree/main/example/routes/security-validation/DemoSecuritySrv/v1.0.0`;
 ---
 
 <BaseLayout
   current="/articles"
-  title="Action Catalog and Operation Audit | LightESB-Camel"
-  headline="Action catalog and operation audit: derived offline, gated precisely, logged without secrets"
-  description="Learn how LightESB-Camel derives an offline Action catalog, enforces an exact agent allowlist, and records append-only audits without logging payloads."
+  title="Action Catalog, Approval and Audit | LightESB-Camel"
+  headline="Action catalog, bounded approval, and operation audit"
+  description="Learn how LightESB-Camel derives Actions offline, enforces exact allowlists, binds managed route changes to bounded approval sessions, and audits without secrets."
 >
   <article class="article-page">
     <div class="container article-layout">
       <p class="eyebrow" data-i18n="catalog.eyebrow">Technical article</p>
-      <h1 data-i18n="catalog.title">Action catalog and operation audit: derived offline, gated precisely, logged without secrets</h1>
+      <h1 data-i18n="catalog.title">Action catalog, bounded approval, and operation audit</h1>
       <p class="lead" data-i18n="catalog.lead">
-        A LightESB service declares what it can do — Actions with contracts, side effects, and exposure — and the bundled CLI derives a deterministic catalog from those facts without starting anything. At runtime the catalog is served from a protected in-memory snapshot, eligibility comes from an exact allowlist, and every control-plane read leaves a redacted, append-only audit trail.
+        A LightESB service declares what it can do — Actions with contracts, side effects, and exposure — and the bundled CLI derives a deterministic catalog without starting anything. At runtime an exact allowlist controls eligibility, bounded approval sessions bind sensitive work to an Action and file scope, and append-only audits retain evidence without payloads or secrets.
       </p>
 
       <div class="article-meta">
@@ -87,6 +88,24 @@ lightesb.action-allowlist.enabled=true</code></pre>
       </section>
 
       <section>
+        <h2 data-i18n="catalog.approval.title">Approval binds an Action to an exact change scope</h2>
+        <p data-i18n="catalog.approval.p1">
+          A task session is not a bearer token and does not execute an Action. It records an externally approved boundary: service, version, Action, side-effect ceiling, input-policy digest, exact allowed files, TTL, and transition/execution limits. Caller, approver, status, source digests, and scope digest are derived by the server and cannot be supplied by the client.
+        </p>
+        <p data-i18n="catalog.approval.p2">
+          Managed route apply requires the session ID and latest scope digest together. Any live-file drift makes the session STALE; automation must not fall back to an ordinary apply. A stale session can only be revoked to close the task, and the next change needs a fresh session and approval.
+        </p>
+        <pre><code>lightesb ai route apply --file build/OrderSrv-v1.0.0-candidate/OrderSrv-route.xml \
+  --save-remote --service-name OrderSrv --service-version v1.0.0 \
+  --route-file-name OrderSrv-route.xml \
+  --resource-file common.config.properties \
+  --resource-file service.config.properties \
+  --action-session-id '&lt;sessionId&gt;' \
+  --expected-scope-digest '&lt;currentScopeDigest&gt;' \
+  --yes --output json</code></pre>
+      </section>
+
+      <section>
         <h2 data-i18n="catalog.audit.title">Append-only audit, redacted by design</h2>
         <p data-i18n="catalog.audit.p1">
           With lightesb.action-audit.enabled=true, successful catalog reads append fixed security events on a best-effort basis — an audit storage failure never changes the query result. Policy changes use required audit in the same transaction, so an audit failure rolls the policy change back. The table is append-and-query only: no cleanup, update, delete, retention, or archive API.
@@ -122,6 +141,7 @@ lightesb.action-allowlist.enabled=true</code></pre>
       <div class="article-actions">
         <a class="button primary" href={doc} data-i18n="catalog.doc">Action catalog guide</a>
         <a class="button" href={allowlistDoc} data-i18n="catalog.allowlistdoc">Allowlist API</a>
+        <a class="button" href={approvalDoc} data-i18n="catalog.approvaldoc">Approval sessions</a>
       </div>
     </div>
   </article>
@@ -130,8 +150,8 @@ lightesb.action-allowlist.enabled=true</code></pre>
     window.pageTranslations = {
       zh: {
         "catalog.eyebrow": "技术文章",
-        "catalog.title": "Action 目录与操作审计：离线派生、精确管控、脱敏留痕",
-        "catalog.lead": "LightESB-Camel 的服务声明自己能做什么——带契约、副作用和暴露范围的 Action——随包 CLI 无需启动任何组件就能从这些事实派生出确定性目录。运行时目录通过受保护的内存快照提供查询，调用资格来自精确 allowlist，每一次控制面读取都会留下脱敏的追加式审计痕迹。",
+        "catalog.title": "Action 目录、有界审批与操作审计",
+        "catalog.lead": "LightESB-Camel 的服务声明自己能做什么——带契约、副作用和暴露范围的 Action——随包 CLI 无需启动任何组件即可派生确定性目录。运行时由精确 allowlist 管控资格，有界审批会话把敏感任务绑定到 Action 与文件范围，追加式审计留存证据但不记录正文或密钥。",
         "catalog.meta.sample": "样例：",
         "catalog.meta.repo": "仓库：",
         "catalog.problem.title": "目录条目不等于权限",
@@ -150,13 +170,17 @@ lightesb.action-allowlist.enabled=true</code></pre>
         "catalog.allowlist.title": "allowlist 只收窄，不放宽",
         "catalog.allowlist.p1": "为受控调用授予资格需要四个开关全部开启，且所有策略端点都要求精确 action-admin bearer。策略只钉住一个 caller + actionId + serviceVersion；caller 由服务端根据提交的 credentialName 派生，客户端不能自报。add/enable 会重验 descriptor 的 Agent 暴露、可调用、VALID 与 AVAILABLE；disable 在目录故障时仍可执行，随时可以安全收紧。",
         "catalog.allowlist.p2": "新增策略只提交服务端配置的 credentialName——不提交 caller、token 或 digest——每次变化都与 required 审计事件同事务提交：",
+        "catalog.approval.title": "审批把 Action 绑定到精确变更范围",
+        "catalog.approval.p1": "任务会话不是 bearer token，也不执行 Action。它记录外部审批后的边界：服务、版本、Action、副作用上限、输入策略 digest、精确允许文件、TTL 以及变更/执行次数。caller、approver、状态、source digest 和 scope digest 全部由服务端派生，客户端不能提交。",
+        "catalog.approval.p2": "受管 route apply 必须同时携带 session ID 与最新 scope digest。live 文件发生任何漂移都会使会话进入 STALE；自动化不得回退普通 apply。STALE 会话只能 revoke 收口，后续变更必须创建新会话重新审批。",
         "catalog.audit.title": "追加式审计，天生脱敏",
         "catalog.audit.p1": "开启 lightesb.action-audit.enabled=true 后，目录成功读取会 best-effort 追加固定安全事件——审计存储故障不改变原查询结果。策略变化使用 required audit 并与写入同事务，审计失败则策略回滚。审计表只允许追加和查询：没有清理、修改、删除、retention 或归档 API。",
         "catalog.audit.p2": "事件只含固定列——caller、actionId、digest、eventType、result——绝不包含请求/响应 body、header、原 token 或任意 details：",
         "catalog.boundary.title": "边界与排障",
         "catalog.boundary.p1": "显式开启 security 但 credential 为空时失败关闭：所有 Action 路径返回 401。查询审计要求精确 action-admin，否则 403；重复 add 返回 409 ACTION_ALLOWLIST_CONFLICT，资格不达标返回 422 ACTION_ALLOWLIST_ACTION_INELIGIBLE。分页与过滤条件、revision 绑定：hasMore=true 时原样回传 nextCursor（CLI 用 --expected-revision），过滤条件变化或热加载产生新 revision 后必须从第一页重读。",
         "catalog.doc": "Action 目录指南",
-        "catalog.allowlistdoc": "Allowlist API"
+        "catalog.allowlistdoc": "Allowlist API",
+        "catalog.approvaldoc": "审批会话"
       }
     };
   </script>

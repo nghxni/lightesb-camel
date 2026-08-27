@@ -8,7 +8,7 @@ const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
 <BaseLayout
   current="/architecture"
   title="Camel XML Route Architecture | LightESB-Camel"
-  description="See how LightESB-Camel combines service packages, Camel XML routes, processors, adapters, hot reload boundaries, and operational controls."
+  description="See how LightESB-Camel combines service packages, Camel XML routes, processors, adapters, hot reload boundaries, and governed Action controls."
 >
   <section>
     <div class="container">
@@ -23,9 +23,9 @@ const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
       />
       <div class="flow">
         <div class="flow-step"><span class="tag" data-i18n="arch.ext.tag">External systems</span><h3 data-i18n="arch.ext.title">Call or publish</h3><p class="copy" data-i18n="arch.ext.text">MES, WMS, ERP, HTTP clients, data platforms, AI tools, and operations systems enter through routes or APIs.</p></div>
-        <div class="flow-step"><span class="tag" data-i18n="arch.cp.tag">Control plane</span><h3 data-i18n="arch.cp.title">Manage services</h3><p class="copy" data-i18n="arch.cp.text">CLI and management APIs handle deploy, reload, diagnostics, service status, and logs.</p></div>
+        <div class="flow-step"><span class="tag" data-i18n="arch.cp.tag">Control plane</span><h3 data-i18n="arch.cp.title">Manage services</h3><p class="copy" data-i18n="arch.cp.text">CLI and management APIs handle deploy, reload, diagnostics, service status, and bounded Action workflows.</p></div>
         <div class="flow-step"><span class="tag" data-i18n="arch.runtime.tag">Route runtime</span><h3 data-i18n="arch.runtime.title">Load packages</h3><p class="copy" data-i18n="arch.runtime.text">Camel XML routes run under service package conventions and can be hot-loaded within route boundaries.</p></div>
-        <div class="flow-step"><span class="tag" data-i18n="arch.proc.tag">Processors</span><h3 data-i18n="arch.proc.title">Govern traffic</h3><p class="copy" data-i18n="arch.proc.text">Validation, permissions, transformations, logging, exception mapping, AI tools, and robotics processors apply policy.</p></div>
+        <div class="flow-step"><span class="tag" data-i18n="arch.proc.tag">Processors</span><h3 data-i18n="arch.proc.title">Govern traffic</h3><p class="copy" data-i18n="arch.proc.text">Validation, permissions, Action authorization, transformations, logging, AI tools, and robotics processors apply policy.</p></div>
         <div class="flow-step"><span class="tag" data-i18n="arch.adapter.tag">Adapters</span><h3 data-i18n="arch.adapter.title">Reach endpoints</h3><p class="copy" data-i18n="arch.adapter.text">HTTP, SQL, MQTT, OPC UA, Modbus, SAP, AVEVA, rosbridge, and gateway routes connect outward.</p></div>
       </div>
     </div>
@@ -33,11 +33,16 @@ const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
 
   <section class="band">
     <div class="container">
-      <div class="grid two">
+      <div class="grid three">
         <article class="card">
           <h3 data-i18n="arch.hot.title">Hot-load boundary</h3>
           <p class="copy" data-i18n="arch.hot.text">Route XML, service configuration, and service package assets can be adjusted within the runtime's route loading model. Java code, dependencies, Spring beans, and startup parameters remain rebuild or restart boundaries.</p>
           <div class="action-row"><a class="button" href={`${repo}/docs/runtime-route-loading.md`} data-i18n="arch.hot.button">Route loading docs</a></div>
+        </article>
+        <article class="card">
+          <h3 data-i18n="arch.action.title">Governed Action boundary</h3>
+          <p class="copy" data-i18n="arch.action.text">A bounded task session pins the service, version, Action, policy digest, and exact file scope. Managed route apply requires the latest scope digest and fails closed on live-file drift; approval never replaces final authorization or execution checks.</p>
+          <div class="action-row"><a class="button" href={`${repo}/docs/action-approval-api.md`} data-i18n="arch.action.button">Action approval docs</a></div>
         </article>
         <article class="card">
           <h3 data-i18n="arch.delivery.title">Delivery boundary</h3>

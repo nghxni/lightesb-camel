@@ -18,7 +18,7 @@ const article = (published: string, modified: string, section: string, related: 
 });
 
 export const articleSeoByPath: Record<string, ArticleSeo> = {
-  "/articles/action-catalog-audit/": article("2026-08-12", "2026-08-21", "Operations and governance", [
+  "/articles/action-catalog-audit/": article("2026-08-12", "2026-08-27", "Operations and governance", [
     { href: "/articles/route-static-preflight/", title: "Route static preflight" },
     { href: "/articles/hardened-cli-runtime-config/", title: "Hardened runtime configuration and CLI boundaries" },
     { href: "/articles/runtime-diagnostics/", title: "Runtime diagnostics and troubleshooting" }
@@ -48,7 +48,7 @@ export const articleSeoByPath: Record<string, ArticleSeo> = {
     { href: "/articles/legacy-system-integration/", title: "Modernizing legacy integration" },
     { href: "/articles/platform-http-v1-ds/", title: "Config-driven DataSonnet transformation" }
   ]),
-  "/articles/hardened-cli-runtime-config/": article("2026-08-12", "2026-08-21", "Operations and governance", [
+  "/articles/hardened-cli-runtime-config/": article("2026-08-12", "2026-08-27", "Operations and governance", [
     { href: "/articles/cli-schema-validation-routes/", title: "JSON Schema validation routes via CLI" },
     { href: "/articles/deployment-security/", title: "Deployment security with the management API" },
     { href: "/articles/runtime-diagnostics/", title: "Runtime diagnostics and troubleshooting" }

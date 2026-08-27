@@ -8,7 +8,7 @@ const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
 <BaseLayout
   current="/examples"
   title="Apache Camel Integration Examples | LightESB-Camel"
-  description="Copy and verify runnable Apache Camel examples for HTTP services, MySQL, data transformation, AI agents, robot commands, and VDA 5050 contracts."
+  description="Copy and verify runnable Apache Camel examples for HTTP services, schema-validated Actions, MySQL, data transformation, AI agents, robot commands, and VDA 5050 contracts."
 >
   <section>
     <div class="container">
@@ -24,6 +24,7 @@ const repo = "https://github.com/nghxni/lightesb-camel/blob/main";
       <div class="docs-list">
         <a class="docs-link" href={`${repo}/example/README.md`}><strong data-i18n="examples.index.title">Example index</strong><span data-i18n="examples.index.text">Overview of runnable route examples and validation paths.</span></a>
         <a class="docs-link" href={`${repo}/example/routes/http-undertow/DemoHttpSrv/v1.0.0/demo-http-route.xml`}><strong data-i18n="examples.http.title">HTTP route basics</strong><span data-i18n="examples.http.text">Minimal Undertow HTTP route service package.</span></a>
+        <a class="docs-link" href={`${repo}/example/routes/security-validation/DemoSecuritySrv/v1.0.0/demo-security-route.xml`}><strong data-i18n="examples.security.title">Schema-validated Action service</strong><span data-i18n="examples.security.text">DemoSecuritySrv declares a requestReply Action with fixed input/output schemas for offline Action validation and governed candidate preparation.</span></a>
         <a class="docs-link" href={`${repo}/example/routes/PlatformHttp/v3.0.0/platform-http-route.xml`}><strong data-i18n="examples.platform.title">Platform HTTP</strong><span data-i18n="examples.platform.text">HTTP orchestration and transformation examples.</span></a>
         <a class="docs-link" href={`${repo}/example/routes/MysqlRouteSrv/v1.0.0/mysql-healthcheck-route.xml`}><strong data-i18n="examples.mysql.title">ExternalDB MySQL</strong><span data-i18n="examples.mysql.text">Database access and health check route example.</span></a>
         <a class="docs-link" href={`${repo}/example/routes/AiAgentDemoSrv/v1.0.0/ai-agent-demo-route.xml`}><strong data-i18n="examples.ai.title">AI Agent + Tools</strong><span data-i18n="examples.ai.text">Agent-oriented orchestration route example.</span></a>

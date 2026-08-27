@@ -44,7 +44,7 @@ const cliDoc = `${repo}/blob/main/docs/cli/01-cli-command-reference.md`;
           </article>
           <article class="card">
             <h3 data-i18n="cliconf.keys.off.title">Off until explicitly enabled</h3>
-            <p class="copy" data-i18n="cliconf.keys.off.text">Action catalog, action security, action audit, allowlist, and short-lived action tokens all default to false and gate each other. So do transformds.enabled, robot.dispatcher.enabled, robot.ai.approval.enabled, ai.logging.enabled, ai.agents.chat.memory.enabled, and poc.h2-fallback.enabled.</p>
+            <p class="copy" data-i18n="cliconf.keys.off.text">Action catalog, security, audit, allowlist, short-lived tokens, bounded approval, authorization, and execution all default to false and gate each other. So do transformds.enabled, robot.dispatcher.enabled, robot.ai.approval.enabled, ai.logging.enabled, ai.agents.chat.memory.enabled, and poc.h2-fallback.enabled.</p>
           </article>
           <article class="card">
             <h3 data-i18n="cliconf.keys.hardened.title">Hardened production posture</h3>
@@ -62,6 +62,20 @@ lightesb.poc.h2-fallback.enabled=false
 lightesb.robot.dispatcher.enabled=false
 lightesb.robot.dispatcher.broker-uri=$&#123;ROBOT_MQTT_BROKER_URI:&#125;
 lightesb.ai.models.default.dashscope.api-key=$&#123;DASHSCOPE_API_KEY:&#125;</code></pre>
+      </section>
+
+      <section>
+        <h2 data-i18n="cliconf.inputs.title">Candidate files and message fields keep their boundaries</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3 data-i18n="cliconf.inputs.route.title">Route-sibling resources</h3>
+            <p class="copy" data-i18n="cliconf.inputs.route.text">For ai route validate/apply, a bare --resource-file name resolves beside the candidate route XML. This lets a prepared directory remain self-contained. Remote apply still requires both properties files and every referenced .ds or fixed schema; session ID and scope digest must be supplied together.</p>
+          </article>
+          <article class="card">
+            <h3 data-i18n="cliconf.inputs.alias.title">External JSON aliases</h3>
+            <p class="copy" data-i18n="cliconf.inputs.alias.text">Message definitions keep a validated internal nodeName and may add alias for an external field such as same_as_shipping. Schema and sample generation prefer the alias, while persistence and node lookup retain nodeName; sibling names and aliases must remain unique.</p>
+          </article>
+        </div>
       </section>
 
       <section>
@@ -115,7 +129,7 @@ lightesb route reload-service --service-name DemoSrv --service-version 1.0.0 --y
         "cliconf.keys.core.title": "核心运行时",
         "cliconf.keys.core.text": "lightesb.route.enabled=true 启用动态路由加载器和路由管理 API；lightesb.route.directory 指向服务包根目录。启动时用 JDK 21 虚拟线程并发加载路由（startup.virtual-thread.enabled=true、startup.max-concurrency=16），热加载前先做文件稳定性检查（file-stable-wait-ms=100、file-stable-max-attempts=10）。",
         "cliconf.keys.off.title": "显式开启才生效",
-        "cliconf.keys.off.text": "Action catalog、action security、action audit、allowlist 和短期 action token 全部默认 false 且互为前置条件。transformds.enabled、robot.dispatcher.enabled、robot.ai.approval.enabled、ai.logging.enabled、ai.agents.chat.memory.enabled、poc.h2-fallback.enabled 同样默认关闭。",
+        "cliconf.keys.off.text": "Action catalog、security、audit、allowlist、短期 token、有界审批、统一授权与安全执行全部默认 false 且互为前置条件。transformds.enabled、robot.dispatcher.enabled、robot.ai.approval.enabled、ai.logging.enabled、ai.agents.chat.memory.enabled、poc.h2-fallback.enabled 同样默认关闭。",
         "cliconf.keys.hardened.title": "生产加固姿势",
         "cliconf.keys.hardened.text": "关闭 H2 console 与 web-allow-others。部署上传受配额约束：单包 2000 个归档条目、单条目 50 MB、解压总量 200 MB、目录深度 16。ai.route.model.log-payload 只在临时排障时开启；服务级 log.redaction.enabled 在日志持久化前完成脱敏。",
         "cliconf.keys.env.title": "只用环境变量占位",
@@ -125,6 +139,11 @@ lightesb route reload-service --service-name DemoSrv --service-version 1.0.0 --y
         "cliconf.cli.p1": "CLI 远程命令调用控制面 API——不承载 Camel 运行时，也不绕过服务端状态机。所有写操作必须加 --yes，校验真实路径边界，并原子替换目标文件。",
         "cliconf.cli.p2": "退出码契约稳定到可以接入门禁：0 成功，64 参数或确认缺失，65 输入文件或业务字段错误（action validate/build 在此叠加稳定 ACTION_* 错误码），69 HTTP 或服务端错误，74 IO 或网络失败，78 配置错误或 doctor 检查失败。",
         "cliconf.cli.p3": "service start/stop 等待真实 Camel 上下文状态。CLI 给它 130 秒 HTTP 超时，覆盖服务端 120 秒最大转换等待；相反方向、加载失败或超时的转换返回 HTTP 409，且不回滚 server.running。自动化应先查询服务状态或运行时诊断再决定下一步——结果中的 idempotent=true 与 transitionReused=true 会明确说明服务端复用了什么。",
+        "cliconf.inputs.title": "候选文件与消息字段各守边界",
+        "cliconf.inputs.route.title": "路由同级资源",
+        "cliconf.inputs.route.text": "ai route validate/apply 中，不带路径的 --resource-file 相对候选 route XML 所在目录解析，使 prepare 后的候选目录保持自包含。远程 apply 仍必须包含两个 properties、实际引用的 .ds 与固定 schema；session ID 和 scope digest 必须成对提交。",
+        "cliconf.inputs.alias.title": "外部 JSON 字段别名",
+        "cliconf.inputs.alias.text": "消息定义保留通过校验的内部 nodeName，并可为 same_as_shipping 等外部字段增加 alias。Schema 与样例生成优先使用 alias，持久化和节点定位仍保留 nodeName；同级名称与别名不得冲突。",
         "cliconf.boundary.title": "自动化边界与排障",
         "cliconf.boundary.p1": "action validate/build 完全离线：不连接服务端、不启动 Camel、不触发热加载，build 还拒绝把索引写入任何服务版本目录。doctor 只做环境和只读 API 检查。diagnostics snapshot/warnings 只调用一个端点——GET /api/diagnostics/runtime-snapshot——不读远程文件系统，不触发重载或清理，也不调整日志级别。",
         "cliconf.boundary.p2": "局部排障用 lightesb.route.temp-only-service=PlatformHttp,RobotMqttCommandSrv，只加载指定服务目录；任一目录缺失启动即失败，不会静默回退到全量加载。无 MySQL POC 用 lightesb.poc.h2-fallback.enabled=true 把实例日志、JsonKeyword 查询和机器人命令账本切到 H2 fallback；用 lightesb diagnostics snapshot --component instance-log --output json 确认 pocH2FallbackEnabled=true。",

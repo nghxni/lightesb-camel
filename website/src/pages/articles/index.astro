@@ -60,9 +60,9 @@ import SectionHead from "../../components/SectionHead.astro";
         <a class="docs-link" href="/articles/runtime-diagnostics/"><strong data-i18n="articles.diag.title">Runtime diagnostics: remote troubleshooting that never touches the business</strong><span data-i18n="articles.diag.text">Read-only diagnostics API and CLI: sanitized runtime evidence without touching routes, data, or business traffic.</span></a>
         <a class="docs-link" href="/articles/service-runtime-transitions/"><strong data-i18n="articles.transitions.title">Service runtime transitions: synchronized start/stop and timeout governance</strong><span data-i18n="articles.transitions.text">Start/stop APIs wait for the Camel context — shared transitions, idempotent retries, 409 semantics, and a tunable transition timeout.</span></a>
         <a class="docs-link" href="/articles/cli-schema-validation-routes/"><strong data-i18n="articles.schema.title">Orchestrating JSON Schema validation routes with the CLI</strong><span data-i18n="articles.schema.text">Generate Draft 2020-12 schemas from message models, then apply the full validation route — with a 400 failure branch.</span></a>
-        <a class="docs-link" href="/articles/hardened-cli-runtime-config/"><strong data-i18n="articles.cliconf.title">Hardened runtime configuration and CLI boundaries</strong><span data-i18n="articles.cliconf.text">One platform config file, capabilities off by default, secrets via env placeholders, and --yes on every CLI write.</span></a>
+        <a class="docs-link" href="/articles/hardened-cli-runtime-config/"><strong data-i18n="articles.cliconf.title">Hardened runtime configuration and CLI boundaries</strong><span data-i18n="articles.cliconf.text">One platform config file, capabilities off by default, confirmed writes, candidate resource closure, and safe external field aliases.</span></a>
         <a class="docs-link" href="/articles/deployment-security/"><strong data-i18n="articles.deploy.title">Deployment security with the management API</strong><span data-i18n="articles.deploy.text">Guarded service deployment: hardened archive intake, server-owned targets, explicit --yes writes, and backup-based rollback.</span></a>
-        <a class="docs-link" href="/articles/action-catalog-audit/"><strong data-i18n="articles.catalog.title">Action catalog and operation audit</strong><span data-i18n="articles.catalog.text">Derive a service Action catalog offline, gate agent eligibility with an exact allowlist, and query append-only audit events with tokens reduced to digests.</span></a>
+        <a class="docs-link" href="/articles/action-catalog-audit/"><strong data-i18n="articles.catalog.title">Action catalog, bounded approval, and operation audit</strong><span data-i18n="articles.catalog.text">Derive Actions offline, gate eligibility with an exact allowlist, approve a bounded file scope, and query append-only audit events without storing secrets.</span></a>
       </div>
     </div>
   </section>
@@ -107,11 +107,11 @@ import SectionHead from "../../components/SectionHead.astro";
         "articles.schema.title": "用 CLI 编排 JSON Schema 校验路由",
         "articles.schema.text": "message schema generate 从报文模型生成 Draft 2020-12 Schema，ai route apply 一次落地成对校验块与 400 失败分支。",
         "articles.cliconf.title": "默认加固：运行时配置键全景与 CLI 确认语义",
-        "articles.cliconf.text": "一份平台配置文件、可选能力默认关闭、密钥走环境变量占位、CLI 写操作一律 --yes 确认。",
+        "articles.cliconf.text": "一份平台配置文件、可选能力默认关闭、写操作显式确认，并对候选资源闭包与外部字段别名做安全约束。",
         "articles.deploy.title": "部署安全：通过受守护的管理 API 打包、部署与回退",
         "articles.deploy.text": "归档加固校验、服务端统一目标目录、远程写必须显式确认、基于备份的回退与端口检查。",
-        "articles.catalog.title": "Action 目录与操作审计",
-        "articles.catalog.text": "离线派生服务 Action 目录，用精确 allowlist 管控调用资格，审计追加式留存且天生脱敏——token 只存 digest。"
+        "articles.catalog.title": "Action 目录、有界审批与操作审计",
+        "articles.catalog.text": "离线派生 Action，用精确 allowlist 管控资格，对精确文件范围审批，并在不保存敏感信息的前提下追加式审计。"
       }
     };
   </script>
