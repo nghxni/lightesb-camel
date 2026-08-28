@@ -339,8 +339,8 @@ lightesb log services
 lightesb log level set --service-key DemoSrv@1.0.0 --level DEBUG --yes
 lightesb log cleanup --yes
 lightesb log cleanup --manual --yes
-lightesb log instance list --service-name DemoSrv --service-version 1.0.0
-lightesb log instance list --service-name DemoSrv --service-version 1.0.0 --keyword patientId=10001
+lightesb log instance list --service-name DemoSrv --service-version v1.0.0
+lightesb log instance list --service-name DemoSrv --service-version v1.0.0 --keyword patientId=10001
 lightesb log instance get --instance-uuid <instanceUuid>
 lightesb log instance download --instance-uuid <instanceUuid> --type req
 lightesb log instance download --instance-uuid <instanceUuid> --type res > response-body.txt
@@ -353,6 +353,7 @@ lightesb keyword query-instances --service-name DemoSrv --service-version 1.0.0 
 ```
 
 `log instance` 与 `keyword` 的 `--service-name` 均使用服务英文名（也是服务目录名），例如 `DemoSrv`；中文展示名 `serviceCnName` 不作为查询标识。
+`log instance list --service-version` 使用精确服务版本目录名 `vX.Y.Z`，例如 `v1.0.0`；缺少 `v` 时 CLI 返回输入错误且不发送请求。
 
 `deploy history` 默认返回最近 50 条部署记录，可用 `--service-name` 和 `--service-version` 过滤单个服务版本。列表输出只包含概要，不拉取完整部署步骤日志。
 
@@ -500,7 +501,7 @@ lightesb message schema generate --id <requestMessageId> --service-name DemoSrv 
 lightesb service package build --file package.json --yes
 lightesb service package deploy --file package.json --yes
 lightesb route status
-lightesb log instance list --service-name DemoSrv --service-version 1.0.0
+lightesb log instance list --service-name DemoSrv --service-version v1.0.0
 ```
 
 ## 退出码

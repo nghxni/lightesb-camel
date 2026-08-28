@@ -108,7 +108,7 @@ lightesb service start --id <serviceId> --yes --output json
 lightesb service stop --id <serviceId> --yes --output json
 lightesb deploy upload ./DemoSrv.zip --yes
 lightesb route status
-lightesb log instance list --service-name DemoSrv --service-version 1.0.0
+lightesb log instance list --service-name DemoSrv --service-version v1.0.0
 lightesb keyword list --service-name DemoSrv --service-version 1.0.0 --output json
 lightesb keyword add --service-name DemoSrv --service-version 1.0.0 --key-name patientId --yes
 lightesb keyword query-instances --service-name DemoSrv --service-version 1.0.0 --key-name patientId --json-value 10001 --output json
