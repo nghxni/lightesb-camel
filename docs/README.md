@@ -14,6 +14,7 @@
 - [HTTP 入口与路由基础](components/01-http-route-basics.md)
 - [运行时路由按需加载](runtime-route-loading.md)
 - [服务端运行配置参考](runtime-configuration-reference.md)
+- [发布包验证、升级与回滚](release-verification-and-upgrade.md)
 - [服务日志 servicelog](components/02-service-log.md)
 - [字符编码处理](components/03-charset-processing.md)
 - [Transform 与日志重载 API](transform-logging-operations-api.md)
@@ -105,6 +106,7 @@
 | AI、机器人和外部系统扩展 | `../skills/lightesb-ai-components/SKILL.md` |
 | CLI 命令和自动化流程 | `../skills/lightesb-cli-automation/SKILL.md` |
 | 机器人协议样例、命令 dispatcher 和现场验收边界 | `../skills/lightesb-robot-integration/SKILL.md` |
+| 发布包收件校验、升级与回滚 | `../skills/lightesb-release-verification/SKILL.md` |
 
 项目问题排查先读取 Skill 内可升级的发布基线；业务现场存在 `../project-experience/lightesb-project-troubleshooting.md` 时再读取项目经验。项目经验不属于发布 MANIFEST，升级不得覆盖。
 

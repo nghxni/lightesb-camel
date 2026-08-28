@@ -8,6 +8,7 @@
 | `components/01-http-route-basics.md` | `docs/07-undertow-component-usage.md`，按交付场景重写 |
 | `runtime-route-loading.md` | 运行时生命周期设计结论、路由热加载经验和 jar 快速重启经验，按交付场景重写 |
 | `runtime-configuration-reference.md` | 服务端运行配置参数参考与日志脱敏/访问控制经验，按交付配置、安全占位和脱敏边界压缩整理 |
+| `release-verification-and-upgrade.md` | `docs/28-release-provenance-verification-upgrade.md` 与发布溯源经验，去除内部 Git、源码路径、构建 secret 和机器路径后按交付包收件、升级与回滚场景重写 |
 | `components/02-service-log.md` | `docs/12-camel-servicelog-component-usage.md` 与日志脱敏/访问控制经验，按交付场景重写 |
 | `components/03-charset-processing.md` | `docs/13-charset-processor-usage.md`，按交付场景重写 |
 | `components/04-transform-components.md` | `docs/09-conditional-jsontransform-component-usage.md`、`docs/10-conditionaltransform-dts-sample.md` |
@@ -49,6 +50,7 @@
 | `../skills/lightesb-robot-integration/SKILL.md` | 机器人协议接入经验、边缘 AI 推理 mock/可信审批门禁、dispatcher API、交付样例和 gRPC IDL 契约，按交付任务路由整理 |
 | `../skills/lightesb-security-validation/SKILL.md` | 权限校验、消息 Schema 与 Action 控制面角色/审计/allowlist/token/有界审批安全边界，按交付任务路由整理 |
 | `../skills/lightesb-temp-form/SKILL.md` | `skills/lightesb-temp-form/SKILL.md` 与 `skills/lightesb-route-development/SKILL.md` 最小创建集及 simple 常见坑，按交付场景重写 |
+| `../skills/lightesb-release-verification/SKILL.md` | `skills/lightesb-release-management/SKILL.md` 的交付安全子集，只保留包内 checksum、manifest、隔离启动、升级与回滚边界 |
 | `../skills/lightesb-project-troubleshooting/SKILL.md` | 源码仓库项目问题处理规则的通用排障流程，去除个人画像和内部经验后按本机开发/业务现场场景重写；发布基线可升级，根目录项目经验独立维护 |
 | `cli/README.md` | `docs/cli/README.md`，外发压缩版 |
 | `cli/01-cli-command-reference.md` | `docs/cli/*` 与 `lightesb-cli/src/main/java/.../cli/command/*`，按命令域压缩整理 |

@@ -42,6 +42,7 @@ docs/robot-ai-approval-api.md
 docs/robot-command-dispatcher-api.md
 docs/robot-edge-inference-mock.md
 docs/runtime-configuration-reference.md
+docs/release-verification-and-upgrade.md
 docs/runtime-diagnostics-api.md
 docs/runtime-route-loading.md
 docs/service-runtime-management-api.md
@@ -180,6 +181,7 @@ skills/lightesb-project-troubleshooting/references/baseline-experience.md
 skills/lightesb-project-troubleshooting/references/project-experience-template.md
 skills/lightesb-project-troubleshooting/scripts/detect-maintenance-mode.sh
 skills/lightesb-project-troubleshooting/scripts/init-project-experience.sh
+skills/lightesb-release-verification/SKILL.md
 skills/lightesb-robot-integration/SKILL.md
 skills/lightesb-route-authoring/SKILL.md
 skills/lightesb-route-authoring/scripts/action-index.schema.json
