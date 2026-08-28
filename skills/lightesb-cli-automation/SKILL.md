@@ -38,6 +38,7 @@ description: Generate, review, or troubleshoot delivered LightESB CLI action/pro
 - `--ai-token` 只用于 `X-AI-Token`，不是模型 API key。
 - `ai tool list/save/plan/run` 已删除；AI 路由生成统一走自然语言入口。
 - `keyword list/query-instances` 只读；`keyword add/delete` 修改 JsonKeyword keyName 配置，必须加 `--yes`。
+- `log instance` 与 `keyword` 的 `--service-name` 均传英文 `serviceName`（服务目录名），不要传中文展示名 `serviceCnName`。
 - JSON 校验路由已有消息模型时，先用 `service list/get --output json` 解析服务关系：INPUT 取当前 `serviceInId`，OUTPUT 取当前 `serviceOutId`，CALLBACK 先用 `serviceCallbackId` 查询回调服务再取其 `serviceInId`。
 - 按方向执行 `message schema generate --id|--file --service-name --service-version --schema-file request-schema.json|response-schema.json|callback-schema.json --yes --output json`，只使用返回的 `schema` 和服务版本目录相对 `jsonSchemaPath`；`file` 仅表示实际写盘位置，不要手写或由模型补齐 Schema。
 - `warnings` 非空时停止自动 apply 并展示完整 warnings，只有用户明确确认后继续。用户明确授权远程写入时，才用 `ai route apply --save-remote --yes` 一次提交实际 route 文件名、两个 properties 和 route 引用的固定 Schema；引用包括 JSON Schema 校验块和 Action input/output schema route property。普通本地直接编辑服务文件不以 CLI apply 为前置。

@@ -22,6 +22,7 @@ description: Configure and troubleshoot servicelog, service/instance log redacti
 - 脱敏决定持久化内容，读取权限决定谁能访问；两者必须同时治理。diagnostics 始终输出安全摘要，不是按权限查看原文的入口。
 - H2 缓存先写 `h2LogCacheProcessor`，再按需写 `jsonKeywordCaptureProcessor`。
 - H2/StreamCache mock 要显式准备上下文：Request 至少有 `SenderID`，Response 至少有 `ReceiverID`、`<ReceiverID>.ReceiverID`、`<ReceiverID>.ResultCode` 和 `invokeProviderStartTime`。
+- H2/MySQL 实例日志与 JsonKeyword 的服务名字段统一保存英文 `serviceName`；`serviceCnName` 只用于中文展示，不参与实例日志或关键字查询。
 - H2 fallback 验证 JsonKeyword 前，先用 `/api/lightesb/json-keyword` 注册 keyName，再发业务请求；反查优先用 `/api/lightesb/json-keyword/instance-uuids`。
 - 用户要求“无 MySQL 也能演示日志/关键字查询”时，优先使用 `lightesb.poc.h2-fallback.enabled=true`；用 `diagnostics snapshot --component instance-log --output json` 检查 `pocH2FallbackEnabled`、`instanceLogStorage`、`instanceLogQueryStorage`、`jsonKeywordQueryStorage`。
 - H2 fallback 只适合小数据量 POC，切回 MySQL 不自动迁移 H2 数据。

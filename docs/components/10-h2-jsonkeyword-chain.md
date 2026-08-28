@@ -30,7 +30,7 @@
 <process ref="h2LogCacheProcessor"/>
 ```
 
-实例日志缓存需要基础业务上下文。Request 阶段至少准备 `SenderID`；Response 阶段至少准备 `ReceiverID`、`<ReceiverID>.ReceiverID`、`<ReceiverID>.ResultCode` 和 `invokeProviderStartTime`。服务中文名配置键为 `lightesb.route.<ServiceName>.<versionWithoutDots>.serviceCnName`，本地 H2 表字段长度有限，离线 mock 建议使用 20 字符以内的短名称。
+实例日志缓存需要基础业务上下文。Request 阶段至少准备 `SenderID`；Response 阶段至少准备 `ReceiverID`、`<ReceiverID>.ReceiverID`、`<ReceiverID>.ResultCode` 和 `invokeProviderStartTime`。实例日志与 JsonKeyword 的服务名字段统一保存英文 `serviceName`（服务目录名）；`lightesb.route.<ServiceName>.<versionWithoutDots>.serviceCnName` 只用于中文展示。
 
 ## 常用配置
 
@@ -61,7 +61,7 @@ lightesb.poc.h2-fallback.enabled=true
 - 生产实例日志写入失败：检查 MySQL 连接、表结构和慢 SQL。
 - 本地 POC 不接 MySQL：可设置 `lightesb.poc.h2-fallback.enabled=true`，再用 `diagnostics snapshot --component instance-log --output json` 确认 `instanceLogStorage`、`instanceLogQueryStorage`、`jsonKeywordQueryStorage` 为 `h2-fallback`。
 - H2 写入报 `RES_APPLICATION_CODE` 为空或 StreamCache 文件名为空：补齐 `ReceiverID` 和 `<ReceiverID>.ReceiverID` 响应上下文。
-- H2 写入报 `SERVICE_NAME` value too long：缩短 `serviceCnName`，离线 mock 建议控制在 20 字符以内。
+- H2 写入报 `SERVICE_NAME` value too long：检查英文 `serviceName` 是否超过当前表字段长度；不要通过修改 `serviceCnName` 规避。
 - H2 fallback 只用于几百条级别演示；切回 MySQL 后不会自动迁移 H2 数据。
 - 采集为空：检查 JSON 字段名、服务名和版本。
 - MySQL 同步失败：检查连接、建表权限和分表名。
