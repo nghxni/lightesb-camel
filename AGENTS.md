@@ -66,9 +66,9 @@ LightESB-Camel 交付包内 Agent 协作规则。这里是可运行交付目录�
 - 如需吸收内部结论，必须改写成交付视角，用组件名、配置键、命令、接口契约和示例说明。
 - 外发规则文件不需要、也不应该与源码仓库内部 `AGENTS.md` 完全一致；本文件只描述随包交付目录内可执行的约束。
 - `skills/lightesb-project-troubleshooting/references/baseline-experience.md` 是可升级发布基线；实际项目经验固定为 `project-experience/lightesb-project-troubleshooting.md`。项目经验与新基线冲突时，以正式文档、新基线和安全边界为准，并把旧经验标记为待审核。
-- 输入、输出或回调 Schema 校验路由只通过 `message schema generate` 和 `ai route apply` CLI 完成，不新增或直接调用本能力的管理 API 文档。
+- 输入、输出或回调 JSON Schema 来源统一为 `message schema generate` 的服务端生成结果，不自行编造 Schema，不新增或直接调用本能力的管理 API。路由修改通道按任务区分：普通本地开发直接编辑服务目录，不调用 apply；远程保存或审批会话受管变更仅在明确授权后使用 `ai route apply --save-remote --yes`。生成命令的服务端连接、warnings 门禁和审批 lineage 约束见对应技能。
 - 文档更新不是只改单一文件。修改组件、CLI、样例、API 或交付说明时，必须检查随包的 `docs/README.md`、对应 `docs/components/` 或 `docs/cli/`、相关 `skills/` 和 `example/` 是否需要同步。
-- 如果对应文档、skill 或样例存在但不需要改，交付说明中写明原因，避免随包文档之间出现不一致。
+- 只更新指导内容实际受影响的文档、skill 和样例；明确适用却未完成的同步或验证需说明风险，不逐项解释未改文件。
 - 默认只做文件和静态自检：不启动 LightESB、不执行 curl、不连接外部系统、不执行远程 apply、不调用业务接口。只有用户明确授权对应运行态、外部连接或远程写入操作时才执行。
 - 发布包一次只处理一个 deliveryId；升级前校验摘要并备份旧包、配置、服务目录和数据库。发布升级不得覆盖 `project-experience/`，失败候选不得修改，生产变更仍需用户明确授权。
 - `ai route apply --save-remote --yes`、Schema warnings 后的继续、服务启停/部署和其他远程写操作都需要用户明确授权；保留 CLI 的 `--yes`、warnings 停止和失败后不自动重试语义。

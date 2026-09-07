@@ -2,6 +2,7 @@
 
 | 交付包文档 | 来源 |
 | --- | --- |
+| `../AGENTS.md` | 项目规则与路由、CLI、安全、发布使用边界的交付安全子集；按包内目录、Schema 来源和本地/远程操作通道整理，不复制内部开发流程 |
 | `../README.md` | GitHub 公开技术入口，基于交付包内容、组件文档、样例索引和支持边界整理 |
 | `README.md` | `docs/README.md`，按交付包组件索引、样例入口和 Camel 官方参考链接整理 |
 | `product-overview.md` | `README.md`、内部产品能力边界、英文站实施方案、系统架构和机器人集成架构结论，按外发英文站和公开交付包口径重写 |
@@ -13,7 +14,7 @@
 | `components/03-charset-processing.md` | `docs/13-charset-processor-usage.md`，按交付场景重写 |
 | `components/04-transform-components.md` | `docs/09-conditional-jsontransform-component-usage.md`、`docs/10-conditionaltransform-dts-sample.md` |
 | `transform-logging-operations-api.md` | `docs/api/06-transform-and-logging-operations.md`，按交付调用、响应和错误处理场景重写 |
-| `components/05-json-schema-validation.md` | `docs/14-jsonschema-validation-processor-usage.md` |
+| `components/05-json-schema-validation.md` | `docs/14-jsonschema-validation-processor-usage.md` 与消息 Schema CLI 使用说明，区分服务端生成、本地编辑和已授权远程 apply |
 | `components/06-json-keyword.md` | `docs/01-json-keyword.md`，重新编写外发版 |
 | `components/07-stream-cache.md` | `docs/11-streamcache-component-usage.md` |
 | `components/08-permission-validation.md` | `docs/15-permission-check-processor-usage.md` |

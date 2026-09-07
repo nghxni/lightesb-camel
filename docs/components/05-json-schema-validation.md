@@ -99,4 +99,6 @@ lightesb message schema generate \
 
 也可将 `--id` 替换为 `--file message.json`，从尚未保存的消息定义生成。目标 `{app-dir}/{serviceName}/{serviceVersion}` 必须已存在。
 
-Schema 内容只能使用接口返回的 `data.schema`，不得由模型根据 `msgStructure` 自行生成、补写或修改。`data.warnings` 非空时停止自动 apply，展示完整 warnings，只有用户明确确认后才能继续。将 `data.jsonSchemaPath` 原样写入路由；用户审核 route、properties 和 Schema 候选后，使用 `lightesb ai route apply --save-remote --yes` 一次提交路由实际引用的固定 Schema。删除某方向校验块后重新 apply 会删除对应受管固定 Schema，不影响自定义 Schema。
+Schema 内容只能使用接口返回的 `data.schema`，不得由模型根据 `msgStructure` 自行生成、补写或修改。生成命令会连接服务端并写本地文件，需符合当前任务授权。`data.warnings` 非空时停止自动 apply，展示完整 warnings，只有用户明确确认后才能继续；将 `data.jsonSchemaPath` 原样写入路由。
+
+Schema 来源不决定路由的修改通道：普通本地开发直接编辑目标服务目录并做静态检查，运行态验证按授权单独执行，不调用 apply。远程保存或审批会话受管变更先准备非热加载候选，明确授权远程写入后才用 `lightesb ai route apply --save-remote --yes` 一次提交 route、properties 和实际引用的固定 Schema；不能先改 live 再用旧 session 追认。远程 apply 删除某方向校验块时会删除对应受管固定 Schema，不影响自定义 Schema。
