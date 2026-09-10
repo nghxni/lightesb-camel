@@ -1,0 +1,97 @@
+<routes xmlns="http://camel.apache.org/schema/spring">
+  <route id="receivable-exception-entry">
+    <routeProperty key="lightesb.action.input.schema" value="request-schema.json"/>
+    <routeProperty key="lightesb.action.input.media-type" value="application/schema+json"/>
+    <routeProperty key="lightesb.action.input.contract-stage" value="entry"/>
+    <routeProperty key="lightesb.action.output.schema" value="response-schema.json"/>
+    <routeProperty key="lightesb.action.output.media-type" value="application/schema+json"/>
+    <from uri="undertow:http://127.0.0.1:{{server.port}}/receivable-exception?httpMethodRestrict=POST"/>
+    <!-- The public route declares the contract; execution is exclusively through the Action API. -->
+    <setHeader name="CamelHttpResponseCode"><constant>403</constant></setHeader>
+    <setBody><constant>{"code":"ACTION_API_REQUIRED"}</constant></setBody>
+  </route>
+  <route id="receivable-exception-execute">
+    <from uri="direct:receivable-exception"/>
+    <convertBodyTo type="java.lang.String"/>
+    <setProperty name="request"><simple>${body}</simple></setProperty>
+    <setProperty name="processingStage"><constant>upstream</constant></setProperty>
+    <doTry>
+      <setBody><simple>${exchangeProperty.request}</simple></setBody>
+      <removeHeaders pattern="*"/>
+      <setHeader name="Content-Type"><constant>application/json</constant></setHeader>
+      <to uri="http://127.0.0.1:{{mock.erp.port}}/receivables?httpMethod=POST&amp;connectTimeout=1000&amp;responseTimeout=1000"/>
+      <convertBodyTo type="java.lang.String"/>
+      <setProperty name="erp"><simple>${body}</simple></setProperty>
+      <setBody><simple>${exchangeProperty.request}</simple></setBody>
+      <removeHeaders pattern="*"/>
+      <setHeader name="Content-Type"><constant>application/json</constant></setHeader>
+      <to uri="http://127.0.0.1:{{mock.treasury.port}}/receipts?httpMethod=POST&amp;connectTimeout=1000&amp;responseTimeout=1000"/>
+      <convertBodyTo type="java.lang.String"/>
+      <setProperty name="bank"><simple>${body}</simple></setProperty>
+      <setBody><simple>${exchangeProperty.request}</simple></setBody>
+      <removeHeaders pattern="*"/>
+      <setHeader name="Content-Type"><constant>application/json</constant></setHeader>
+      <to uri="http://127.0.0.1:{{mock.contract.port}}/contracts?httpMethod=POST&amp;connectTimeout=1000&amp;responseTimeout=1000"/>
+      <convertBodyTo type="java.lang.String"/>
+      <setProperty name="contract"><simple>${body}</simple></setProperty>
+      <setProperty name="processingStage"><constant>data</constant></setProperty>
+      <transform><datasonnet resultType="java.lang.String"><![CDATA[local req=std.parseJson(cml.exchangeProperty("request"));
+local erp=std.parseJson(cml.exchangeProperty("erp"));
+local bank=std.parseJson(cml.exchangeProperty("bank"));
+local contract=std.parseJson(cml.exchangeProperty("contract"));
+local fields(x, keys)=std.type(x)=="object" && std.length([k for k in keys if !std.objectHas(x,k)])==0;
+local text(x)=std.type(x)=="string" && std.length(x)>0 && std.length(x)<=64;
+local quantity(x)=std.type(x)=="number" && x>=0 && x<=1000000 && std.floor(x)==x;
+local digits(s)=std.length([c for c in std.stringChars(s) if std.length(std.findSubstr(c,"0123456789"))==0])==0;
+local date(d)=
+  if std.type(d)!="string" || std.length(d)!=10 then false
+  else if std.substr(d,4,1)!="-" || std.substr(d,7,1)!="-" || !digits(std.substr(d,0,4)+std.substr(d,5,2)+std.substr(d,8,2)) then false
+  else local y=std.parseInt(std.substr(d,0,4)); local m=std.parseInt(std.substr(d,5,2)); local day=std.parseInt(std.substr(d,8,2));
+    local leap=y%4==0 && (y%100!=0 || y%400==0);
+    local days=[31,if leap then 29 else 28,31,30,31,30,31,31,30,31,30,31];
+    y>=1 && m>=1 && m<=12 && day>=1 && day<=days[m-1];
+
+local amount(x)=std.type(x)=="number" && x>=0 && x<=1000000000 && std.floor(x)==x;
+local es=[x for x in erp.records if x.customerId==req.customerId];
+local bs=[x for x in bank.records if x.customerId==req.customerId];
+local cs=[x for x in contract.records if x.customerId==req.customerId];
+local epochDay(d)=
+  local y=std.parseInt(std.substr(d,0,4)); local m=std.parseInt(std.substr(d,5,2)); local day=std.parseInt(std.substr(d,8,2));
+  local leap=y%4==0 && (y%100!=0 || y%400==0); local days=[31,if leap then 29 else 28,31,30,31,30,31,31,30,31,30,31];
+  365*(y-1)+std.floor((y-1)/4)-std.floor((y-1)/100)+std.floor((y-1)/400)+std.foldl(function(a,x) a+x,std.slice(days,0,m-1,1),0)+day;
+local receiptValid(x)=fields(x,["recordId","invoiceId","amountMinor","currency","observedAt"]) && text(x.recordId) && (x.invoiceId==null || text(x.invoiceId)) && amount(x.amountMinor) && std.member(["CNY","USD"],x.currency) && text(x.observedAt);
+local bankInvalid=std.length([x for x in bs if !receiptValid(x)])>0;
+local evidence(rows,source)=[{sourceSystem:source,recordId:x.recordId,observedAt:x.observedAt} for x in rows if fields(x,["recordId","observedAt"]) && text(x.recordId) && text(x.observedAt)];
+local invoiceKey(x)=fields(x,["invoiceId","contractId"]) && text(x.invoiceId) && text(x.contractId);
+local keyError=std.length([x for x in es if !invoiceKey(x)])>0 || std.length([x for x in cs if !fields(x,["contractId"]) || !text(x.contractId)])>0;
+local duplicate(rows)=local ids=[x.recordId for x in rows if fields(x,["recordId"]) && text(x.recordId)]; std.length(std.set(ids))!=std.length(ids);
+local duplicateErp=duplicate(es); local duplicateContract=duplicate(cs);
+local ids=[x.invoiceId for x in es if fields(x,["invoiceId"]) && text(x.invoiceId)];
+local unallocated=[x for x in bs if !std.objectHas(x,"invoiceId") || x.invoiceId==null || !std.member(ids,x.invoiceId)];
+local duplicateReceipt=duplicate(bs);
+local staleUnallocated=std.length([x for x in unallocated if !fields(x,["observedAt"]) || x.observedAt!=req.asOf])>0;
+local invoice(e)=
+  local payments=[x for x in bs if std.objectHas(x,"invoiceId") && x.invoiceId==e.invoiceId];
+  local terms=[x for x in cs if x.contractId==e.contractId];
+  local unique=std.length([x for x in es if std.objectHas(x,"invoiceId") && x.invoiceId==e.invoiceId])==1;
+  local valid=!bankInvalid && fields(e,["recordId","amountMinor","currency","observedAt"]) && text(e.recordId) && text(e.observedAt) && amount(e.amountMinor) && std.member(["CNY","USD"],e.currency)
+    && std.length([x for x in payments if !fields(x,["recordId","amountMinor","currency","observedAt"]) || !text(x.recordId) || !amount(x.amountMinor) || !std.member(["CNY","USD"],x.currency)])==0;
+  local termValid=std.length(terms)==1 && fields(terms[0],["recordId","dueDate","observedAt"]) && text(terms[0].recordId) && text(terms[0].observedAt) && date(terms[0].dueDate);
+  local missing=if !valid || (std.length(terms)==1 && !termValid) then "INVALID_UPSTREAM_DATA" else if !unique || duplicateReceipt || duplicateErp || duplicateContract || std.length(terms)>1 then "DUPLICATE_RECORD" else if std.length(terms)==0 then "MISSING_CONTRACT" else if std.length([x for x in payments if x.currency!=e.currency])>0 then "CURRENCY_MISMATCH" else if std.length([x for x in [e]+payments+terms if x.observedAt!=req.asOf])>0 then "STALE_DATA" else null;
+  local received=if missing==null then std.foldl(function(a,x) a+x.amountMinor,payments,0) else null;
+  local balance=if missing==null then std.max(0,e.amountMinor-received) else null;
+  local excess=if missing==null then std.max(0,received-e.amountMinor) else null;
+  local overdue=if missing==null then (if balance>0 then std.max(0,epochDay(std.substr(req.asOf,0,10))-epochDay(terms[0].dueDate)) else 0) else null;
+  local status=if missing!=null then "UNKNOWN" else if excess>0 then "OVERPAID" else if balance==0 then "SETTLED" else if received>0 then "PARTIAL" else if overdue>0 then "OVERDUE" else "NOT_DUE";
+  {invoiceId:e.invoiceId,currency:if valid then e.currency else null,amountMinor:if valid then e.amountMinor else null,receivedMinor:received,outstandingMinor:balance,overpaidMinor:excess,overdueDays:overdue,dueDate:if termValid then terms[0].dueDate else null,status:status,
+   reasons:if missing!=null then [missing] else [status]+(if status=="PARTIAL" && overdue>0 then ["OVERDUE"] else []),
+   evidence:evidence([e],"ERP")+evidence(payments,"TREASURY")+evidence(terms,"CONTRACT")};
+local items=if keyError then [] else [invoice(x) for x in es];
+local reasons=std.set(std.flattenArrays([x.reasons for x in items])+(if std.length(unallocated)>0 then ["UNALLOCATED_RECEIPT"] else [])+(if keyError then ["INVALID_ASSOCIATION_KEY"] else if std.length(items)==0 then ["NO_RECEIVABLES"] else [])+(if staleUnallocated then ["STALE_DATA"] else [])+(if bankInvalid then ["INVALID_UPSTREAM_DATA"] else [])+(if duplicateReceipt || duplicateErp || duplicateContract then ["DUPLICATE_RECORD"] else []));
+std.manifestJson({mock:true,asOf:req.asOf,customerId:req.customerId,moneyUnit:"minor-unit",status:if keyError || bankInvalid || staleUnallocated || std.length(items)==0 || std.length([x for x in items if x.status=="UNKNOWN"])>0 then "UNKNOWN" else if std.length(unallocated)>0 || std.length([x for x in items if x.status!="SETTLED" && x.status!="NOT_DUE"])>0 then "ATTENTION" else "NORMAL",reasons:reasons,items:items,evidence:evidence(es,"ERP")+evidence(bs,"TREASURY")+evidence(cs,"CONTRACT"),unallocatedReceipts:[{sourceSystem:"TREASURY",recordId:x.recordId,observedAt:x.observedAt,amountMinor:x.amountMinor,currency:x.currency} for x in unallocated if receiptValid(x)]})]]></datasonnet></transform>
+      <doCatch><exception>java.lang.Exception</exception>
+        <transform><datasonnet resultType="java.lang.String"><![CDATA[local req=std.parseJson(cml.exchangeProperty("request"));std.manifestJson({mock:true,asOf:req.asOf,customerId:req.customerId,moneyUnit:"minor-unit",status:"UNKNOWN",reasons:[if cml.exchangeProperty("processingStage")=="upstream" then "UPSTREAM_UNAVAILABLE" else "DATA_OR_PROCESSING_ERROR"],items:[],evidence:[],unallocatedReceipts:[]})]]></datasonnet></transform>
+      </doCatch>
+    </doTry>
+  </route>
+</routes>

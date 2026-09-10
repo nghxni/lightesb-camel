@@ -1,0 +1,68 @@
+<routes xmlns="http://camel.apache.org/schema/spring">
+  <route id="inventory-reconcile-entry">
+    <routeProperty key="lightesb.action.input.schema" value="request-schema.json"/>
+    <routeProperty key="lightesb.action.input.media-type" value="application/schema+json"/>
+    <routeProperty key="lightesb.action.input.contract-stage" value="entry"/>
+    <routeProperty key="lightesb.action.output.schema" value="response-schema.json"/>
+    <routeProperty key="lightesb.action.output.media-type" value="application/schema+json"/>
+    <from uri="undertow:http://127.0.0.1:{{server.port}}/inventory-reconcile?httpMethodRestrict=POST"/>
+    <!-- The public route declares the contract; execution is exclusively through the Action API. -->
+    <setHeader name="CamelHttpResponseCode"><constant>403</constant></setHeader>
+    <setBody><constant>{"code":"ACTION_API_REQUIRED"}</constant></setBody>
+  </route>
+  <route id="inventory-reconcile-execute">
+    <from uri="direct:inventory-reconcile"/>
+    <convertBodyTo type="java.lang.String"/>
+    <setProperty name="request"><simple>${body}</simple></setProperty>
+    <setProperty name="processingStage"><constant>upstream</constant></setProperty>
+    <doTry>
+      <setBody><simple>${exchangeProperty.request}</simple></setBody>
+      <removeHeaders pattern="*"/>
+      <setHeader name="Content-Type"><constant>application/json</constant></setHeader>
+      <to uri="http://127.0.0.1:{{mock.erp.port}}/inventory?httpMethod=POST&amp;connectTimeout=1000&amp;responseTimeout=1000"/>
+      <convertBodyTo type="java.lang.String"/>
+      <setProperty name="erp"><simple>${body}</simple></setProperty>
+      <setBody><simple>${exchangeProperty.request}</simple></setBody>
+      <removeHeaders pattern="*"/>
+      <setHeader name="Content-Type"><constant>application/json</constant></setHeader>
+      <to uri="http://127.0.0.1:{{mock.wms.port}}/inventory?httpMethod=POST&amp;connectTimeout=1000&amp;responseTimeout=1000"/>
+      <convertBodyTo type="java.lang.String"/>
+      <setProperty name="wms"><simple>${body}</simple></setProperty>
+      <setProperty name="processingStage"><constant>data</constant></setProperty>
+      <transform><datasonnet resultType="java.lang.String"><![CDATA[local req=std.parseJson(cml.exchangeProperty("request"));
+local erp=std.parseJson(cml.exchangeProperty("erp"));
+local wms=std.parseJson(cml.exchangeProperty("wms"));
+local rows(doc)=[x for x in doc.records if x.documentId==req.documentId && x.warehouseId==req.warehouseId];
+local es=rows(erp); local ws=rows(wms);
+local keyValid(x)=std.objectHas(x,"lineId") && std.type(x.lineId)=="string" && std.length(x.lineId)>0 && std.objectHas(x,"sku") && std.type(x.sku)=="string" && std.length(x.sku)>0;
+local keyError=std.length([x for x in es+ws if !keyValid(x)])>0;
+local keys=if keyError then [] else std.set([{lineId:x.lineId,sku:x.sku} for x in es+ws],function(x) std.manifestJson([x.lineId,x.sku]));
+local fields(x,keys)=std.type(x)=="object" && std.length([k for k in keys if !std.objectHas(x,k)])==0;
+local text(x)=std.type(x)=="string" && std.length(x)>0;
+local valid(x)=fields(x,["recordId","quantity","unit","observedAt"]) && text(x.recordId) && text(x.unit) && text(x.observedAt) && std.type(x.quantity)=="number" && x.quantity>=0 && x.quantity<=1000000 && std.floor(x.quantity)==x.quantity;
+local reconcile(k)=
+  local e=[x for x in es if x.lineId==k.lineId && x.sku==k.sku];
+  local w=[x for x in ws if x.lineId==k.lineId && x.sku==k.sku];
+  local invalid=std.length([x for x in e+w if !valid(x)])>0;
+  local ambiguous=std.length(e)>1 || std.length(w)>1;
+  local stale=std.length([x for x in e+w if x.observedAt!=req.asOf])>0;
+  local both=std.length(e)==1 && std.length(w)==1;
+  local mismatch=both && e[0].unit!=w[0].unit;
+  local reason=if invalid then "INVALID_UPSTREAM_DATA" else if ambiguous then "DUPLICATE_RECORD" else if stale then "STALE_DATA" else if mismatch then "UNIT_MISMATCH" else if std.length(e)==0 then "MISSING_ERP" else if std.length(w)==0 then "MISSING_WMS" else if e[0].quantity!=w[0].quantity then "QUANTITY_DIFFERENCE" else "MATCHED";
+  {lineId:k.lineId,sku:k.sku,status:if invalid || ambiguous || stale || mismatch then "UNKNOWN" else reason,reason:reason,
+    erpQuantity:if !invalid && std.length(e)==1 then e[0].quantity else null,
+    wmsQuantity:if !invalid && std.length(w)==1 then w[0].quantity else null,
+    difference:if both && !invalid && !ambiguous && !stale && !mismatch then e[0].quantity-w[0].quantity else null,
+    unit:if both && !invalid && !mismatch then e[0].unit else null,
+    evidence:[{sourceSystem:"ERP",recordId:x.recordId,observedAt:x.observedAt} for x in e if fields(x,["recordId","observedAt"]) && text(x.recordId) && text(x.observedAt)]+[{sourceSystem:"WMS",recordId:x.recordId,observedAt:x.observedAt} for x in w if fields(x,["recordId","observedAt"]) && text(x.recordId) && text(x.observedAt)]};
+local items=[reconcile(k) for k in keys];
+local unknown=std.length(items)==0 || std.length([x for x in items if x.status=="UNKNOWN"])>0;
+std.manifestJson({mock:true,asOf:req.asOf,documentId:req.documentId,warehouseId:req.warehouseId,
+  status:if unknown then "UNKNOWN" else if std.length([x for x in items if x.status!="MATCHED"])>0 then "DIFFERENCES" else "MATCHED",
+  reasons:if keyError then ["INVALID_UPSTREAM_DATA"] else if std.length(items)==0 then ["NO_RECORDS"] else std.set([x.reason for x in items]),items:items})]]></datasonnet></transform>
+      <doCatch><exception>java.lang.Exception</exception>
+        <transform><datasonnet resultType="java.lang.String"><![CDATA[local req=std.parseJson(cml.exchangeProperty("request")); std.manifestJson({mock:true,asOf:req.asOf,documentId:req.documentId,warehouseId:req.warehouseId,status:"UNKNOWN",reasons:[if cml.exchangeProperty("processingStage")=="upstream" then "UPSTREAM_UNAVAILABLE" else "DATA_OR_PROCESSING_ERROR"],items:[]})]]></datasonnet></transform>
+      </doCatch>
+    </doTry>
+  </route>
+</routes>

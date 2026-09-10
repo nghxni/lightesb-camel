@@ -533,3 +533,7 @@ keyword add/delete
 ```
 
 HTTP 错误摘要会保留 status、错误码和可行动信息，并脱敏 token、password、secret、authorization、apiKey 等常见凭据。
+
+## 业务 Action 固定快照样例
+
+订单、ERP/WMS 对账、回款异常见 [业务演示说明](../manufacturing-action-demo.md)。查询使用配置的 profile；显式 `--server` 会切换为不携带 profile bearer 的连接，受保护的 Action 查询应使用正确 profile。`get` 只返回 Schema 路径/摘要，需核对随包正文；有 HTTP 下游的 read Action 仍需已批准 sessionId。

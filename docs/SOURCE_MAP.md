@@ -56,5 +56,14 @@
 | `cli/README.md` | `docs/cli/README.md`，外发压缩版 |
 | `cli/01-cli-command-reference.md` | `docs/cli/*` 与 `lightesb-cli/src/main/java/.../cli/command/*`，按命令域压缩整理 |
 | `cli/support-diagnostics.md` | `docs/cli/12-support-diagnostics-runbook.md`，按外发支持诊断场景重写，不包含内部演示样例命令 |
+| `manufacturing-action-demo.md` | `docs/29-business-action-demo.md`，按交付目录、现有CLI、Schema核对和可信审批边界重写；不包含内部测试工具或答案 |
+| `../example/routes/OrderDeliveryCheckSrv/v1.0.0/` | `example/OrderDeliveryCheckSrv/v1.0.0/`，合成固定快照业务路由/Schema，默认停用 |
+| `../example/routes/InventoryReconcileSrv/v1.0.0/` | `example/InventoryReconcileSrv/v1.0.0/`，合成固定快照业务路由/Schema，默认停用 |
+| `../example/routes/ReceivableExceptionSrv/v1.0.0/` | `example/ReceivableExceptionSrv/v1.0.0/`，合成固定快照业务路由/Schema，默认停用 |
+| `../example/routes/MockErpSrv/v1.0.0/` | `example/MockErpSrv/v1.0.0/`，合成固定快照业务路由/Schema，默认停用 |
+| `../example/routes/MockWmsSrv/v1.0.0/` | `example/MockWmsSrv/v1.0.0/`，合成固定快照业务路由/Schema，默认停用 |
+| `../example/routes/MockTreasurySrv/v1.0.0/` | `example/MockTreasurySrv/v1.0.0/`，合成固定快照业务路由/Schema，默认停用 |
+| `../example/routes/MockContractSrv/v1.0.0/` | `example/MockContractSrv/v1.0.0/`，合成固定快照业务路由/Schema，默认停用 |
+
 
 源码仓库组件文档保持原编号，经验复盘类文档放入 `docs/experience/`。本交付包文档为外发整理版，不直接复制内部实现路径或内部流程说明。

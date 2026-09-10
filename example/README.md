@@ -31,6 +31,10 @@
 | `routes/RobotEdgeInferenceSrv/v1.0.0/` | 边缘 AI 推理身份、时效、置信度、replay 与共享安全策略 mock 门禁，默认 `server.running=false` | `../docs/robot-edge-inference-mock.md` |
 | `transform-dts-java/` | DTS Java SPI 扩展示例，提供多个 transform provider | `../docs/extensions/01-dts-extension-guide.md` |
 
+## 业务 Action 模拟组
+
+`routes/OrderDeliveryCheckSrv`、`routes/InventoryReconcileSrv`、`routes/ReceivableExceptionSrv` 配合 `MockErpSrv`、`MockWmsSrv`、`MockTreasurySrv`、`MockContractSrv`。默认停用，通过可信审批的 Action CLI 调用；详见 [业务演示说明](../docs/manufacturing-action-demo.md)。
+
 ## 运行方式
 
 ```bash

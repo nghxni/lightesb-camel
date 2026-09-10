@@ -4,6 +4,8 @@
 
 ## 项目入口
 
+- [业务 Action 与 Codex CLI 演示](manufacturing-action-demo.md)：订单交付、ERP/WMS 对账、回款异常的固定快照样例。
+
 - [仓库 README](../README.md)：项目定位、能力矩阵、快速启动、目录结构、Support 和 License。
 - [Product Overview](product-overview.md)：英文产品定位、能力矩阵、适用场景、机器人边界和网站部署口径。
 - [Agent 规则](../AGENTS.md)：Agent 在本交付包内工作的约束。

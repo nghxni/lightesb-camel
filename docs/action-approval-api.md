@@ -159,3 +159,5 @@ POST
 - rollback failed/unavailable 时停止自动重试，保留 sessionId、operationId 和脱敏错误证据供人工排障。
 
 会话、provider event 和 transition 都写安全审计；输出和持久化不含 bearer、HMAC secret、callback raw body、route/input 正文或绝对路径。
+
+回调 `issuedAt` 使用 UTC ISO-8601 时间，精度最多毫秒；微秒/纳秒会被拒绝。回调和授权TTL使用当前服务端时钟，不使用业务模拟快照时间。

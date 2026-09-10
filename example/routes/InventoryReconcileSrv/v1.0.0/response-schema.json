@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "mock": {
+      "const": true
+    },
+    "asOf": {
+      "const": "2026-09-08T00:00:00Z"
+    },
+    "documentId": {
+      "type": "string"
+    },
+    "warehouseId": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "MATCHED",
+        "DIFFERENCES",
+        "UNKNOWN"
+      ]
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "lineId": {
+            "type": "string"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "MATCHED",
+              "QUANTITY_DIFFERENCE",
+              "MISSING_ERP",
+              "MISSING_WMS",
+              "UNKNOWN"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "erpQuantity": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "wmsQuantity": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "difference": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "unit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "sourceSystem": {
+                  "type": "string"
+                },
+                "recordId": {
+                  "type": "string"
+                },
+                "observedAt": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "sourceSystem",
+                "recordId",
+                "observedAt"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "lineId",
+          "sku",
+          "status",
+          "reason",
+          "erpQuantity",
+          "wmsQuantity",
+          "difference",
+          "unit",
+          "evidence"
+        ]
+      }
+    }
+  },
+  "required": [
+    "mock",
+    "asOf",
+    "documentId",
+    "warehouseId",
+    "status",
+    "reasons",
+    "items"
+  ],
+  "additionalProperties": false
+}

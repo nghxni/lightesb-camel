@@ -134,3 +134,7 @@ lightesb robot policy list --server http://localhost:8080 --output json
 - AI 相关说明不要求本地保存模型 provider 密钥。
 - JSON Schema 自动流程能证明消息 ID 来源、固定文件映射和 warnings 人工门禁，不自行生成 Schema。
 - 售后诊断证据已脱敏，且不会把只读采证误写成 reload、deploy、cleanup 或日志级别调整。
+
+## 业务 Action 模拟验收
+
+订单交付、ERP/WMS 对账和回款异常的固定快照路由见 `docs/manufacturing-action-demo.md`。复用现有 action search/get/execute；get 仅返回Schema路径/摘要，先核对随包Schema正文。HTTP下游read Action仍需可信审批会话；Agent只使用固定策略和已批准sessionId，不签发扩大权限或自行审批。

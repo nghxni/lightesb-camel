@@ -1,0 +1,80 @@
+<routes xmlns="http://camel.apache.org/schema/spring">
+  <route id="order-delivery-entry">
+    <routeProperty key="lightesb.action.input.schema" value="request-schema.json"/>
+    <routeProperty key="lightesb.action.input.media-type" value="application/schema+json"/>
+    <routeProperty key="lightesb.action.input.contract-stage" value="entry"/>
+    <routeProperty key="lightesb.action.output.schema" value="response-schema.json"/>
+    <routeProperty key="lightesb.action.output.media-type" value="application/schema+json"/>
+    <from uri="undertow:http://127.0.0.1:{{server.port}}/order-delivery?httpMethodRestrict=POST"/>
+    <!-- The public route declares the contract; execution is exclusively through the Action API. -->
+    <setHeader name="CamelHttpResponseCode"><constant>403</constant></setHeader>
+    <setBody><constant>{"code":"ACTION_API_REQUIRED"}</constant></setBody>
+  </route>
+  <route id="order-delivery-execute">
+    <from uri="direct:order-delivery"/>
+    <convertBodyTo type="java.lang.String"/>
+    <setProperty name="request"><simple>${body}</simple></setProperty>
+    <setProperty name="processingStage"><constant>upstream</constant></setProperty>
+    <doTry>
+      <setBody><simple>${exchangeProperty.request}</simple></setBody>
+      <removeHeaders pattern="*"/>
+      <setHeader name="Content-Type"><constant>application/json</constant></setHeader>
+      <to uri="http://127.0.0.1:{{mock.erp.port}}/orders?httpMethod=POST&amp;connectTimeout=1000&amp;responseTimeout=1000"/>
+      <convertBodyTo type="java.lang.String"/>
+      <setProperty name="erp"><simple>${body}</simple></setProperty>
+      <setBody><simple>${exchangeProperty.request}</simple></setBody>
+      <removeHeaders pattern="*"/>
+      <setHeader name="Content-Type"><constant>application/json</constant></setHeader>
+      <to uri="http://127.0.0.1:{{mock.wms.port}}/shipments?httpMethod=POST&amp;connectTimeout=1000&amp;responseTimeout=1000"/>
+      <convertBodyTo type="java.lang.String"/>
+      <setProperty name="wms"><simple>${body}</simple></setProperty>
+      <setProperty name="processingStage"><constant>data</constant></setProperty>
+      <transform><datasonnet resultType="java.lang.String"><![CDATA[local req = std.parseJson(cml.exchangeProperty("request"));
+local erp = std.parseJson(cml.exchangeProperty("erp"));
+local wms = std.parseJson(cml.exchangeProperty("wms"));
+local orders = [x for x in erp.records if x.orderId == req.orderId];
+local shipments = [x for x in wms.records if x.orderId == req.orderId];
+local fields(x, keys)=std.type(x)=="object" && std.length([k for k in keys if !std.objectHas(x,k)])==0;
+local text(x)=std.type(x)=="string" && std.length(x)>0 && std.length(x)<=64;
+local quantity(x)=std.type(x)=="number" && x>=0 && x<=1000000 && std.floor(x)==x;
+local digits(s)=std.length([c for c in std.stringChars(s) if std.length(std.findSubstr(c,"0123456789"))==0])==0;
+local date(d)=
+  if std.type(d)!="string" || std.length(d)!=10 then false
+  else if std.substr(d,4,1)!="-" || std.substr(d,7,1)!="-" || !digits(std.substr(d,0,4)+std.substr(d,5,2)+std.substr(d,8,2)) then false
+  else local y=std.parseInt(std.substr(d,0,4)); local m=std.parseInt(std.substr(d,5,2)); local day=std.parseInt(std.substr(d,8,2));
+    local leap=y%4==0 && (y%100!=0 || y%400==0);
+    local days=[31,if leap then 29 else 28,31,30,31,30,31,31,30,31,30,31];
+    y>=1 && m>=1 && m<=12 && day>=1 && day<=days[m-1];
+local found = std.length(orders) == 1 && std.length(shipments) == 1;
+local order = if found then orders[0] else null;
+local shipment = if found then shipments[0] else null;
+local valid = found && fields(order,["recordId","status","orderedQuantity","unit","dueDate","observedAt"]) && fields(shipment,["recordId","shippedQuantity","unit","observedAt"])
+  && text(order.recordId) && text(shipment.recordId) && std.member(["OPEN","SHIPPED","CANCELLED"],order.status)
+  && quantity(order.orderedQuantity) && quantity(shipment.shippedQuantity) && text(order.unit) && text(shipment.unit)
+  && date(order.dueDate) && text(order.observedAt) && text(shipment.observedAt);
+local reasons = if !found then ["MISSING_OR_AMBIGUOUS_RECORD"]
+  else if !valid then ["INVALID_UPSTREAM_DATA"]
+  else if order.observedAt != req.asOf || shipment.observedAt != req.asOf then ["STALE_DATA"]
+  else if order.unit != shipment.unit then ["UNIT_MISMATCH"] else [];
+local status = if std.length(reasons) > 0 then "UNKNOWN"
+  else if (order.status == "CANCELLED" && shipment.shippedQuantity > 0) || shipment.shippedQuantity > order.orderedQuantity || (order.status == "SHIPPED" && shipment.shippedQuantity != order.orderedQuantity) then "STATE_CONFLICT"
+  else if order.status == "CANCELLED" then "CANCELLED"
+  else if shipment.shippedQuantity == order.orderedQuantity then "READY"
+  else if shipment.shippedQuantity > 0 then "PARTIAL"
+  else if order.dueDate < std.substr(req.asOf, 0, 10) then "OVERDUE" else "READY";
+std.manifestJson({mock:true, asOf:req.asOf, orderId:req.orderId, status:status,
+  reasons: if std.length(reasons)>0 then reasons else [status] + (if valid && status=="PARTIAL" && order.dueDate < std.substr(req.asOf,0,10) then ["OVERDUE"] else []),
+  orderedQuantity:if valid then order.orderedQuantity else null,
+  shippedQuantity:if valid then shipment.shippedQuantity else null,
+  unit:if valid then order.unit else null,
+  evidence:[{sourceSystem:"ERP",recordId:x.recordId,observedAt:x.observedAt} for x in orders if fields(x,["recordId","observedAt"]) && text(x.recordId) && text(x.observedAt)]
+    + [{sourceSystem:"WMS",recordId:x.recordId,observedAt:x.observedAt} for x in shipments if fields(x,["recordId","observedAt"]) && text(x.recordId) && text(x.observedAt)]})]]></datasonnet></transform>
+      <doCatch><exception>java.lang.Exception</exception>
+        <transform><datasonnet resultType="java.lang.String"><![CDATA[
+local req=std.parseJson(cml.exchangeProperty("request"));
+std.manifestJson({mock:true,asOf:req.asOf,orderId:req.orderId,status:"UNKNOWN",reasons:[if cml.exchangeProperty("processingStage")=="upstream" then "UPSTREAM_UNAVAILABLE" else "DATA_OR_PROCESSING_ERROR"],orderedQuantity:null,shippedQuantity:null,unit:null,evidence:[]})
+        ]]></datasonnet></transform>
+      </doCatch>
+    </doTry>
+  </route>
+</routes>

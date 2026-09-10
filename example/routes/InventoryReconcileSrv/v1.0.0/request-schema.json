@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "documentId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "warehouseId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "asOf": {
+      "const": "2026-09-08T00:00:00Z",
+      "type": "string"
+    }
+  },
+  "required": [
+    "documentId",
+    "warehouseId",
+    "asOf"
+  ],
+  "additionalProperties": false
+}

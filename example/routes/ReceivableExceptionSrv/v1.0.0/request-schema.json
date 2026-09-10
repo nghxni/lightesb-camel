@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "customerId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "asOf": {
+      "type": "string",
+      "const": "2026-09-08T00:00:00Z"
+    }
+  },
+  "required": [
+    "customerId",
+    "asOf"
+  ],
+  "additionalProperties": false
+}
