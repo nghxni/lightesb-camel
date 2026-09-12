@@ -374,6 +374,24 @@ lightesb keyword query-instances --service-name DemoSrv --service-version 1.0.0 
 
 `log snapshot`作为基础只读排障能力直接提供。仅读取指定服务版本logs目录的最近片段，不开启DEBUG或改变级别；最多扫描128项、读取8个文件，每文件64KiB和1–200行。检查filesTruncated、truncated、changedDuringRead、readError；空/隐藏/变化/失败片段不能解释为“无异常”。依赖文件系统安全目录句柄，不支持时返回不可用，不退回不安全读取；不接受任意path，不承诺完整时间窗口或连续增量。
 
+### Windows 服务端手工查看日志
+
+当前暂不实现 Windows 服务端的 `log snapshot` 安全文件读取支持；不支持安全目录句柄时返回 HTTP `409 LOG_SNAPSHOT_UNAVAILABLE`，不会降级为不安全读取。这是服务端限制，与运行 CLI 的电脑是否为 Windows 无关。
+
+请有文件访问权限的现场人员在 **LightESB 服务端机器** 上，进入实际服务根目录，直接查看对应服务版本的日志。默认位置为：
+
+- DEBUG 日志：`lightesb-camel-app/{serviceName}/{serviceVersion}/logs/DEBUG.log`。
+- 服务日志目录：`lightesb-camel-app/{serviceName}/{serviceVersion}/logs/`，查看其中已有的日志文件。
+
+例如，Windows 下可在 PowerShell 中读取最近 100 行（将安装路径和服务身份替换为现场值）：
+
+```powershell
+Get-Content -LiteralPath 'D:\LightESB\lightesb-camel-app\DemoSrv\v1.0.0\logs\DEBUG.log' -Encoding UTF8 -Tail 100
+```
+
+目录名是 `logs`，`DEBUG.log` 默认位于该目录内，并非版本目录根下。若现场调整了服务根目录或日志输出路径，以实际配置为准。`DEBUG.log` 需要已开启该服务版本的 DEBUG 且有日志产生；文件不存在不能解释为没有故障，也不要为取证自动开启 DEBUG 或调整日志级别。手工读取的原始日志不经过快照接口脱敏，对外提供前须脱敏。
+
+
 `deploy rollback <deploymentId> --yes` 恢复指定部署发生前的备份，必须先确认目标与授权。成功JSON保留新deploymentId、sourceDeploymentId及ROLLED_BACK；随后按新ID查询并核对服务/路由状态。`--no-auto-start`只跳过主动加载，Watcher仍可能处理恢复配置，不保证停服。无备份、冲突和失败均停止；默认30秒请求超时不表示服务端取消或未执行，先查history/status，不能自动重放回滚，归属不明时报告未知。
 
 回滚失败的JSON保留脱敏`error.details`：可用时按`rollbackDeploymentId`查询新回滚记录，`deploymentId`为源记录ID；缺失时不从错误文字猜测。
