@@ -1,5 +1,19 @@
 # Transform 与日志重载 API
 
+## 服务日志单次快照
+
+GET `/api/logging/snapshot`，作为基础只读管理接口默认提供，无需启用开关。必填参数serviceName、serviceVersion（vX.Y.Z），可选lines默认100、范围1–200；不接受path或任意文件名。
+
+响应使用success/data/error/requestId。data提供queriedAt（UTC）、window=RECENT_TAIL、logsExist、filesTruncated和files；文件项含相对file、observedModifiedAt、bytesRead、truncated、changedDuringRead、lines，读取失败可有readError=UNAVAILABLE。
+
+最多扫描128项、读8个一级.log文件，每文件64KiB；符号链接不跟随，不支持安全目录句柄的文件系统返回不可用。记录不完整或无法安全脱敏时隐藏，截断/变化/隐藏/空结果都不能证明没有错误，不保证连续采集或完整事件时间窗口。命令不改日志级别、不开启DEBUG。
+
+非法输入HTTP400/LOG_SNAPSHOT_INPUT；服务不存在404/LOG_SNAPSHOT_NOT_FOUND；无法安全读取409/LOG_SNAPSHOT_UNAVAILABLE。旧版本未提供此接口时返回404。
+
+```json
+{"success":true,"data":{"serviceName":"DemoSrv","serviceVersion":"v1.0.0","queriedAt":"2026-09-12T00:00:00Z","window":"RECENT_TAIL","logsExist":false,"filesTruncated":false,"files":[]}}
+```
+
 本文说明运行时转换规则校验、测试和服务日志配置重载。错误响应使用
 [管理 API 响应契约](api-response-contract.md)中的标准信封；成功响应保留
 各端点下文列出的字段。

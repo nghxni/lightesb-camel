@@ -135,6 +135,17 @@ lightesb robot policy list --server http://localhost:8080 --output json
 - JSON Schema 自动流程能证明消息 ID 来源、固定文件映射和 warnings 人工门禁，不自行生成 Schema。
 - 售后诊断证据已脱敏，且不会把只读采证误写成 reload、deploy、cleanup 或日志级别调整。
 
-## 业务 Action 模拟验收
+## 普通管理业务闭环
+
+- 缺少实例/部署故障正文时可用`log snapshot --service-name ... --service-version vX.Y.Z --lines 100 --output json`；这是默认提供的基础只读排障能力，采证不改变日志级别。快照中的截断、变化、readError及安全隐藏均表示证据限制，不可推断无异常，不改用任意远程文件路径。
+- `ai route latest`只读缓存；exists=false不代表生成结束，generatedAt为毫秒时间戳。旧结果拒用，同服务并发缺唯一关联时保持未知，不自动重新生成或应用。
+
+- 普通CLI管理与Action受管审批是独立能力；按任务已有授权和管理身份执行，不为普通回滚、消息维护额外创建Action会话。
+- `message parse --output json`当前data是JSON字符串，解析外层后再解析data为节点数组，交给msgStructure；更新后get核对版本、alias和fieldEscape（ESCAPE/MIXED）。
+- 消息引用优先分页service list按真实serviceInId/serviceOutId聚合；callback是服务ID，取回调服务的serviceInId。预算10请求/10页、10MiB、60秒；数据变化、重复ID、预算不足时明确不完整，过滤范围不能当全库结论。
+- `deploy rollback <deploymentId> --yes`恢复源部署发生前的备份。先核对目标和backupAvailable，成功取得新deploymentId/sourceDeploymentId再status回查；no-auto-start只跳过主动加载，不强制停服。失败时可用error.details.rollbackDeploymentId继续查询；超时不自动重放。
+- JSON错误按非零退出码及error.code/category处理，保留可用requestId和脱敏details；查询成功但对象FAILED仍需检查业务状态。写操作结果未知时先查询，不能因UNKNOWN自动重试。
+
+## 业务 Action 模拟验收说明
 
 订单交付、ERP/WMS 对账和回款异常的固定快照路由见 `docs/manufacturing-action-demo.md`。复用现有 action search/get/execute；get 仅返回Schema路径/摘要，先核对随包Schema正文。HTTP下游read Action仍需可信审批会话；Agent只使用固定策略和已批准sessionId，不签发扩大权限或自行审批。

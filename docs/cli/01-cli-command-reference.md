@@ -2,6 +2,10 @@
 
 ## 定位
 
+远程排障用`--server http://目标IP:管理端口`或profile切换目标；snapshot由服务端读取自己的日志，无需共享磁盘或SSH。需网络可达和环境要求的身份权限，目标服务端必须包含所调用的API；旧版本返回404不代表没有故障日志。
+
+服务create/update至少需要serviceName、serviceVersion（建议vX.Y.Z）、serviceImpl（例如REST）、serviceStatus（例如DEFINED）、serviceCall（例如SYNC）、serviceProvider（应用clientId）及serviceInId；SYNC还必须有serviceOutId。应用/消息/回调服务标识取真实查询结果，不能把provider当应用记录ID。
+
 CLI 的远程命令调用 LightESB 控制面 API 和本地配置，不承载 Camel 运行时，不绕过服务端状态机。`action validate/build` 是纯离线命令，`action status/list/search/get` 是受 bearer 保护的在线只读命令；受控本地写还包括 `action build` 把派生索引写到服务目录外，以及 `ai route prepare` 把服务端 content 持久化基线的最小闭包写入新候选目录。本地写操作必须加 `--yes` 并校验真实路径边界；prepare 不覆盖已存在目标。
 
 ## 安装与入口
@@ -119,6 +123,8 @@ lightesb diagnostics warnings --component service-log --output json
 `profile current/list --output json` 只返回 `server`、`tokenConfigured` 和 `aiTokenConfigured` 等状态，不输出 token 值；配置不存在时只读 profile 命令不会创建文件。
 
 `doctor` 只做环境和只读 API 检查，不修改服务端状态。
+
+应用探测通过POST pageVO读取1条记录；这是只读查询。doctor同时检查本地目录，纯CLI候选目录缺repo/app目录时须逐项查看结果，不把本地缺文件当作远程API不可用。
 
 `diagnostics snapshot/warnings` 只调用：
 
@@ -239,7 +245,13 @@ lightesb message constraints
 lightesb message domains
 ```
 
+生成请求超时后可用`ai route latest --service-name DemoSrv --service-version v1.0.0 --output json`读取候选缓存。exists=false不证明请求结束；exists=true仍须核对服务/版本和generatedAt，旧缓存不能应用，同服务并发且无唯一关联时报告歧义。latest不会保存、apply或重新生成。
+
 JSON 样例默认生成名为 `Request` 的 ROOT；`--msg-type RESPONSE` 将默认 ROOT 改为 `Response`。ROOT 节点的 `nodeName` 是生成 XML 时使用的实际根标签，可用 `--root-node-name <name>` 显式指定任意业务根名，且该输入优先于消息类型默认值。XML 样例保留自身根标签。
+
+`message parse --output json`当前的`data`是JSON结构字符串，解析外层响应后再解析data，得到节点数组作为`msgStructure`。节点`fieldEscape`支持`ESCAPE`、`MIXED`；更新后用message get核对结构、alias、fieldEscape和新版本，不重复提交超时更新。
+
+消息影响分析可按`service list --page-num 1 --page-size 100 --output json`分页比较`serviceInId`/`serviceOutId`，直到完整读取data.total；回调字段指向服务，需取回调服务的serviceInId。默认上限10请求/10页、10MiB、60秒；超预算、重复ID或分页变化报告不完整，不能声称无引用。使用provider/name过滤时结论仅适用于该范围。
 
 `message schema generate` 封装消息体 JSON Schema 预览接口：
 
@@ -321,6 +333,8 @@ lightesb deploy validate ./DemoSrv.zip
 lightesb deploy upload ./DemoSrv.zip --yes
 lightesb deploy upload ./DemoSrv.zip --no-auto-start --yes
 lightesb deploy status <deploymentId>
+lightesb deploy rollback <deploymentId> --yes --output json
+lightesb deploy rollback <deploymentId> --no-auto-start --yes --output json
 lightesb deploy history --limit 20
 lightesb deploy history --service-name DemoSrv --service-version 1.0.0 --limit 20
 
@@ -335,6 +349,7 @@ lightesb route unload --file-path /server/lightesb-camel-app/DemoSrv/v1.0.0/rout
 
 lightesb log status
 lightesb log health
+lightesb log snapshot --service-name DemoSrv --service-version v1.0.0 --lines 100 --output json
 lightesb log services
 lightesb log level set --service-key DemoSrv@1.0.0 --level DEBUG --yes
 lightesb log cleanup --yes
@@ -356,6 +371,12 @@ lightesb keyword query-instances --service-name DemoSrv --service-version 1.0.0 
 `log instance list --service-version` 使用精确服务版本目录名 `vX.Y.Z`，例如 `v1.0.0`；缺少 `v` 时 CLI 返回输入错误且不发送请求。
 
 `deploy history` 默认返回最近 50 条部署记录，可用 `--service-name` 和 `--service-version` 过滤单个服务版本。列表输出只包含概要，不拉取完整部署步骤日志。
+
+`log snapshot`作为基础只读排障能力直接提供。仅读取指定服务版本logs目录的最近片段，不开启DEBUG或改变级别；最多扫描128项、读取8个文件，每文件64KiB和1–200行。检查filesTruncated、truncated、changedDuringRead、readError；空/隐藏/变化/失败片段不能解释为“无异常”。依赖文件系统安全目录句柄，不支持时返回不可用，不退回不安全读取；不接受任意path，不承诺完整时间窗口或连续增量。
+
+`deploy rollback <deploymentId> --yes` 恢复指定部署发生前的备份，必须先确认目标与授权。成功JSON保留新deploymentId、sourceDeploymentId及ROLLED_BACK；随后按新ID查询并核对服务/路由状态。`--no-auto-start`只跳过主动加载，Watcher仍可能处理恢复配置，不保证停服。无备份、冲突和失败均停止；默认30秒请求超时不表示服务端取消或未执行，先查history/status，不能自动重放回滚，归属不明时报告未知。
+
+回滚失败的JSON保留脱敏`error.details`：可用时按`rollbackDeploymentId`查询新回滚记录，`deploymentId`为源记录ID；缺失时不从错误文字猜测。
 
 `service start/stop` 等待服务端确认 Camel 上下文真实启动或卸载。部署状态为 `UNDEPLOYED` 时，`service start` 返回 HTTP `409 SERVICE_NOT_DEPLOYED`，应先生成并保存部署路由。同方向并发请求共享一次转换；相反方向、加载失败或超时会返回 HTTP `409` 并使 CLI 非零退出。超时不回滚 `server.running`，自动化脚本应查询服务状态或运行时诊断后再决定后续动作。成功结果中的 `idempotent=true` 表示没有重复写配置，`transitionReused=true` 表示复用了同方向任务。详见 [服务启停 API](../service-runtime-management-api.md)。
 
@@ -524,7 +545,7 @@ lightesb log instance list --service-name DemoSrv --service-version v1.0.0
 app create/update/delete
 message create/update/delete/schema generate
 service create/update/delete/export/config save/package build/package deploy/import/sync-remote/start/stop
-deploy upload
+deploy upload/rollback
 ai route apply
 ai route prepare
 route reload-service/reload-file/unload
@@ -537,3 +558,7 @@ HTTP 错误摘要会保留 status、错误码和可行动信息，并脱敏 toke
 ## 业务 Action 固定快照样例
 
 订单、ERP/WMS 对账、回款异常见 [业务演示说明](../manufacturing-action-demo.md)。查询使用配置的 profile；显式 `--server` 会切换为不携带 profile bearer 的连接，受保护的 Action 查询应使用正确 profile。`get` 只返回 Schema 路径/摘要，需核对随包正文；有 HTTP 下游的 read Action 仍需已批准 sessionId。
+
+### JSON 错误与自动化
+
+`--output json` 下CLI错误输出为单个 `success=false` 对象，含 `exitCode`、`error.category`、`error.code`、安全 `message` 和 `outcome=UNKNOWN`；服务端提供时另有 `httpStatus`、`serverCode` 和 `requestId`。默认文本模式与退出码保持，缺 `--yes` 仍返回64。无效output格式使用文本usage提示。自动化不解析stderr自然语言，也不因网络错误认定写入未发生；先按已知操作ID查询，不能自动重放写入。查询成功但业务对象状态FAILED与命令执行失败要分开判断。
