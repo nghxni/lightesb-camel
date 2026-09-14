@@ -219,6 +219,28 @@ CLI 会向管理 API 发送 `receiptType`、`topic` 和原始 `payloadJson`。`-
 
 ## App 与 Message
 
+### 注册系统与注册服务的查询口径
+
+| 用户问法 | 查询命令 | 数据来源与名称字段 |
+| --- | --- | --- |
+| 目前有几个系统注册了、注册系统数量、接入系统/应用列表 | `app list --output json` | `ESBMCP_APP_MANAGE`，`APP_NAME`（返回 `appName`） |
+| 注册了多少服务、服务数量、服务列表 | `service list --output json` | `ESBMCP_SERVICE_MANAGEMENT`，`SERVICE_NAME`（返回 `serviceName`） |
+
+“系统注册”明确指接入应用，不能改查服务表或用服务数回答。一个系统可以提供多个服务；服务目录数、运行中的路由数、服务提供者列表均不能代替注册系统数。
+
+只问数量时，用对应 list 命令的 `--page-num 1 --page-size 1 --output json`，读取成功响应的 `data.total`，不要用当前页 `data.records.length`。问全部数量时不加名称、提供者等过滤条件；用户指定过滤范围时，答案保留该范围。系统名称取 `data.records[].appName`，完整列表须继续分页。不要按名称去重后替代注册记录总数。查询失败或 `total` 缺失时说明无法确认，不能改查另一类对象或沿用历史数量。
+
+```bash
+# 注册系统数量；名称字段为 appName
+lightesb app list --page-num 1 --page-size 1 --output json
+# 注册服务数量
+lightesb service list --page-num 1 --page-size 1 --output json
+```
+
+以上命令分别通过 `POST /app-manage/v1/pageVO` 和 `POST /service-management/v1/pageVO` 只读查询。表名用于解释业务口径，日常查询优先通过 CLI/管理 API，不需要直连数据库。回答分别使用“当前共注册了 N 个系统”和“当前共注册了 M 个服务”；同问两者时分别查询、分别报告。
+
+### 建模命令
+
 ```bash
 lightesb app list
 lightesb app list --client-id HIS

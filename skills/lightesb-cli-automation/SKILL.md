@@ -1,6 +1,6 @@
 ---
 name: lightesb-cli-automation
-description: Generate, review, or troubleshoot delivered LightESB CLI action/profile/doctor/app/message/service/deploy/route/log/keyword/ai/diagnostics/robot workflows, including sanitized errors and diagnostics.
+description: Generate, review, or troubleshoot delivered LightESB CLI action/profile/doctor/app/message/service/deploy/route/log/keyword/ai/diagnostics/robot workflows, including registered system/application and service counts or lists（注册系统、接入系统、应用与注册服务的数量或列表）, sanitized errors and diagnostics.
 ---
 
 # LightESB CLI 自动化
@@ -21,6 +21,7 @@ description: Generate, review, or troubleshoot delivered LightESB CLI action/pro
 
 规则：
 
+- “注册系统/接入系统/应用”查询 `app list`，“注册服务”查询 `service list`；不能互相替代。数量取 `--output json` 成功响应中的 `data.total`，系统名称取 `appName`。具体问法、分页与失败处理见 `docs/cli/01-cli-command-reference.md` 的“注册系统与注册服务的查询口径”。
 - CLI 的远程命令是控制面客户端；`action validate/build` 是不使用服务端和 profile 的离线命令，`action status/list/search/get` 使用 profile bearer 查询受保护的在线快照。受控本地写还包括 `action build` 把派生索引写到服务版本目录之外，以及 `ai route prepare` 把服务端 content 持久化基线写入新候选目录；这些本地写必须加 `--yes`，不会自行部署或重载服务。
 - `action validate --service-dir|--app-root` 输出 canonical JSON；`action build` 额外使用 `--out`。`--app-root` 模式保持严格两层契约，根级共享资源目录（如 `TransformDS`）用 `--exclude-root <目录名>`（可重复或逗号分隔）显式排除。目录契约失败按退出码 `65` 和稳定 `ACTION_*` 错误码处理，不回退到其他解析器。
 - Action 在线查询要求服务端双开关和 `catalog-read`；list/search 第二页起回传第一页 revision，revision 冲突时从第一页重试。查询命令不发送 caller，不执行 Action。

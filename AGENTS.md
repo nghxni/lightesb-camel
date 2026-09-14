@@ -25,6 +25,7 @@ LightESB-Camel 交付包内 Agent 协作规则。这里是可运行交付目录�
 
 | 任务 | 先读 skill |
 | --- | --- |
+| 注册系统/接入系统/应用（`app`）与注册服务（`service`）的数量、列表查询 | `skills/lightesb-cli-automation/SKILL.md`，按查询对象选择命令 |
 | 排查路由、配置、日志、CLI、管理 API、外部集成或其他项目问题，并按本机开发/业务现场模式沉淀经验 | `skills/lightesb-project-troubleshooting/SKILL.md`，再读对应领域 skill |
 | 新增 HTTP 接口、编写 Camel XML、配置 `undertow`、服务目录结构 | `skills/lightesb-route-authoring/SKILL.md` |
 | 创建临时表单/审批网页服务、mock 数据演示、用完销毁路由 | `skills/lightesb-temp-form/SKILL.md`，再读 `skills/lightesb-route-authoring/SKILL.md` |

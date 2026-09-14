@@ -106,7 +106,7 @@
 | 日志、异常、缓存 | `../skills/lightesb-logging-observability/SKILL.md` |
 | DTS 扩展 | `../skills/lightesb-dts-extension/SKILL.md` |
 | AI、机器人和外部系统扩展 | `../skills/lightesb-ai-components/SKILL.md` |
-| CLI 命令和自动化流程 | `../skills/lightesb-cli-automation/SKILL.md` |
+| CLI 命令、注册系统/应用与注册服务查询、自动化流程 | `../skills/lightesb-cli-automation/SKILL.md` |
 | 机器人协议样例、命令 dispatcher 和现场验收边界 | `../skills/lightesb-robot-integration/SKILL.md` |
 | 发布包收件校验、升级与回滚 | `../skills/lightesb-release-verification/SKILL.md` |
 
