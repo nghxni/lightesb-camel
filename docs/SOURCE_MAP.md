@@ -4,6 +4,9 @@
 | --- | --- |
 | `../AGENTS.md` | 项目规则与路由、CLI、安全、发布使用边界的交付安全子集；按包内目录、Schema 来源、本地/远程操作通道及已授权目标分支的同步验收整理，不复制内部仓库拓扑、校验脚本或开发流程 |
 | `../README.md` | GitHub 公开技术入口，基于交付包内容、组件文档、样例索引和支持边界整理 |
+| `delivery-knowledge-check.md` | 交付上下文维护与路由静态预检的可交付子集，按包内版本/命令核对、文件闭包和接手记录整理 |
+| `../skills/lightesb-project-troubleshooting/scripts/check-delivery-context.py` | 包内知识文件、Markdown 本地链接与 Skill 路由的确定性只读检查 |
+| `../skills/lightesb-route-authoring/SKILL.md` | 源码路由开发技能的交付子集；按包内资源、配置闭包和授权边界整理 |
 | `README.md` | `docs/README.md`，按交付包组件索引、样例入口和 Camel 官方参考链接整理 |
 | `product-overview.md` | `README.md`、内部产品能力边界、英文站实施方案、系统架构和机器人集成架构结论，按外发英文站和公开交付包口径重写 |
 | `components/01-http-route-basics.md` | `docs/07-undertow-component-usage.md`，按交付场景重写 |
@@ -51,6 +54,7 @@
 | `../skills/lightesb-robot-integration/SKILL.md` | 机器人协议接入经验、边缘 AI 推理 mock/可信审批门禁、dispatcher API、交付样例和 gRPC IDL 契约，按交付任务路由整理 |
 | `../skills/lightesb-security-validation/SKILL.md` | 权限校验、消息 Schema 与 Action 控制面角色/审计/allowlist/token/有界审批安全边界，按交付任务路由整理 |
 | `../skills/lightesb-temp-form/SKILL.md` | `skills/lightesb-temp-form/SKILL.md` 与 `skills/lightesb-route-development/SKILL.md` 最小创建集及 simple 常见坑，按交付场景重写 |
+| `../skills/lightesb-release-verification/scripts/verify-context-baseline.py` | 累计发布知识基线的包内只读文件/归档校验，检查完整受管集合、内容和执行权限，不包含内部导入操作 |
 | `../skills/lightesb-release-verification/SKILL.md` | `skills/lightesb-release-management/SKILL.md` 的交付安全子集，只保留包内 checksum、manifest、隔离启动、升级与回滚边界 |
 | `../skills/lightesb-project-troubleshooting/SKILL.md` | 源码仓库项目问题处理规则的通用排障流程，去除个人画像和内部经验后按本机开发/业务现场场景重写；发布基线可升级，根目录项目经验独立维护 |
 | `cli/README.md` | `docs/cli/README.md`，外发压缩版 |

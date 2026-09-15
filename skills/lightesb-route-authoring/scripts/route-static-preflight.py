@@ -60,7 +60,8 @@ def resource_exists(service_dir: Path, resource: str) -> bool:
     resource_path = Path(resource)
     if resource_path.is_absolute() or ".." in resource_path.parts:
         return False
-    return (service_dir / resource_path).is_file()
+    resolved = (service_dir / resource_path).resolve()
+    return service_dir.resolve() in resolved.parents and resolved.is_file()
 
 
 def main() -> int:
@@ -112,6 +113,15 @@ def main() -> int:
     for component in profile["components"]:
         if component not in components:
             errors.append(f"[{args.profile}] system.components 缺少：{component}")
+
+    # Enabled file-backed transforms must travel with the service, even when
+    # their filenames appear only in properties rather than in the route XML.
+    for direction in ("input", "output"):
+        key = f"{direction}-transform"
+        resource = configs.get(f"{key}.file", "")
+        if configs.get(key, "").lower() == "true" and resource.endswith((".ds", ".jslt")):
+            if not resource_exists(service_dir, resource):
+                errors.append(f"配置引用转换资源不存在或越界：{key}.file")
 
     if route_path and route_path.is_file():
         xml = route_path.read_text(encoding="utf-8")

@@ -10,6 +10,8 @@
 4. `.ds`、`request-schema.json`、`response-schema.json`、`callback-schema.json` 等实际引用资源与 XML 路径一致且文件存在；`JsonSchemaPath` 相对路径以当前服务版本目录为基准，交付路由优先使用文件名或服务内子目录路径。
 5. 不写真实凭据、生产地址或用户未要求的 endpoint/组件；修改已有服务时不重写无关 route。
 
+启用 `input-transform` / `output-transform` 且对应 `.file` 指向 `.ds`/`.jslt` 时，预检也会检查配置引用的资源存在且未通过软链接越出服务目录；仅存在转换开关不能证明资源已随包交付。
+
 可在交付包根目录运行确定性离线检查：
 
 ```bash

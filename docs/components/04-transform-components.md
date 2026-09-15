@@ -18,7 +18,7 @@ system.components=undertowhttp,conditionaltransform,jsontransform
 - `example/routes/PlatformHttp/v1.0.0/`：DataSonnet import、`conditionaltransform:input`、DTS/commonFunctions 组合演示，默认端口 `18081`。
 - `example/routes/PlatformHttp/v2.0.0/`：DTS/commonFunctions 独立 HTTP 演示，入口为 `/2.0.0/api/demo`，默认端口 `18081`。
 - `example/routes/PlatformHttp/v3.0.0/`：HTTP 订单转换、JSONPath 字段提取、servicelog 响应处理演示，默认端口 `18080`。
-- `example/routes/transform-json/DemoTransformSrv/v1.0.0/`：最小转换路由骨架。
+- `example/routes/transform-json/DemoTransformSrv/v1.0.0/`：最小可选转换路由骨架，未启用输入转换；完整转换与离线验收使用 `PlatformHttp/v1.0.0/`。
 
 ## conditionaltransform
 

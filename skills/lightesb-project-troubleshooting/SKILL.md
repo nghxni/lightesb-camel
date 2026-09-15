@@ -38,6 +38,8 @@ skills/lightesb-project-troubleshooting/scripts/detect-maintenance-mode.sh .
 
 需要从源码仓库普通同步文件时，仅允许在源码 `local` 模式执行，并将内容发布到精确 GitHub `release` 仓库。本机源码新增或实质修改可外发经验后，自动完成脱敏和交付视角改写，再进入该增量同步流程；个人画像、内部判断记录、原始对话和其他不可外发信息不参与。先运行 `git status --short --branch` 检查当前分支、精确 `origin`、upstream 和已有改动，再执行 `git fetch --prune` 与 `git pull --ff-only`，确认最新基线后增量同步。验证通过后默认只暂存同步文件，不自动提交或推送，除非用户明确要求。`field` 现场只能使用发布方明确提供的升级流程更新发布基线；升级前后都要证明根目录项目经验内容不变。
 
+缺文件、未知命令或升级后首次接手时，使用 [交付知识接手与离线检查](../../docs/delivery-knowledge-check.md)。知识检查脚本只做包内文件检查，不代替运行和业务验收。
+
 ## 收集最小证据
 
 按问题选择足以改变结论的证据，不默认启动或重启服务：

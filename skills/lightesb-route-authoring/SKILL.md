@@ -36,6 +36,8 @@ description: 交付包内编写 HTTP 接口、Camel XML 路由、服务目录、
 - 按 `docs/components/16-route-static-preflight.md` 完成通用和场景配置闭包检查：服务目录只有一个 XML；route id 唯一；XML 可解析；两个 properties 含服务名/版本和所需组件开关；所有 `{{...}}` 占位符有同目录配置来源；`.ds`、固定 Schema 等引用资源存在；没有用户未要求的外部 endpoint、凭据或能力。
 - 提交前运行交付包内的离线预检：`python3 skills/lightesb-route-authoring/scripts/route-static-preflight.py --service-dir lightesb-camel-app/{serviceName}/{serviceVersion} --profile {http|timer|transform|schema|externaldb|ai-agent|mqtt|opcua|modbus|sap-mock} --route-file {route.xml}`。按实际场景选 profile；它只检查静态配置闭包，不启动服务或访问外部系统。
 
+新包接手、升级或缺文件/命令时，先按 [交付知识接手与离线检查](../../docs/delivery-knowledge-check.md) 核对包内资源和所需命令；已有同版本证据可复用。
+
 验收：
 
 - `common.config.properties` 有 `HTTP.Listener=true`、`server.port` 和 `system.components=undertowhttp`。

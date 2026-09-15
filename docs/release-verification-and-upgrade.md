@@ -36,6 +36,20 @@ sha256sum -c lightesb-cli.jar.sha256
 
 如果交付方同时提供可信公钥验签工具和公司留存公钥，必须执行离线水印验签，并确认 `customerId`、`serial`、授权期一致且 `signatureValid=true`。不要只依据 JAR 内嵌公钥做正式溯源。
 
+## 累计知识文件校验
+
+新版本包提供 `delivery-context-baseline.json` 时，先核对它与可信 sidecar 中 `artifacts.contextBaseline.sha256` 一致，再在解压根目录运行：
+
+```bash
+python3 skills/lightesb-release-verification/scripts/verify-context-baseline.py --root .
+```
+
+[校验工具](../skills/lightesb-release-verification/scripts/verify-context-baseline.py) 对照固定发布基线检查 docs/skills/example/proto 的完整文件集合、SHA-256 和执行权限，拒绝缺失、旧内容、额外残留及软链接。需要核对原归档时增加 `--archive <发布.zip或.tar.gz>`，校验在不解压的情况下完成，同时拒绝重复条目。
+
+根 Agent 规则和项目 README 保留交付方的专用内容，官网文件不属于运行包。项目独立经验不在基线和发布 MANIFEST 内，不因校验创建或修改。不要从当前待检查目录重新生成基线来消除差异；不一致时保留证据并联系交付方取得匹配版本。
+
+校验应在首次解压、修改包内受管内容之前执行。旧版本未携带该基线时使用原版本的验证流程，并注明没有累计知识校验证据；采用基线的新包缺少文件时不能按旧版本跳过。此检查不证明 CLI/API 兼容、路由加载或业务结果。
+
 ## 3. 隔离启动验证
 
 先在非生产端口和隔离数据目录启动候选。Linux/macOS 启动脚本支持：

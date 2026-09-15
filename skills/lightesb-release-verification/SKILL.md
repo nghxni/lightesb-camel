@@ -22,6 +22,7 @@ description: Verify, upgrade, and roll back a delivered LightESB package using i
 
 ## 完成标准
 
+- 携带累计知识基线的新包按 [发布验证说明](../../docs/release-verification-and-upgrade.md#累计知识文件校验) 核对全部受管文件，不能以最后一次变更清单替代；缺失或不一致时停止。
 - 摘要、水印、客户字段、隔离启动、路由状态和代表性 smoke 均通过。
 - 升级/回滚步骤、备份摘要和残余风险已记录。
 - 只有用户明确授权后才执行生产变更。

@@ -13,6 +13,8 @@
 
 ## 快速开始
 
+- [交付知识接手与离线检查](delivery-knowledge-check.md)：新会话、升级或缺文件/命令时使用。
+
 - [HTTP 入口与路由基础](components/01-http-route-basics.md)
 - [运行时路由按需加载](runtime-route-loading.md)
 - [服务端运行配置参考](runtime-configuration-reference.md)

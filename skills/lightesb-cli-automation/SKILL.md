@@ -71,6 +71,8 @@ description: Generate, review, or troubleshoot delivered LightESB CLI action/pro
 - 售后诊断先按问题类型选择只读命令，优先 `--output json`，记录服务名/版本、fileKey/routeId、requestId/traceId/exchangeId、CLI 输出摘要和恢复动作。
 - 售后输出不得包含完整 prompt、完整模型响应、完整 payload、完整 XML/properties、连接串、本地绝对路径或客户敏感数据。
 
+新包接手、升级或命令/选项不存在时，按 [交付知识接手与离线检查](../../docs/delivery-knowledge-check.md) 用当前 JAR 的完整命令层级 `--help` 核对；本地帮助成功不能证明远程 API 兼容。
+
 常用链路：
 
 ```bash
