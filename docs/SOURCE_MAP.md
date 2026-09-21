@@ -5,6 +5,7 @@
 | `../AGENTS.md` | 项目规则与路由、CLI、安全、发布使用边界的交付安全子集；按包内目录、Schema 来源、本地/远程操作通道及已授权目标分支的同步验收整理，不复制内部仓库拓扑、校验脚本或开发流程 |
 | `../README.md` | GitHub 公开技术入口，基于交付包内容、组件文档、样例索引和支持边界整理 |
 | `delivery-knowledge-check.md` | 交付上下文维护与路由静态预检的可交付子集，按包内版本/命令核对、文件闭包和接手记录整理 |
+| `../skills/lightesb-project-troubleshooting/references/baseline-experience.md` | 已验证排障结论的交付安全子集；并发启动条目依据后端生命周期排障经验，保留症状、线程证据与运行包验证边界，不外发源码修复流程 |
 | `../skills/lightesb-project-troubleshooting/scripts/check-delivery-context.py` | 包内知识文件、Markdown 本地链接与 Skill 路由的确定性只读检查 |
 | `../skills/lightesb-route-authoring/SKILL.md` | 源码路由开发技能的交付子集；按包内资源、配置闭包和授权边界整理 |
 | `README.md` | `docs/README.md`，按交付包组件索引、样例入口和 Camel 官方参考链接整理 |
@@ -71,3 +72,12 @@
 
 
 源码仓库组件文档保持原编号，经验复盘类文档放入 `docs/experience/`。本交付包文档为外发整理版，不直接复制内部实现路径或内部流程说明。
+
+- `../example/routes/OrderDeliveryCheckJavaSrv/v1.0.0/` 来源：`example/OrderDeliveryCheckJavaSrv/v1.0.0/`，固定快照 Java SPI 业务样例，默认停用。
+
+- `../example/routes/InventoryReconcileJavaSrv/v1.0.0/` 来源：`example/InventoryReconcileJavaSrv/v1.0.0/`，固定快照 Java SPI 业务样例，默认停用。
+
+- `../example/routes/ReceivableExceptionJavaSrv/v1.0.0/` 来源：`example/ReceivableExceptionJavaSrv/v1.0.0/`，固定快照 Java SPI 业务样例，默认停用。
+
+- `../example/transform-dts-java/src/main/java/com/oureman/soa/lightesb/example/dts/business/` 来源：源码同路径；新增三个业务 Provider 和 JSON 边界，内部测试 fixtures/期望不外发。
+- Java SPI 业务说明来源：`docs/23-third-party-dts-extension-guide.md` 与 `docs/29-business-action-demo.md`，按随包目录和操作边界重写。

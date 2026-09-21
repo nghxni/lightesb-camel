@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "mock": {
+      "const": true
+    },
+    "asOf": {
+      "const": "2026-09-08T00:00:00Z"
+    },
+    "customerId": {
+      "type": "string"
+    },
+    "moneyUnit": {
+      "const": "minor-unit"
+    },
+    "status": {
+      "enum": [
+        "NORMAL",
+        "ATTENTION",
+        "UNKNOWN"
+      ]
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "invoiceId": {
+            "type": "string"
+          },
+          "currency": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "amountMinor": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "receivedMinor": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "outstandingMinor": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "overpaidMinor": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "overdueDays": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "dueDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "enum": [
+              "SETTLED",
+              "OVERDUE",
+              "PARTIAL",
+              "NOT_DUE",
+              "OVERPAID",
+              "UNKNOWN"
+            ]
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "sourceSystem": {
+                  "type": "string"
+                },
+                "recordId": {
+                  "type": "string"
+                },
+                "observedAt": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "sourceSystem",
+                "recordId",
+                "observedAt"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "invoiceId",
+          "currency",
+          "amountMinor",
+          "receivedMinor",
+          "outstandingMinor",
+          "overpaidMinor",
+          "overdueDays",
+          "dueDate",
+          "status",
+          "reasons",
+          "evidence"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "unallocatedReceipts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "recordId": {
+            "type": "string"
+          },
+          "amountMinor": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "currency": {
+            "type": "string"
+          },
+          "sourceSystem": {
+            "const": "TREASURY"
+          },
+          "observedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "recordId",
+          "amountMinor",
+          "currency",
+          "sourceSystem",
+          "observedAt"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sourceSystem": {
+            "type": "string"
+          },
+          "recordId": {
+            "type": "string"
+          },
+          "observedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourceSystem",
+          "recordId",
+          "observedAt"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "mock",
+    "asOf",
+    "customerId",
+    "moneyUnit",
+    "status",
+    "reasons",
+    "items",
+    "unallocatedReceipts",
+    "evidence"
+  ],
+  "additionalProperties": false
+}

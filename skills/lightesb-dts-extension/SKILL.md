@@ -21,7 +21,9 @@ description: 开发、打包和接入第三方 DTS 转换扩展时使用。
 - 平台默认关闭 DTS；装载扩展 jar 前必须显式设置 `lightesb.transformds.enabled=true`。
 - 新扩展只实现正式 SPI `LightesbDtsExtension`，不再使用已废弃的 `TransformDtsExtension`。
 - 转换代码不按乱码特征隐式重编码输入；历史兼容必须使用明确配置。
-- 打包后先在 `example/routes/PlatformHttp/` 路由中验证。
+- 通用转换打包后在 `example/routes/PlatformHttp/` 路由中验证；订单、对账、回款业务使用对应 `*JavaSrv` 样例，参考 `docs/manufacturing-action-demo.md`，为新 Action 准备独立授权。
+- Java 业务样例只接收独立业务输入对象，业务规则在 Provider 中执行；上游和数据处理错误可返回 UNKNOWN，SPI 缺失必须作为执行失败。
+- JAR 更新需要重启；避免同一工程的多个版本 JAR 同时包含同名 Provider，不能把 version() 当作服务版本隔离。
 
 验收：
 

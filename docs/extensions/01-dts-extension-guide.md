@@ -78,3 +78,22 @@ Provider 暴露的转换名：
 - 确认平台显式配置 `lightesb.transformds.enabled=true`。
 - 在 `example/routes/PlatformHttp/` 中接入后调用 HTTP 样例。
 - 故意传入非法 JSON，确认错误信息可读。
+
+
+## Java 业务检查示例
+
+同一扩展工程还提供三个业务 Provider，对应 `example/routes/OrderDeliveryCheckJavaSrv`、`InventoryReconcileJavaSrv`、`ReceivableExceptionJavaSrv`；原 DataSonnet 样例保留。
+
+| 服务 | 转换名 | Action ID |
+| --- | --- | --- |
+| OrderDeliveryCheckJavaSrv | checkOrderDeliveryV1 | check-order-delivery-java |
+| InventoryReconcileJavaSrv | reconcileInventoryV1 | reconcile-erp-wms-java |
+| ReceivableExceptionJavaSrv | checkReceivableExceptionsV1 | check-receivable-exceptions-java |
+
+正常输入是独立对象：订单/对账包含 request、erp、wms，回款包含 request、erp、bank、contract，各值均为 JSON 对象，上游包含 records 数组。String 入口解析整个对象后调用 Map 入口，不接收嵌套 JSON 字符串或整个 Exchange。XML 中 DataSonnet 仅组装输入；全部业务判断在 Java 内执行。
+
+扩展项目执行 `mvn package`，将生成的 JAR 放入 `services/TransformDS`，显式设置 `lightesb.transformds.enabled=true` 后重启。替换旧工程 JAR，避免同名 Provider 类的多个版本并存；JAR 更新需要重启，version() 不提供服务版本隔离。
+
+各 Provider 的 `<转换名>Error` 仅接受 request 对象和 reasonCode（UPSTREAM_UNAVAILABLE 或 DATA_OR_PROCESSING_ERROR）。上游失败与数据处理失败形成 UNKNOWN 结果；SPI 缺失或加载失败导致执行失败，不能作为正常业务结果。
+
+新服务默认停用，使用相同 Mock 和业务 Schema，须为各自的新 Action ID 准备独立授权。参见 [业务使用说明](../manufacturing-action-demo.md)。

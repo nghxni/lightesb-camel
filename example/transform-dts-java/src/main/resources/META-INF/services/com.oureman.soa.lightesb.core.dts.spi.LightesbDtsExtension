@@ -1,3 +1,6 @@
 com.oureman.soa.lightesb.example.dts.spi.TransformComplexOrderProvider
 com.oureman.soa.lightesb.example.dts.spi.TransformOrderSummaryProvider
 com.oureman.soa.lightesb.example.dts.spi.TransformRiskTagsProvider
+com.oureman.soa.lightesb.example.dts.business.OrderDeliveryProvider
+com.oureman.soa.lightesb.example.dts.business.InventoryReconcileProvider
+com.oureman.soa.lightesb.example.dts.business.ReceivableExceptionProvider

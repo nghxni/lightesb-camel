@@ -1,0 +1,53 @@
+<routes xmlns="http://camel.apache.org/schema/spring">
+  <route id="inventory-reconcile-entry-java">
+    <routeProperty key="lightesb.action.input.schema" value="request-schema.json"/>
+    <routeProperty key="lightesb.action.input.media-type" value="application/schema+json"/>
+    <routeProperty key="lightesb.action.input.contract-stage" value="entry"/>
+    <routeProperty key="lightesb.action.output.schema" value="response-schema.json"/>
+    <routeProperty key="lightesb.action.output.media-type" value="application/schema+json"/>
+    <from uri="undertow:http://127.0.0.1:{{server.port}}/inventory-reconcile-java?httpMethodRestrict=POST"/>
+    <!-- The public route declares the contract; execution is exclusively through the Action API. -->
+    <setHeader name="CamelHttpResponseCode"><constant>403</constant></setHeader>
+    <setBody><constant>{"code":"ACTION_API_REQUIRED"}</constant></setBody>
+  </route>
+  <route id="inventory-reconcile-execute-java">
+    <from uri="direct:inventory-reconcile-java"/>
+    <convertBodyTo type="java.lang.String"/>
+    <setProperty name="request"><simple>${body}</simple></setProperty>
+    <setProperty name="processingStage"><constant>upstream</constant></setProperty>
+    <setProperty name="businessError"><constant>false</constant></setProperty>
+    <doTry>
+      <setBody><simple>${exchangeProperty.request}</simple></setBody>
+      <removeHeaders pattern="*"/>
+      <setHeader name="Content-Type"><constant>application/json</constant></setHeader>
+      <to uri="http://127.0.0.1:{{mock.erp.port}}/inventory?httpMethod=POST&amp;connectTimeout=1000&amp;responseTimeout=1000"/>
+      <convertBodyTo type="java.lang.String"/>
+      <setProperty name="erp"><simple>${body}</simple></setProperty>
+      <setBody><simple>${exchangeProperty.request}</simple></setBody>
+      <removeHeaders pattern="*"/>
+      <setHeader name="Content-Type"><constant>application/json</constant></setHeader>
+      <to uri="http://127.0.0.1:{{mock.wms.port}}/inventory?httpMethod=POST&amp;connectTimeout=1000&amp;responseTimeout=1000"/>
+      <convertBodyTo type="java.lang.String"/>
+      <setProperty name="wms"><simple>${body}</simple></setProperty>
+      <setProperty name="processingStage"><constant>data</constant></setProperty>
+      <transform><datasonnet resultType="java.lang.String"><![CDATA[std.manifestJson({request:std.parseJson(cml.exchangeProperty("request")),erp:std.parseJson(cml.exchangeProperty("erp")),wms:std.parseJson(cml.exchangeProperty("wms"))})]]></datasonnet></transform>
+      <doCatch><exception>java.lang.Exception</exception>
+        <setProperty name="businessError"><constant>true</constant></setProperty>
+        <transform><datasonnet resultType="java.lang.String"><![CDATA[std.manifestJson({request:std.parseJson(cml.exchangeProperty("request")),reasonCode:if cml.exchangeProperty("processingStage")=="upstream" then "UPSTREAM_UNAVAILABLE" else "DATA_OR_PROCESSING_ERROR"})]]></datasonnet></transform>
+      </doCatch>
+    </doTry>
+    <!-- DataSonnet above only assembles JSON; all business rules execute in the SPI provider.
+         Keep SPI lookup outside doTry: a missing extension must fail execution. -->
+    <choice>
+      <when><simple>${exchangeProperty.businessError} == 'true'</simple>
+        <setBody><method ref="commonFunctions" method="invokeDtsTransform('reconcileInventoryV1Error', ${body})"/></setBody>
+      </when>
+      <otherwise>
+        <setBody><method ref="commonFunctions" method="invokeDtsTransform('reconcileInventoryV1', ${body})"/></setBody>
+      </otherwise>
+    </choice>
+    <marshal><json library="Jackson"/></marshal>
+    <convertBodyTo type="java.lang.String"/>
+    <setHeader name="Content-Type"><constant>application/json</constant></setHeader>
+  </route>
+</routes>

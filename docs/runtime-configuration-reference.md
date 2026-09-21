@@ -45,11 +45,12 @@ java -Dlightesb.config.file=/opt/lightesb/lightesb-config.properties -jar lighte
 | `lightesb.route.file-stable-wait-ms` | `100` | 热加载前文件稳定性检查间隔。 |
 | `lightesb.route.file-stable-max-attempts` | `10` | 文件稳定性检查最大尝试次数。 |
 | `lightesb.route.shutdown-timeout-seconds` | `10` | 关闭时等待路由加载任务结束的时间。 |
-| `lightesb.route.force-shutdown-timeout-seconds` | `5` | 正常关闭超时后的强制终止等待时间。 |
+| `lightesb.route.force-shutdown-timeout-seconds` | `5` | 正常关闭超时后等待执行器终止，或并发启动取消后等待加载逻辑实际退出的最长秒数；中断不保证任务终止。 |
 | `lightesb.route.debounce-cleanup-threshold` | `100` | 防抖事件缓存清理阈值。 |
 | `lightesb.route.debounce-retention-multiplier` | `5` | 防抖事件保留窗口倍数。 |
 | `lightesb.route.startup.virtual-thread.enabled` | `true` | 启动初始加载路由时使用 JDK21 虚拟线程并发加载；设为 `false` 可回退串行加载。 |
 | `lightesb.route.startup.max-concurrency` | `16` | 虚拟线程模式下最大同时加载路由数。 |
+| `lightesb.route.startup.timeout-seconds` | `0` | 每批并发路由加载的总等待预算（秒，含排队）；0不设时限，正值启用，负值拒绝。超时则取消未完成任务并使启动失败，不发布初始加载完成；取消等待复用force-shutdown-timeout-seconds。 |
 | `lightesb.route.transition-timeout-seconds` | `30` | 服务启停 API 等待真实 Camel 上下文状态的超时，允许 1 到 120 秒；超时不回滚 `server.running`。 |
 | `lightesb.action-catalog.enabled` | `false` | 显式开启后，从已运行服务版本构建只读 Action Catalog 内存快照；XML/properties 重载成功后与 route generation 成对刷新，明确引用或待补回的 schema 变化会触发强制重载。与 Action security 同时开启时提供只读查询；真实执行还要求全部安全开关。 |
 | `lightesb.action-security.enabled` | `false` | 显式开启后注册 `/api/actions/**` 专用 bearer 身份边界；与 Action Catalog 同时开启时注册要求 `catalog-read` 的 status/list/search/get，任一开关关闭均不注册查询端点。 |

@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "mock": {
+      "const": true
+    },
+    "asOf": {
+      "const": "2026-09-08T00:00:00Z"
+    },
+    "orderId": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "READY",
+        "OVERDUE",
+        "PARTIAL",
+        "CANCELLED",
+        "STATE_CONFLICT",
+        "UNKNOWN"
+      ]
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "orderedQuantity": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "shippedQuantity": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "unit": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sourceSystem": {
+            "type": "string"
+          },
+          "recordId": {
+            "type": "string"
+          },
+          "observedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourceSystem",
+          "recordId",
+          "observedAt"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "mock",
+    "asOf",
+    "orderId",
+    "status",
+    "reasons",
+    "orderedQuantity",
+    "shippedQuantity",
+    "unit",
+    "evidence"
+  ],
+  "additionalProperties": false
+}

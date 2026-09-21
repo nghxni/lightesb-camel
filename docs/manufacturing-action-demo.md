@@ -55,3 +55,12 @@ lightesb action execute \
 只根据 `data.output` 和 `evidence` 解释结果；授权和执行审计 ID 用于追踪调用。权限失败、摘要不一致或会话失效应停止，由操作端按原授权范围重新准备。
 
 先验证一个场景的正常、缺参和权限失败，再测试三场景与多轮追问。缺少订单号等必要参数应补问；缺失/过期资料不能解释为业务正常。分别记录业务正确性、服务端权限和测试环境的隔离程度，本演示不等于生产安全认证或现场验收。
+
+
+## Java SPI 版本
+
+原三个服务保留，新增 `example/routes/OrderDeliveryCheckJavaSrv/v1.0.0/`、`InventoryReconcileJavaSrv/v1.0.0/`、`ReceivableExceptionJavaSrv/v1.0.0/`，默认端口依次为 18708、18709、18710，均为 loopback 且默认停用。
+
+对应 Action ID 为 `check-order-delivery-java`、`reconcile-erp-wms-java`、`check-receivable-exceptions-java`。输入输出 Schema、固定模拟快照及业务判断边界与原服务相同，复用原四个 Mock 服务。直接业务 HTTP 入口仍返回 403；必须为新的 Action ID 配置 allowlist、运行 token 和审批会话，不能复用原 Action 的授权。
+
+先按 [DTS 扩展说明](extensions/01-dts-extension-guide.md) 构建随包 `example/transform-dts-java`，投放 JAR 并显式启用 DTS、重启实例；随后将所需样例复制到服务目录并启用。业务规则在 Java 中执行，XML 中短 DataSonnet 表达式仅组装 JSON 输入。JAR 更新需重启，XML/Schema/config 仍按现有热加载流程；路由摘要不等于扩展 JAR 摘要。
