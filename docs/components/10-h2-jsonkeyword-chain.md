@@ -30,7 +30,11 @@
 <process ref="h2LogCacheProcessor"/>
 ```
 
-实例日志缓存需要基础业务上下文。Request 阶段至少准备 `SenderID`；Response 阶段至少准备 `ReceiverID`、`<ReceiverID>.ReceiverID`、`<ReceiverID>.ResultCode` 和 `invokeProviderStartTime`。实例日志与 JsonKeyword 的服务名字段统一保存英文 `serviceName`（服务目录名）；`lightesb.route.<ServiceName>.<versionWithoutDots>.serviceCnName` 只用于中文展示。
+实例日志缓存需要基础业务上下文。Request 阶段至少准备 `SenderID`；Response 阶段建议提供真实 `ReceiverID`。响应应用码按非空白的 `<ReceiverID>.ReceiverID` → `ReceiverID` → `ESB` 选择，不依赖 `<ReceiverID>.ResultCode` 是否存在。状态、`invokeProviderStartTime` 和错误字段独立记录；缺失状态不会自动补成成功或失败。标准 `Response.Head` 可提供接收方与状态，全局异常响应沿用“失败”。
+
+同一实例的多个接收方应分别提供真实身份，避免都落到 `ESB` 而触发 H2 联合主键冲突。`streamcache:` 文件缓存仍需显式提供 `ReceiverID`、`<ReceiverID>.ReceiverID`、`<ReceiverID>.ResultCode` 和 `invokeProviderStartTime`，不能依赖实例日志的兜底。
+
+实例日志与 JsonKeyword 的服务名字段统一保存英文 `serviceName`（服务目录名）；`lightesb.route.<ServiceName>.<versionWithoutDots>.serviceCnName` 只用于中文展示。
 
 ## 常用配置
 
@@ -60,7 +64,8 @@ lightesb.poc.h2-fallback.enabled=true
 - 多服务排查：无 tag 的 `lightesb.h2logcache.queue.*` 是聚合值，`lightesb.h2logcache.queue.*.by.service` 可按 `service=serviceName@serviceVersion` 查看明细。
 - 生产实例日志写入失败：检查 MySQL 连接、表结构和慢 SQL。
 - 本地 POC 不接 MySQL：可设置 `lightesb.poc.h2-fallback.enabled=true`，再用 `diagnostics snapshot --component instance-log --output json` 确认 `instanceLogStorage`、`instanceLogQueryStorage`、`jsonKeywordQueryStorage` 为 `h2-fallback`。
-- H2 写入报 `RES_APPLICATION_CODE` 为空或 StreamCache 文件名为空：补齐 `ReceiverID` 和 `<ReceiverID>.ReceiverID` 响应上下文。
+- H2 响应应用码为 `ESB`：检查真实 `ReceiverID` 和 `<ReceiverID>.ReceiverID` 是否缺失；旧运行包报 `RES_APPLICATION_CODE` 为空时，先补齐响应上下文，并确认运行版本是否支持上述兜底。
+- StreamCache 文件名为空：补齐 `ReceiverID` 和 `<ReceiverID>.ReceiverID` 响应上下文。
 - H2 写入报 `SERVICE_NAME` value too long：检查英文 `serviceName` 是否超过当前表字段长度；不要通过修改 `serviceCnName` 规避。
 - H2 fallback 只用于几百条级别演示；切回 MySQL 后不会自动迁移 H2 数据。
 - 采集为空：检查 JSON 字段名、服务名和版本。
