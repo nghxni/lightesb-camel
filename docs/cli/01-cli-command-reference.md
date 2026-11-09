@@ -424,6 +424,16 @@ CLI 对 `service start/stop` 使用 130 秒 HTTP 请求超时，以覆盖服务�
 
 服务同步命令用于把本地服务版本迁移到远端 LightESB。导出包包含服务定义、接入系统、报文模型和服务目录文件，并在 manifest 中记录 metadata 与服务文件 `sha256`。`serviceVersion` 必须使用 `vX.Y.Z`。`service export` 会写本地包，必须加 `--yes`，并校验真实路径/符号链接边界后通过同目录临时文件原子替换。`import-plan` 只读远端状态；`import/sync-remote` 必须加 `--yes`。导入包拒绝路径穿越、重复 entry、服务目录不匹配和 SHA-256 不一致；包最大 50 MiB、最多 256 个 entry、单 entry 解压后最大 5 MiB、解压总量最大 50 MiB。`--skip-existing` 是默认幂等策略的显式写法。远端已有同名服务版本时默认跳过服务文件部署；需要覆盖时加 `--overwrite-service-files`。默认部署后自动启动路由；需要关闭时加 `--no-start`。`sync-remote --keep-package` 可保留中间导出包，也可用 `--package-out <path>` 指定路径。接入系统或服务定义冲突默认失败；需要更新时加 `--update-existing`。远端已有同名报文且内容不一致时会调用消息更新接口，远端当前 `msgVersion` 必须是 `V数字.单数字`，更新后递增单数字小版本并保留更新历史，例如 `V1.9` -> `V2.0`。
 
+支持字段摘要的服务端会在 `import-plan` 的正常结果及 `import/sync-remote` 的 apply 成功结果中返回 `data.actions[].details.changedFields`。table 输出示例：
+
+```text
+  changedFields=["/serviceCall","/serviceDescription"]
+```
+
+摘要只列 APP、MESSAGE、SERVICE 的固定顶层字段，按字典序排序，不显示旧值、新值、用户 JSON key 或哈希；`/msgStructure`、`/extraConfig` 只表示该整体字段不同。`[]` 表示已比较且无变化；CREATE、SERVICE_FILES 省略摘要。旧服务端缺失或返回 null 时保留原 action/reason，不能据此认定无差异。报文内容不同且版本非法时，摘要说明内容差异，reason 说明版本拒绝原因。
+
+`sync-remote --output json` 成功时 stdout 仅输出一份 apply 响应，摘要来自每项更新前的状态；保留包的路径提示写入 stderr。未带 `--update-existing` 且预检冲突时停止在 plan，人类输出显示预览摘要，JSON 错误信封的 `data.actions` 保留经脱敏的摘要。带该选项时仍调用 apply 并由服务端再次预检。服务端拒绝或执行失败不保证返回摘要，也不附加旧预览；错误不证明此前绝无写入。SERVICE_FILES 的操作冲突沿用 HTTP 200、`success=true`、`data.status=CONFLICT` 和现有退出码；自动化还须检查业务 status/action，不能只凭退出码判断同步完成。
+
 `deploy upload` 必须加 `--yes`，文件正文使用流式 multipart 发送；CLI 不提供
 `--target-directory`，部署目标由服务端运行配置决定。服务端同时限制上传大小、
 归档条目数、单文件解压大小、解压总量和目录深度。

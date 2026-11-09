@@ -47,6 +47,7 @@ description: Generate, review, or troubleshoot delivered LightESB CLI action/pro
 - 需要受管 lineage 时，先用 `ai route prepare --out <new-candidate-dir> --yes` 在默认热加载根外创建候选，只编辑候选，再用 `ai route validate` 只读校验。prepare 只 GET content；它要求真实已存在父目录和不存在的目标，拒绝 symlink 与已知默认 app root，但不证明服务注册/运行态/Catalog，也无法自动发现自定义或远程 Watcher 根。validate 不要求 `--yes`、不写盘/热加载/建立 lineage；裸资源名相对 route 所在目录解析。
 - 会话受管 route apply 使用成对 `--action-session-id --expected-scope-digest`，只允许远程保存、不允许日志选项。会话 allowlist 与 apply resources 都要覆盖 validate 证明的文件集和 route 实际引用的固定 Schema。digest 取最新 session JSON；STALE/冲突/恢复失败停止，不回退普通 apply。sessionId 不是执行许可；同一次变更不能先编辑 live 再用旧 session 追认。
 - `service import-plan` 只读远端状态；`service package build`、`service export/import/sync-remote` 和 `deploy upload` 必须加 `--yes`。
+- 解释同步结果时，`changedFields=[]` 才表示已比较无变化；缺失/null 不作此推断，失败不补旧 plan。自动化同时检查业务 status/action，SERVICE_FILES 冲突可能仍返回退出 0；详见 [同步摘要与兼容边界](../../docs/cli/01-cli-command-reference.md)。
 - `deploy upload` 不接受 `--target-directory`；部署目标由服务端运行配置统一决定。
 - `route reload-file/unload --file-path` 必须指向服务端受管路由根内真实 XML 文件；
   `route config` 只返回相对服务目录和脱敏配置，不得期待服务器绝对路径或敏感值。
