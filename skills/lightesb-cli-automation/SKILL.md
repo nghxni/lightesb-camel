@@ -153,3 +153,5 @@ lightesb robot policy list --server http://localhost:8080 --output json
 ## 业务 Action 模拟验收说明
 
 订单交付、ERP/WMS 对账和回款异常的固定快照路由见 `docs/manufacturing-action-demo.md`。复用现有 action search/get/execute；get 仅返回Schema路径/摘要，先核对随包Schema正文。HTTP下游read Action仍需可信审批会话；Agent只使用固定策略和已批准sessionId，不签发扩大权限或自行审批。
+
+- 需要联合系统/服务日志、INFO/DEBUG提示及实例JSON研判时，转到[日志分析Skill](../lightesb-log-analysis/SKILL.md)。CLI负责远程采集，离线工具负责有界安全投影，先列表后必要详情；原始报文不进入模型上下文，累计预算和身份关联按该Skill执行。

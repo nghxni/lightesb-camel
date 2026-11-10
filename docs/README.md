@@ -105,7 +105,7 @@
 | 路由和 HTTP 接口 | `../skills/lightesb-route-authoring/SKILL.md` |
 | 转换组件 | `../skills/lightesb-transform-components/SKILL.md` |
 | 权限与校验 | `../skills/lightesb-security-validation/SKILL.md` |
-| 本地日志证据分析与MDC追踪 | `../skills/lightesb-log-analysis/SKILL.md` |
+| 系统/服务日志、实例JSON证据分析与MDC追踪 | `../skills/lightesb-log-analysis/SKILL.md` |
 | 日志、异常、缓存 | `../skills/lightesb-logging-observability/SKILL.md` |
 | DTS 扩展 | `../skills/lightesb-dts-extension/SKILL.md` |
 | AI、机器人和外部系统扩展 | `../skills/lightesb-ai-components/SKILL.md` |

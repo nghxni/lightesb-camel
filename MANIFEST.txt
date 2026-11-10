@@ -301,3 +301,4 @@ skills/lightesb-log-analysis/scripts/log_evidence.py
 skills/lightesb-log-analysis/scripts/log_io.py
 skills/lightesb-log-analysis/scripts/log_parse.py
 skills/lightesb-log-analysis/scripts/log_json.py
+skills/lightesb-log-analysis/references/investigation-workflow.md

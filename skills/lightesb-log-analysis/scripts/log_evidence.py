@@ -33,7 +33,7 @@ def arguments(argv):
         p = sub.add_parser(mode)
         p.add_argument("--root", required=mode != "import-json")
         p.add_argument("--root-alias", default="local")
-        p.add_argument("--diagnosis-id")
+        p.add_argument("--diagnosis-id", help="UUID for the same investigation; task names are not valid UUIDs")
         for name, default in DEFAULTS.items():
             p.add_argument("--max-" + name.replace("_", "-"), type=float if name == "seconds" else int, default=default)
         if mode == "import-json":

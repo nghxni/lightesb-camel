@@ -34,7 +34,7 @@ LightESB-Camel 交付包内 Agent 协作规则。这里是可运行交付目录�
 | 配置 ExternalDB 只读查询、健康检查或写入 | `skills/lightesb-route-authoring/SKILL.md`，再读 `docs/components/11-externaldb.md` |
 | 配置权限校验、JSON Schema 校验、生成服务 Schema 文件、失败分支 | `skills/lightesb-security-validation/SKILL.md`，生成文件时再读 `skills/lightesb-cli-automation/SKILL.md` |
 | 按自然语言生成输入、输出或回调 JSON 校验路由 | `skills/lightesb-route-authoring/SKILL.md`、`skills/lightesb-security-validation/SKILL.md`；仅在用户明确要求 CLI/远程 apply 时再读 `skills/lightesb-cli-automation/SKILL.md` |
-| 分析系统/服务日志、INFO/DEBUG提示与MDC追踪 | `skills/lightesb-log-analysis/SKILL.md` |
+| 分析系统/服务日志及实例JSON、INFO/DEBUG提示与MDC追踪 | `skills/lightesb-log-analysis/SKILL.md` |
 | 配置 `servicelog`、异常兜底、H2 缓存、JsonKeyword、StreamCache | `skills/lightesb-logging-observability/SKILL.md` |
 | 开发或打包第三方 DTS 扩展 | `skills/lightesb-dts-extension/SKILL.md` |
 | 配置 AI Agent + Tools、SAP NetWeaver 等扩展能力 | `skills/lightesb-ai-components/SKILL.md` |
