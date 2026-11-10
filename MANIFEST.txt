@@ -295,3 +295,8 @@ example/transform-dts-java/src/main/java/com/oureman/soa/lightesb/example/dts/bu
 example/transform-dts-java/src/main/java/com/oureman/soa/lightesb/example/dts/business/OrderDeliveryProvider.java
 example/transform-dts-java/src/main/java/com/oureman/soa/lightesb/example/dts/business/ReceivableExceptionProvider.java
 example/transform-dts-java/src/main/java/com/oureman/soa/lightesb/example/dts/business/BusinessTransform.java
+skills/lightesb-log-analysis/SKILL.md
+skills/lightesb-log-analysis/references/evidence-contract.md
+skills/lightesb-log-analysis/scripts/log_evidence.py
+skills/lightesb-log-analysis/scripts/log_io.py
+skills/lightesb-log-analysis/scripts/log_parse.py

@@ -111,3 +111,7 @@ You may share service names, versions, routeIds, fileKeys, requestId, traceId, e
 Service-level `log.redaction.enabled` controls what service and instance logs persist; when it is off, raw values may already be stored. CLI HTTP error summaries and server diagnostics summaries are always sanitized and never become a privileged raw-data channel. Access control limits who can read stored logs, but it does not replace write-time redaction or restore sanitized values.
 
 For Windows servers where `log snapshot` returns `409 LOG_SNAPSHOT_UNAVAILABLE`, see [Windows manual log collection](01-cli-command-reference.md#windows-服务端手工查看日志). Authorized local operators can read `{serviceName}/{serviceVersion}/logs/DEBUG.log` and existing files under `logs/` on the server. A missing DEBUG log is not proof that no fault occurred; redact raw logs before sharing.
+
+## 本地文件证据
+
+在有本地日志访问权限时，可使用[日志分析Skill](../../skills/lightesb-log-analysis/SKILL.md)的inventory/query，读取显式根下系统/服务日志，提取正常提示及MDC字段。工具直接输出有界JSON，不调整级别或执行恢复；未知正文被抑制，缺失/截断必须保留。当前尚不支持远程JSON导入，远程场景继续使用本文的只读CLI。

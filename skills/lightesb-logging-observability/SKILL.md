@@ -38,3 +38,5 @@ description: Configure and troubleshoot servicelog, service/instance log redacti
 - 服务日志能定位入口、出口和异常。
 - JsonKeyword 查询能按演示字段返回结果或给出可解释空结果。
 - StreamCache 样例能在 `lightesb-camel-app/lightesb-StreamCache` 下生成 `.data` 和 `.meta` 文件。
+
+读取已有系统/服务日志并分析INFO/DEBUG提示或MDC追踪时，转到[日志分析Skill](../lightesb-log-analysis/SKILL.md)；当前Skill继续负责日志配置与落盘治理。

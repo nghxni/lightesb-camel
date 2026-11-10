@@ -81,3 +81,5 @@
 
 - `../example/transform-dts-java/src/main/java/com/oureman/soa/lightesb/example/dts/business/` 来源：源码同路径；新增三个业务 Provider 和 JSON 边界，内部测试 fixtures/期望不外发。
 - Java SPI 业务说明来源：`docs/23-third-party-dts-extension-guide.md` 与 `docs/29-business-action-demo.md`，按随包目录和操作边界重写。
+
+- `../skills/lightesb-log-analysis/`：日志分析工作流与证据契约按可交付本地读取边界编写；scripts为唯一实现，内部Skill引用；不外发源码信号依据或合成测试数据。
