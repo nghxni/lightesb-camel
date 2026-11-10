@@ -16,6 +16,7 @@ sys.dont_write_bytecode = True
 
 from log_io import Budget, DEFAULTS, EvidenceError, SafeRoot, relative_parts
 from log_parse import layout_config, parse_record, records, safe_path, safe_text, timestamp
+from log_json import ENDPOINTS, adapt, collection_metadata, strict_json
 
 EXIT = {"COMPLETE_WITHIN_SCOPE": 0, "PARTIAL": 3, "UNAVAILABLE": 1, "INVALID_INPUT": 2}
 
@@ -28,13 +29,18 @@ class Parser(argparse.ArgumentParser):
 def arguments(argv):
     parser = Parser(description=__doc__)
     sub = parser.add_subparsers(dest="mode", required=True, parser_class=Parser)
-    for mode in ("inventory", "query"):
+    for mode in ("inventory", "query", "import-json"):
         p = sub.add_parser(mode)
-        p.add_argument("--root", required=True)
+        p.add_argument("--root", required=mode != "import-json")
         p.add_argument("--root-alias", default="local")
         p.add_argument("--diagnosis-id")
         for name, default in DEFAULTS.items():
             p.add_argument("--max-" + name.replace("_", "-"), type=float if name == "seconds" else int, default=default)
+        if mode == "import-json":
+            p.add_argument("--kind", choices=tuple(ENDPOINTS), required=True)
+            p.add_argument("--source", "--input", dest="source", required=True, help="Relative JSON file, or - for stdin")
+            p.add_argument("--metadata", help="Small caller-supplied JSON collection metadata")
+            p.add_argument("--timezone")
         if mode == "query":
             p.add_argument("--source", action="append", required=True)
             p.add_argument("--offset", type=int)
@@ -128,6 +134,20 @@ def validate(args):
             args.diagnosis_id = str(uuid.UUID(args.diagnosis_id))
         except (ValueError, AttributeError):
             raise EvidenceError("INVALID_DIAGNOSIS_ID", "input") from None
+    if args.mode in ("query", "import-json") and args.timezone:
+        try:
+            ZoneInfo(args.timezone)
+        except (ValueError, ZoneInfoNotFoundError):
+            raise EvidenceError("INVALID_TIMEZONE", "input") from None
+    if args.mode == "import-json":
+        if args.source != "-":
+            if not args.root:
+                raise EvidenceError("ROOT_REQUIRED", "input")
+            relative_parts(args.source)
+        if args.metadata:
+            if len(args.metadata.encode()) > 4096:
+                raise EvidenceError("METADATA_LIMIT", "input")
+        return
     if args.mode != "query":
         return
     for path in args.source + ([args.layout_config] if args.layout_config else []):
@@ -139,11 +159,6 @@ def validate(args):
             raise EvidenceError("INVALID_FILTER", "input")
     if args.contains is not None and len(args.contains.encode()) > 1024:
         raise EvidenceError("FILTER_TOO_LONG", "input")
-    if args.timezone:
-        try:
-            ZoneInfo(args.timezone)
-        except (ValueError, ZoneInfoNotFoundError):
-            raise EvidenceError("INVALID_TIMEZONE", "input") from None
     for value in (args.start_time, args.end_time):
         if value and timestamp(value, args.timezone)[0] is None:
             raise EvidenceError("INVALID_TIME_FILTER", "input")
@@ -360,26 +375,102 @@ def main(argv=None):
             result["request"]["filters"] = dict(serviceName=args.service_name, serviceVersion=args.service_version,
                 levels=args.level, id=args.id, containsPresent=args.contains is not None,
                 startTime=args.start_time, endTime=args.end_time)
-        with SafeRoot(args.root) as root:
-            if args.mode == "inventory":
-                files, warnings = root.inventory(budget, Path(args.root).name)
-                for item in files:
-                    src = source(result, item["file"], args.root_alias, "log-file")
-                    src.update(state="INVENTORIED", size=item["size"], observedModifiedNs=item["observedModifiedNs"])
-                result["coverage"].update(scanned=budget.entries, selected=len(files))
-                for warning in warnings:
-                    partial(result, warning)
-            else:
-                query(root, args, budget, result)
+        if args.mode == "import-json":
+            import_json(args, budget, result)
+        else:
+            local_query(args, budget, result)
     except EvidenceError as exc:
         add_error(result, exc)
-        result["status"] = "INVALID_INPUT" if exc.stage == "input" else "UNAVAILABLE"
+        result["status"] = "INVALID_INPUT" if exc.stage == "input" else "PARTIAL" if exc.code.endswith("_LIMIT") else "UNAVAILABLE"
     except (OSError, ValueError, TypeError, OverflowError):
         result["errors"].append(dict(code="PROCESSING_UNAVAILABLE", stage="process", sourceId=None))
         result["status"] = "UNAVAILABLE"
     if budget:
         result["usage"] = budget.usage()
     return emit(result, limit)
+
+
+def local_query(args, budget, result):
+    with SafeRoot(args.root) as root:
+        if args.mode == "inventory":
+            files, warnings = root.inventory(budget, Path(args.root).name)
+            for item in files:
+                src = source(result, item["file"], args.root_alias, "log-file")
+                src.update(state="INVENTORIED", size=item["size"], observedModifiedNs=item["observedModifiedNs"])
+            result["coverage"].update(scanned=budget.entries, selected=len(files))
+            for warning in warnings:
+                partial(result, warning)
+        else:
+            query(root, args, budget, result)
+
+
+def import_json(args, budget, result):
+    src = source(result, "stdin" if args.source == "-" else args.source, args.root_alias, args.kind)
+    result["coverage"]["selected"] = 1
+    result["request"]["kind"] = args.kind
+    try:
+        if args.metadata:
+            metadata_bytes = args.metadata.encode()
+            if len(metadata_bytes) > budget.remaining():
+                raise EvidenceError("BYTE_LIMIT")
+            budget.input_bytes += len(metadata_bytes)
+            args.metadata = collection_metadata(strict_json(metadata_bytes, budget), args.kind)
+        if args.source == "-":
+            maximum = min(budget.limits["file_bytes"], budget.remaining())
+            data = sys.stdin.buffer.read(maximum)
+            budget.input_bytes += len(data)
+            src.update(state="READ", bytesRead=len(data), ranges=[dict(start=0, end=len(data), unit="byte")], truncated=len(data) == maximum)
+        else:
+            with SafeRoot(args.root) as root:
+                data, meta = root.read(args.source, budget, offset=0)
+            src.update(meta)
+            src["state"] = "CHANGED" if meta["changedDuringRead"] else "READ"
+        result["coverage"]["read"] = 1
+        result["coverage"]["changedDuringRead"] = src["changedDuringRead"]
+        if src["truncated"] or src["changedDuringRead"]:
+            partial(result, "JSON_SOURCE_INCOMPLETE")
+            return
+        document = strict_json(data, budget)
+        if args.metadata:
+            result["request"]["metadata"] = args.metadata
+            if args.metadata.get("exitCode") not in (None, 0) and document.get("success") is not False:
+                result["status"] = "UNAVAILABLE"
+                result["errors"].append(dict(code="CLI_EXIT_FAILURE", stage="collect", sourceId=src["sourceId"]))
+                return
+        metadata, warnings, events = adapt(document, args.kind, budget, args.timezone)
+        src.update(metadata)
+        for reason in warnings:
+            partial(result, reason)
+        result["coverage"]["changedDuringRead"] |= any(row.get("changedDuringRead") is True for row in metadata.get("remoteFiles", []))
+        for item in events:
+            budget.check()
+            cov = result["coverage"]
+            cov["recordsRead"] += 1
+            recognized = item["signal"]["eventCode"] != "UNCLASSIFIED"
+            layout_parsed = item.pop("_layoutParsed", True)
+            cov["layoutParsed"] += int(layout_parsed)
+            cov["semanticRecognized"] += int(recognized)
+            cov["unclassified"] += int(not recognized)
+            cov["suppressed"] += int(item["suppressed"])
+            cov["unknownFormat"] |= not layout_parsed
+            if item["incomplete"]:
+                partial(result, "RECORD_INCOMPLETE")
+            if len(result["events"]) >= budget.limits["events"]:
+                partial(result, "EVENT_LIMIT")
+                break
+            item.update(sourceId=src["sourceId"], evidenceId="e"+str(len(result["events"])+1))
+            result["events"].append(item)
+        if metadata.get("collectionFailed"):
+            result["status"] = "UNAVAILABLE"
+            result["errors"].append(dict(code="CLI_COLLECTION_FAILED", stage="collect", sourceId=src["sourceId"]))
+    except EvidenceError as exc:
+        add_error(result, exc, src)
+        if exc.stage == "input":
+            result["status"] = "INVALID_INPUT"
+        elif exc.code.endswith("_LIMIT"):
+            partial(result, exc.code)
+        else:
+            result["status"] = "UNAVAILABLE"
 
 
 if __name__ == "__main__":

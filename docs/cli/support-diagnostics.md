@@ -114,4 +114,4 @@ For Windows servers where `log snapshot` returns `409 LOG_SNAPSHOT_UNAVAILABLE`,
 
 ## 本地文件证据
 
-在有本地日志访问权限时，可使用[日志分析Skill](../../skills/lightesb-log-analysis/SKILL.md)的inventory/query，读取显式根下系统/服务日志，提取正常提示及MDC字段。工具直接输出有界JSON，不调整级别或执行恢复；未知正文被抑制，缺失/截断必须保留。当前尚不支持远程JSON导入，远程场景继续使用本文的只读CLI。
+在有本地日志访问权限时，可使用[日志分析Skill](../../skills/lightesb-log-analysis/SKILL.md)的inventory/query，读取显式根下系统/服务日志，提取正常提示及MDC字段。工具直接输出有界JSON，不调整级别或执行恢复；未知正文被抑制，缺失/截断必须保留。远程场景先用本文只读CLI采集，再用import-json导入显式kind的JSON；原始响应可能含业务报文，不直接放进模型上下文。离线预算不约束此前HTTP响应和Java缓冲内存。

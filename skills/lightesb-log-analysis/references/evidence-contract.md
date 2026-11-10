@@ -1,6 +1,6 @@
 # 日志证据工具契约
 
-当前支持inventory/query本地日志采证；用`--help`查看实际参数。无需pip、模型key或运行中的LightESB。仅读取显式根下选定文件，不联网、不执行输入、不写数据库。JSON导入尚未提供。
+支持inventory/query本地日志采证与import-json离线导入；用`--help`查看实际参数。无需pip、模型key或运行中的LightESB。仅读取显式根下选定文件，不联网、不执行输入、不写数据库。
 
 ## 查询与来源
 
@@ -41,3 +41,31 @@ stdout单份JSON，schemaVersion=1；状态与退出码：COMPLETE_WITHIN_SCOPE=
 | --max-seconds | 10 | 60 |
 
 整次问题预算由Skill累计管理，工具只约束当前调用。Agent须设置进程外层截止时间，不能声称合作式计时能立即中断阻塞IO。新查询不能通过更换diagnosisId重置同一问题预算，恢复时缺失使用量应停止自动续采。
+
+## 导入既有 CLI JSON
+
+```bash
+python3 -B skills/lightesb-log-analysis/scripts/log_evidence.py import-json --kind instance-list --root <安全采集目录> --source capture.json
+python3 -B skills/lightesb-log-analysis/scripts/log_evidence.py import-json --kind instance-detail --input - < capture.json
+```
+
+`--source`与`--input`同义；stdin不需要本地目录后端，调用方负责来源和外层截止时间。文件仍使用相同安全根/类型检查，从头读取；不完整JSON不解析。stdin读满额度时无法确认EOF，保守返回PARTIAL。严格UTF-8、禁止重复键/非有限数，结构深度32、节点20000；未知结构/schema拒绝。不会根据文件名猜类型。
+
+| kind | 记录位置及保留信息 |
+| --- | --- |
+| log-snapshot | files/i/lines/j；已知布局、服务MDC、文件截断/变化/readError；不造文件字节位置 |
+| instance-list | records/i；实例、提供方状态/时间和安全身份，保留分页total/pageNum/pageSize |
+| instance-detail | 根记录及itemRecords/i；状态/时间、reqBodyPresent/resBodyPresent，明细parentInstanceUuid来自父记录 |
+| diagnostics-snapshot / diagnostics-warnings | components/i；当前状态、固定数值/布尔指标和明确存储枚举；warnings仅计数 |
+| route-status / route-detail | 根记录；当前文件/路由数量、ID、运行状态；不输出配置和目录 |
+| deploy-status | 根记录；部署身份、状态、进度和时间；不输出部署日志/路径 |
+
+标准success=true响应保留/data指针前缀；裸响应按kind校验。success=false先识别为UNAVAILABLE，保留安全错误码、httpStatus、CLI exitCode；不把失败的data当成功。导入只保留固定字段，不输出自由message、报文、错误详情或未知字段。
+
+可选`--metadata`接收最多4096字节JSON，解析前计入同一输入预算：targetAlias、commandKind、startedAt/completedAt、exitCode和有限filters；输出标caller-supplied，不能当服务端事实。命令类型不匹配拒绝，非零CLI退出码不能推导成功。endpoint由kind固定映射；不接受URL/header/凭据投影。
+
+查询时间、服务端生成时间和导入时间分别保留；缺少时区不建立绝对时间顺序。instance start/end过滤的是记录create_time，sessionId为UUID子串候选，列表联接可有多行同实例；有限分页不是事务快照。存储未提供时不推断MySQL/H2。writer storage的mysql/h2映射MYSQL/H2；查询存储的mysql/h2-fallback映射MYSQL/H2_FALLBACK，其他为UNKNOWN。
+
+先用有界列表定位，必要时读取少量详情。CLI会先缓冲整个HTTP响应，详情可能携带报文；工具的离线字节额度不能限制此前HTTP大小、Java内存或服务端查询。将原始响应保留在受控临时位置，不放进模型上下文或Git。跨次合并仍由Agent保留完整来源引用，工具不将当前诊断或路由状态冒充历史调用事件。
+
+单记录字节预算约束query文本记录及log-snapshot行；其他JSON kind按整份输入字节、结构深度/节点、事件和输出预算处理，不将单记录额度宣称为CLI详情报文大小限制。
