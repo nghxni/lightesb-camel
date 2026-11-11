@@ -37,13 +37,13 @@ LightESB-Camel 交付包内 Agent 协作规则。这里是可运行交付目录�
 | 分析系统/服务日志及实例JSON、INFO/DEBUG提示与MDC追踪 | `skills/lightesb-log-analysis/SKILL.md` |
 | 配置 `servicelog`、异常兜底、H2 缓存、JsonKeyword、StreamCache | `skills/lightesb-logging-observability/SKILL.md` |
 | 开发或打包第三方 DTS 扩展 | `skills/lightesb-dts-extension/SKILL.md` |
-| 配置 AI Agent + Tools、SAP NetWeaver 等扩展能力 | `skills/lightesb-ai-components/SKILL.md` |
+| 迁移旧内置 Agent、HTTP 外部 AI 与 SAP NetWeaver 集成 | `skills/lightesb-ai-components/SKILL.md` |
 | 生成、审查或排查 CLI 命令、Action 目录离线派生、在线只读查询和自动化流程 | `skills/lightesb-cli-automation/SKILL.md` |
 | JSON 关键字配置、`keyword list/add/delete/query-instances`、关键字实例反查 | `skills/lightesb-cli-automation/SKILL.md` |
 | 运行时诊断、`diagnostics snapshot/warnings`、远程只读排障 | `skills/lightesb-cli-automation/SKILL.md`，再读 `docs/runtime-diagnostics-api.md` |
 | 机器人协议样例、边缘 AI 推理 mock/可信审批、MQTT/rosbridge/OPC UA/Modbus/gRPC、命令 dispatcher、审计归档 | `skills/lightesb-robot-integration/SKILL.md` |
 | 机器人命令 CLI 提交、validate/status、AI decision 查询/提交、MQTT outbox 排查 | `skills/lightesb-cli-automation/SKILL.md`，再读 `skills/lightesb-robot-integration/SKILL.md` |
-| 部署管理、API 响应契约、AI 路由缓存接口 | `skills/lightesb-cli-automation/SKILL.md`，再读对应 `docs/*-api.md` |
+| 部署管理、API 响应契约、路由候选校验与应用 | `skills/lightesb-cli-automation/SKILL.md`，再读对应 `docs/*-api.md` |
 | 发布包收件校验、隔离启动、升级或回滚 | `skills/lightesb-release-verification/SKILL.md`，再读 `docs/release-verification-and-upgrade.md` |
 
 ## 编写和修改规则

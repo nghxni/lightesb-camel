@@ -34,7 +34,7 @@ description: 交付包内编写 HTTP 接口、Camel XML 路由、服务目录、
 - 修改 Action 后运行 `java -jar lightesb-cli.jar action validate --service-dir lightesb-camel-app/{serviceName}/{serviceVersion}`。批量索引使用 `action build --app-root lightesb-camel-app --out <服务目录外路径> --yes`；它是可删除重建的派生产物，不手工编辑、不放入正式服务目录。
 - 现场运行配置已显式开启 `lightesb.action-catalog.enabled=true` 时，受管 schema 修改/删除/补回依赖服务目录热加载，不因该文件变更重启 LightESB。等待监听完成后，检查 route 仍为 `RUNNING` 且日志出现新 Action `generation/revision`；同时开启 Action security 时，可用 `action status/list/get` 验证受保护的只读快照。失败时确认 quarantine，恢复 schema 后确认自愈到新 generation。只读查询不提供 Action 执行授权。
 - 按 `docs/components/16-route-static-preflight.md` 完成通用和场景配置闭包检查：服务目录只有一个 XML；route id 唯一；XML 可解析；两个 properties 含服务名/版本和所需组件开关；所有 `{{...}}` 占位符有同目录配置来源；`.ds`、固定 Schema 等引用资源存在；没有用户未要求的外部 endpoint、凭据或能力。
-- 提交前运行交付包内的离线预检：`python3 skills/lightesb-route-authoring/scripts/route-static-preflight.py --service-dir lightesb-camel-app/{serviceName}/{serviceVersion} --profile {http|timer|transform|schema|externaldb|ai-agent|mqtt|opcua|modbus|sap-mock} --route-file {route.xml}`。按实际场景选 profile；它只检查静态配置闭包，不启动服务或访问外部系统。
+- 提交前运行交付包内的离线预检：`python3 skills/lightesb-route-authoring/scripts/route-static-preflight.py --service-dir lightesb-camel-app/{serviceName}/{serviceVersion} --profile {http|timer|transform|schema|externaldb|mqtt|opcua|modbus|sap-mock} --route-file {route.xml}`。按实际场景选 profile；它只检查静态配置闭包，不启动服务或访问外部系统。
 
 新包接手、升级或缺文件/命令时，先按 [交付知识接手与离线检查](../../docs/delivery-knowledge-check.md) 核对包内资源和所需命令；已有同版本证据可复用。
 

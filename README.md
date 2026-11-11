@@ -16,7 +16,7 @@ LightESB 聚焦三件事：
 - 给机器人提供更多、更自由的动态扩展能力。
 - 集成适配机器人核心能力的全链路功能服务。
 
-一句话介绍：LightESB-Camel 是面向存量系统和机器人系统的轻量集成交付包，用动态热加载路由技能连接老系统接口、工业协议、机器人任务流程和 AI Agent 工具能力。
+一句话介绍：LightESB-Camel 是面向存量系统和机器人系统的轻量集成交付包，用动态热加载路由技能连接老系统接口、工业协议、机器人任务流程和 外部 Agent 调用能力。
 
 本仓库不是完整源码仓库。根目录的 `lightesb-camel-1.0.0.jar`、`lightesb-cli.jar`、`start.sh` / `start.bat`、`lightesb-camel-app/`、`docs/`、`example/`、`skills/`、`AGENTS.md` 共同构成交付上下文。业务现场首次沉淀排障经验后还会出现独立的 `project-experience/`，它不属于发布清单，升级不得覆盖。外部 Agent 或大模型只读取本仓库时，应优先从本 README、`AGENTS.md`、`docs/README.md` 和 `example/README.md` 建立上下文。
 
@@ -27,13 +27,13 @@ LightESB 聚焦三件事：
 | 能力 | 交付内容 |
 | --- | --- |
 | 存量系统与机器人流程接入 | Apache Camel XML 路由、Undertow HTTP 入口、老系统接口整合、机器人自动化业务流程编排 |
-| 动态热加载路由技能 | 轻量路由技能包、服务目录加载、`server.running=false` 按需禁用、CLI 启停/部署/重载、DTS Java SPI 扩展、AI Agent + Tools 编排 |
+| 动态热加载路由技能 | 轻量路由技能包、服务目录加载、`server.running=false` 按需禁用、CLI 启停/部署/重载、DTS Java SPI 扩展、外部 Agent 经 CLI 编排 |
 | 机器人核心能力全链路服务 | MQTT telemetry/command、rosbridge/ROS 管理面、OPC UA、Modbus/PLC、Kafka 风格数据管道、gRPC 契约草案 |
 | 数据转换与校验 | ConditionalTransform、JsonTransform、DataSonnet、JSON Schema 校验、DTS Java SPI 扩展 |
 | 安全与治理 | IP/CIDR/Token/Regex 权限校验、全局异常响应、服务日志、H2 缓存和关键字检索 |
 | 企业系统与工业协议适配 | ExternalDB 多数据源、SAP NetWeaver、AVEVA Plant SCADA、OPC UA、MQTT 5、Modbus/PLC 接入、PLC4X 评估路径 |
 | 自动化运维 | LightESB CLI、部署管理 API、运行时诊断 API、服务状态查询、日志查看、样例验证流程 |
-| AI 集成 | AI Agent + Tools、面向接口编排、技能生成和运维问答的组件上下文 |
+| AI 集成 | 外部 Agent + CLI、面向接口编排、技能生成和运维问答的组件上下文 |
 
 边界说明：LightESB 面向管理面、集成面和任务流程编排，不替代机器人实时控制器、PLC 安全回路、ROS2 DDS 高频链路或硬件急停系统。路由 XML、配置和服务包类技能可热加载；Java 代码、依赖、Spring Bean 或启动参数变化仍需要重新打包或重启。
 
@@ -85,7 +85,7 @@ start.bat
 | 场景 | 支持内容 | 交付入口 |
 | --- | --- | --- |
 | 老系统与机器人流程接入 | HTTP/数据库/消息/企业系统接口整合，机器人任务、命令、回执、审计和外部任务流程编排 | `docs/components/01-http-route-basics.md`、`docs/cli/README.md` |
-| 机器人动态技能扩展 | 轻量路由技能包、路由热加载、`server.running=false` 按需禁用、CLI 启停/部署/重载、DTS Java SPI、AI Agent + Tools、配置化协议目标和白名单 | `AGENTS.md`、`docs/cli/README.md`、`docs/extensions/01-dts-extension-guide.md`、`docs/components/12-ai-chat.md` |
+| 机器人动态技能扩展 | 轻量路由技能包、路由热加载、`server.running=false` 按需禁用、CLI 启停/部署/重载、DTS Java SPI、外部 Agent + CLI、配置化协议目标和白名单 | `AGENTS.md`、`docs/cli/README.md`、`docs/extensions/01-dts-extension-guide.md`、`docs/components/12-ai-chat.md` |
 | 机器人核心链路服务 | MQTT telemetry/command、边缘 AI 推理 mock 与 HMAC 可信审批/decision-only submit 门禁、MQTT outbox dispatcher、rosbridge WebSocket JSON、ROS service/action 管理面映射、gRPC `RobotCommand` 契约草案 | `docs/robot-edge-inference-mock.md`、`docs/robot-ai-approval-api.md`、`docs/robot-command-dispatcher-api.md`、`docs/experience/01-robotics-protocol-precheck.md`、`proto/robot/robot_command.proto` |
 | PLC 与工业现场 | OPC UA、Modbus TCP 寄存器别名、PLC4X 依赖基础和复杂 PLC 能力评估路径、AVEVA Plant SCADA | `docs/components/15-aveva-plant-scada-opcua-mqtt.md`、`docs/experience/02-robotics-protocol-correct-practices.md` |
 | 数据平台与业务系统 | Kafka 风格 telemetry/event 出流、WMS/MES 外部任务接入、dashboard 数据契约、ExternalDB、SAP NetWeaver | `example/routes/RobotClusterDataSrv/v1.0.0/`、`docs/components/11-externaldb.md`、`docs/components/13-sap-netweaver.md` |

@@ -37,7 +37,7 @@ description: Generate, review, or troubleshoot delivered LightESB CLI action/pro
 - 新增完整业务服务时按 `doctor -> app create/get -> request/response message parse/create/get/structure -> service create/get -> route validate -> 授权后的 route apply -> deploy/route/diagnostics/log 只读核验` 顺序执行，并把前一步返回的真实 ID 传给后一步。复杂消息依赖随包 CLI/API 的解析与回查，不依赖源码；没有模型 key 时可依据随包 docs/skills/examples 准备可见候选，但不能跳过 validate、warnings 门禁和远程写授权。
 - 需要服务端地址时优先使用 `--server` 或 profile，不在命令中写真实密钥。
 - `--ai-token` 只用于 `X-AI-Token`，不是模型 API key。
-- `ai tool list/save/plan/run` 已删除；AI 路由生成统一走自然语言入口。
+- `ai tool list/save/plan/run` 与内置路由生成/优化已退出；外部 Agent 准备候选，再通过 `ai route read/prepare/validate/apply` 完成授权范围内的工作流。
 - `keyword list/query-instances` 只读；`keyword add/delete` 修改 JsonKeyword keyName 配置，必须加 `--yes`。
 - `log instance` 与 `keyword` 的 `--service-name` 均传英文 `serviceName`（服务目录名），不要传中文展示名 `serviceCnName`。
 - JSON 校验路由已有消息模型时，先用 `service list/get --output json` 解析服务关系：INPUT 取当前 `serviceInId`，OUTPUT 取当前 `serviceOutId`，CALLBACK 先用 `serviceCallbackId` 查询回调服务再取其 `serviceInId`。
@@ -67,7 +67,7 @@ description: Generate, review, or troubleshoot delivered LightESB CLI action/pro
 - `robot policy list/add/enable/disable` 只调用机器人管理 API denylist；`add`、`enable` 和 `disable` 必须带 `--yes`，不直连数据库、不连接真实机器人、不触发协议调用。
 - 机器人 CLI 后续真实执行能力必须另开协议闭环切片；不要生成协议写控命令。
 - 机器人 CLI 默认只要求本机 WSL 可运行 Maven；用 mock HTTP 和本地测试验证，不要求真实地址或真实机器人环境。
-- AI 路由生成和优化只返回候选内容，不自动保存、打包或部署。
+- 外部 Agent 生成或修改候选；LightESB 不提供内置模型生成/优化。候选生成不授权保存、打包或部署，实际写入仍按对应命令和用户授权执行。
 - 排查部署问题时先查 `deploy status/history`、`route status/mapping`、`log instance`。
 - 售后诊断先按问题类型选择只读命令，优先 `--output json`，记录服务名/版本、fileKey/routeId、requestId/traceId/exchangeId、CLI 输出摘要和恢复动作。
 - 售后输出不得包含完整 prompt、完整模型响应、完整 payload、完整 XML/properties、连接串、本地绝对路径或客户敏感数据。
@@ -142,7 +142,7 @@ lightesb robot policy list --server http://localhost:8080 --output json
 ## 普通管理业务闭环
 
 - 缺少实例/部署故障正文时可用`log snapshot --service-name ... --service-version vX.Y.Z --lines 100 --output json`；这是默认提供的基础只读排障能力，采证不改变日志级别。快照中的截断、变化、readError及安全隐藏均表示证据限制，不可推断无异常，不改用任意远程文件路径。
-- `ai route latest`只读缓存；exists=false不代表生成结束，generatedAt为毫秒时间戳。旧结果拒用，同服务并发缺唯一关联时保持未知，不自动重新生成或应用。
+- 内置 `ai route generate/optimize/latest/cache` 已退出；外部 Agent 保存候选与推理上下文，用 `read/prepare/validate/apply` 完成可见文件闭环，不轮询旧接口。
 
 - 普通CLI管理与Action受管审批是独立能力；按任务已有授权和管理身份执行，不为普通回滚、消息维护额外创建Action会话。
 - `message parse --output json`当前data是JSON字符串，解析外层后再解析data为节点数组，交给msgStructure；更新后get核对版本、alias和fieldEscape（ESCAPE/MIXED）。

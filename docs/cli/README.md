@@ -37,9 +37,9 @@ lightesb --file payload.json <command>
 - `service import-plan` 只读远端状态；`service package build`、`service export/import/sync-remote` 和 `deploy upload` 是写操作，必须加 `--yes`。
 - 服务同步默认跳过远端已有同名服务版本的服务文件部署；覆盖部署需显式 `--overwrite-service-files`。
 - 需要关闭部署后自动启动时加 `--no-start`；需要保留一步同步的中间导出包时加 `sync-remote --keep-package`。
-- `log ask` 是可选服务端自然语言 Agent 能力，默认日志治理优先使用确定性 `log` 命令。
-- `--ai-token` 只用于服务端 AI 日志问答的 `X-AI-Token`，不是模型 API key。
-- `ai tool list/save/plan/run` 已删除；AI 路由生成统一走自然语言入口。
+- 内置 `log ask` 已移除，外部 Agent 使用 `log snapshot`、`log instance` 等确定性命令采集证据；见[迁移说明](07-ai-log-ask.md)。
+- `--ai-token` 暂保留为客户端兼容字段，不是模型 API key；日志问答不能通过它恢复。
+- `ai tool list/save/plan/run` 与内置路由生成/优化已退出；外部 Agent 准备候选，再通过 `ai route read/prepare/validate/apply` 完成授权范围内的工作流。
 - `diagnostics snapshot/warnings` 是只读远程诊断入口，只调用 `/api/diagnostics/runtime-snapshot`，不重载路由、不清理数据、不读取远程文件；自动化和 Codex 优先使用 `--output json`。
 - `keyword list/query-instances` 是只读 JSON 关键字配置和实例查询入口；`keyword add/delete` 修改关键字采集配置，必须加 `--yes`。
 - `message schema generate` 使用 `--id` 或 `--file` 调用消息 Schema 预览接口，并写入显式服务版本目录；JSON 输出中的 `file` 是实际写盘路径，`jsonSchemaPath` 是服务版本目录相对文件名，可直接用于路由。

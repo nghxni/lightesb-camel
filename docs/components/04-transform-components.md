@@ -52,7 +52,7 @@ input-transform.file=input-transform-with-import.ds
 system.components=undertowhttp,streamcache,jsontransform,conditionaltransform
 ```
 
-`system.components` 属于通用运行配置；`input-transform*`、`output-transform*` 等转换开关属于服务私有能力配置。通过 AI 路由生成时，只有自然语言明确要求输入转换、输出转换、字段映射或 `.ds` 资源时，才应生成这些转换键；默认能力枚举不代表自动启用转换。
+`system.components` 属于通用运行配置；`input-transform*`、`output-transform*` 等转换开关属于服务私有能力配置。由外部 Agent 生成路由候选时，只有自然语言明确要求输入转换、输出转换、字段映射或 `.ds` 资源时，才应生成这些转换键；默认能力枚举不代表自动启用转换。
 
 对应入口：
 

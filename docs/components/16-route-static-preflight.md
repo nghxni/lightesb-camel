@@ -21,7 +21,9 @@ python3 skills/lightesb-route-authoring/scripts/route-static-preflight.py \
   --route-file {route.xml}
 ```
 
-`--profile` 可选 `http`、`timer`、`transform`、`schema`、`externaldb`、`ai-agent`、`mqtt`、`opcua`、`modbus`、`sap-mock`。工具检查 XML 唯一性、两个 properties、服务标识、XML 占位符、场景配置键/组件、默认启停值（例如工业协议 `server.running=false`）、已引用 `.ds`/JSON 资源和部分场景 endpoint；不读取环境变量实际值、不连接外部系统，也不替代加载或业务验证。
+`--profile` 可选 `http`、`timer`、`transform`、`schema`、`externaldb`、`mqtt`、`opcua`、`modbus`、`sap-mock`。工具检查 XML 唯一性、两个 properties、服务标识、XML 占位符、场景配置键/组件、默认启停值（例如工业协议 `server.running=false`）、已引用 `.ds`/JSON 资源和部分场景 endpoint；不读取环境变量实际值、不连接外部系统，也不替代加载或业务验证。
+
+旧 `ai-agent` profile 已退出；不再生成内置 Agent。离线检查仅识别部分字面退役引用，不能替代服务端候选校验或运行态检查，参见[迁移说明](12-ai-chat.md)。
 
 ## 按场景的最小检查
 
@@ -32,7 +34,6 @@ python3 skills/lightesb-route-authoring/scripts/route-static-preflight.py \
 | DataSonnet/转换 | HTTP 场景再加 `system.components` 中的 `jsontransform,conditionaltransform`、`input-transform=true`、`input-transform.file=<文件>` | `conditionaltransform:input` 或明确的转换 endpoint；`.ds` 文件存在 | [转换](04-transform-components.md)、`example/routes/transform-json/` |
 | JSON Schema | HTTP 配置；固定 Schema 文件 | `JsonSchemaPath`、`JsonSchemaValidationMode` 和 `jsonSchemaValidationProcessor` 成对存在 | [Schema](05-json-schema-validation.md)、`example/routes/security-validation/` |
 | ExternalDB | `HTTP.Listener=false`（仅健康检查时）、`system.components=externaldb`、`extdb.enabled`、`extdb.default`、`extdb.ids`、`extdb.primary.{type,url,driver,username,password}` | `sql:` 数据源可使用 `extdb.default`、`*.target.datasource` 或已声明的 `primary`；只读需求不得含写 SQL | [ExternalDB](11-externaldb.md)、`example/routes/MysqlRouteSrv/v1.0.0/` |
-| AI Agent + Tool | HTTP 配置；`service.ai.route`、`service.ai.type`、`service.ai.mode=agent`、`ai.agent.tags` | `langchain4j-agent` 与 `langchain4j-tools` 标签一致；工具默认 mock-only | [AI Agent](12-ai-chat.md)、`example/routes/AiAgentDemoSrv/v1.0.0/` |
 | MQTT 5 | `system.components` 含 `industrial`、显式声明 `HTTP.Listener`、`server.running=false`、`industrial.mqtt.{broker.url,client.id,telemetry.topic,qos,username,password}`；混合样例可保留 HTTP 入口配置，但整个服务默认关闭 | `paho-mqtt5:{{industrial.mqtt.telemetry.topic}}`，并带固定 `brokerUrl`、`clientId`、`qos` 占位符；不把动态 topic/endpoint 暴露给请求体 | [工业协议](15-aveva-plant-scada-opcua-mqtt.md)、`example/routes/AvevaMqttSrv/` |
 | OPC UA | `system.components` 含 `industrial`、显式声明 `HTTP.Listener`、`server.running=false`、`industrial.opcua.{endpoint.uri,client.id,read.node,username,password,security}`；混合样例可保留 HTTP 入口配置，但整个服务默认关闭 | `milo-client:{{industrial.opcua.endpoint.uri}}?node={{industrial.opcua.read.node}}&amp;clientId={{industrial.opcua.client.id}}-reader`；不把动态 node/endpoint 暴露给请求体 | [工业协议](15-aveva-plant-scada-opcua-mqtt.md)、`example/routes/AvevaOpcUaSrv/` |
 | Modbus TCP（PLC4X） | `HTTP.Listener=false`、`system.components=industrial`、`server.running=false`、`industrial.modbus.connection`、`.read.tag`、`.polling.ms` | `plc4x:{{industrial.modbus.connection}}?tag.<alias>={{industrial.modbus.read.tag}}&amp;period={{industrial.modbus.polling.ms}}`；只读模板不得含写 endpoint | [工业协议](15-aveva-plant-scada-opcua-mqtt.md) |

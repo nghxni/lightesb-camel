@@ -17,7 +17,6 @@
 | `routes/timer/v1.0.0/` | Timer XML 片段样例，10 秒/15 秒日志触发 | `../docs/components/14-timer-routes.md` |
 | `routes/timer/v1.0.1/` | Timer 服务级日志样例，包含配置文件，`HTTP.Listener=false` | `../docs/components/14-timer-routes.md` |
 | `routes/MysqlRouteSrv/v1.0.0/` | ExternalDB MySQL 定时健康检查和 SQL 增删查删演示 | `../docs/components/11-externaldb.md` |
-| `routes/AiAgentDemoSrv/v1.0.0/` | AI Agent + Tools 工具编排演示 | `../docs/components/12-ai-chat.md` |
 | `routes/AvevaOpcUaSrv/v1.0.0/` | AVEVA OPC UA 遥测 Action（normalized、不可调用）和固定点位写控制样例，默认 `server.running=false` | `../docs/components/15-aveva-plant-scada-opcua-mqtt.md`、`../docs/components/17-action-catalog.md` |
 | `routes/AvevaMqttSrv/v1.0.0/` | AVEVA MQTT 5 遥测 Action（normalized、不可调用）和固定命令 topic 发布样例，默认 `server.running=false` | `../docs/components/15-aveva-plant-scada-opcua-mqtt.md`、`../docs/components/17-action-catalog.md` |
 | `routes/RobotMqttTelemetrySrv/v1.0.0/` | 机器人 MQTT telemetry 标准化 mock 样例，默认 `server.running=false` | `../docs/experience/01-robotics-protocol-precheck.md` |
@@ -114,16 +113,7 @@ cd example/transform-dts-java
 mvn package
 ```
 
-AI Agent 演示：
-
-```bash
-cp -R example/routes/AiAgentDemoSrv lightesb-camel-app/
-./start.sh
-curl -X POST "http://localhost:19095/api/ai/agent/chat" \
-  -H "Content-Type: application/json" \
-  -d '{"memoryId":"demo-order-session","message":"查询订单 MOCK-1001 的状态"}'
-rm -rf lightesb-camel-app/AiAgentDemoSrv
-```
+旧内置 Agent 演示已退出；迁移见 [外部 Agent 接入](../docs/components/12-ai-chat.md)。
 
 临时审批表单演示（路由自吐 HTML 页面，mock 数据无持久化，删除路由 XML 即销毁）：
 

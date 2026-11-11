@@ -59,7 +59,7 @@
 ## 机器人、企业系统、工业协议与扩展
 
 - [ExternalDB 数据访问](components/11-externaldb.md)
-- [AI Agent + Tools 组件](components/12-ai-chat.md)
+- [外部 Agent 接入与旧 Agent 迁移](components/12-ai-chat.md)
 - [SAP NetWeaver 组件](components/13-sap-netweaver.md)
 - [AVEVA Plant SCADA OPC UA / MQTT 接入](components/15-aveva-plant-scada-opcua-mqtt.md)
 - [DTS 扩展开发指南](extensions/01-dts-extension-guide.md)
@@ -81,7 +81,7 @@
 - [管理 API 响应契约](api-response-contract.md)
 - [服务启停 API](service-runtime-management-api.md)
 - [部署管理 API](deployment-management-api.md)
-- [AI 路由缓存管理 API](ai-route-cache-api.md)
+- [内置路由推理缓存退出说明](ai-route-cache-api.md)
 - [运行时诊断 API 与 CLI](runtime-diagnostics-api.md)
 - [机器人命令 dispatcher API](robot-command-dispatcher-api.md)
 - [机器人 AI 可信审批 API](robot-ai-approval-api.md)
@@ -94,8 +94,8 @@
 - Timer 定时任务演示见 `../example/routes/timer/`。
 - ExternalDB MySQL 演示见 `../example/routes/MysqlRouteSrv/v1.0.0/`。
 - DTS Java SPI 扩展示例见 `../example/transform-dts-java/`。
-- AI Agent + Tools 演示见 `../example/routes/AiAgentDemoSrv/v1.0.0/`。
-- `example/routes/**` 是可复制运行的交付样例；AI 路由生成依据自然语言需求和本交付包 docs/skills/examples 上下文判断组件与配置，不维护源码临时模板目录。
+- 旧内置 Agent 演示已退出，迁移见 [外部 Agent 接入](components/12-ai-chat.md)。
+- `example/routes/**` 是可复制运行的交付样例；外部 Agent 根据需求和本交付包 docs/skills/examples 编辑候选，使用 CLI 校验和按授权应用；服务端不再提供内置生成/微调。
 
 ## Skill 路由
 

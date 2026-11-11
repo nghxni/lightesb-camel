@@ -24,7 +24,7 @@ LightESB-Camel is designed for:
 - Solution architects who need a lightweight ESB-style runtime for private or edge deployment.
 - Industrial automation teams connecting OPC UA, MQTT, Modbus, PLC gateways, AVEVA Plant SCADA, or SAP NetWeaver.
 - Robotics teams that need governed task intake, telemetry normalization, command validation, audit trails, and protocol gateway examples.
-- AI and automation teams that want AI Agent + Tools orchestration around existing systems and route services.
+- AI and automation teams that want external Agent orchestration through the CLI around existing systems and route services.
 
 ## Core Capabilities
 
@@ -34,7 +34,7 @@ LightESB-Camel is designed for:
 | Legacy integration | HTTP ingress, internal HTTP forwarding, database access, JSON transformation, schema validation, and error handling |
 | Industrial connectivity | OPC UA, MQTT 5, Modbus/PLC gateway examples, AVEVA Plant SCADA, SAP NetWeaver, and ExternalDB patterns |
 | Robotics integration | MQTT telemetry and command routes, edge-inference mock plus HMAC approval/decision-only submit gate, rosbridge examples, Modbus and OPC UA station examples, dispatcher API docs, and robot command proto |
-| AI-assisted orchestration | AI Agent + Tools component guidance for request building, tool calling, and operational workflows |
+| External Agent integration | CLI candidate preparation, validation, authorized application, and evidence collection; model decisions and credentials remain in the external Agent |
 | Operations and governance | CLI automation, deployment management API, diagnostics API, service logs, permission checks, and audit-oriented patterns |
 | Agent context | Skills, examples, and documentation that external coding agents can use to author or adapt route services |
 

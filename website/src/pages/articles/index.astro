@@ -38,8 +38,8 @@ import SectionHead from "../../components/SectionHead.astro";
 
       <h2 data-i18n="articles.group.ai">AI integration</h2>
       <div class="docs-list">
-        <a class="docs-link" href="/articles/ai-agent-order/"><strong data-i18n="articles.aiorder.title">AiAgentDemoSrv: an LLM order assistant built from Camel routes</strong><span data-i18n="articles.aiorder.text">langchain4j-agent discovers three XML-only order tools by tag — one HTTP entry, multi-turn memory, curl-verified.</span></a>
-        <a class="docs-link" href="/articles/ai-agent-solo-budget/"><strong data-i18n="articles.solo.title">AI agent integration on a solo budget</strong><span data-i18n="articles.solo.text">One HTTP entrypoint, a LangChain4j agent, three tagged tools, and a 7-day plan — an API integration loop for under $7.</span></a>
+        <a class="docs-link" href="/articles/ai-agent-order/"><strong data-i18n="articles.aiorder.title">External Agents and deterministic order routes</strong><span data-i18n="articles.aiorder.text">Keep model decisions outside the runtime; use the CLI to prepare, validate, apply, and inspect ordinary Camel routes.</span></a>
+        <a class="docs-link" href="/articles/ai-agent-solo-budget/"><strong data-i18n="articles.solo.title">A small-team workflow for external Agents</strong><span data-i18n="articles.solo.text">Start with one service, keep credentials in the external Agent, and verify each candidate before authorized application.</span></a>
       </div>
 
       <h2 data-i18n="articles.group.robotics">Robotics</h2>
@@ -56,7 +56,7 @@ import SectionHead from "../../components/SectionHead.astro";
 
       <h2 data-i18n="articles.group.ops">Operations and governance</h2>
       <div class="docs-list">
-        <a class="docs-link featured-doc" href="/articles/route-static-preflight/"><strong data-i18n="articles.preflight.title">Route static preflight</strong><span data-i18n="articles.preflight.text">Validate route configuration without starting the service: generic closure checks, ten scenario profiles, and gate-friendly PASS/FAIL output.</span></a>
+        <a class="docs-link featured-doc" href="/articles/route-static-preflight/"><strong data-i18n="articles.preflight.title">Route static preflight</strong><span data-i18n="articles.preflight.text">Validate route configuration without starting the service: generic closure checks, nine scenario profiles, and gate-friendly PASS/FAIL output.</span></a>
         <a class="docs-link" href="/articles/runtime-diagnostics/"><strong data-i18n="articles.diag.title">Runtime diagnostics: remote troubleshooting that never touches the business</strong><span data-i18n="articles.diag.text">Read-only diagnostics API and CLI: sanitized runtime evidence without touching routes, data, or business traffic.</span></a>
         <a class="docs-link" href="/articles/service-runtime-transitions/"><strong data-i18n="articles.transitions.title">Service runtime transitions: synchronized start/stop and timeout governance</strong><span data-i18n="articles.transitions.text">Start/stop APIs wait for the Camel context — shared transitions, idempotent retries, 409 semantics, and a tunable transition timeout.</span></a>
         <a class="docs-link" href="/articles/cli-schema-validation-routes/"><strong data-i18n="articles.schema.title">Orchestrating JSON Schema validation routes with the CLI</strong><span data-i18n="articles.schema.text">Generate Draft 2020-12 schemas from message models, then apply the full validation route — with a 400 failure branch.</span></a>
@@ -88,10 +88,10 @@ import SectionHead from "../../components/SectionHead.astro";
         "articles.phv2.text": "一个 HTTP Listener 入口经 invokeDtsTransform 串联四个具名转换，第三方 Provider 通过 Java SPI 从 services/TransformDS 加载。",
         "articles.phv3.title": "PlatformHttp v3.0.0：JSONPath 订单转换",
         "articles.phv3.text": "在 HTTP 入口用 JSONPath 提取 orderId，稳定回写 UTF-8 JSON 响应。",
-        "articles.aiorder.title": "AiAgentDemoSrv：用 Camel 路由搭一个 LLM 订单助手",
-        "articles.aiorder.text": "langchain4j-agent 按 tag 发现三条纯 XML 订单工具——一个 HTTP 入口、多轮记忆、curl 验证。",
-        "articles.solo.title": "小预算跑通 AI 接口集成",
-        "articles.solo.text": "单一 HTTP 入口 + LangChain4j Agent + 三个带 tags 的工具路由，7 天交付计划，50 元以内跑通接口闭环。",
+        "articles.aiorder.title": "外部 Agent 与确定性订单路由",
+        "articles.aiorder.text": "模型决策留在运行时之外，通过 CLI 准备、校验、应用普通 Camel 路由并收集证据。",
+        "articles.solo.title": "小团队的外部 Agent 集成流程",
+        "articles.solo.text": "从一个服务开始，将凭据留在外部 Agent 中，每个候选先验证再按授权应用。",
         "articles.dispatcher.title": "机器人命令 Dispatcher：outbox、回执、补偿与审计归档",
         "articles.dispatcher.text": "从 status=accepted 到终态——MQTT outbox 派发、ack/result 回执入账、状态快照、补偿标记与自动审计归档。",
         "articles.robsec.title": "机器人共享安全策略",
@@ -99,7 +99,7 @@ import SectionHead from "../../components/SectionHead.astro";
         "articles.industrial.title": "工业接入：OPC UA DataValue 标准化与 VDA 5050 指令分发",
         "articles.industrial.text": "OPC UA 读数标准化为标准 JSON，VDA 5050 订单按固定 topic pattern 分发——全部默认 server.running=false。",
         "articles.preflight.title": "路由静态预检",
-        "articles.preflight.text": "不启动服务验证路由配置：通用闭包检查、十个场景 profile、门禁友好的 PASS/FAIL 输出。",
+        "articles.preflight.text": "不启动服务验证路由配置：通用闭包检查、九个场景 profile、门禁友好的 PASS/FAIL 输出。",
         "articles.diag.title": "运行时诊断：不触业务的远程排障",
         "articles.diag.text": "只读 diagnostics snapshot/warnings API 与 CLI：远程收集脱敏运行态证据，不重载路由、不改数据、不触业务。",
         "articles.transitions.title": "服务运行时状态切换：同步启停与超时治理",

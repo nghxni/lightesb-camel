@@ -238,103 +238,15 @@ lightesb.transformds.enabled=true
 机器人这四个键只保护路由内存 Bean，不替代管理面数据库中的生产命令账本、
 状态快照和审计。
 
-## AI 模型注册表
+## 内置模型与 Agent 配置退出
 
-AI 能力统一通过模型注册表配置：
+`lightesb.ai.default-model`、`lightesb.ai.models.*`、`lightesb.ai.agents.*`、`lightesb.ai.route.*` 已退出；不再配置 provider、内置 memory 或模型密钥。外部 Agent 管理模型与上下文；CLI profile 只管理控制面访问认证。
 
-```properties
-lightesb.ai.default-model=default
-lightesb.ai.models.default.provider=dashscope
-lightesb.ai.models.default.dashscope.api-key=${DASHSCOPE_API_KEY:}
-lightesb.ai.models.default.dashscope.model-name=qwen-plus
-lightesb.ai.agents.route.model-ref=default
-lightesb.ai.agents.chat.model-ref=default
-```
+旧业务 XML 中的 LangChain4j Agent 必须迁移，不能只关闭开关。确定性路由维护、Schema、诊断、Action 和机器人外部决策继续保留。见[旧 Agent 迁移](components/12-ai-chat.md)。
 
-常用键：
+## 内置日志问答退出
 
-| 配置键 | 用法 |
-| --- | --- |
-| `lightesb.ai.default-model` | 默认模型引用。 |
-| `lightesb.ai.models.<ref>.provider` | 模型提供方：`dashscope`、`gemini`、`openai-responses`、`custom`。 |
-| `lightesb.ai.models.<ref>.name` | 通用模型名。 |
-| `lightesb.ai.models.<ref>.temperature` | 温度。结构化生成建议低温。 |
-| `lightesb.ai.models.<ref>.max-tokens` | 单次响应 token 上限。 |
-| `lightesb.ai.models.<ref>.timeout-seconds` | 模型调用超时。 |
-| `lightesb.ai.models.<ref>.<provider>.api-key` | 模型密钥，只能使用环境变量占位。 |
-| `lightesb.ai.models.<ref>.<provider>.base-url` | 模型服务 base URL。真实私有网关地址不要写入仓库。 |
-| `lightesb.ai.models.<ref>.<provider>.model-name` | provider 专属模型名。 |
-| `lightesb.ai.models.<ref>.dashscope.top-p` | DashScope top-p。 |
-| `lightesb.ai.models.<ref>.custom.api-type` | 自定义网关类型：`chat-completions` 或 `responses`。 |
-| `lightesb.ai.models.<ref>.custom.top-p` | OpenAI-compatible top-p。 |
-| `lightesb.ai.agents.<agent>.model-ref` | 指定 Agent 使用的模型引用。常用 `route`、`chat`。 |
-| `lightesb.ai.agents.<agent>.temperature` | Agent 温度覆盖。 |
-| `lightesb.ai.agents.<agent>.max-tokens` | Agent token 上限覆盖。 |
-| `lightesb.ai.agents.<agent>.timeout-seconds` | Agent 调用超时覆盖。 |
-| `lightesb.ai.agents.<agent>.json-repair-retry` | JSON 外层修复重试次数；AI 路由常用。 |
-
-`provider=openai-responses` 用于 OpenAI 原生 Responses API；自定义网关使用 `provider=custom`，再通过 `custom.api-type=chat-completions|responses` 区分接口形态。
-
-## Agent 记忆
-
-| 配置键 | 默认值 | 用法 |
-| --- | --- | --- |
-| `lightesb.ai.agents.chat.memory.enabled` | `false` | 是否启用 JVM 内存态窗口记忆。 |
-| `lightesb.ai.agents.chat.memory.max-messages` | `20` | 每个会话保留消息数。 |
-| `lightesb.ai.agents.chat.memory.max-sessions` | `1000` | 最大会话数。 |
-| `lightesb.ai.agents.chat.memory.ttl-seconds` | `1800` | 会话 TTL。 |
-
-该记忆不跨 JVM 实例，不持久化，服务重启后丢失。
-
-## AI 路由
-
-| 配置键 | 默认值 | 用法 |
-| --- | --- | --- |
-| `lightesb.ai.route.provider-label` | `route-agent` | AI 路由结果缺少模型响应对象时的展示标签，通常省略。 |
-| `lightesb.ai.route.model.log-payload` | `false` | 是否打印完整 prompt 和模型响应，只用于临时排障。 |
-| `lightesb.ai.route.context.allowed-prefixes` | `docs/,skills/,example/` | AI 路由可读取的外部上下文前缀。 |
-| `lightesb.ai.route.context.candidate-excluded-prefixes` | 内置排除内部经验、商业、待办和研究类目录 | AI 路由候选上下文扫描排除前缀。 |
-| `lightesb.ai.route.context.max-files` | `12` | 单次外部上下文最大文件数。 |
-| `lightesb.ai.route.context.max-file-chars` | `20000` | 单个上下文文件最大字符数。 |
-| `lightesb.ai.route.context.max-total-chars` | `200000` | 单次上下文总字符数上限。 |
-| `lightesb.ai.route.context.selection-cache-ttl-seconds` | `1800` | 上下文选择缓存 TTL。 |
-| `lightesb.ai.route.context.selection-cache-max-size` | `100` | 上下文选择缓存容量。 |
-| `lightesb.ai.route.cache-cleanup.fixed-delay-seconds` | `300` | AI 路由缓存清理调度间隔。 |
-| `lightesb.ai.route.baseline-cache.ttl-seconds` | `900` | baseline 缓存 TTL。 |
-| `lightesb.ai.route.baseline-cache.max-size` | `100` | baseline 缓存容量。 |
-
-`lightesb.ai.route.model.log-payload=true` 会输出完整提示词和模型响应，可能包含业务内容，只能临时启用。
-
-## AI 日志助手
-
-| 配置键 | 默认值 | 用法 |
-| --- | --- | --- |
-| `lightesb.ai.logging.enabled` | `false` | 是否启用 AI 日志聊天接口。 |
-| `lightesb.ai.logging.read-only` | `true` | 只读模式；为 `true` 时不会实际改日志级别。 |
-| `lightesb.ai.logging.auth-token` | 空 | 可选 `X-AI-Token` 鉴权。 |
-| `lightesb.ai.logging.base-url` | `http://localhost:8080` | 管理 API 和 Actuator 根地址。 |
-| `lightesb.ai.logging.agent-gateway-url` | `http://localhost:19093/api/ai/logging/agent` | AI 日志 Agent 路由入口。 |
-| `lightesb.ai.logging.allowed-levels` | 空 | 允许设置的日志级别。 |
-| `lightesb.ai.logging.allowed-logger-prefixes` | 空 | 允许操作的 logger 前缀。 |
-| `lightesb.ai.logging.system-message` | 默认提示词 | 透传给 AI 日志 Agent 的能力约束提示词。 |
-| `lightesb.ai.logging.clarification-fallback-enabled` | `true` | 澄清续答兜底处理开关。 |
-| `lightesb.ai.logging.clarification.max-turns` | `5` | 同一会话澄清最大轮次。 |
-| `lightesb.ai.logging.retry.enabled` | `true` | 限流重试开关。 |
-| `lightesb.ai.logging.retry.max-attempts` | `4` | 最大请求次数，包含首次请求。 |
-| `lightesb.ai.logging.retry.initial-delay-ms` | `1000` | 重试初始等待毫秒数。 |
-| `lightesb.ai.logging.retry.max-delay-ms` | `30000` | 重试最大等待毫秒数。 |
-| `lightesb.ai.logging.retry.multiplier` | `2.0` | 指数退避倍率。 |
-| `lightesb.ai.logging.retry.jitter-ms` | `250` | 重试抖动毫秒数。 |
-
-建议先以只读模式验收：
-
-```properties
-lightesb.ai.logging.enabled=true
-lightesb.ai.logging.read-only=true
-lightesb.ai.logging.auth-token=${AI_LOGGING_AUTH_TOKEN:}
-lightesb.ai.logging.allowed-levels=TRACE,DEBUG,INFO,WARN,ERROR
-lightesb.ai.logging.allowed-logger-prefixes=com.oureman.soa.lightesb,org.apache.camel
-```
+`lightesb.ai.logging.*` 已移除，旧日志问答 API 返回 404，`log ask` 不再可用。外部 Agent 使用 `log snapshot`、`log instance` 与 `ai diagnose` 采集证据；诊断不调用模型。升级前识别并迁移依赖日志 Agent 的旧路由，不能只修改 enabled 开关。操作命令见 [CLI 参考](cli/01-cli-command-reference.md)。
 
 ## 机器人控制面配置
 
@@ -401,13 +313,6 @@ lightesb.mysql.password=${LIGHTESB_MYSQL_PASSWORD:}
 
 lightesb.cache.base-directory=${LIGHTESB_CACHE_DIR:lightesb-camel-app/lightesb-StreamCache}
 
-lightesb.ai.default-model=default
-lightesb.ai.models.default.provider=dashscope
-lightesb.ai.models.default.dashscope.api-key=${DASHSCOPE_API_KEY:}
-lightesb.ai.models.default.dashscope.model-name=qwen-plus
-lightesb.ai.agents.route.model-ref=default
-lightesb.ai.agents.chat.model-ref=default
-lightesb.ai.agents.chat.memory.enabled=false
 
 lightesb.robot.dispatcher.enabled=false
 lightesb.robot.dispatcher.broker-uri=${ROBOT_MQTT_BROKER_URI:}

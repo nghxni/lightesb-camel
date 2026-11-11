@@ -16,7 +16,7 @@ const doc = `${repo}/blob/main/docs/components/16-route-static-preflight.md`;
       <p class="eyebrow" data-i18n="preflight.eyebrow">Technical article</p>
       <h1 data-i18n="preflight.title">Route static preflight: validate route configuration without starting the service</h1>
       <p class="lead" data-i18n="preflight.lead">
-        route-static-preflight.py ships with the delivery package and turns pre-delivery route review into one deterministic command — no LightESB startup, no external connections — across ten scenario profiles from HTTP to industrial protocols.
+        route-static-preflight.py ships with the delivery package and turns pre-delivery route review into one deterministic command — no LightESB startup, no external connections — across nine scenario profiles from HTTP to industrial protocols.
       </p>
 
       <div class="article-meta">
@@ -42,8 +42,8 @@ const doc = `${repo}/blob/main/docs/components/16-route-static-preflight.md`;
             <p class="copy" data-i18n="preflight.checks.closure.text">Exactly one XML per directory with unique route ids; XML and both properties files parse and carry service identity; every &#123;&#123;key&#125;&#125; placeholder resolves; referenced .ds and schema JSON resources exist on disk.</p>
           </article>
           <article class="card">
-            <h3 data-i18n="preflight.checks.profiles.title">Ten scenario profiles</h3>
-            <p class="copy" data-i18n="preflight.checks.profiles.text">http, timer, transform, schema, externaldb, ai-agent, mqtt, opcua, modbus, sap-mock — each adds its required keys and safe defaults, such as HTTP.Listener=true for HTTP and server.running=false for industrial protocols.</p>
+            <h3 data-i18n="preflight.checks.profiles.title">Nine scenario profiles</h3>
+            <p class="copy" data-i18n="preflight.checks.profiles.text">http, timer, transform, schema, externaldb, mqtt, opcua, modbus, sap-mock — each adds its required keys and safe defaults, such as HTTP.Listener=true for HTTP and server.running=false for industrial protocols.</p>
           </article>
           <article class="card">
             <h3 data-i18n="preflight.checks.offline.title">Fully offline</h3>
@@ -95,7 +95,7 @@ PASS profile=http route=demo-http-route.xml</code></pre>
       zh: {
         "preflight.eyebrow": "技术文章",
         "preflight.title": "路由静态预检：不启动服务也能验证路由配置",
-        "preflight.lead": "route-static-preflight.py 随交付包提供，把路由交付前的核对收敛为一条确定性命令——不启动 LightESB、不连接外部系统——覆盖从 HTTP 到工业协议的十个场景 profile。",
+        "preflight.lead": "route-static-preflight.py 随交付包提供，把路由交付前的核对收敛为一条确定性命令——不启动 LightESB、不连接外部系统——覆盖从 HTTP 到工业协议的九个场景 profile。",
         "preflight.meta.tool": "工具：",
         "preflight.meta.repo": "仓库：",
         "preflight.problem.title": "最贵的错误是静态错误",
@@ -104,8 +104,8 @@ PASS profile=http route=demo-http-route.xml</code></pre>
         "preflight.checks.title": "工具检查什么",
         "preflight.checks.closure.title": "通用闭包",
         "preflight.checks.closure.text": "目录恰有一个 XML 且 route id 唯一；XML 与两个 properties 可解析并含服务标识；每个 {{key}} 占位符可闭包；引用的 .ds 与 Schema JSON 资源在磁盘上存在。",
-        "preflight.checks.profiles.title": "十个场景 profile",
-        "preflight.checks.profiles.text": "http、timer、transform、schema、externaldb、ai-agent、mqtt、opcua、modbus、sap-mock——各自叠加必需配置键与安全默认值，例如 HTTP 要求 HTTP.Listener=true，工业协议要求 server.running=false。",
+        "preflight.checks.profiles.title": "九个场景 profile",
+        "preflight.checks.profiles.text": "http、timer、transform、schema、externaldb、mqtt、opcua、modbus、sap-mock——各自叠加必需配置键与安全默认值，例如 HTTP 要求 HTTP.Listener=true，工业协议要求 server.running=false。",
         "preflight.checks.offline.title": "完全离线",
         "preflight.checks.offline.text": "不启动服务、不解析环境变量实际值、不连接外部系统。结论只来自服务目录文件本身。",
         "preflight.checks.gate.title": "门禁友好输出",

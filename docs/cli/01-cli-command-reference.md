@@ -28,7 +28,7 @@ alias lightesb='java -jar /path/to/lightesb-cli.jar'
 | `--output table|json` | 输出格式，CI 优先 `json` |
 | `--yes` | 写操作确认 |
 | `--file payload.json` | 从 JSON 文件读取输入 |
-| `--ai-token <token>` | 用于服务端 AI 日志问答等 AI 管控接口的 `X-AI-Token` |
+| `--ai-token <token>` | 兼容字段，以 `X-AI-Token` 发送；不恢复已移除的日志问答 |
 
 ## Action 目录
 
@@ -132,7 +132,7 @@ lightesb diagnostics warnings --component service-log --output json
 GET /api/diagnostics/runtime-snapshot
 ```
 
-可选过滤参数为 `serviceName`、`serviceVersion` 和 `component`。当前组件包括 `route-runtime`、`service-log`、`ai-route-cache`、`ai-model-session`、`external-datasource`、`robot-command`、`instance-log`。该命令面向 Codex 和人工远程排查；不读取远程文件系统，不触发重载、清理、关闭连接或日志级别调整。`--output json` 会保留服务端标准响应，包含 `requestId`、`components` 和服务端生成的 `warnings`。
+可选过滤参数为 `serviceName`、`serviceVersion` 和 `component`。当前组件包括 `route-runtime`、`service-log`、`external-datasource`、`robot-command`、`instance-log`。该命令面向 Codex 和人工远程排查；不读取远程文件系统，不触发重载、清理、关闭连接或日志级别调整。`--output json` 会保留服务端标准响应，包含 `requestId`、`components` 和服务端生成的 `warnings`。
 
 服务端以 `lightesb.route.enabled=false` 启动时，`route-runtime` 组件不注册；排查机器人命令 dispatcher 使用 `--component robot-command`。
 
@@ -267,7 +267,6 @@ lightesb message constraints
 lightesb message domains
 ```
 
-生成请求超时后可用`ai route latest --service-name DemoSrv --service-version v1.0.0 --output json`读取候选缓存。exists=false不证明请求结束；exists=true仍须核对服务/版本和generatedAt，旧缓存不能应用，同服务并发且无唯一关联时报告歧义。latest不会保存、apply或重新生成。
 
 JSON 样例默认生成名为 `Request` 的 ROOT；`--msg-type RESPONSE` 将默认 ROOT 改为 `Response`。ROOT 节点的 `nodeName` 是生成 XML 时使用的实际根标签，可用 `--root-node-name <name>` 显式指定任意业务根名，且该输入优先于消息类型默认值。XML 样例保留自身根标签。
 
@@ -477,25 +476,13 @@ CLI 对 `service start/stop` 使用 130 秒 HTTP 请求超时，以覆盖服务�
 }
 ```
 
-## AI 命令
+## 外部 Agent 与路由候选命令
 
 ```bash
-lightesb log ask "查询 PlatformHttp@v3.0.0@platform-http-route.xml 服务当前日志级别"
-lightesb log ask --message "查询最近 10 分钟 DemoSrv 的失败实例" --memory-id ops-session-001
-lightesb log ask --file ai-log-question.json
 
-lightesb ai route generate --file ai-route.json
-lightesb ai route generate --file ai-route.json --save-remote --return-logs --log-lines 80 --yes
-lightesb ai route generate --file ai-route.json --save-local --app-dir lightesb-camel-app --service-name DemoAiSrv --service-version 1.0.0 --route-file-name DemoAiSrv-ai-route.xml --yes
 lightesb ai route read --service-name DemoAiSrv --service-version 1.0.0
 lightesb ai route prepare --service-name DemoAiSrv --service-version v1.0.0 --out build/DemoAiSrv-v1.0.0-candidate --yes --output json
 lightesb ai route validate --file build/DemoAiSrv-v1.0.0-candidate/DemoAiSrv-ai-route.xml --service-name DemoAiSrv --service-version v1.0.0 --route-file-name DemoAiSrv-ai-route.xml --resource-file common.config.properties --resource-file service.config.properties,input-transform.ds,request-schema.json --output json
-lightesb ai route cache status
-lightesb ai route cache clear --yes
-lightesb ai route cache clear --service-name DemoAiSrv --service-version v1.0.0 --yes
-lightesb ai route optimize --file ai-route-chat.json
-lightesb ai route optimize --file ai-route-chat.json --save-remote --return-logs --log-lines 80 --yes
-lightesb ai route optimize --file ai-route-chat.json --save-local --app-dir lightesb-camel-app --service-name DemoAiSrv --service-version 1.0.0 --route-file-name DemoAiSrv-ai-route.xml --yes
 lightesb ai route apply --file DemoAiSrv-route.xml --save-remote --service-name DemoAiSrv --service-version v1.0.0 --route-file-name DemoAiSrv-route.xml --resource-file common.config.properties --resource-file service.config.properties --resource-file request-schema.json --return-logs --log-lines 80 --timeout 30 --yes --output json
 lightesb ai route apply --file build/DemoAiSrv-v1.0.0-candidate/DemoAiSrv-route.xml --save-remote --service-name DemoAiSrv --service-version v1.0.0 --route-file-name DemoAiSrv-route.xml --resource-file common.config.properties --resource-file service.config.properties --resource-file response-schema.json --action-session-id <sessionId> --expected-scope-digest <currentScopeDigest> --yes --output json
 lightesb ai route apply --file route.xml --save-local --app-dir lightesb-camel-app --service-name DemoAiSrv --service-version 1.0.0 --route-file-name DemoAiSrv-ai-route.xml --resource-file input-transform.ds --resource-file output-transform.ds --yes
@@ -516,18 +503,11 @@ lightesb ai diagnose --service-name DemoAiSrv --service-version 1.0.0 --output j
 
 AI 边界：
 
-- `log ask` 是可选服务端自然语言 Agent 能力，只把问题、`memoryId` 和 `X-AI-Token` 传给服务端，不在 CLI 本地推理日志语义；默认日志治理优先使用确定性 `log` 命令。
-- `ai tool list/save/plan/run` 已删除；AI 路由生成统一走自然语言入口，最终以路由 XML、properties、`.ds` 和资源文件体现。
-- `ai route generate` 要求输入 JSON 包含 `naturalLanguageRequirement`，默认只返回候选 XML/配置/资源，不写入 `lightesb-camel-app`，不保存配置，不自动部署；服务端先选择随包文档/skills 上下文，再生成 Artifact JSON，失败时返回服务端错误。上下文候选来自随包 `docs/README.md`，当前外发包运行目录主要过滤经验复盘类文档；未随包交付的内部材料不会作为生成候选。
-- 服务端不使用内置配置键目录推断组件或过滤业务配置；组件形态、配置键写法和路由结构由模型根据自然语言需求与已选随包文档判断，后端只做 Artifact JSON、XML/route/tool 结构、平台运行配置边界和热加载校验。
-- 上下文选择由服务端根据随包 `docs/README.md`、自然语言需求和候选清单完成。普通 HTTP 入站或 HTTP 下游调用默认只携带 HTTP 组件文档；只有明确要求路由日志、控制面 API、第三方管理调用、部署/回滚、日志调级、应用矩阵或已有样例时，才选择对应文档。服务端只对明显非生成必需的控制面和应用矩阵整篇文档做意图过滤，不用 Java 反推业务组件。
-- 服务端默认不记录完整大模型输入输出；开发排障需要查看完整 prompt 和模型响应时，在服务端启用 `lightesb.ai.route.model.log-payload=true`，并把 `com.oureman.soa.lightesb.servicemanagement.AiRouteModelClient` 与 `com.oureman.soa.lightesb.config.ai.model.OpenAiResponsesChatModelFactory` 日志级别设为 DEBUG。该开关是服务端运行配置，不应写入 AI 路由生成的服务配置文件。
-- 服务管理前端调用同一生成接口时，如果浏览器、代理或网关先超时但后端随后完成生成，可通过 `/service-management/v1/ai/route/generate/latest` 补取最近候选结果；CLI 生成命令仍以 `/generate` 同步响应为准。
-- `ai route optimize` 默认只返回候选微调结果，不写入、不保存、不自动部署；服务端会生成或复用 baseline，再基于用户提交的当前 route/config/resources 微调。baseline 生成只携带自然语言需求、服务基础事实、必要运行配置摘要和已选文档；当前文件集和最近热部署失败诊断只进入最终微调步骤。微调步骤已得到可解析 Artifact JSON 且 Artifact 校验返回明确可修复诊断时，服务端会追加一次 validation repair；其他微调失败、不可修复策略错误或 repair 失败时返回 warning 和用户原始内容，不用 baseline 覆盖用户提交内容。
+- 内置 `log ask` 已移除，调用返回参数错误且不发送请求；旧 `/api/ai/logging/chat` 返回 404。外部 Agent 使用 `log snapshot`、`log instance` 等命令采集证据，日志写操作仍需独立授权及 `--yes`。
+- `ai diagnose` 只检查 server、日志健康与可选路由内容，不调用模型或检查模型密钥。
+- 内置 `ai route generate/optimize/latest/cache` 及旧 `ai tool list/save/plan/run` 已移除，调用返回参数错误且不发送请求；旧生成、微调、SSE、latest 和缓存 HTTP 接口返回 404。停止旧轮询，改由外部 Agent 编辑候选，再使用 read/prepare/validate/apply。
 - `ai route prepare --out <new-candidate-dir> --yes` 只调用在线 content GET，把实际 route、两个 properties、route 实际引用的 `.ds` 和固定 Schema 作为整体发布到新本地目录。父目录必须真实存在，`--out` 必须不存在；命令拒绝 symlink 和当前工作目录下默认 `lightesb-camel-app`，但无法自动发现自定义或远程 Watcher 根。content/prepare 不证明服务已注册、路由已加载或 Action Catalog 与持久化目录一致。
 - `ai route validate` 只调用候选校验 API，不需要 `--yes`，不写本地/远程文件、不热加载、不建立审批 lineage。裸 `--resource-file` 文件名相对 `--file` 所在候选目录解析；成功响应的 `savedFiles/deletedFiles` 用于确定随后会话的精确文件 allowlist。
-- `ai route cache status` 查询服务端 AI 路由上下文选择、baseline 和最近生成结果缓存状态。
-- `ai route cache clear --yes` 清理服务端 AI 路由缓存；带 `--service-name` 与 `--service-version` 时只清理指定服务关联缓存。
 - `--save-remote --yes` 会调用服务端 `/service-management/v1/ai/route/apply`，由服务端备份、写入、等待 XML/properties 热加载并返回状态；CLI 不通过 SSH/SCP 或共享磁盘写远程文件。
 - 远程 apply 返回 `APPLIED` 或 `APPLIED_DISABLED` 时，服务端同步把服务管理部署状态更新为 `SUCCESS`；失败或恢复路径不写入成功状态。
 - `--return-logs` 控制成功时是否返回远程日志摘要；失败时即使未传 `--return-logs`，也会展示服务端返回的多个日志来源摘要。
@@ -538,9 +518,8 @@ AI 边界：
 - 远程 apply 返回 `FAILED`、`FAILED_ROLLED_BACK` 或 `ROLLBACK_FAILED` 时，CLI 先输出 `operationId`、删除文件、恢复状态和日志，再以退出码 `69` 结束。保留本地候选，不自动重试。
 - `ai route apply --save-local --yes` 从本地 XML 和重复 `--resource-file` 写入服务目录；写入前把已有服务目录备份到 app 目录同级 `{appDirName}-backups`，拒绝备份源符号链接，可选 `--wait-reload --timeout <seconds>` 只读轮询路由详情。
 - `--save-local` 与 `--save-remote` 互斥；本地保存是脚本和非 Codex 本地开发入口，不是 Codex 直接编辑服务文件的必经流程。
-- `ai route optimize` 不接入 SSE。
-- 模型 provider、base URL、model name、API key 都由服务端 `lightesb.ai.models.*` 注册表和 `lightesb.ai.agents.*.model-ref` 管理；不要写入 CLI profile。AI 路由生成/微调使用 `lightesb.ai.agents.route.model-ref`；Agent + Tools POC 使用 `lightesb.ai.agents.chat.model-ref`，推荐指向 DashScope `qwen-plus` 或 OpenAI-compatible Chat Completions 这类支持工具调用的模型。
-- AI 路由可通过服务端 `provider=openai-responses` 接入 OpenAI 原生 Responses API，也可通过 `provider=custom` 和 `custom.api-type=chat-completions|responses` 接入自定义网关。`provider=openai` 不作为新配置入口。Responses provider 当前用于 AI 路由生成/微调和普通文本调用，不作为 Agent tool-calling 验收模型；Agent + Tools 应配置 `lightesb.ai.agents.chat.model-ref` 指向 Chat Completions 模型。服务管理前端会用 `aiRouteSessionId` 让支持 Responses 的 provider 在生成、微调和热部署失败修复之间续接模型上下文；CLI JSON 如需复用同一闭环，也可在 generate/optimize/apply 请求体中传同一个 `aiRouteSessionId`。首次业务 `CONTINUE` 如果本地还没有 previous response id，服务端也会作为 stateful 请求保存 provider response id；后续同 session 请求才携带 `previous_response_id`。若目标网关不支持 HTTP Responses `previous_response_id`，服务端会降级为无 session 调用。真实 provider 的 Responses 续接验证只能通过源码仓库显式 Maven profile 触发，交付包 CLI 默认命令不调用真实模型验证。
+
+外部 Agent 的模型配置与凭据由其自身环境维护，不写入 CLI profile 或服务文件。`aiRouteSessionId` 模型字段已移除，Action 审批会话和管理认证保持原契约。
 
 机器人边界：
 

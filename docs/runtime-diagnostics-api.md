@@ -33,8 +33,6 @@ GET /api/diagnostics/runtime-snapshot
 | --- | --- |
 | `route-runtime` | 服务版本内部/公开状态、路由文件、routeId、CamelContext 状态、失败阶段、诊断编号、脱敏错误摘要和动态 watcher 状态。 |
 | `service-log` | 服务日志 logger/config/path 摘要和一致性。 |
-| `ai-route-cache` | AI 路由缓存条目数、TTL、命中和清理统计。 |
-| `ai-model-session` | AI 路由模型本地 session 数量、TTL 和上限。 |
 | `external-datasource` | 外部 DataSource cache 数量、beanName、DataSource 类型和签名 hash。 |
 | `robot-command` | 机器人命令账本、审计、outbox、dispatcher、状态快照、补偿、denylist、最近错误码分布、只读 doctor 和审计归档摘要。 |
 | `instance-log` | 实例日志 writer 存储模式、H2 fallback 状态、实例日志查询存储、JsonKeyword 查询存储、队列、批次、拒绝任务、最近 flush 和最近错误。 |

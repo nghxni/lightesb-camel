@@ -25,7 +25,7 @@
 | `components/09-exception-handling.md` | 异常处理组件说明与管理 API 异常边界，外发整理版 |
 | `components/10-h2-jsonkeyword-chain.md` | `docs/16-h2-jsonkeyword-processor-chain-usage.md` 与 H2 fallback POC 设计结论，按交付场景重写 |
 | `components/11-externaldb.md` | `docs/18-externaldb-component-usage.md` |
-| `components/12-ai-chat.md` | `docs/22-ai-chat-framework-usage.md`、`docs/experience/09-ai-agent-memory-practices.md`，结合 AI 配置可见 runtime 自洽边界、旧 Chat/工具接口删除说明和 CLI 自动化说明，按交付场景重写 |
+| `components/12-ai-chat.md` | `docs/22-ai-chat-framework-usage.md`、`docs/cli/10-ai-model-provider.md`，按交付场景重写内置 Agent 退役、候选预检、备份迁移和外部 Agent 边界 |
 | `components/13-sap-netweaver.md` | `docs/26-sap-netweaver-component-usage.md` |
 | `components/14-timer-routes.md` | 交付样例 `example/routes/timer/` 与 `example/routes/MysqlRouteSrv/` 整理 |
 | `components/15-aveva-plant-scada-opcua-mqtt.md` | `docs/27-aveva-plant-scada-opcua-mqtt-usage.md`，按交付场景重写 |
@@ -45,7 +45,7 @@
 | `api-response-contract.md` | 管理 API 响应契约，外发整理版 |
 | `service-runtime-management-api.md` | `docs/api/03-service-runtime-management.md` 与运行时生命周期结论，按交付启停场景重写 |
 | `deployment-management-api.md` | 管理 API 契约、部署服务安全边界与回退行为，按外发调用场景整理 |
-| `ai-route-cache-api.md` | `docs/api/01-ai-route-cache.md`，按交付场景压缩整理 |
+| `ai-route-cache-api.md` | `docs/api/01-ai-route-cache.md`，缓存退出与外部 Agent 迁移说明 |
 | `runtime-diagnostics-api.md` | 运行时诊断 API、H2 fallback POC 设计结论与控制面始终安全摘要边界，按交付场景压缩整理 |
 | `robot-command-dispatcher-api.md` | 机器人 dispatcher API、MQTT 回执接入基线与 H2 fallback POC 设计结论，按交付场景压缩整理 |
 | `robot-edge-inference-mock.md` | 机器人边缘 AI 推理设计与 Build B mock baseline，按可交付配置、输入输出、验收和限制重写 |
@@ -60,6 +60,7 @@
 | `../skills/lightesb-project-troubleshooting/SKILL.md` | 源码仓库项目问题处理规则的通用排障流程，去除个人画像和内部经验后按本机开发/业务现场场景重写；发布基线可升级，根目录项目经验独立维护 |
 | `cli/README.md` | `docs/cli/README.md`，外发压缩版 |
 | `cli/01-cli-command-reference.md` | `docs/cli/*` 与 `lightesb-cli/src/main/java/.../cli/command/*`，按命令域压缩整理 |
+| `cli/07-ai-log-ask.md` | `docs/cli/07-ai-log-ask.md`，日志问答退出与外部 Agent 的确定性 CLI 迁移说明 |
 | `cli/support-diagnostics.md` | `docs/cli/12-support-diagnostics-runbook.md`，按外发支持诊断场景重写，不包含内部演示样例命令 |
 | `manufacturing-action-demo.md` | `docs/29-business-action-demo.md`，按交付目录、现有CLI、Schema核对和可信审批边界重写；不包含内部测试工具或答案 |
 | `../example/routes/OrderDeliveryCheckSrv/v1.0.0/` | `example/OrderDeliveryCheckSrv/v1.0.0/`，合成固定快照业务路由/Schema，默认停用 |

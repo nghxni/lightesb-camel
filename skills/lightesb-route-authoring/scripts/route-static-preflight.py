@@ -38,7 +38,6 @@ PROFILE_REQUIREMENTS = {
     "timer": {"properties": ["HTTP.Listener"], "components": [], "values": {"HTTP.Listener": "false"}, "xml": [r"timer:" ]},
     "transform": {"properties": ["HTTP.Listener", "server.port", "system.components", "input-transform", "input-transform.file"], "components": ["undertowhttp", "jsontransform", "conditionaltransform"], "values": {"HTTP.Listener": "true"}, "xml": [r"undertow:", r"conditionaltransform:"]},
     "schema": {"properties": ["HTTP.Listener", "server.port", "system.components"], "components": ["undertowhttp"], "values": {"HTTP.Listener": "true"}, "xml": [r"undertow:", r"JsonSchemaPath", r"JsonSchemaValidationMode", r"jsonSchemaValidationProcessor"]},
-    "ai-agent": {"properties": ["HTTP.Listener", "server.port", "system.components", "service.ai.route", "service.ai.type", "service.ai.mode", "ai.agent.tags"], "components": ["undertowhttp"], "values": {"HTTP.Listener": "true", "service.ai.mode": "agent"}, "xml": [r"undertow:", r"langchain4j-agent", r"langchain4j-tools"]},
     "sap-mock": {"properties": ["HTTP.Listener", "server.port", "system.components"], "components": ["undertowhttp"], "values": {"HTTP.Listener": "true"}, "xml": [r"undertow:"]},
 }
 
@@ -102,6 +101,8 @@ def main() -> int:
     for key in ("service.name", "service.version"):
         if key not in configs:
             errors.append(f"缺少通用配置键：{key}")
+    if configs.get("service.ai.route", "false").lower() == "true":
+        errors.append("内置 Agent 已移除：请迁移 service.ai.route 声明及对应 XML")
     profile = PROFILE_REQUIREMENTS[args.profile]
     for key in profile["properties"]:
         if key not in configs:
@@ -126,7 +127,14 @@ def main() -> int:
     if route_path and route_path.is_file():
         xml = route_path.read_text(encoding="utf-8")
         try:
-            ET.fromstring(xml)
+            root = ET.fromstring(xml)
+            for element in root.iter():
+                for name, value in element.attrib.items():
+                    if name in {"uri", "ref", "bean", "beanType", "class", "className", "type"}:
+                        if value.startswith(("langchain4j-", "dev.langchain4j.", "org.apache.camel.component.langchain4j")):
+                            errors.append("内置 Agent 组件/类已移除：请先迁移 XML")
+                        if name != "uri" and value.lstrip("#") in {"genericAiAgent", "logAgent", "aiLogToolService"}:
+                            errors.append("内置 Agent Bean 已移除：请先迁移 XML")
         except ET.ParseError as exc:
             errors.append(f"route XML 无法解析：{exc}")
         for key in sorted(set(re.findall(r"\{\{\s*([^{}]+?)\s*\}\}", xml))):

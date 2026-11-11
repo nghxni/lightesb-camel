@@ -21,7 +21,7 @@ server.port=18080
 system.components=undertowhttp
 ```
 
-运行时 HTTP 监听端口只读取 `server.port`。不要在新服务或 AI 路由生成结果里输出 `system.port`、`service.port`、`version.port`；这些键只属于历史端口层级说明，不会决定实际监听端口。
+运行时 HTTP 监听端口只读取 `server.port`。不要在新服务或外部 Agent 生成的路由候选里输出 `system.port`、`service.port`、`version.port`；这些键只属于历史端口层级说明，不会决定实际监听端口。
 
 本地验收或排障时可以用 `lightesb.route.temp-only-service` 缩小启动加载范围：
 
@@ -63,6 +63,12 @@ service.version=1.0.0
 - 入口建议先调用 `requestCharsetProcessor`，出口建议调用 `jsonResponseProcessor`。
 - 关键节点用 `servicelog:` 记录，不要直接打印全量大报文。
 
+## 默认 HTTP Header 边界
+
+Camel 4.18.5 的默认 Undertow 策略会双向过滤 `Camel`、`camel`、`websocket.` 前缀的内部 Header。不要把这些前缀用于业务字段：外部传入的 `websocket.sendToAll` 等值不会成为路由输入，内部 `websocket.connectionKey` 等值也不会写入 HTTP 响应头。普通业务 Header 和远端 IP 获取保持可用。
+
+路由仍可使用运行时生成的 `CamelHttpMethod` 等内部元数据。`websocket.` 内部前缀与标准 `Sec-WebSocket-*` 协议头不同；不要据此添加后者的全量过滤规则。显式配置 `headerFilterStrategy` 会使用自定义策略，应验证所需的双向隔离边界。
+
 ## 跨域处理
 
 如果接口会被浏览器页面调用，需要同时处理 CORS 预检请求和正常响应头。参考 `lightesb-camel-app/Doctor360Srv/v1.0.0/doctor360-route.xml`。
@@ -101,7 +107,7 @@ service.version=1.0.0
 
 ## 调用 Camel 内部 HTTP 子路由
 
-同一个服务中可以用 `toD` 调用本进程内的 HTTP 子路由，适合工具路由、mock 路由和内部编排。参考 `example/routes/AiAgentDemoSrv/v1.0.0/ai-agent-demo-route.xml` 中的 “调用内部 HTTP mock 子路由：bridgeEndpoint=true”。
+同一个服务中可以用 `toD` 调用本进程内的 HTTP 子路由，适合工具路由、mock 路由和内部编排。按下游 HTTP 接口要求设置 `bridgeEndpoint=true`、超时和错误处理。
 
 调用方：
 

@@ -23,13 +23,13 @@ export const articleSeoByPath: Record<string, ArticleSeo> = {
     { href: "/articles/hardened-cli-runtime-config/", title: "Hardened runtime configuration and CLI boundaries" },
     { href: "/articles/runtime-diagnostics/", title: "Runtime diagnostics and troubleshooting" }
   ]),
-  "/articles/ai-agent-order/": article("2026-08-12", "2026-08-21", "AI integration", [
-    { href: "/articles/ai-agent-solo-budget/", title: "AI agent integration on a solo budget" },
+  "/articles/ai-agent-order/": article("2026-08-12", "2026-11-11", "AI integration", [
+    { href: "/articles/ai-agent-solo-budget/", title: "A small-team workflow for external Agents" },
     { href: "/articles/action-catalog-audit/", title: "Action catalog and operation audit" },
     { href: "/articles/robot-ai-approval/", title: "The robot AI approval gate" }
   ]),
-  "/articles/ai-agent-solo-budget/": article("2026-08-12", "2026-08-21", "AI integration", [
-    { href: "/articles/ai-agent-order/", title: "An LLM order assistant built from Camel routes" },
+  "/articles/ai-agent-solo-budget/": article("2026-08-12", "2026-11-11", "AI integration", [
+    { href: "/articles/ai-agent-order/", title: "External Agents and deterministic order routes" },
     { href: "/articles/platform-http-v3-jsonpath/", title: "JSONPath extraction at the HTTP entry" },
     { href: "/articles/robot-ai-approval/", title: "The robot AI approval gate" }
   ]),
@@ -58,7 +58,7 @@ export const articleSeoByPath: Record<string, ArticleSeo> = {
     { href: "/articles/platform-http-v3-jsonpath/", title: "JSONPath extraction at the HTTP entry" },
     { href: "/articles/legacy-system-integration/", title: "Modernizing legacy integration" }
   ]),
-  "/articles/legacy-system-integration/": article("2026-07-03", "2026-08-21", "Core routes and data access", [
+  "/articles/legacy-system-integration/": article("2026-07-03", "2026-11-11", "Core routes and data access", [
     { href: "/articles/http-listener-undertow/", title: "HTTP listener and Undertow request routing" },
     { href: "/articles/externaldb-mysql/", title: "External database routes with externaldb" },
     { href: "/articles/opcua-vda5050-industrial/", title: "OPC UA and VDA 5050 industrial ingress" }
@@ -86,7 +86,7 @@ export const articleSeoByPath: Record<string, ArticleSeo> = {
   "/articles/robot-ai-approval/": article("2026-07-30", "2026-08-21", "Robotics and AI", [
     { href: "/articles/robot-command-dispatcher/", title: "Robot command dispatcher and audit archive" },
     { href: "/articles/robot-security-policy/", title: "Robot shared safety policy" },
-    { href: "/articles/ai-agent-order/", title: "An LLM order assistant built from Camel routes" }
+    { href: "/articles/ai-agent-order/", title: "External Agents and deterministic order routes" }
   ]),
   "/articles/robot-command-dispatcher/": article("2026-08-12", "2026-08-21", "Robotics and AI", [
     { href: "/articles/robot-security-policy/", title: "Robot shared safety policy" },
@@ -98,12 +98,12 @@ export const articleSeoByPath: Record<string, ArticleSeo> = {
     { href: "/articles/robot-ai-approval/", title: "The robot AI approval gate" },
     { href: "/articles/hardened-cli-runtime-config/", title: "Hardened runtime configuration and CLI boundaries" }
   ]),
-  "/articles/route-static-preflight/": article("2026-08-12", "2026-08-21", "Operations and governance", [
+  "/articles/route-static-preflight/": article("2026-08-12", "2026-11-11", "Operations and governance", [
     { href: "/articles/cli-schema-validation-routes/", title: "JSON Schema validation routes via CLI" },
     { href: "/articles/runtime-diagnostics/", title: "Runtime diagnostics and troubleshooting" },
     { href: "/articles/hardened-cli-runtime-config/", title: "Hardened runtime configuration and CLI boundaries" }
   ]),
-  "/articles/runtime-diagnostics/": article("2026-08-12", "2026-08-21", "Operations and governance", [
+  "/articles/runtime-diagnostics/": article("2026-08-12", "2026-11-11", "Operations and governance", [
     { href: "/articles/deployment-security/", title: "Deployment security with the management API" },
     { href: "/articles/service-runtime-transitions/", title: "Service start/stop and timeout governance" },
     { href: "/articles/action-catalog-audit/", title: "Action catalog and operation audit" }
