@@ -144,11 +144,11 @@
 - 适用范围：具备 LightESB 交付包、CLI、管理服务及随包文档/Skill；所有远程写操作均已逐项获得授权。
 - 证据：完整流程实际覆盖应用、复杂请求/响应消息、服务关系、路由候选、远程 apply、路由加载和日志/诊断查询；ROOT、别名、消息 ID 关系和部署状态均有回查或测试证据。
 - 根因摘要：复杂消息和服务可以只依赖公开 CLI/API 契约正确创建，不需要读取源码；但应用、消息、服务记录、服务目录、运行态和部署历史是不同边界，任一单项成功都不能代替完整验收。
-- 最小修复：依次执行 `doctor`、`app create/get`、请求/响应 `message parse/create/get/structure`、`service create/get`、候选 `ai route validate`、授权后的 `ai route apply --save-remote --yes`，最后只读查询 deploy、route、runtime diagnostics 和日志。消息解析显式传消息类型与业务 ROOT；外部特殊字段使用规范内部名加别名；原始值数组等当前模型限制需显式调整。没有模型 key 时，可由交付 Agent 根据随包 docs/skills/examples 准备可见候选，不读取源码或绕过控制面。
-- 验证：应用、消息和服务均可按真实 ID 回查；XML 根标签、别名和集合结构符合预期；服务绑定正确输入/输出消息 ID；validate 无未确认 warnings；apply 为 `APPLIED` 或 `APPLIED_DISABLED` 且服务部署状态为 `SUCCESS`；运行服务的 route/context 为 `STARTED/RUNNING`，诊断和日志可按 operationId/requestId/routeId 关联。
+- 最小修复：依次执行 `doctor`、`app create/get`、请求/响应 `message parse/create/get/structure`、`service create/get`、候选 `ai route validate`、授权后的 `ai route apply --save-remote --yes`，最后只读查询 deploy、route、runtime diagnostics 和日志。消息解析显式传消息类型与业务 ROOT；外部特殊字段使用规范内部名加别名；数组须具备明确 item，无法从样本推断的类型须先补齐；类型和约束规则以当前消息文档为准。没有模型 key 时，可由交付 Agent 根据随包 docs/skills/examples 准备可见候选，不读取源码或绕过控制面。
+- 验证：应用、消息和服务均可按真实 ID 回查；XML 根标签、别名和集合结构符合预期；服务绑定正确输入/输出消息 ID、不可变 revision 和 modelDigest；validate 无未确认 warnings；apply 为 `APPLIED` 或 `APPLIED_DISABLED` 且服务部署状态为 `SUCCESS`；运行服务的 route/context 为 `STARTED/RUNNING`，诊断和日志可按 operationId/requestId/routeId 关联。
 - 失效条件：CLI 与服务端版本不匹配、管理服务不可用、消息含当前模型无法表达的数据类型，或远程创建/apply/启停未获授权时，必须停在对应门禁人工处理。
 - 来源日期：2026-08-27
-- 最近验证：2026-08-27
+- 最近验证：2026-08-27（完整建模流程）；2026-11-13 局部复核固定修订、Schema、服务绑定、同步与恢复，未重跑应用注册和客户业务调用
 
 ### E-009 并发启动停滞时区分载体线程饥饿与普通加载缓慢
 
@@ -163,3 +163,12 @@
 - 失效条件：只有 `REFRESHING` 而没有相应线程证据、外部连接超时、配置错误，或第三方组件存在不同的锁依赖时，须另行诊断。
 - 来源日期：2026-09-20
 - 最近验证：2026-09-21
+
+
+## 同步中断后先核对原包与恢复选项
+
+- 症状：服务定义已存在，但同步返回失败，或重试预检提示候选/文件状态冲突。
+- 检查：保留原同步包，查询deploymentId及status；用相同更新、覆盖和启动选项执行只读import-plan。默认启动与--no-start属于不同恢复候选，不能混用。
+- 处理：RESUME表示可在原操作上继续，按原授权执行同包import；目标身份、目录配置或文件出现外部变化时先核对差异，不删除恢复记录或用普通rollback绕过。同步完成后才把服务视作已部署。
+- 回退边界：同步有限备份只恢复清单内资源，CSV、自定义JSON与日志应保留。回退后同时核对文件与运行状态，不能把ROLLED_BACK字样当作所有业务资源均已验收。首次无旧备份不可回退。
+- 验证：同包恢复不新增等价消息历史、不改变已有当前修订；默认跳过须有完成部署证明。进程重启后仍应核对原 deploymentId、原目录和原选项；恢复完成与重复导入不应增加等价记录。只修改配置或脚本时也要用实际响应证明新内容及回退生效，不能仅检查 XML 时间戳。现场仍须用实际业务样本验收，不能把预检READY当作运行成功。

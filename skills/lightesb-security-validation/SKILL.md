@@ -20,10 +20,10 @@ description: 配置权限校验、Token/IP/CIDR/正则规则、Action 控制面�
 
 - 权限校验使用 `<process ref="permissionCheckProcessor"/>`。
 - JSON Schema 校验使用 `<process ref="jsonSchemaValidationProcessor"/>`。
-- 已有消息模型且需要 JSON 校验时，先查询服务关系。INPUT 使用当前 `serviceInId` 和 `request-schema.json`，OUTPUT 使用当前 `serviceOutId` 和 `response-schema.json`；CALLBACK 先用 `serviceCallbackId` 查询回调服务，再使用其 `serviceInId` 和 `callback-schema.json`。
-- 执行 `lightesb message schema generate --id <messageId>|--file <message.json> --service-name <serviceName> --service-version <vX.Y.Z> --schema-file <fixed-name.json> --yes --output json`。只使用返回的 `schema` 和服务版本目录相对 `jsonSchemaPath`，禁止模型自行生成或修补 Schema。
-- `warnings` 非空时停止自动 apply 并展示完整 warnings，只有用户明确确认后继续。
-- route XML 是校验和 Action Schema 契约的唯一事实；按方向加入或删除完整校验块或 Action input/output schema route property，不增加配置或数据库开关。普通本地开发直接编辑正式服务目录并做静态/热加载验证，不调用 apply。需要审批 lineage 时，先用 `ai route prepare --out <new-candidate-dir> --yes` 创建非热加载候选，只编辑候选并用 `ai route validate` 只读校验；只有用户明确授权远程写入时，才用 `ai route apply --save-remote --yes` 一次提交 route、两个 properties 和 route 实际引用的固定 Schema，会话 allowlist 也必须覆盖 validate 证明的文件闭包。同一次变更不得先编辑 live 再用旧 session 追认；直接变化继续导致 `STALE`。
+- 已有消息模型且需要 JSON 校验时，先查询服务关系。INPUT 使用当前 `serviceInId` 和 `request-schema.json`，OUTPUT 使用当前 `serviceOutId` 和 `response-schema.json`；CALLBACK 使用当前服务固定的 serviceCallbackMessageId/serviceCallbackInRevision/serviceCallbackInModelDigest 与 callback-schema.json，不能取目标最新修订。
+- 执行 `lightesb message schema generate --id <messageId> --revision <revisionId> --expected-model-digest <modelDigest> --service-name <serviceName> --service-version <vX.Y.Z> --schema-file <fixed-name.json> --app-dir <candidate-app-root> --yes --output json`。保留 CLI 写出的 Schema 原文件及 service.config.properties 来源，不直接调用该能力的管理 API，也不重新序列化或追加换行。候选根须在实际监听目录之外，预先创建其 `{serviceName}/{serviceVersion}` 子目录并放入两个候选 properties。路由使用服务版本目录相对 `jsonSchemaPath`，禁止模型自行生成或修补 Schema。
+- 正式受管来源必须无 warnings；预览只写无 XML 目录的自定义文件，不可作为发布来源。
+- route XML 是校验和 Action Schema 契约的唯一事实；草稿按方向加入或删除完整校验块或 Action input/output schema route property，冻结后改变受管引用或模式须新建服务版本，不增加配置或数据库开关。普通本地开发直接编辑正式服务目录并做静态/热加载验证，不调用 apply。需要审批 lineage 时，先用 `ai route prepare --out <new-candidate-dir> --yes` 创建非热加载候选，只编辑候选并用 `ai route validate` 只读校验；只有用户明确授权远程写入时，才用 `ai route apply --save-remote --yes` 一次提交 route、两个 properties 和 route 实际引用的固定 Schema，会话 allowlist 也必须覆盖 validate 证明的文件闭包。同一次变更不得先编辑 live 再用旧 session 追认；直接变化继续导致 `STALE`。
 - 权限失败建议局部捕获并返回 403。
 - 参数校验失败建议返回 400。
 - Token 默认按 Exchange 属性 `Token` 处理，不假设会自动读取 `Authorization`。
@@ -47,3 +47,7 @@ description: 配置权限校验、Token/IP/CIDR/正则规则、Action 控制面�
 - Action authorization 默认关闭；七开关齐备后 dry-run 只诊断。只旁路精确 POST，严格读取唯一 `lat_` bearer；policy 禁止引用/组合器/条件/正则且必须有界，当前 entry Schema 摘要和 symlink 路径必须重验。
 - dry-run 不消费 session/幂等/许可；真实内部 permit 消费时把幂等摘要、executionCount CAS 和 required audit 放在同一事务。raw token、幂等 key、input/policy 正文和 permit 不得外发或持久化。
 - Action execution 默认关闭；八开关齐备后只允许声明版本 2 的 `read + requestReply` Action。只接受精确 execute POST 的唯一 `lat_` bearer，不拼接客户端 URI；在服务版本锁内完成最终授权、静态 `direct:` 调用、输出 Schema 校验和 required completed/failed audit。审计不存输入/输出正文、raw token 或内部异常。
+
+## 固定消息契约边界
+
+生成前先创建固定绑定的服务定义，核对 revision/modelDigest。保留 CLI 写入 service.config.properties 的来源属性并随候选提交；草稿已有 XML 时改用独立候选。受管校验组连续设置 JsonSchemaPath、STRICT/LENIENT 并清除 JsonSchemaContent。首次受管文件暴露前冻结引用、模式和 Action 方向（保存/apply/部署等），后续失败不解冻，契约变化须新建服务版本；冻结服务只能恢复相同受管 Schema 字节。

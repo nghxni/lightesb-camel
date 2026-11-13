@@ -10,7 +10,7 @@ LightESB CLI 是面向接入建模、交付运维、路由治理、日志检索�
 核心命令域：
 
 ```text
-action validate/build -> profile -> action status/list/search/get -> action allowlist list/add/enable/disable -> action token issue/introspect/revoke -> action approval session request/get/revoke/complete -> action execute -> doctor -> app -> message -> message schema generate -> service -> service export/import/sync-remote -> deploy -> route -> log -> keyword -> ai -> diagnostics -> robot doctor --offline/--runtime -> robot list/get/capabilities/state/audit -> robot command validate/status/submit/ingest-receipt -> robot inference decision-status/submit
+action validate/build -> profile -> action status/list/search/get -> action allowlist list/add/enable/disable -> action token issue/introspect/revoke -> action approval session request/get/revoke/complete -> action execute -> doctor -> app -> message -> service（固定定义） -> message schema generate -> service export/import/sync-remote -> deploy -> route -> log -> keyword -> ai -> diagnostics -> robot doctor --offline/--runtime -> robot list/get/capabilities/state/audit -> robot command validate/status/submit/ingest-receipt -> robot inference decision-status/submit
 ```
 
 基本调用：
@@ -35,15 +35,15 @@ lightesb --file payload.json <command>
 - CI 中优先用 `--output json`。
 - 任意命令层级都支持 `--help`；profile JSON 只返回 `tokenConfigured`、`aiTokenConfigured` 状态，不输出 token 值。
 - `service import-plan` 只读远端状态；`service package build`、`service export/import/sync-remote` 和 `deploy upload` 是写操作，必须加 `--yes`。
-- 服务同步默认跳过远端已有同名服务版本的服务文件部署；覆盖部署需显式 `--overwrite-service-files`。
-- 需要关闭部署后自动启动时加 `--no-start`；需要保留一步同步的中间导出包时加 `sync-remote --keep-package`。
+- 服务同步默认仅在当前服务身份有完成部署/成功回滚证明时跳过文件；未完成同步须同包同选项恢复；覆盖部署需显式 `--overwrite-service-files`。
+- 需要关闭主动启动时加 `--no-start`，恢复预检 import-plan 使用相同选项（仍只读）；需要保留一步同步的中间导出包时加 `sync-remote --keep-package`。
 - 内置 `log ask` 已移除，外部 Agent 使用 `log snapshot`、`log instance` 等确定性命令采集证据；见[迁移说明](07-ai-log-ask.md)。
 - `--ai-token` 暂保留为客户端兼容字段，不是模型 API key；日志问答不能通过它恢复。
 - `ai tool list/save/plan/run` 与内置路由生成/优化已退出；外部 Agent 准备候选，再通过 `ai route read/prepare/validate/apply` 完成授权范围内的工作流。
 - `diagnostics snapshot/warnings` 是只读远程诊断入口，只调用 `/api/diagnostics/runtime-snapshot`，不重载路由、不清理数据、不读取远程文件；自动化和 Codex 优先使用 `--output json`。
 - `keyword list/query-instances` 是只读 JSON 关键字配置和实例查询入口；`keyword add/delete` 修改关键字采集配置，必须加 `--yes`。
-- `message schema generate` 使用 `--id` 或 `--file` 调用消息 Schema 预览接口，并写入显式服务版本目录；JSON 输出中的 `file` 是实际写盘路径，`jsonSchemaPath` 是服务版本目录相对文件名，可直接用于路由。
-- 输入、输出或回调 JSON 校验先通过 `service list/get --output json` 确定消息 ID，再生成 `request-schema.json`、`response-schema.json` 或 `callback-schema.json`。Schema 内容只取服务端响应；`warnings` 非空时停止自动 apply，只有用户明确确认后才能继续。
+- `message schema generate --id --revision --expected-model-digest` 核对固定绑定后正式生成，三个固定文件识别方向并写入 service.config.properties 来源；自定义正式文件需 --direction。--file 预览只写自定义文件名且不写来源。
+- 草稿目录已有 XML 时禁止直接生成，先准备独立候选；冻结服务只恢复相同受管字节。正式来源必须无 warnings，契约变化新建服务版本。Schema 与来源各自原子替换，失败时按诊断核对恢复结果。
 - 本地开发直接编辑 `lightesb-camel-app/{serviceName}/{serviceVersion}` 并依赖 Watcher 热加载，验证完成后不调用 apply。需要审批 lineage 时，用 `ai route prepare --out <new-candidate-dir> --yes` 生成默认热加载根之外的候选，只编辑候选并用 `ai route validate` 只读校验。content/prepare 不证明服务注册、运行态或 Catalog 状态。
 - 用户明确授权远程写入时，用 `ai route apply --save-remote --yes` 一次提交实际 route 文件名、两个 properties 和 route 引用的固定 Schema。`FAILED_ROLLED_BACK` 或 `ROLLBACK_FAILED` 时保留本地候选，按 operationId 和恢复诊断排查，不自动重试覆盖。
 - 已批准 Action 会话内需要保留 digest lineage 时，使用成对的 `--action-session-id --expected-scope-digest`，只能与 `--save-remote` 组合且不返回日志。会话 allowlist 与 apply resources 必须同时覆盖 JSON Schema 校验块及 Action input/output schema route property 实际引用的固定 Schema。digest 从最新 session JSON 读取；STALE、冲突或恢复失败时停止，不回退普通 apply 绕过审批。同一次变更不能先编辑 live 再用旧 session 追认。

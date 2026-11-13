@@ -40,22 +40,23 @@ description: Generate, review, or troubleshoot delivered LightESB CLI action/pro
 - `ai tool list/save/plan/run` 与内置路由生成/优化已退出；外部 Agent 准备候选，再通过 `ai route read/prepare/validate/apply` 完成授权范围内的工作流。
 - `keyword list/query-instances` 只读；`keyword add/delete` 修改 JsonKeyword keyName 配置，必须加 `--yes`。
 - `log instance` 与 `keyword` 的 `--service-name` 均传英文 `serviceName`（服务目录名），不要传中文展示名 `serviceCnName`。
-- JSON 校验路由已有消息模型时，先用 `service list/get --output json` 解析服务关系：INPUT 取当前 `serviceInId`，OUTPUT 取当前 `serviceOutId`，CALLBACK 先用 `serviceCallbackId` 查询回调服务再取其 `serviceInId`。
-- 按方向执行 `message schema generate --id|--file --service-name --service-version --schema-file request-schema.json|response-schema.json|callback-schema.json --yes --output json`，只使用返回的 `schema` 和服务版本目录相对 `jsonSchemaPath`；`file` 仅表示实际写盘位置，不要手写或由模型补齐 Schema。
-- `warnings` 非空时停止自动 apply 并展示完整 warnings，只有用户明确确认后继续。用户明确授权远程写入时，才用 `ai route apply --save-remote --yes` 一次提交实际 route 文件名、两个 properties 和 route 引用的固定 Schema；引用包括 JSON Schema 校验块和 Action input/output schema route property。普通本地直接编辑服务文件不以 CLI apply 为前置。
-- `ai route apply --resource-file` 只写不含目录的文件名时，相对 `--file` 指定的 route XML 所在目录解析；绝对路径和包含目录的相对路径保持按原路径解析。JSON 资源只接受三个固定 Schema `.json`；删除校验块时不提交对应 Schema，服务端会删除受管文件。`FAILED`、`FAILED_ROLLED_BACK`、`ROLLBACK_FAILED` 都按失败处理，先读取 operationId 和恢复诊断，不自动重试。
+- JSON 校验路由已有消息模型时，先用 `service list/get --output json` 解析服务关系：INPUT 取当前 `serviceInId`，OUTPUT 取当前 `serviceOutId`，CALLBACK 使用当前服务已保存的 `serviceCallbackMessageId/serviceCallbackInRevision/serviceCallbackInModelDigest` 快照，不能改读回调目标的最新消息。
+- 按方向执行 `message schema generate --id <messageId> --revision <revisionId> --expected-model-digest <modelDigest> --service-name --service-version --schema-file request-schema.json|response-schema.json|callback-schema.json --app-dir <candidate-app-root> --yes --output json`，核对正式 revision/modelDigest；CLI 验证 schemaDigest 后原样写出 schemaContent，只使用该文件和服务版本目录相对 `jsonSchemaPath`；`file` 仅表示实际写盘位置，不要手写或由模型补齐 Schema。
+- 候选根须位于所有实际监听目录之外，先创建其 `{serviceName}/{serviceVersion}` 子目录；config preview 返回的 data.commonConfig/data.serviceConfig 解码为原始文本，分别落盘为两个 properties。生成和 apply 必须使用同一候选版本目录。三个固定文件会写入 service.config.properties 来源，必须一起提交；草稿目录已有 XML 时改用独立候选，冻结服务只恢复相同受管字节。自定义正式文件需 --direction；--file 预览只写自定义文件名且不写来源。
+- 正式生成要求 `warnings` 为空；预览警告须先修正模型，不能通过人工确认跳过受管来源校验。用户明确授权远程写入时，才用 `ai route apply --save-remote --yes` 一次提交实际 route 文件名、两个 properties 和 route 引用的固定 Schema；引用包括 JSON Schema 校验块和 Action input/output schema route property。普通本地直接编辑服务文件不以 CLI apply 为前置。
+- `ai route apply --resource-file` 只写不含目录的文件名时，相对 `--file` 指定的 route XML 所在目录解析；绝对路径和包含目录的相对路径保持按原路径解析。JSON 资源只接受三个固定 Schema `.json`；冻结后删除校验块或更换受管 Schema 必须新建服务版本。`FAILED`、`FAILED_ROLLED_BACK`、`ROLLBACK_FAILED` 都按失败处理，先读取 operationId 和恢复诊断，不自动重试。
 - 需要受管 lineage 时，先用 `ai route prepare --out <new-candidate-dir> --yes` 在默认热加载根外创建候选，只编辑候选，再用 `ai route validate` 只读校验。prepare 只 GET content；它要求真实已存在父目录和不存在的目标，拒绝 symlink 与已知默认 app root，但不证明服务注册/运行态/Catalog，也无法自动发现自定义或远程 Watcher 根。validate 不要求 `--yes`、不写盘/热加载/建立 lineage；裸资源名相对 route 所在目录解析。
 - 会话受管 route apply 使用成对 `--action-session-id --expected-scope-digest`，只允许远程保存、不允许日志选项。会话 allowlist 与 apply resources 都要覆盖 validate 证明的文件集和 route 实际引用的固定 Schema。digest 取最新 session JSON；STALE/冲突/恢复失败停止，不回退普通 apply。sessionId 不是执行许可；同一次变更不能先编辑 live 再用旧 session 追认。
-- `service import-plan` 只读远端状态；`service package build`、`service export/import/sync-remote` 和 `deploy upload` 必须加 `--yes`。
-- 解释同步结果时，`changedFields=[]` 才表示已比较无变化；缺失/null 不作此推断，失败不补旧 plan。自动化同时检查业务 status/action，SERVICE_FILES 冲突可能仍返回退出 0；详见 [同步摘要与兼容边界](../../docs/cli/01-cli-command-reference.md)。
+- `service import-plan` 只读远端状态，启动选项与 import 一致，恢复预检须带相同更新/覆盖/启动选项；`service package build`、`service export/import/sync-remote` 和 `deploy upload` 必须加 `--yes`。
+- 解释同步结果时，APP/SERVICE 的 `changedFields=[]` 才表示已比较无变化；缺失/null 不作此推断，失败不补旧 plan。自动化同时检查业务 status/action，SERVICE_FILES 冲突可能仍返回退出 0；详见 [同步动作与恢复边界](../../docs/cli/01-cli-command-reference.md)。
 - `deploy upload` 不接受 `--target-directory`；部署目标由服务端运行配置统一决定。
 - `route reload-file/unload --file-path` 必须指向服务端受管路由根内真实 XML 文件；
   `route config` 只返回相对服务目录和脱敏配置，不得期待服务器绝对路径或敏感值。
 - CLI HTTP 错误和 diagnostics 摘要始终脱敏，不随服务日志开关或用户角色返回原文；服务级开关关闭只意味着服务/实例持久化可能包含原文。
-- 服务同步默认跳过远端已有同名服务版本的服务文件部署；覆盖部署需显式 `--overwrite-service-files`。
+- 服务同步默认仅跳过当前服务身份有完成部署/成功回滚证明的文件；未完成同步优先同包同选项恢复；覆盖部署需显式 `--overwrite-service-files`。
 - 服务同步默认自动启动部署路由；需要关闭时使用 `--no-start`。`sync-remote --keep-package` 可保留中间导出包。
 - `service start/stop` 会等待真实 Camel 上下文状态；HTTP 409 时先查询服务状态或运行时诊断，超时不会回滚 `server.running`，不要立即发送反向请求覆盖目标。
-- 服务同步中远端已有同名报文且内容不一致时走消息更新接口，要求远端当前版本为 `V数字.单数字`，更新后递增单数字小版本并保留历史；小版本为 `9` 时进位，例如 `V1.9` -> `V2.0`。
+- 服务同步包 2.0 按服务固定 revision 导出，目标按消息名称/展示标签/完整摘要复用或补历史，保留已有当前修订；同标签不同摘要冲突，不更新旧历史。
 - `robot doctor --offline` 只做本地静态检查，不连接真实 endpoint，不下发机器人命令。
 - `robot doctor --runtime` 只调用 `/api/diagnostics/runtime-snapshot?component=robot-command`，检查表、outbox、状态快照、补偿、denylist 和最近错误码分布；保持 `connectivityChecked=false`，不连接真实 endpoint、不调用验证 route。
 - `robot list/get/capabilities/state/audit` 只做机器人管理 API 只读查询，不证明真实资产库、真实在线状态、真实审计源或真实能力发现。
@@ -74,7 +75,7 @@ description: Generate, review, or troubleshoot delivered LightESB CLI action/pro
 
 新包接手、升级或命令/选项不存在时，按 [交付知识接手与离线检查](../../docs/delivery-knowledge-check.md) 用当前 JAR 的完整命令层级 `--help` 核对；本地帮助成功不能证明远程 API 兼容。
 
-常用链路：
+常用命令片段，按需选择，不要逐行执行全部命令。首次建模与发布采用 [CLI 最小接入链路](../../docs/cli/01-cli-command-reference.md#最小接入链路)：
 
 ```bash
 lightesb action validate --service-dir lightesb-camel-app/DemoSrv/v1.0.0
@@ -99,10 +100,14 @@ lightesb message parse --file response.json --msg-type RESPONSE --root-node-name
 lightesb app create --file app.json --yes
 lightesb message create --file request-message.json --yes
 lightesb message create --file response-message.json --yes
-lightesb message schema generate --server http://localhost:8080 --id <messageId> --service-name DemoSrv --service-version v1.0.0 --schema-file request-schema.json --yes --output json
-lightesb ai route apply --server http://localhost:8080 --file DemoSrv-route.xml --service-name DemoSrv --service-version v1.0.0 --route-file-name DemoSrv-route.xml --resource-file common.config.properties --resource-file service.config.properties --resource-file request-schema.json --save-remote --return-logs --yes --output json
+# service.json 填写固定 revision/modelDigest；先建立服务定义
 lightesb service create --file service.json --yes
-lightesb service config save --file service.json --yes
+mkdir -p build/contract-candidate/DemoSrv/v1.0.0
+lightesb service config preview --file service.json --output json > build/contract-candidate/config-preview.json
+# 将data.commonConfig/data.serviceConfig解码后的文本分别写入上述版本目录的common.config.properties/service.config.properties，保留真实换行；此时不放XML
+lightesb message schema generate --server http://localhost:8080 --id <messageId> --revision <revisionId> --expected-model-digest <modelDigest> --service-name DemoSrv --service-version v1.0.0 --schema-file request-schema.json --app-dir build/contract-candidate --yes --output json
+# Schema生成后，将外部Agent准备的DemoSrv-route.xml写入同一候选版本目录，保留CLI更新后的service.config.properties
+lightesb ai route apply --server http://localhost:8080 --file build/contract-candidate/DemoSrv/v1.0.0/DemoSrv-route.xml --service-name DemoSrv --service-version v1.0.0 --route-file-name DemoSrv-route.xml --resource-file common.config.properties --resource-file service.config.properties --resource-file request-schema.json --save-remote --return-logs --yes --output json
 lightesb service package build --file package.json --yes
 lightesb service package deploy --file package.json --yes
 lightesb service export --local-server http://localhost:8080 --app-dir lightesb-camel-app --service-name DemoSrv --service-version v1.0.0 --out dist/DemoSrv-v1.0.0.lightesb-service.zip --yes
@@ -136,7 +141,7 @@ lightesb robot policy list --server http://localhost:8080 --output json
 - 写操作有 `--yes` 或明确说明需要人工确认。
 - 输出给 CI 的命令使用 `--output json`。
 - AI 相关说明不要求本地保存模型 provider 密钥。
-- JSON Schema 自动流程能证明消息 ID 来源、固定文件映射和 warnings 人工门禁，不自行生成 Schema。
+- JSON Schema 自动流程能证明固定 revision/modelDigest、方向与文件映射、来源属性完整性，并拒绝 warnings 非空的正式来源；不自行生成 Schema。
 - 售后诊断证据已脱敏，且不会把只读采证误写成 reload、deploy、cleanup 或日志级别调整。
 
 ## 普通管理业务闭环
@@ -146,7 +151,7 @@ lightesb robot policy list --server http://localhost:8080 --output json
 
 - 普通CLI管理与Action受管审批是独立能力；按任务已有授权和管理身份执行，不为普通回滚、消息维护额外创建Action会话。
 - `message parse --output json`当前data是JSON字符串，解析外层后再解析data为节点数组，交给msgStructure；更新后get核对版本、alias和fieldEscape（ESCAPE/MIXED）。
-- 消息引用优先分页service list按真实serviceInId/serviceOutId聚合；callback是服务ID，取回调服务的serviceInId。预算10请求/10页、10MiB、60秒；数据变化、重复ID、预算不足时明确不完整，过滤范围不能当全库结论。
+- 消息引用优先分页service list按真实serviceInId/serviceOutId聚合；callback是服务ID，消息引用读取当前服务固定的serviceCallbackMessageId快照。预算10请求/10页、10MiB、60秒；数据变化、重复ID、预算不足时明确不完整，过滤范围不能当全库结论。
 - `deploy rollback <deploymentId> --yes`恢复源部署发生前的备份。先核对目标和backupAvailable，成功取得新deploymentId/sourceDeploymentId再status回查；no-auto-start只跳过主动加载，不强制停服。失败时可用error.details.rollbackDeploymentId继续查询；超时不自动重放。
 - JSON错误按非零退出码及error.code/category处理，保留可用requestId和脱敏details；查询成功但对象FAILED仍需检查业务状态。写操作结果未知时先查询，不能因UNKNOWN自动重试。
 
@@ -155,3 +160,7 @@ lightesb robot policy list --server http://localhost:8080 --output json
 订单交付、ERP/WMS 对账和回款异常的固定快照路由见 `docs/manufacturing-action-demo.md`。复用现有 action search/get/execute；get 仅返回Schema路径/摘要，先核对随包Schema正文。HTTP下游read Action仍需可信审批会话；Agent只使用固定策略和已批准sessionId，不签发扩大权限或自行审批。
 
 - 需要联合系统/服务日志、INFO/DEBUG提示及实例JSON研判时，转到[日志分析Skill](../lightesb-log-analysis/SKILL.md)。CLI负责远程采集，离线工具负责有界安全投影，先列表后必要详情；原始报文不进入模型上下文，累计预算和身份关联按该Skill执行。
+
+## 消息修订更新
+
+更新消息前读取详情，将 `currentRevision` 作为更新 JSON 的 `expectedRevision`。遇到 `MESSAGE_REVISION_CONFLICT`，重新读取并核对差异后再合并，不能自动重试覆盖。精确历史读取使用 `message get --id <messageId> --revision <revisionId>`；修订 ID 与展示 `msgVersion` 不同。

@@ -5,7 +5,7 @@
 | `../AGENTS.md` | 项目规则与路由、CLI、安全、发布使用边界的交付安全子集；按包内目录、Schema 来源、本地/远程操作通道及已授权目标分支的同步验收整理，不复制内部仓库拓扑、校验脚本或开发流程 |
 | `../README.md` | GitHub 公开技术入口，基于交付包内容、组件文档、样例索引和支持边界整理 |
 | `delivery-knowledge-check.md` | 交付上下文维护与路由静态预检的可交付子集，按包内版本/命令核对、文件闭包和接手记录整理 |
-| `../skills/lightesb-project-troubleshooting/references/baseline-experience.md` | 已验证排障结论的交付安全子集；并发启动条目依据后端生命周期排障经验，保留症状、线程证据与运行包验证边界，不外发源码修复流程 |
+| `../skills/lightesb-project-troubleshooting/references/baseline-experience.md` | 已验证排障结论及多文件写入/有限回退经验的交付安全子集；并发启动条目依据后端生命周期排障经验，保留症状、线程证据与运行包验证边界，不外发源码修复流程 |
 | `../skills/lightesb-project-troubleshooting/scripts/check-delivery-context.py` | 包内知识文件、Markdown 本地链接与 Skill 路由的确定性只读检查 |
 | `../skills/lightesb-route-authoring/SKILL.md` | 源码路由开发技能的交付子集；按包内资源、配置闭包和授权边界整理 |
 | `README.md` | `docs/README.md`，按交付包组件索引、样例入口和 Camel 官方参考链接整理 |
@@ -59,7 +59,7 @@
 | `../skills/lightesb-release-verification/SKILL.md` | `skills/lightesb-release-management/SKILL.md` 的交付安全子集，只保留包内 checksum、manifest、隔离启动、升级与回滚边界 |
 | `../skills/lightesb-project-troubleshooting/SKILL.md` | 源码仓库项目问题处理规则的通用排障流程，去除个人画像和内部经验后按本机开发/业务现场场景重写；发布基线可升级，根目录项目经验独立维护 |
 | `cli/README.md` | `docs/cli/README.md`，外发压缩版 |
-| `cli/01-cli-command-reference.md` | `docs/cli/*` 与 `lightesb-cli/src/main/java/.../cli/command/*`，按命令域压缩整理 |
+| `cli/01-cli-command-reference.md` | 服务同步包2.0/API、固定修订与持久恢复使用边界（交付视角）； `docs/cli/*` 与 `lightesb-cli/src/main/java/.../cli/command/*`，按命令域压缩整理 |
 | `cli/07-ai-log-ask.md` | `docs/cli/07-ai-log-ask.md`，日志问答退出与外部 Agent 的确定性 CLI 迁移说明 |
 | `cli/support-diagnostics.md` | `docs/cli/12-support-diagnostics-runbook.md`，按外发支持诊断场景重写，不包含内部演示样例命令 |
 | `manufacturing-action-demo.md` | `docs/29-business-action-demo.md`，按交付目录、现有CLI、Schema核对和可信审批边界重写；不包含内部测试工具或答案 |
