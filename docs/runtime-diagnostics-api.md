@@ -104,7 +104,7 @@ route、instance-log 和 robot-command 的错误摘要始终脱敏，不随服�
 ## 安全边界
 
 - 该 API 属于正式远程管理 API，应放入部署环境的鉴权、网关审计和访问日志策略。
-- CLI 会按 profile 传递 `Authorization: Bearer <token>`。
+- CLI 会按 profile 传递 `Authorization: Bearer <token>`。支持并启用服务工程鉴权的实例要求本环境的 `service-engineer`。若收到 `SERVICE_ENGINEERING_AUTH_REQUIRED`（401），检查 profile 所属环境及凭据；若收到 `SERVICE_ENGINEERING_FORBIDDEN`（403），核对角色授权。[运行配置](./runtime-configuration-reference.md)
 - 诊断结果只包含摘要，不输出密码、token、完整 prompt、完整 payload、完整 XML/properties、连接串或业务报文正文。
 - `robot-command` 不输出完整命令 payload、MQTT topic、target、trace 或 ack/result 报文。`summary.doctor` 输出 `overallStatus`、`connectivityChecked=false` 和 `PASS/WARN/FAIL` 检查项；它只检查管理面运行态，不连接真实 endpoint，不下发命令。
 - `instance-log` 不输出请求/响应正文，只输出 writer 运行摘要。无 MySQL POC 时，可检查 `pocH2FallbackEnabled`、`instanceLogStorage`、`instanceLogQueryStorage`、`jsonKeywordQueryStorage` 是否为预期值。

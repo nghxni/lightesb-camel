@@ -47,6 +47,7 @@ description: Generate, review, or troubleshoot delivered LightESB CLI action/pro
 - `ai route apply --resource-file` 只写不含目录的文件名时，相对 `--file` 指定的 route XML 所在目录解析；绝对路径和包含目录的相对路径保持按原路径解析。JSON 资源只接受三个固定 Schema `.json`；冻结后删除校验块或更换受管 Schema 必须新建服务版本。`FAILED`、`FAILED_ROLLED_BACK`、`ROLLBACK_FAILED` 都按失败处理，先读取 operationId 和恢复诊断，不自动重试。
 - 需要受管 lineage 时，先用 `ai route prepare --out <new-candidate-dir> --yes` 在默认热加载根外创建候选，只编辑候选，再用 `ai route validate` 只读校验。prepare 只 GET content；它要求真实已存在父目录和不存在的目标，拒绝 symlink 与已知默认 app root，但不证明服务注册/运行态/Catalog，也无法自动发现自定义或远程 Watcher 根。validate 不要求 `--yes`、不写盘/热加载/建立 lineage；裸资源名相对 route 所在目录解析。
 - 会话受管 route apply 使用成对 `--action-session-id --expected-scope-digest`，只允许远程保存、不允许日志选项。会话 allowlist 与 apply resources 都要覆盖 validate 证明的文件集和 route 实际引用的固定 Schema。digest 取最新 session JSON；STALE/冲突/恢复失败停止，不回退普通 apply。sessionId 不是执行许可；同一次变更不能先编辑 live 再用旧 session 追认。
+- `service export` 与 `service sync-remote` 匿名读取 `--local-server`。若源端启用服务工程鉴权，源端返回 401，此时应停止导出或同步并说明限制。[服务同步命令](../../docs/cli/01-cli-command-reference.md)
 - `service import-plan` 只读远端状态，启动选项与 import 一致，恢复预检须带相同更新/覆盖/启动选项；`service package build`、`service export/import/sync-remote` 和 `deploy upload` 必须加 `--yes`。
 - 解释同步结果时，APP/SERVICE 的 `changedFields=[]` 才表示已比较无变化；缺失/null 不作此推断，失败不补旧 plan。自动化同时检查业务 status/action，SERVICE_FILES 冲突可能仍返回退出 0；详见 [同步动作与恢复边界](../../docs/cli/01-cli-command-reference.md)。
 - `deploy upload` 不接受 `--target-directory`；部署目标由服务端运行配置统一决定。

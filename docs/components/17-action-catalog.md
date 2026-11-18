@@ -49,7 +49,7 @@ lightesb.action-security.credentials[0].roles=catalog-read
 lightesb.action-security.credentials[0].token-sha256=${LIGHTESB_ACTION_CREDENTIAL_0_SHA256:}
 ```
 
-原 token 只保存在调用方 secret store，并通过 `Authorization: Bearer <token>` 发送。name/digest 必须唯一；同 caller 的旧、新轮换 credential 只能使用完全相同的 role 集。显式开启但 credential 为空时所有 Action 路径都返回 401；配置格式、重复或角色映射冲突时应用启动失败。`catalog-read`、`action-admin`、`action-execute` 不做隐式继承。
+原 token 只保存在调用方 secret store，并通过 `Authorization: Bearer <token>` 发送。name/digest 必须唯一；同 caller 的旧、新轮换 credential 只能使用完全相同的 role 集。启用后凭据列表为空时，要求命名 Bearer 的入口返回 401。执行和授权 dry-run 使用运行 token，审批提供方回调使用 HMAC。目录、管理、执行角色各自授权。启用服务工程鉴权的实例另以 `service-engineer` 保护工程入口。配置格式非法、凭据重复或同一 caller 的角色集冲突会导致启动失败。[角色与开关](../runtime-configuration-reference.md)
 
 未声明 `actions.ids` 的服务在 app-root 批量模式中跳过；显式校验该服务时返回退出码 `65` 和稳定 `ACTION_DECLARATION_VERSION_INVALID`。工具不会推断 action、schema、副作用、暴露范围或凭据。
 

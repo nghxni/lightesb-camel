@@ -53,8 +53,10 @@ java -Dlightesb.config.file=/opt/lightesb/lightesb-config.properties -jar lighte
 | `lightesb.route.startup.timeout-seconds` | `0` | 每批并发路由加载的总等待预算（秒，含排队）；0不设时限，正值启用，负值拒绝。超时则取消未完成任务并使启动失败，不发布初始加载完成；取消等待复用force-shutdown-timeout-seconds。 |
 | `lightesb.route.transition-timeout-seconds` | `30` | 服务启停 API 等待真实 Camel 上下文状态的超时，允许 1 到 120 秒；超时不回滚 `server.running`。 |
 | `lightesb.action-catalog.enabled` | `false` | 显式开启后，从已运行服务版本构建只读 Action Catalog 内存快照；XML/properties 重载成功后与 route generation 成对刷新，明确引用或待补回的 schema 变化会触发强制重载。与 Action security 同时开启时提供只读查询；真实执行还要求全部安全开关。 |
+| `lightesb.config-impact.enabled` | `false` | 开启后，候选 validate 同时报告目标版本两份配置的变更、XML 引用状态和保存后的运行核对要求。 |
+| `lightesb.service-engineering-security.enabled` | `false` | 启用时必须同时设置 `lightesb.action-security.enabled=true`。服务管理、服务同步、部署、路由、消息、应用和诊断快照要求本环境的 `service-engineer` 凭据。该角色的权限覆盖本实例的这些控制器。 |
 | `lightesb.action-security.enabled` | `false` | 显式开启后注册 `/api/actions/**` 专用 bearer 身份边界；与 Action Catalog 同时开启时注册要求 `catalog-read` 的 status/list/search/get，任一开关关闭均不注册查询端点。 |
-| `lightesb.action-security.credentials[n].name/caller/roles/token-sha256` | 空 | 命名控制面 credential；role 仅允许 `catalog-read`、`action-admin`、`action-execute`。只注入原 token 的 SHA-256 digest，不在仓库保存原 token 或 digest 实值。 |
+| `lightesb.action-security.credentials[n].name/caller/roles/token-sha256` | 空 | 命名控制面 credential；role 仅允许 `catalog-read`、`action-admin`、`action-execute`、`service-engineer`。只注入原 token 的 SHA-256 digest，不在仓库保存原 token 或 digest 实值。 |
 | `lightesb.action-audit.enabled` | `false` | 显式开启后注册追加式 Action 审计存储；与 Action security 同时开启时提供仅 `action-admin` 可用的只读查询；与日志自动清理同时显式开启时注册 Action H2 历史清理任务。固定事件不保存业务报文、header、原 token 或任意 details。 |
 | `lightesb.action-allowlist.enabled` | `false` | 显式开启精确 Action allowlist；还要求 catalog、security、audit 三个开关同时开启。只提供 list/add/enable/disable，目标 caller 由服务端 credential name 映射，策略变化与 required audit 同事务；执行层只读取精确资格。 |
 | `lightesb.action-token.enabled` | `false` | 显式开启短期不透明 Action token；还要求 catalog、security、audit、allowlist 同时开启。运行 token 不进入控制面身份；只有 execution 八开关齐备时才可调用执行入口。 |

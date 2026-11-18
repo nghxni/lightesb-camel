@@ -435,6 +435,8 @@ Get-Content -LiteralPath 'D:\LightESB\lightesb-camel-app\DemoSrv\v1.0.0\logs\DEB
 
 CLI 对 `service start/stop` 使用 130 秒 HTTP 请求超时，以覆盖服务端允许的 120 秒最大转换等待时间并接收结构化失败详情；其他命令仍使用默认 30 秒请求超时。
 
+`service export` 与 `service sync-remote` 的 `--local-server` 只支持匿名源端读取。源端启用服务工程鉴权时返回 401。
+
 服务同步包使用 manifest.schemaVersion=2.0，不接受旧格式。导出按服务 INPUT/OUTPUT/CALLBACK 保存的固定消息 revision 读取快照，不读取最新消息代替；回调目标必须在目标环境存在且固定输入快照匹配。只传业务定义，不复制源运行/冻结状态；目标生成本地消息/修订 ID。同名同标签同完整摘要复用，缺失修订仅补历史并保留已有 currentRevision，同标签不同摘要拒绝。新消息以包内同名最高数值标签建立当前入口。
 
 包只包含恰好一个根 XML、必需的 service.config.properties、properties、.ds 和根目录三个固定 Schema；Schema 与来源随精确修订一起验证。日志目录及带自动生成标记的日志配置不传输，手写日志配置保留。资源最多128项、单项2MiB、合计16MiB，metadata最多16MiB；ZIP最多132项、40MiB压缩大小、34MiB总解压大小。路径、服务归属、链接、严格UTF-8和完整摘要均须通过校验；摘要不代表发行者签名。export写本地包须--yes，import/sync-remote远程写也须--yes。
@@ -536,6 +538,9 @@ AI 边界：
 - 内置 `ai route generate/optimize/latest/cache` 及旧 `ai tool list/save/plan/run` 已移除，调用返回参数错误且不发送请求；旧生成、微调、SSE、latest 和缓存 HTTP 接口返回 404。停止旧轮询，改由外部 Agent 编辑候选，再使用 read/prepare/validate/apply。
 - `ai route prepare --out <new-candidate-dir> --yes` 只调用在线 content GET，把实际 route、两个 properties、route 实际引用的 `.ds` 和固定 Schema 作为整体发布到新本地目录。父目录必须真实存在，`--out` 必须不存在；命令拒绝 symlink 和当前工作目录下默认 `lightesb-camel-app`，但无法自动发现自定义或远程 Watcher 根。content/prepare 不证明服务已注册、路由已加载或 Action Catalog 与持久化目录一致。
 - `ai route validate` 只调用候选校验 API，不需要 `--yes`，不写本地/远程文件、不热加载、不建立审批 lineage。裸 `--resource-file` 文件名相对 `--file` 所在候选目录解析；成功响应的 `savedFiles/deletedFiles` 用于确定随后会话的精确文件 allowlist。
+- 开启 `lightesb.config-impact.enabled` 后，validate 的 `configImpact` 给出变化键、来源、有效值是否变化和 XML 引用位置。提交前核对 `MISSING` 与 `UNKNOWN`。实际保存受监听文件后核对目标运行状态。
+- 开启服务工程鉴权时，工程命令使用本环境的 `service-engineer` profile。业务调用单独使用 Action 短期 token 和审批会话。prepare 会复制服务配置，交给 Agent 的服务目录应只包含可交付的配置或凭据引用。
+
 - `--save-remote --yes` 会调用服务端 `/service-management/v1/ai/route/apply`，由服务端备份、写入、等待 XML/properties 热加载并返回状态；CLI 不通过 SSH/SCP 或共享磁盘写远程文件。
 - 远程 apply 返回 `APPLIED` 或 `APPLIED_DISABLED` 时，服务端同步把服务管理部署状态更新为 `SUCCESS`；失败或恢复路径不写入成功状态。
 - `--return-logs` 控制成功时是否返回远程日志摘要；失败时即使未传 `--return-logs`，也会展示服务端返回的多个日志来源摘要。
