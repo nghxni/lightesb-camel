@@ -49,7 +49,7 @@ DataSonnet import 样例可参考 `example/routes/PlatformHttp/v1.0.0/input-tran
 ```properties
 input-transform=true
 input-transform.file=input-transform-with-import.ds
-system.components=undertowhttp,streamcache,jsontransform,conditionaltransform
+system.components=undertowhttp,jsontransform,conditionaltransform
 ```
 
 `system.components` 属于通用运行配置；`input-transform*`、`output-transform*` 等转换开关属于服务私有能力配置。由外部 Agent 生成路由候选时，只有自然语言明确要求输入转换、输出转换、字段映射或 `.ds` 资源时，才应生成这些转换键；默认能力枚举不代表自动启用转换。

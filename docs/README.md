@@ -48,7 +48,7 @@
 - [条件转换与 JSON 转换](components/04-transform-components.md)
 - [JSON Schema 校验](components/05-json-schema-validation.md)
 - [JsonKeyword 外发版](components/06-json-keyword.md)
-- [StreamCache 流缓存](components/07-stream-cache.md)
+- [StreamCache 流缓存（已移除，升级迁移说明）](components/07-stream-cache.md)
 
 ## 安全与治理
 

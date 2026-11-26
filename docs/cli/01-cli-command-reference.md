@@ -102,6 +102,7 @@ lightesb robot capabilities --robot-id quad-001
 lightesb robot state --robot-id quad-001
 lightesb robot audit --robot-id quad-001
 lightesb robot audit --robot-id quad-001 --command-id cmd-001 --event-type robot.command.submitted
+lightesb robot audit --robot-id quad-001 --limit 200
 lightesb robot command validate --file command.json
 lightesb robot command validate --file command.json --output json
 lightesb robot command status --robot-id quad-001 --command-id cmd-001
@@ -171,6 +172,8 @@ GET /service-management/v1/robots/{robotId}/commands/{commandId}
 ```
 
 这些命令是只读查询，不提交动作，不清理审计数据，不连接真实协议 endpoint。`robot state` 文本输出包含 `onlineStatus`、`protocolProfile`、`lastCommandId`、`lastErrorCode`、`sourceType` 和 `updatedAt`；`--output json` 保留服务端完整标准响应。状态快照可能来自命令状态、ack/result 派生或管理面样例快照，不代表真实设备在线验收。
+
+`robot audit` 按时间倒序返回最新记录；`--limit` 取 1～1000，不传时服务端最多返回 1000 条。接口不返回总数，文本输出在条数达到上限时提示 `showing newest N records; older records may exist`，此时用 `--command-id`/`--event-type` 缩小范围；JSON 输出不加提示。
 
 批量状态快照分页查询当前直接使用管理 API `GET /service-management/v1/robots/state-snapshots`，支持 `siteId`、`onlineStatus`、`health`、`protocolProfile`、`pageNum`、`pageSize`；CLI 暂不新增对应命令。
 
@@ -452,9 +455,16 @@ import-plan保持零写，启动选项与import相同：默认计划自动启动
 sync-remote --keep-package可保留中间包，--package-out指定位置；JSON模式路径提示写stderr，stdout只输出一份apply响应。检查HTTP/退出码之外，还须检查data.status与action：操作占用可能仍返回HTTP200、success=true、CONFLICT。失败不拼接旧plan；写入结果不明时先查询部署状态，再用同包预检决定恢复。
 
 
+`service package deploy` 在服务端把现有服务版本目录与请求中的配置/路由组装成 `{serviceName}/{serviceVersion}/...` 结构的部署包，再按 `deploy upload` 相同规则部署；结果以 `data.status` 与 `data.errorMessage` 为准。若较早版本的服务端返回 `status=FAILED` 且 `errorMessage` 为 `非法的压缩包条目路径: ../../lightesb-deploy-candidate-...`，属于已修复的候选包路径问题：服务目录未被写入，升级服务端即可；不能升级时把 `{serviceName}/{serviceVersion}/` 目录打成本地 ZIP 改用 `deploy upload`。
+
 `deploy upload` 必须加 `--yes`，文件正文使用流式 multipart 发送；CLI 不提供
 `--target-directory`，部署目标由服务端运行配置决定。服务端同时限制上传大小、
 归档条目数、单文件解压大小、解压总量和目录深度。
+
+一个包只能包含一个服务目录和一个 `vX.Y.Z` 版本目录。部署失败时状态为 `FAILED`；
+文件已写入服务目录时服务端会自动恢复部署前目录，`errorMessage` 追加恢复结果，
+用 `deploy status <deploymentId> --output json` 查看 `data.deployLogs` 中的 `DEPLOY_RESTORE*` 步骤确认（默认表格输出不显示步骤日志）；恢复失败或
+未备份时先核对服务目录与路由状态再处理。
 
 `route reload-file/unload --file-path` 使用服务端路径，并且必须解析到服务端受管路由
 根内真实存在的 XML 普通文件。`route config` 只返回相对服务目录，敏感配置值和

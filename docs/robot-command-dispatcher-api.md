@@ -52,7 +52,7 @@ curl -sS -X POST http://127.0.0.1:8080/service-management/v1/robots/commands:dis
 
 `GET /commands/{commandId}` 只查询已有命令结果，不创建命令、不触发派发。
 
-`GET /audit` 查询命令审计，支持 `commandId` 和 `eventType` 过滤。
+`GET /audit` 查询命令审计，支持 `commandId` 和 `eventType` 过滤；可选 `limit` 指定返回条数，按时间倒序返回最新记录，默认和上限均为 1000 条。
 
 `POST /commands:dispatch-next` 手动触发一次 dispatcher，从 outbox claim 一条到期 `pending` 记录并派发到 MQTT。成功后 outbox 变为 `dispatched`，命令状态推进到 `dispatched`，并追加 `robot.command.dispatched` 审计。该接口用于运维验证和手动补偿，不代表自动调度循环已经启用。
 
@@ -142,8 +142,10 @@ tools/robot-mqtt-firmware-precheck/test_robot_mqtt_firmware_precheck.sh --dispat
 - SQL 备份默认保留 24 个月。
 - 归档文件写入 `${lightesb.deployment.backup-dir}/audit`。
 - 文件名格式为 `ROBOT_AUDIT_LOG-yyyyMMddHHmmss.sql`。
-- 文件先写 `.tmp`，校验成功后改名为 `.sql`。
-- 导出成功后只删除本次已导出的审计记录，不删除命令账本或 outbox。
+- 文件先写 `.tmp`，行数校验通过、本次已导出的审计记录删除且删除行数一致后，才改名为 `.sql`；任一步失败时事务回滚，不留下 `.sql`，记录在下次归档时重新导出。
+- 只删除本次已导出的审计记录，不删除命令账本或 outbox。
+- 提交结果未知（提交时数据库连接中断）时保留 `.sql`，归档状态为 `unknown`，`robot doctor --runtime` 给出告警；核对库中记录后人工去重。
+- 过期 SQL 备份清理失败只告警，不影响本次归档。
 
 可交付配置：
 

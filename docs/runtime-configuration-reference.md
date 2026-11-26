@@ -96,6 +96,12 @@ lightesb.route.temp-only-service=PlatformHttp,RobotMqttCommandSrv
 | `lightesb.route.file-extensions` | 当前路由文件后缀固定为 `.xml`。 |
 | `lightesb.route.debounce-delay-ms` | 当前防抖窗口使用内置默认值。 |
 
+## 权限校验
+
+| 配置键 | 默认值 | 用法 |
+| --- | --- | --- |
+| `lightesb.security.trusted-proxies` | 空 | 可信反向代理地址（逗号分隔的 IP 或 IPv4 CIDR）。只有直连地址属于其中时，`client.ip` 才采信 `X-Real-IP` / `X-Forwarded-For`；内网直连省略，外网经 Nginx 接入时配置 Nginx 连接 ESB 时使用的源地址，并在 Nginx 中设置 `proxy_set_header X-Real-IP $remote_addr;`。完整配置示例与排查见 [权限校验：外网经 Nginx 接入](components/08-permission-validation.md)。 |
+
 ## 数据源与 H2 POC
 
 | 配置键 | 默认值 | 用法 |
@@ -175,21 +181,13 @@ Action 清理不会删除有效 allowlist。token 和 approval 会话只有在�
 
 生产服务应显式开启脱敏并配合日志读取权限。该开关控制持久化内容，不按读取者角色返回不同版本；开启不会清理历史原文，也不覆盖任意普通 Camel `log:` 或第三方日志。
 
-## StreamCache
+## StreamCache 遗留目录
+
+StreamCache 组件已移除，其余 `lightesb.cache.*` 配置不再生效，可从配置中移除。
 
 | 配置键 | 默认值 | 用法 |
 | --- | --- | --- |
-| `lightesb.cache.base-directory` | `lightesb-camel-app/lightesb-StreamCache` | StreamCache 文件缓存根目录。 |
-| `lightesb.cache.directory-pattern` | `#camelId#/#operateName#/#exchangeId#` | 缓存目录模式。 |
-| `lightesb.cache.file-name-pattern` | `#systemId#_#operateName#` | 缓存文件名模式。 |
-| `lightesb.cache.max-files-per-directory` | `1000` | 单目录最大缓存文件数。 |
-| `lightesb.cache.directory-cleanup-enabled` | `true` | 是否清理缓存目录。 |
-| `lightesb.cache.cleanup-retention-hours` | `24` | 缓存保留小时数。 |
-| `lightesb.cache.compression-enabled` | `false` | 是否压缩缓存。 |
-| `lightesb.cache.encryption-enabled` | `false` | 是否加密缓存。 |
-| `lightesb.cache.buffer-size` | `8192` | 缓冲区大小。 |
-
-缓存目录应放在可写数据盘，并排除在服务路由文件监听之外。
+| `lightesb.cache.base-directory` | `lightesb-camel-app/lightesb-StreamCache` | 路由文件监听排除的目录，用于避开现场已有的 StreamCache 遗留目录，通常无需配置。 |
 
 ## Transform 与 DTS 扩展
 

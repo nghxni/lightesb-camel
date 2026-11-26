@@ -20,7 +20,7 @@
 | `transform-logging-operations-api.md` | `docs/api/06-transform-and-logging-operations.md`，按交付调用、响应和错误处理场景重写 |
 | `components/05-json-schema-validation.md` | `docs/14-jsonschema-validation-processor-usage.md` 与消息 Schema CLI 使用说明，区分服务端生成、本地编辑和已授权远程 apply |
 | `components/06-json-keyword.md` | `docs/01-json-keyword.md`，重新编写外发版 |
-| `components/07-stream-cache.md` | `docs/11-streamcache-component-usage.md` |
+| `components/07-stream-cache.md` | `docs/11-streamcache-component-usage.md`（组件已移除，仅保留升级迁移说明） |
 | `components/08-permission-validation.md` | `docs/15-permission-check-processor-usage.md` |
 | `components/09-exception-handling.md` | 异常处理组件说明与管理 API 异常边界，外发整理版 |
 | `components/10-h2-jsonkeyword-chain.md` | `docs/16-h2-jsonkeyword-processor-chain-usage.md` 与 H2 fallback POC 设计结论，按交付场景重写 |

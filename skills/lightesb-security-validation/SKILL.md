@@ -27,6 +27,7 @@ description: 配置权限校验、Token/IP/CIDR/正则规则、Action 控制面�
 - 权限失败建议局部捕获并返回 403。
 - 参数校验失败建议返回 400。
 - Token 默认按 Exchange 属性 `Token` 处理，不假设会自动读取 `Authorization`。
+- `client.ip` 只在直连地址属于 `lightesb.security.trusted-proxies` 时采信转发头（Nginx 须设置 `proxy_set_header X-Real-IP $remote_addr;`，可信代理填 Nginx 连接 ESB 时的源地址，同机且 upstream 写 `127.0.0.1` 时为 `127.0.0.1`）；需要 Token 的规则（4~7）必须配置 token，未配置时拒绝；规则类型为空或不在 1~8 内时拒绝，管理接口只接受 1~8。
 - Action 控制面 bearer 只保存原 token 的 SHA-256 digest；caller/roles 由服务端映射。审计查询要求 audit+security 双开关和精确 `action-admin`，不能让 `catalog-read` 或 `action-execute` 隐式继承。
 - Action 审计只允许固定安全字段和 append/query，不保存 body/header/raw token/details，也不提供公开 cleanup/update/delete。内部 H2 历史清理使用独立边界并要求 audit 与日志自动清理双开关：审计按保留天数，token/approval 还必须已过期，幂等记录按自身到期，有效 allowlist 不清理。目录读取写审计失败保持原查询结果；高风险授权、审批和执行审计失败必须 fail closed。
 - Action allowlist 只允许服务端 credential 映射出的精确 caller+actionId+serviceVersion；管理 actor 要 `action-admin`，目标要 `action-execute`。add/enable 重验当前目录，disable 可独立收窄，策略变化与 required audit 同事务；不提供 caller 自报、wildcard/block/delete 或执行能力。
